@@ -55,7 +55,7 @@ class _HomepageState extends State<Homepage> {
             sliver: SliverList(
               delegate: SliverChildListDelegate([
                 const Padding(
-                  padding: EdgeInsets.symmetric(vertical: 5),
+                  padding: EdgeInsets.symmetric(vertical: 10),
                   child: Text(
                     "ACCOUNTS",
                     style: TextStyle(
