@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'package:app_anansi_mobile/pages/onboarding/account_success.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:app_anansi_mobile/theme/app_theme.dart';
@@ -242,19 +243,17 @@ class _VerifyMobileState extends State<VerifyMobile> {
 
   Widget _buildFixedBottomAction() {
     return Container(
-      padding: const EdgeInsets.fromLTRB(
-        24,
-        10,
-        24,
-        20,
-      ), // Added bottom padding for modern feel
+      padding: const EdgeInsets.fromLTRB(24, 10, 24, 20),
       decoration: const BoxDecoration(color: Colors.white),
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
           ElevatedButton(
             onPressed: () {
-              // Finalize verification logic
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => const AccountSuccess()),
+              );
             },
             style: ElevatedButton.styleFrom(
               backgroundColor: AnansiColors.darkBlue,
