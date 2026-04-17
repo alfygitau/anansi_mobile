@@ -1,4 +1,5 @@
 import 'package:app_anansi_mobile/helpers/format_amount.dart';
+import 'package:app_anansi_mobile/pages/deposit-savings/deposit_amount.dart';
 import 'package:app_anansi_mobile/theme/app_theme.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -81,22 +82,13 @@ class _AccountDetailsState extends State<AccountDetails> {
           Row(
             mainAxisSize: MainAxisSize.min,
             children: [
-              Container(
-                width: 5,
-                height: 5,
-                decoration: const BoxDecoration(
-                  color: Color(0xFF10B981),
-                  shape: BoxShape.circle,
-                ),
-              ),
-              const SizedBox(width: 4),
               Text(
                 "SAVINGS ACCOUNT",
                 style: TextStyle(
                   color: Colors.grey.shade500,
                   fontSize: 7,
                   fontWeight: FontWeight.w800,
-                  letterSpacing: 0.5,
+                  letterSpacing: 0.8,
                 ),
               ),
             ],
@@ -111,6 +103,13 @@ class _AccountDetailsState extends State<AccountDetails> {
             color: Colors.white,
             shape: BoxShape.circle,
             border: Border.all(color: Colors.grey.shade100),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withValues(alpha: 0.02),
+                blurRadius: 4,
+                offset: const Offset(0, 2),
+              ),
+            ],
           ),
           child: IconButton(
             padding: EdgeInsets.zero,
@@ -138,7 +137,7 @@ class _AccountDetailsState extends State<AccountDetails> {
               child: IconButton(
                 padding: EdgeInsets.zero,
                 icon: const Icon(
-                  CupertinoIcons.bell,
+                  CupertinoIcons.question_circle,
                   size: 18,
                   color: AnansiColors.darkBlue,
                 ),
@@ -148,13 +147,6 @@ class _AccountDetailsState extends State<AccountDetails> {
           ),
         ),
       ],
-      bottom: PreferredSize(
-        preferredSize: const Size.fromHeight(1.0),
-        child: Container(
-          color: Colors.black.withValues(alpha: 0.03),
-          height: 1.0,
-        ),
-      ),
     );
   }
 
@@ -175,18 +167,6 @@ class _AccountDetailsState extends State<AccountDetails> {
       ),
       child: Stack(
         children: [
-          Positioned(
-            top: -50,
-            right: -50,
-            child: Container(
-              width: 150,
-              height: 150,
-              decoration: BoxDecoration(
-                shape: BoxShape.circle,
-                color: const Color(0xFF17C6C6).withValues(alpha: 0.2),
-              ),
-            ),
-          ),
           Padding(
             padding: const EdgeInsets.all(24.0),
             child: Column(
@@ -208,7 +188,7 @@ class _AccountDetailsState extends State<AccountDetails> {
                         ),
                         const SizedBox(width: 8),
                         const Text(
-                          "ANANSI SAVINGS",
+                          "SAVINGS",
                           style: TextStyle(
                             color: Colors.white60,
                             fontSize: 10,
@@ -311,62 +291,80 @@ class _AccountDetailsState extends State<AccountDetails> {
   Widget _buildQuickActions() {
     return Row(
       children: [
-        _actionItem(
-          "Deposit",
-          CupertinoIcons.arrow_down_circle_fill,
-          const Color(0xFF17C6C6),
-          Colors.white,
+        _buildActionItem(
+          label: "Deposit",
+          icon: CupertinoIcons.arrow_down_circle_fill,
+          backgroundColor: const Color(0xFF17C6C6),
+          contentColor: Colors.white,
+          onTap: () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (context) => const DepositAmount()),
+            );
+          },
         ),
         const SizedBox(width: 12),
-        _actionItem(
-          "Statement",
-          CupertinoIcons.doc_text_fill,
-          Colors.white,
-          AnansiColors.darkBlue,
+        _buildActionItem(
+          label: "Statement",
+          icon: CupertinoIcons.doc_text_fill,
+          backgroundColor: Colors.white,
+          contentColor: AnansiColors.darkBlue,
+          onTap: () => print("Deposit clicked"),
         ),
         const SizedBox(width: 12),
-        _actionItem(
-          "Invest",
-          CupertinoIcons.graph_square_fill,
-          Colors.white,
-          AnansiColors.darkBlue,
+        _buildActionItem(
+          label: "Invest",
+          icon: CupertinoIcons.graph_square_fill,
+          backgroundColor: Colors.white,
+          contentColor: AnansiColors.darkBlue,
+          onTap: () => print("Deposit clicked"),
         ),
       ],
     );
   }
 
-  Widget _actionItem(String label, IconData icon, Color bg, Color content) {
+  Widget _buildActionItem({
+    required String label,
+    required IconData icon,
+    required Color backgroundColor,
+    required Color contentColor,
+    required VoidCallback onTap,
+  }) {
     return Expanded(
-      child: Container(
-        padding: const EdgeInsets.symmetric(vertical: 20),
-        decoration: BoxDecoration(
-          color: bg,
-          borderRadius: BorderRadius.circular(24),
-          border: bg == Colors.white
-              ? Border.all(color: Colors.black.withValues(alpha: 0.05))
-              : null,
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withValues(alpha: 0.03),
-              blurRadius: 10,
-              offset: const Offset(0, 5),
-            ),
-          ],
-        ),
-        child: Column(
-          children: [
-            Icon(icon, color: content, size: 24),
-            const SizedBox(height: 8),
-            Text(
-              label.toUpperCase(),
-              style: TextStyle(
-                color: content,
-                fontSize: 9,
-                fontWeight: FontWeight.w900,
-                letterSpacing: 1,
+      child: GestureDetector(
+        onTap: onTap,
+        child: AnimatedContainer(
+          duration: const Duration(milliseconds: 200),
+          padding: const EdgeInsets.symmetric(vertical: 20),
+          decoration: BoxDecoration(
+            color: backgroundColor,
+            borderRadius: BorderRadius.circular(24),
+            border: backgroundColor == Colors.white
+                ? Border.all(color: Colors.black.withValues(alpha: 0.05))
+                : null,
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withValues(alpha: 0.03),
+                blurRadius: 10,
+                offset: const Offset(0, 5),
               ),
-            ),
-          ],
+            ],
+          ),
+          child: Column(
+            children: [
+              Icon(icon, color: contentColor, size: 24),
+              const SizedBox(height: 8),
+              Text(
+                label.toUpperCase(),
+                style: TextStyle(
+                  color: contentColor,
+                  fontSize: 9,
+                  fontWeight: FontWeight.w900,
+                  letterSpacing: 1,
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     );
