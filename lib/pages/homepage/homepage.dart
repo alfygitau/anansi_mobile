@@ -1,3 +1,4 @@
+import 'package:app_anansi_mobile/pages/accounts/account_details.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:app_anansi_mobile/theme/app_theme.dart';
@@ -499,83 +500,98 @@ class _HomepageState extends State<Homepage> {
     required String balance,
     required bool isPrimary,
   }) {
-    return Container(
-      padding: const EdgeInsets.all(24),
-      decoration: BoxDecoration(
-        color: isPrimary ? AnansiColors.darkBlue : Colors.white,
-        borderRadius: BorderRadius.circular(32),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: 0.05),
-            blurRadius: 10,
-            offset: const Offset(0, 5),
+    return GestureDetector(
+      onTap: () {
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => const AccountDetails(
+              accountId: "SHVGF5438",
+              accountNumber: "GCFR54378tG",
+            ),
           ),
-        ],
-        border: isPrimary ? null : Border.all(color: Colors.grey.shade200),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    title,
-                    style: TextStyle(
-                      fontSize: 10,
-                      fontWeight: FontWeight.w900,
-                      color: isPrimary ? Colors.blue.shade200 : Colors.grey,
+        );
+      },
+      child: Container(
+        padding: const EdgeInsets.all(24),
+        decoration: BoxDecoration(
+          color: isPrimary ? AnansiColors.darkBlue : Colors.white,
+          borderRadius: BorderRadius.circular(32),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withValues(alpha: 0.05),
+              blurRadius: 10,
+              offset: const Offset(0, 5),
+            ),
+          ],
+          border: isPrimary ? null : Border.all(color: Colors.grey.shade200),
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      title,
+                      style: TextStyle(
+                        fontSize: 10,
+                        fontWeight: FontWeight.w900,
+                        color: isPrimary ? Colors.blue.shade200 : Colors.grey,
+                      ),
                     ),
-                  ),
-                  Text(
-                    accountNumber,
-                    style: TextStyle(
-                      fontSize: 12,
-                      color: isPrimary ? Colors.white60 : Colors.black54,
+                    Text(
+                      accountNumber,
+                      style: TextStyle(
+                        fontSize: 12,
+                        color: isPrimary ? Colors.white60 : Colors.black54,
+                      ),
                     ),
+                  ],
+                ),
+                Icon(
+                  CupertinoIcons.creditcard,
+                  color: isPrimary
+                      ? Colors.blue.shade200
+                      : Colors.grey.shade300,
+                ),
+              ],
+            ),
+            const SizedBox(height: 35),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text(
+                  _isBalanceVisible ? balance : "KES ••••••••",
+                  style: TextStyle(
+                    fontSize: 24,
+                    fontWeight: FontWeight.bold,
+                    color: isPrimary ? Colors.white : AnansiColors.darkBlue,
                   ),
-                ],
-              ),
-              Icon(
-                CupertinoIcons.creditcard,
-                color: isPrimary ? Colors.blue.shade200 : Colors.grey.shade300,
-              ),
-            ],
-          ),
-          const SizedBox(height: 35),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Text(
-                _isBalanceVisible ? balance : "KES ••••••••",
-                style: TextStyle(
-                  fontSize: 24,
-                  fontWeight: FontWeight.bold,
-                  color: isPrimary ? Colors.white : AnansiColors.darkBlue,
                 ),
-              ),
-              IconButton(
-                padding: EdgeInsets.zero,
-                constraints: const BoxConstraints(),
-                icon: Icon(
-                  _isBalanceVisible
-                      ? Icons.visibility_off_rounded
-                      : Icons.visibility_rounded,
-                ),
-                color: isPrimary ? Colors.blue.shade200 : Colors.grey,
-                style: IconButton.styleFrom(
+                IconButton(
                   padding: EdgeInsets.zero,
-                  tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                  constraints: const BoxConstraints(),
+                  icon: Icon(
+                    _isBalanceVisible
+                        ? Icons.visibility_off_rounded
+                        : Icons.visibility_rounded,
+                  ),
+                  color: isPrimary ? Colors.blue.shade200 : Colors.grey,
+                  style: IconButton.styleFrom(
+                    padding: EdgeInsets.zero,
+                    tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                  ),
+                  onPressed: () =>
+                      setState(() => _isBalanceVisible = !_isBalanceVisible),
                 ),
-                onPressed: () =>
-                    setState(() => _isBalanceVisible = !_isBalanceVisible),
-              ),
-            ],
-          ),
-        ],
+              ],
+            ),
+          ],
+        ),
       ),
     );
   }
