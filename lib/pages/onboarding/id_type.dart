@@ -205,7 +205,7 @@ class _IdTypeState extends State<IdType> {
                 style: TextStyle(
                   fontWeight: FontWeight.w500,
                   color: isHint ? Colors.grey.shade300 : Colors.black,
-                  fontSize: 16,
+                  fontSize: 17,
                 ),
               ),
             ],

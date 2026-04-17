@@ -47,7 +47,7 @@ class _DepositAmountState extends State<DepositAmount> {
                   ),
                   const SizedBox(height: 30),
                   _buildInputField(
-                    label: "Deposit Amount",
+                    label: "Deposit Amount (KES)",
                     controller: _amountController,
                     hint: "0.00",
                     icon: CupertinoIcons.money_dollar_circle_fill,

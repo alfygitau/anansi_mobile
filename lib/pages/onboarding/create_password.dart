@@ -223,7 +223,7 @@ class _CreatePasswordState extends State<CreatePassword> {
                       style: const TextStyle(
                         fontWeight: FontWeight.w500,
                         color: Colors.black,
-                        fontSize: 16,
+                        fontSize: 17,
                       ),
                       decoration: InputDecoration(
                         hintText: hint,

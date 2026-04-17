@@ -261,7 +261,7 @@ class _LoginState extends State<Login> {
                   style: const TextStyle(
                     fontWeight: FontWeight.w500,
                     color: Colors.black,
-                    fontSize: 16,
+                    fontSize: 17,
                   ),
                   decoration: InputDecoration(
                     prefixStyle: const TextStyle(
@@ -345,9 +345,9 @@ class _LoginState extends State<Login> {
                       enableSuggestions: false,
                       autocorrect: false,
                       style: const TextStyle(
-                        fontWeight: FontWeight.w900,
-                        color: AnansiColors.darkBlue,
-                        fontSize: 15,
+                        fontWeight: FontWeight.w500,
+                        color: Colors.black,
+                        fontSize: 17,
                       ),
                       decoration: InputDecoration(
                         hintText: hint,
@@ -359,7 +359,6 @@ class _LoginState extends State<Login> {
                         isDense: true,
                         contentPadding: const EdgeInsets.symmetric(vertical: 4),
                         border: InputBorder.none,
-                        // Adding the toggle as a suffix to the decoration
                         suffixIcon: GestureDetector(
                           onTap: () {
                             setState(() {

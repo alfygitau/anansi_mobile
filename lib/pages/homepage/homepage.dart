@@ -1,3 +1,4 @@
+import 'package:app_anansi_mobile/helpers/format_amount.dart';
 import 'package:app_anansi_mobile/pages/accounts/account_details.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -70,14 +71,14 @@ class _HomepageState extends State<Homepage> {
                 _buildAccountCard(
                   title: "SAVINGS",
                   accountNumber: "ACC-092834",
-                  balance: "KES 450,230.50",
+                  balance: "450230.00",
                   isPrimary: true,
                 ),
                 const SizedBox(height: 16),
                 _buildAccountCard(
                   title: "SHARES",
                   accountNumber: "INV-882103",
-                  balance: "KES 12,000.00",
+                  balance: "12000.00",
                   isPrimary: false,
                 ),
               ]),
@@ -565,7 +566,7 @@ class _HomepageState extends State<Homepage> {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Text(
-                  _isBalanceVisible ? balance : "KES ••••••••",
+                  _isBalanceVisible ? formatAmount(balance) : "KES ••••••••",
                   style: TextStyle(
                     fontSize: 24,
                     fontWeight: FontWeight.bold,

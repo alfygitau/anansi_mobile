@@ -317,7 +317,7 @@ class _PersonalInformationState extends State<PersonalInformation> {
                   style: const TextStyle(
                     fontWeight: FontWeight.w500,
                     color: Colors.black,
-                    fontSize: 16,
+                    fontSize: 17,
                   ),
                   decoration: InputDecoration(
                     hintText: hint,
@@ -435,7 +435,7 @@ class _PersonalInformationState extends State<PersonalInformation> {
                 style: TextStyle(
                   fontWeight: FontWeight.w500,
                   color: isHint ? Colors.grey.shade300 : Colors.black,
-                  fontSize: 16,
+                  fontSize: 17,
                 ),
               ),
             ],

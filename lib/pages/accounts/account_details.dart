@@ -3,7 +3,6 @@ import 'package:app_anansi_mobile/pages/deposit-savings/deposit_amount.dart';
 import 'package:app_anansi_mobile/theme/app_theme.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:intl/intl.dart';
 
 class AccountDetails extends StatefulWidget {
   final String accountId;
@@ -21,10 +20,6 @@ class AccountDetails extends StatefulWidget {
 
 class _AccountDetailsState extends State<AccountDetails> {
   bool _balanceVisible = true;
-  final NumberFormat _currencyFormat = NumberFormat.currency(
-    symbol: "KES ",
-    decimalDigits: 2,
-  );
 
   @override
   Widget build(BuildContext context) {
@@ -204,7 +199,7 @@ class _AccountDetailsState extends State<AccountDetails> {
                         Expanded(
                           child: Text(
                             _balanceVisible
-                                ? _currencyFormat.format(458200.50)
+                                ? formatAmount(230000)
                                 : "KES ••••••••",
                             style: const TextStyle(
                               color: Colors.white,

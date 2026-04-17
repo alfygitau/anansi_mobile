@@ -271,7 +271,7 @@ class _IdManualFillState extends State<IdManualFill> {
                   style: const TextStyle(
                     fontWeight: FontWeight.w900,
                     color: Colors.black,
-                    fontSize: 16,
+                    fontSize: 17,
                   ),
                   decoration: InputDecoration(
                     hintText: hint,
@@ -387,7 +387,7 @@ class _IdManualFillState extends State<IdManualFill> {
                 style: TextStyle(
                   fontWeight: FontWeight.w500,
                   color: isHint ? Colors.grey.shade300 : Colors.black,
-                  fontSize: 16,
+                  fontSize: 17,
                 ),
               ),
             ],

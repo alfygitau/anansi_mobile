@@ -297,7 +297,7 @@ class _RegisterState extends State<Register> {
                   style: const TextStyle(
                     fontWeight: FontWeight.w500,
                     color: Colors.black,
-                    fontSize: 16,
+                    fontSize: 17,
                   ),
                   decoration: InputDecoration(
                     prefixStyle: const TextStyle(
