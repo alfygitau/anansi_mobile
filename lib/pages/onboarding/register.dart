@@ -1,5 +1,6 @@
 import 'package:app_anansi_mobile/pages/auth/login.dart';
 import 'package:app_anansi_mobile/pages/onboarding/create_password.dart';
+import 'package:app_anansi_mobile/pages/onboarding/terms_conditions.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
@@ -328,7 +329,7 @@ class _RegisterState extends State<Register> {
       onPressed: () {
         Navigator.push(
           context,
-          MaterialPageRoute(builder: (context) => CreatePassword(user: user)),
+          MaterialPageRoute(builder: (context) => TermsConditions()),
         );
       },
       style: ElevatedButton.styleFrom(

@@ -1,3 +1,4 @@
+import 'package:app_anansi_mobile/pages/onboarding/terms_conditions.dart';
 import 'package:app_anansi_mobile/theme/app_theme.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -41,7 +42,12 @@ class _NextOfKinState extends State<NextOfKin> {
     }
   }
 
-  Future<void> submitKin() async {}
+  Future<void> submitKin() async {
+    Navigator.push(
+      context,
+      MaterialPageRoute(builder: (context) => const TermsConditions()),
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
