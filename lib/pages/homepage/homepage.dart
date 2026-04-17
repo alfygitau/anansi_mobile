@@ -23,7 +23,7 @@ class _HomepageState extends State<Homepage> {
         physics: const BouncingScrollPhysics(),
         slivers: [
           SliverPadding(
-            padding: const EdgeInsets.fromLTRB(20, 60, 20, 20),
+            padding: const EdgeInsets.fromLTRB(20, 60, 20, 10),
             sliver: SliverToBoxAdapter(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -55,7 +55,7 @@ class _HomepageState extends State<Homepage> {
             sliver: SliverList(
               delegate: SliverChildListDelegate([
                 const Padding(
-                  padding: EdgeInsets.symmetric(vertical: 10),
+                  padding: EdgeInsets.symmetric(vertical: 5),
                   child: Text(
                     "ACCOUNTS",
                     style: TextStyle(
@@ -296,7 +296,7 @@ class _HomepageState extends State<Homepage> {
 
   Widget _buildMembershipProgress(double percentage) {
     return Container(
-      padding: const EdgeInsets.all(24),
+      padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 20),
       decoration: BoxDecoration(
         gradient: LinearGradient(
           colors: [
