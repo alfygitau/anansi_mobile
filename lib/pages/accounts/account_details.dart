@@ -203,7 +203,7 @@ class _AccountDetailsState extends State<AccountDetails> {
                                 : "KES ••••••••",
                             style: const TextStyle(
                               color: Colors.white,
-                              fontSize: 32,
+                              fontSize: 24,
                               fontWeight: FontWeight.w900,
                               letterSpacing: -1,
                             ),

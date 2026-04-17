@@ -24,8 +24,9 @@ class _HomepageState extends State<Homepage> {
       body: CustomScrollView(
         physics: const BouncingScrollPhysics(),
         slivers: [
+          _buildDashboardAppBar(context),
           SliverPadding(
-            padding: const EdgeInsets.fromLTRB(20, 60, 20, 10),
+            padding: const EdgeInsets.fromLTRB(20, 10, 20, 10),
             sliver: SliverToBoxAdapter(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -232,6 +233,109 @@ class _HomepageState extends State<Homepage> {
           ),
         ],
       ),
+    );
+  }
+
+  Widget _buildDashboardAppBar(BuildContext context) {
+    return SliverAppBar(
+      pinned: true,
+      floating: true,
+      snap: true,
+      backgroundColor: const Color(0xFFF8FAFC).withValues(alpha: 0.9),
+      surfaceTintColor: Colors.transparent,
+      elevation: 0,
+      centerTitle: true,
+      leadingWidth: 72,
+      leading: IconButton(
+        padding: EdgeInsets.zero,
+        icon: Icon(
+          CupertinoIcons.square_grid_2x2_fill,
+          size: 30,
+          color: AnansiColors.darkBlue,
+        ),
+        onPressed: () {},
+      ),
+      title: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          const Text(
+            "Overview",
+            style: TextStyle(
+              color: AnansiColors.darkBlue,
+              fontWeight: FontWeight.w900,
+              fontSize: 16,
+              letterSpacing: -0.5,
+            ),
+          ),
+          const SizedBox(height: 1),
+          Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Text(
+                "MEMBER ACTIVE",
+                style: TextStyle(
+                  color: Colors.grey.shade500,
+                  fontSize: 8,
+                  fontWeight: FontWeight.w900,
+                  letterSpacing: 1.0,
+                ),
+              ),
+            ],
+          ),
+        ],
+      ),
+      actions: [
+        Padding(
+          padding: const EdgeInsets.only(right: 16),
+          child: Center(
+            child: _buildGlassActionButton(
+              icon: CupertinoIcons.bell_fill,
+              hasNotification: true,
+              onTap: () {},
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildGlassActionButton({
+    required IconData icon,
+    required bool hasNotification,
+    required VoidCallback onTap,
+  }) {
+    return Stack(
+      alignment: Alignment.topRight,
+      children: [
+        Container(
+          width: 40,
+          height: 40,
+          decoration: BoxDecoration(
+            color: Colors.white,
+            shape: BoxShape.circle,
+            border: Border.all(color: const Color(0xFFF1F4F8), width: 1.5),
+          ),
+          child: IconButton(
+            padding: EdgeInsets.zero,
+            icon: Icon(icon, size: 18, color: AnansiColors.darkBlue),
+            onPressed: onTap,
+          ),
+        ),
+        if (hasNotification)
+          Positioned(
+            right: 2,
+            top: 2,
+            child: Container(
+              width: 10,
+              height: 10,
+              decoration: BoxDecoration(
+                color: const Color(0xFFEF4444), // Notification Red
+                shape: BoxShape.circle,
+                border: Border.all(color: Colors.white, width: 2),
+              ),
+            ),
+          ),
+      ],
     );
   }
 
