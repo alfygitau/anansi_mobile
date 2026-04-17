@@ -6,7 +6,8 @@ class OtpBoxes extends StatefulWidget {
   final FocusNode focusNode;
   final void Function(String) onCompleted;
 
-  const OtpBoxes({super.key, 
+  const OtpBoxes({
+    super.key,
     required this.controller,
     required this.focusNode,
     required this.onCompleted,
@@ -57,12 +58,12 @@ class _OtpBoxesState extends State<OtpBoxes>
                     height: 56,
                     alignment: Alignment.center,
                     decoration: BoxDecoration(
-                      color: const Color(0xFFEFEFEF),
+                      color: Colors.white,
                       borderRadius: BorderRadius.circular(5),
                       border: Border.all(
                         color: isActive
-                            ? AnansiColors.darkBlue
-                            : Colors.transparent,
+                            ? AnansiColors.accentCyan
+                            : AnansiColors.darkBlue,
                         width: 2,
                       ),
                     ),
