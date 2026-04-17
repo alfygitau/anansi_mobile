@@ -331,50 +331,59 @@ class _CreatePasswordState extends State<CreatePassword> {
   }
 
   Widget _buildAgreementSection() {
-    return Row(
-      children: [
-        SizedBox(
-          height: 24,
-          width: 24,
-          child: Checkbox(
-            value: _isChecked,
-            activeColor: AnansiColors.darkBlue,
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(4),
-            ),
-            onChanged: (val) => setState(() => _isChecked = val ?? false),
-          ),
-        ),
-        const SizedBox(width: 12),
-        Expanded(
-          child: RichText(
-            text: TextSpan(
-              style: TextStyle(
-                color: Colors.grey.shade600,
-                fontSize: 13,
-                height: 1.4,
+    return GestureDetector(
+      onTap: () => setState(() => _isChecked = !_isChecked),
+      behavior: HitTestBehavior.opaque,
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          SizedBox(
+            height: 20,
+            width: 20,
+            child: Checkbox(
+              value: _isChecked,
+              activeColor: AnansiColors.darkBlue,
+              side: BorderSide(color: Colors.grey.shade300, width: 1),
+              materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
+              visualDensity: const VisualDensity(
+                horizontal: VisualDensity.minimumDensity,
+                vertical: VisualDensity.minimumDensity,
               ),
-              children: [
-                const TextSpan(text: "I acknowledge and agree to the "),
-                TextSpan(
-                  text: "Privacy Policy",
-                  style: const TextStyle(
-                    color: AnansiColors.darkBlue,
-                    fontWeight: FontWeight.w800,
-                  ),
-                  recognizer: TapGestureRecognizer()
-                    ..onTap = () {
-                      _showPrivacyPolicy(context);
-                    },
-                ),
-                const TextSpan(
-                  text: " and the data protection terms of Anansi SACCO.",
-                ),
-              ],
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(5),
+              ),
+              onChanged: (val) => setState(() => _isChecked = val ?? false),
             ),
           ),
-        ),
-      ],
+          const SizedBox(width: 12),
+          Expanded(
+            child: RichText(
+              text: TextSpan(
+                style: TextStyle(
+                  color: Colors.blueGrey.shade400,
+                  fontSize: 13,
+                  fontFamily: 'Inter',
+                ),
+                children: [
+                  const TextSpan(text: "I acknowledge and agree to the "),
+                  TextSpan(
+                    text: "Privacy Policy",
+                    style: const TextStyle(
+                      color: AnansiColors.darkBlue,
+                      fontWeight: FontWeight.w900,
+                    ),
+                    recognizer: TapGestureRecognizer()
+                      ..onTap = () => _showPrivacyPolicy(context),
+                  ),
+                  const TextSpan(
+                    text: " and the data protection terms of Anansi SACCO.",
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ],
+      ),
     );
   }
 
