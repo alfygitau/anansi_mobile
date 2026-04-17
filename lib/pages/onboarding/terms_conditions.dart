@@ -85,8 +85,6 @@ class _TermsConditionsState extends State<TermsConditions> {
                       ],
                     ),
                   ),
-
-                  // Subtle shadow overlay at the bottom to indicate more content
                   if (!_hasScrolledToBottom)
                     Positioned(
                       bottom: 0,
@@ -151,14 +149,14 @@ class _TermsConditionsState extends State<TermsConditions> {
                     "AGREEMENT",
                     style: TextStyle(
                       fontWeight: FontWeight.w900,
-                      fontSize: 10,
+                      fontSize: 13,
                       letterSpacing: 1.5,
                       color: AnansiColors.darkBlue,
                     ),
                   ),
                   Text(
                     "Terms & Conditions",
-                    style: TextStyle(fontSize: 12, color: Colors.grey),
+                    style: TextStyle(fontSize: 14, color: Colors.grey),
                   ),
                 ],
               ),
