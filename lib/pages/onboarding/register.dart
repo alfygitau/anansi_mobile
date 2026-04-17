@@ -90,7 +90,7 @@ class _RegisterState extends State<Register> {
         color: const Color(0xFFF0FDFA),
         borderRadius: BorderRadius.circular(20),
         border: Border.all(
-          color: const Color(0xFF17C6C6).withOpacity(0.15),
+          color: const Color(0xFF17C6C6).withValues(alpha: 0.15),
           width: 1.5,
         ),
       ),
@@ -102,7 +102,7 @@ class _RegisterState extends State<Register> {
               Container(
                 padding: const EdgeInsets.all(8),
                 decoration: BoxDecoration(
-                  color: const Color(0xFF17C6C6).withOpacity(0.1),
+                  color: const Color(0xFF17C6C6).withValues(alpha: 0.1),
                   shape: BoxShape.circle,
                 ),
                 child: const Icon(
@@ -119,7 +119,7 @@ class _RegisterState extends State<Register> {
                     Text(
                       "DATA PROTECTION & CONSENT",
                       style: TextStyle(
-                        color: AnansiColors.darkBlue.withOpacity(0.8),
+                        color: AnansiColors.darkBlue.withValues(alpha: 0.8),
                         fontSize: 10,
                         fontWeight: FontWeight.w900,
                         letterSpacing: 1.2,
@@ -129,7 +129,7 @@ class _RegisterState extends State<Register> {
                     RichText(
                       text: TextSpan(
                         style: TextStyle(
-                          color: AnansiColors.darkBlue.withOpacity(0.6),
+                          color: AnansiColors.darkBlue.withValues(alpha: 0.6),
                           fontSize: 13,
                           height: 1.6,
                           fontWeight: FontWeight.w500,
@@ -257,7 +257,7 @@ class _RegisterState extends State<Register> {
         border: Border.all(color: const Color(0xFFF1F4F8), width: 1.5),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.02),
+            color: Colors.black.withValues(alpha: 0.02),
             blurRadius: 10,
             offset: const Offset(0, 4),
           ),
@@ -268,7 +268,7 @@ class _RegisterState extends State<Register> {
           Container(
             padding: const EdgeInsets.all(10),
             decoration: BoxDecoration(
-              color: const Color(0xFF17C6C6).withOpacity(0.08),
+              color: const Color(0xFF17C6C6).withValues(alpha: 0.08),
               borderRadius: BorderRadius.circular(12),
             ),
             child: Icon(icon, size: 18, color: const Color(0xFF17C6C6)),
@@ -453,7 +453,9 @@ class _RegisterState extends State<Register> {
                             fontSize: 12,
                             fontWeight: FontWeight.w800,
                             letterSpacing: 1.5,
-                            color: const Color(0xFF17C6C6).withOpacity(0.8),
+                            color: const Color(
+                              0xFF17C6C6,
+                            ).withValues(alpha: 0.8),
                           ),
                         ),
                         const SizedBox(height: 12),

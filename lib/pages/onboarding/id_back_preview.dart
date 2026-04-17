@@ -165,7 +165,7 @@ class IdBackPreview extends StatelessWidget {
         border: Border.all(color: Colors.grey.shade100, width: 2),
         boxShadow: [
           BoxShadow(
-            color: AnansiColors.darkBlue.withOpacity(0.08),
+            color: AnansiColors.darkBlue.withValues(alpha: 0.08),
             blurRadius: 40,
             offset: const Offset(0, 20),
           ),
@@ -238,7 +238,7 @@ class IdBackPreview extends StatelessWidget {
         Container(
           padding: const EdgeInsets.all(10),
           decoration: BoxDecoration(
-            color: const Color(0xFF17C6C6).withOpacity(0.08),
+            color: const Color(0xFF17C6C6).withValues(alpha: 0.08),
             borderRadius: BorderRadius.circular(12),
           ),
           child: Icon(icon, color: const Color(0xFF17C6C6), size: 18),
@@ -295,7 +295,7 @@ class IdBackPreview extends StatelessWidget {
         color: Colors.white,
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.04),
+            color: Colors.black.withValues(alpha: 0.04),
             blurRadius: 20,
             offset: const Offset(0, -10),
           ),

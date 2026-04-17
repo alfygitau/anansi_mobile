@@ -85,7 +85,7 @@ class _CreatePasswordState extends State<CreatePassword> {
         color: const Color(0xFFF0FDFA),
         borderRadius: BorderRadius.circular(20),
         border: Border.all(
-          color: const Color(0xFF17C6C6).withOpacity(0.15),
+          color: const Color(0xFF17C6C6).withValues(alpha: 0.15),
           width: 1.5,
         ),
       ),
@@ -97,7 +97,7 @@ class _CreatePasswordState extends State<CreatePassword> {
               Container(
                 padding: const EdgeInsets.all(8),
                 decoration: BoxDecoration(
-                  color: const Color(0xFF17C6C6).withOpacity(0.1),
+                  color: const Color(0xFF17C6C6).withValues(alpha: 0.1),
                   shape: BoxShape.circle,
                 ),
                 child: const Icon(
@@ -122,7 +122,7 @@ class _CreatePasswordState extends State<CreatePassword> {
           Text(
             "To safeguard your account and financial data, our protocol requires a high-entropy password. Your secure password must satisfy the following institutional standards:",
             style: TextStyle(
-              color: AnansiColors.darkBlue.withOpacity(0.7),
+              color: AnansiColors.darkBlue.withValues(alpha: 0.7),
               fontSize: 13,
               height: 1.6,
               fontWeight: FontWeight.w500,
@@ -152,7 +152,7 @@ class _CreatePasswordState extends State<CreatePassword> {
             child: Text(
               text,
               style: TextStyle(
-                color: AnansiColors.darkBlue.withOpacity(0.8),
+                color: AnansiColors.darkBlue.withValues(alpha: 0.8),
                 fontSize: 12,
                 fontWeight: FontWeight.w600,
               ),
@@ -179,7 +179,7 @@ class _CreatePasswordState extends State<CreatePassword> {
             border: Border.all(color: const Color(0xFFF1F4F8), width: 1.5),
             boxShadow: [
               BoxShadow(
-                color: Colors.black.withOpacity(0.02),
+                color: Colors.black.withValues(alpha: 0.02),
                 blurRadius: 10,
                 offset: const Offset(0, 4),
               ),
@@ -192,7 +192,7 @@ class _CreatePasswordState extends State<CreatePassword> {
               Container(
                 padding: const EdgeInsets.all(10),
                 decoration: BoxDecoration(
-                  color: const Color(0xFF17C6C6).withOpacity(0.08),
+                  color: const Color(0xFF17C6C6).withValues(alpha: 0.08),
                   borderRadius: BorderRadius.circular(12),
                 ),
                 child: Icon(icon, size: 18, color: const Color(0xFF17C6C6)),
@@ -385,7 +385,7 @@ class _CreatePasswordState extends State<CreatePassword> {
         boxShadow: [
           if (isValid)
             BoxShadow(
-              color: AnansiColors.darkBlue.withOpacity(0.2),
+              color: AnansiColors.darkBlue.withValues(alpha: 0.2),
               blurRadius: 20,
               offset: const Offset(0, 10),
             ),
@@ -519,7 +519,9 @@ class _CreatePasswordState extends State<CreatePassword> {
                             fontSize: 12,
                             fontWeight: FontWeight.w800,
                             letterSpacing: 1.5,
-                            color: const Color(0xFF17C6C6).withOpacity(0.8),
+                            color: const Color(
+                              0xFF17C6C6,
+                            ).withValues(alpha: 0.8),
                           ),
                         ),
                         const SizedBox(height: 12),

@@ -196,7 +196,7 @@ class _IntroduceFrontOfIdState extends State<IntroduceFrontOfId> {
             height: 80,
             width: 80,
             decoration: BoxDecoration(
-              color: const Color(0xFF17C6C6).withOpacity(0.05),
+              color: const Color(0xFF17C6C6).withValues(alpha: 0.05),
               shape: BoxShape.circle,
             ),
           ),

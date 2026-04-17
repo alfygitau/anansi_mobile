@@ -118,7 +118,10 @@ class _HomepageState extends State<Homepage> {
                       ),
                       _buildQuickAction("Products", Icons.grid_view_rounded),
                       _buildQuickAction("Guarantorship", Icons.gavel_rounded),
-                      _buildQuickAction("Loans", CupertinoIcons.chart_bar_alt_fill),
+                      _buildQuickAction(
+                        "Loans",
+                        CupertinoIcons.chart_bar_alt_fill,
+                      ),
                     ],
                   ),
                 ],
@@ -248,7 +251,7 @@ class _HomepageState extends State<Homepage> {
             border: Border.all(color: Colors.grey.shade100, width: 1),
             boxShadow: [
               BoxShadow(
-                color: AnansiColors.darkBlue.withOpacity(0.04),
+                color: AnansiColors.darkBlue.withValues(alpha: 0.04),
                 blurRadius: 20,
                 offset: const Offset(0, 10),
               ),
@@ -259,13 +262,13 @@ class _HomepageState extends State<Homepage> {
             child: InkWell(
               onTap: () {},
               borderRadius: BorderRadius.circular(24),
-              splashColor: const Color(0xFF17C6C6).withOpacity(0.1),
+              splashColor: const Color(0xFF17C6C6).withValues(alpha: 0.1),
               child: Center(
                 child: Container(
                   width: width * 0.7,
                   height: width * 0.7,
                   decoration: BoxDecoration(
-                    color: const Color(0xFF17C6C6).withOpacity(0.08),
+                    color: const Color(0xFF17C6C6).withValues(alpha: 0.08),
                     shape: BoxShape.circle,
                   ),
                   child: Center(
@@ -283,7 +286,7 @@ class _HomepageState extends State<Homepage> {
           style: TextStyle(
             fontSize: 11,
             fontWeight: FontWeight.w700,
-            color: AnansiColors.darkBlue.withOpacity(0.9),
+            color: AnansiColors.darkBlue.withValues(alpha: 0.9),
             letterSpacing: -0.1,
           ),
         ),
@@ -296,13 +299,16 @@ class _HomepageState extends State<Homepage> {
       padding: const EdgeInsets.all(24),
       decoration: BoxDecoration(
         gradient: LinearGradient(
-          colors: [Colors.white, const Color(0xFFF0FFFE).withOpacity(0.5)],
+          colors: [
+            Colors.white,
+            const Color(0xFFF0FFFE).withValues(alpha: 0.5),
+          ],
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
         ),
         borderRadius: BorderRadius.circular(32),
         border: Border.all(
-          color: AnansiColors.darkBlue.withOpacity(0.2),
+          color: AnansiColors.darkBlue.withValues(alpha: 0.2),
           width: 1.5,
         ),
       ),
@@ -321,7 +327,7 @@ class _HomepageState extends State<Homepage> {
                       borderRadius: BorderRadius.circular(14),
                       boxShadow: [
                         BoxShadow(
-                          color: AnansiColors.darkBlue.withOpacity(0.3),
+                          color: AnansiColors.darkBlue.withValues(alpha: 0.3),
                           blurRadius: 10,
                           offset: const Offset(0, 4),
                         ),
@@ -343,7 +349,7 @@ class _HomepageState extends State<Homepage> {
                           fontWeight: FontWeight.w900,
                           fontSize: 10,
                           letterSpacing: 1.5,
-                          color: AnansiColors.darkBlue.withOpacity(0.5),
+                          color: AnansiColors.darkBlue.withValues(alpha: 0.5),
                         ),
                       ),
                       const Text(
@@ -407,7 +413,7 @@ class _HomepageState extends State<Homepage> {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
       decoration: BoxDecoration(
-        color: const Color(0xFF17C6C6).withOpacity(0.1),
+        color: const Color(0xFF17C6C6).withValues(alpha: 0.1),
         borderRadius: BorderRadius.circular(20),
       ),
       child: Text(
@@ -444,7 +450,7 @@ class _HomepageState extends State<Homepage> {
             borderRadius: BorderRadius.circular(20),
             boxShadow: [
               BoxShadow(
-                color: const Color(0xFF17C6C6).withOpacity(0.4),
+                color: const Color(0xFF17C6C6).withValues(alpha: 0.4),
                 blurRadius: 10,
                 offset: const Offset(0, 4),
               ),
@@ -500,7 +506,7 @@ class _HomepageState extends State<Homepage> {
         borderRadius: BorderRadius.circular(32),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.05),
+            color: Colors.black.withValues(alpha: 0.05),
             blurRadius: 10,
             offset: const Offset(0, 5),
           ),
@@ -591,7 +597,7 @@ class _HomepageState extends State<Homepage> {
         borderRadius: BorderRadius.circular(30),
         boxShadow: [
           BoxShadow(
-            color: AnansiColors.darkBlue.withOpacity(0.04),
+            color: AnansiColors.darkBlue.withValues(alpha: 0.04),
             blurRadius: 24,
             offset: const Offset(0, 12),
           ),

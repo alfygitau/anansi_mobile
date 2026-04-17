@@ -143,7 +143,7 @@ class IdFrontPreview extends StatelessWidget {
         border: Border.all(color: Colors.grey.shade100, width: 2),
         boxShadow: [
           BoxShadow(
-            color: AnansiColors.darkBlue.withOpacity(0.08),
+            color: AnansiColors.darkBlue.withValues(alpha: 0.08),
             blurRadius: 40,
             offset: const Offset(0, 20),
           ),
@@ -215,7 +215,7 @@ class IdFrontPreview extends StatelessWidget {
         Container(
           padding: const EdgeInsets.all(10),
           decoration: BoxDecoration(
-            color: const Color(0xFF17C6C6).withOpacity(0.08),
+            color: const Color(0xFF17C6C6).withValues(alpha: 0.08),
             borderRadius: BorderRadius.circular(12),
           ),
           child: Icon(icon, color: const Color(0xFF17C6C6), size: 18),

@@ -6,7 +6,7 @@ class OtpBoxes extends StatefulWidget {
   final FocusNode focusNode;
   final void Function(String) onCompleted;
 
-  const OtpBoxes({
+  const OtpBoxes({super.key, 
     required this.controller,
     required this.focusNode,
     required this.onCompleted,

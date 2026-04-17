@@ -143,7 +143,7 @@ class SelfiePreview extends StatelessWidget {
           height: 280,
           decoration: BoxDecoration(
             shape: BoxShape.circle,
-            color: const Color(0xFF17C6C6).withOpacity(0.05),
+            color: const Color(0xFF17C6C6).withValues(alpha: 0.05),
           ),
         ),
         Container(
@@ -154,7 +154,7 @@ class SelfiePreview extends StatelessWidget {
             border: Border.all(color: const Color(0xFF17C6C6), width: 3),
             boxShadow: [
               BoxShadow(
-                color: AnansiColors.darkBlue.withOpacity(0.15),
+                color: AnansiColors.darkBlue.withValues(alpha: 0.15),
                 blurRadius: 30,
                 offset: const Offset(0, 15),
               ),
@@ -234,7 +234,7 @@ class SelfiePreview extends StatelessWidget {
         Container(
           padding: const EdgeInsets.all(8),
           decoration: BoxDecoration(
-            color: const Color(0xFF17C6C6).withOpacity(0.1),
+            color: const Color(0xFF17C6C6).withValues(alpha: 0.1),
             borderRadius: BorderRadius.circular(10),
           ),
           child: Icon(icon, color: const Color(0xFF17C6C6), size: 18),

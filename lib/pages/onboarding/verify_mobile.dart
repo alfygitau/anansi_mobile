@@ -177,7 +177,7 @@ class _VerifyMobileState extends State<VerifyMobile> {
         borderRadius: BorderRadius.circular(20),
         boxShadow: [
           BoxShadow(
-            color: AnansiColors.darkBlue.withOpacity(0.1),
+            color: AnansiColors.darkBlue.withValues(alpha: 0.1),
             blurRadius: 20,
             offset: const Offset(0, 10),
           ),

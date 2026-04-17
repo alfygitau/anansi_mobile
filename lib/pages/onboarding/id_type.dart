@@ -105,7 +105,7 @@ class _IdTypeState extends State<IdType> {
       style: TextStyle(
         fontSize: 11,
         fontWeight: FontWeight.w900,
-        color: AnansiColors.darkBlue.withOpacity(0.3),
+        color: AnansiColors.darkBlue.withValues(alpha: 0.3),
         letterSpacing: 1.2,
       ),
     );
@@ -128,7 +128,7 @@ class _IdTypeState extends State<IdType> {
         border: Border.all(color: const Color(0xFFF1F4F8), width: 1.5),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.02),
+            color: Colors.black.withValues(alpha: 0.02),
             blurRadius: 10,
             offset: const Offset(0, 4),
           ),
@@ -180,7 +180,7 @@ class _IdTypeState extends State<IdType> {
         Container(
           padding: const EdgeInsets.all(10),
           decoration: BoxDecoration(
-            color: const Color(0xFF17C6C6).withOpacity(0.08),
+            color: const Color(0xFF17C6C6).withValues(alpha: 0.08),
             borderRadius: BorderRadius.circular(10),
           ),
           child: Icon(icon, size: 18, color: const Color(0xFF17C6C6)),
@@ -243,7 +243,7 @@ class _IdTypeState extends State<IdType> {
           boxShadow: [
             if (isSelected)
               BoxShadow(
-                color: const Color(0xFF17C6C6).withOpacity(0.1),
+                color: const Color(0xFF17C6C6).withValues(alpha: 0.1),
                 blurRadius: 10,
                 offset: const Offset(0, 4),
               ),
@@ -255,7 +255,7 @@ class _IdTypeState extends State<IdType> {
               icon,
               color: isSelected
                   ? const Color(0xFF17C6C6)
-                  : AnansiColors.darkBlue.withOpacity(0.4),
+                  : AnansiColors.darkBlue.withValues(alpha: 0.4),
               size: 28,
             ),
             const SizedBox(width: 20),

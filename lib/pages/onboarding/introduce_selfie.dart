@@ -194,7 +194,7 @@ class _IntroduceSelfieState extends State<IntroduceSelfie> {
             height: 150,
             decoration: BoxDecoration(
               shape: BoxShape.circle,
-              color: const Color(0xFF17C6C6).withOpacity(0.03),
+              color: const Color(0xFF17C6C6).withValues(alpha: 0.03),
             ),
           ),
           Container(
@@ -202,9 +202,9 @@ class _IntroduceSelfieState extends State<IntroduceSelfie> {
             height: 120,
             decoration: BoxDecoration(
               shape: BoxShape.circle,
-              color: const Color(0xFF17C6C6).withOpacity(0.05),
+              color: const Color(0xFF17C6C6).withValues(alpha: 0.05),
               border: Border.all(
-                color: const Color(0xFF17C6C6).withOpacity(0.1),
+                color: const Color(0xFF17C6C6).withValues(alpha: 0.1),
                 width: 1,
               ),
             ),
@@ -217,7 +217,7 @@ class _IntroduceSelfieState extends State<IntroduceSelfie> {
               color: Colors.white,
               boxShadow: [
                 BoxShadow(
-                  color: const Color(0xFF17C6C6).withOpacity(0.2),
+                  color: const Color(0xFF17C6C6).withValues(alpha: 0.2),
                   blurRadius: 20,
                   spreadRadius: 2,
                 ),
@@ -305,9 +305,7 @@ class _IntroduceSelfieState extends State<IntroduceSelfie> {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: const Color(
-          0xFFFDE7E7,
-        ).withOpacity(0.3), // Muted red-tint for focus
+        color: const Color(0xFFFDE7E7).withValues(alpha: 0.3),
         borderRadius: BorderRadius.circular(16),
       ),
       child: Column(

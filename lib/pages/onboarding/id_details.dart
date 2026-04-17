@@ -206,7 +206,7 @@ class _IdDetailsState extends State<IdDetails> {
               border: Border.all(color: Colors.grey.shade100, width: 2),
               boxShadow: [
                 BoxShadow(
-                  color: Colors.black.withOpacity(0.04),
+                  color: Colors.black.withValues(alpha: 0.04),
                   blurRadius: 15,
                   offset: const Offset(0, 8),
                 ),
@@ -268,7 +268,7 @@ class _IdDetailsState extends State<IdDetails> {
           boxShadow: [
             if (!isEmpty)
               BoxShadow(
-                color: Colors.black.withOpacity(0.02),
+                color: Colors.black.withValues(alpha: 0.02),
                 blurRadius: 10,
                 offset: const Offset(0, 4),
               ),
@@ -287,7 +287,7 @@ class _IdDetailsState extends State<IdDetails> {
                 size: 16,
                 color: isEmpty
                     ? Colors.red.shade300
-                    : AnansiColors.darkBlue.withOpacity(0.6),
+                    : AnansiColors.darkBlue.withValues(alpha: 0.6),
               ),
             ),
             const SizedBox(width: 16),

@@ -277,7 +277,7 @@ class _PersonalInformationState extends State<PersonalInformation> {
         border: Border.all(color: const Color(0xFFF1F4F8), width: 1.5),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.02),
+            color: Colors.black.withValues(alpha: 0.02),
             blurRadius: 10,
             offset: const Offset(0, 4),
           ),
@@ -289,7 +289,7 @@ class _PersonalInformationState extends State<PersonalInformation> {
           Container(
             padding: const EdgeInsets.all(10),
             decoration: BoxDecoration(
-              color: const Color(0xFF17C6C6).withOpacity(0.08),
+              color: const Color(0xFF17C6C6).withValues(alpha: 0.08),
               borderRadius: BorderRadius.circular(12),
             ),
             child: Icon(icon, size: 18, color: const Color(0xFF17C6C6)),
@@ -358,7 +358,7 @@ class _PersonalInformationState extends State<PersonalInformation> {
         border: Border.all(color: const Color(0xFFF1F4F8), width: 1.5),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.02),
+            color: Colors.black.withValues(alpha: 0.02),
             blurRadius: 10,
             offset: const Offset(0, 4),
           ),
@@ -410,7 +410,7 @@ class _PersonalInformationState extends State<PersonalInformation> {
         Container(
           padding: const EdgeInsets.all(10),
           decoration: BoxDecoration(
-            color: const Color(0xFF17C6C6).withOpacity(0.08),
+            color: const Color(0xFF17C6C6).withValues(alpha: 0.08),
             borderRadius: BorderRadius.circular(10),
           ),
           child: Icon(icon, size: 18, color: const Color(0xFF17C6C6)),
@@ -446,7 +446,7 @@ class _PersonalInformationState extends State<PersonalInformation> {
           size: 14,
           color: AnansiColors.darkBlue,
         ),
-        const SizedBox(width: 16), // Padding on the far right
+        const SizedBox(width: 16), 
       ],
     );
   }

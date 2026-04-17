@@ -111,7 +111,7 @@ class _LoginState extends State<Login> {
             borderRadius: BorderRadius.circular(14),
             boxShadow: [
               BoxShadow(
-                color: AnansiColors.darkBlue.withOpacity(0.2),
+                color: AnansiColors.darkBlue.withValues(alpha: 0.2),
                 blurRadius: 15,
                 offset: const Offset(0, 8),
               ),
@@ -154,7 +154,7 @@ class _LoginState extends State<Login> {
       decoration: BoxDecoration(
         boxShadow: [
           BoxShadow(
-            color: AnansiColors.darkBlue.withOpacity(0.25),
+            color: AnansiColors.darkBlue.withValues(alpha: 0.25),
             blurRadius: 20,
             offset: const Offset(0, 10),
           ),
@@ -221,7 +221,7 @@ class _LoginState extends State<Login> {
         border: Border.all(color: const Color(0xFFF1F4F8), width: 1.5),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.02),
+            color: Colors.black.withValues(alpha: 0.02),
             blurRadius: 10,
             offset: const Offset(0, 4),
           ),
@@ -232,7 +232,7 @@ class _LoginState extends State<Login> {
           Container(
             padding: const EdgeInsets.all(10),
             decoration: BoxDecoration(
-              color: const Color(0xFF17C6C6).withOpacity(0.08),
+              color: const Color(0xFF17C6C6).withValues(alpha: 0.08),
               borderRadius: BorderRadius.circular(12),
             ),
             child: Icon(icon, size: 18, color: const Color(0xFF17C6C6)),
@@ -303,7 +303,7 @@ class _LoginState extends State<Login> {
             border: Border.all(color: const Color(0xFFF1F4F8), width: 1.5),
             boxShadow: [
               BoxShadow(
-                color: Colors.black.withOpacity(0.02),
+                color: Colors.black.withValues(alpha: 0.02),
                 blurRadius: 10,
                 offset: const Offset(0, 4),
               ),
@@ -316,7 +316,7 @@ class _LoginState extends State<Login> {
               Container(
                 padding: const EdgeInsets.all(10),
                 decoration: BoxDecoration(
-                  color: const Color(0xFF17C6C6).withOpacity(0.08),
+                  color: const Color(0xFF17C6C6).withValues(alpha: 0.08),
                   borderRadius: BorderRadius.circular(12),
                 ),
                 child: Icon(icon, size: 18, color: const Color(0xFF17C6C6)),

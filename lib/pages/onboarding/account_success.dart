@@ -53,7 +53,7 @@ class _AccountSuccessState extends State<AccountSuccess> {
                 width: 110,
                 decoration: BoxDecoration(
                   shape: BoxShape.circle,
-                  color: Colors.green.withOpacity(0.05),
+                  color: Colors.green.withValues(alpha: 0.05),
                 ),
               ),
               Container(
@@ -64,7 +64,7 @@ class _AccountSuccessState extends State<AccountSuccess> {
                   borderRadius: BorderRadius.circular(24),
                   boxShadow: [
                     BoxShadow(
-                      color: Colors.black.withOpacity(0.04),
+                      color: Colors.black.withValues(alpha: 0.04),
                       blurRadius: 20,
                       offset: const Offset(0, 8),
                     ),
@@ -108,7 +108,8 @@ class _AccountSuccessState extends State<AccountSuccess> {
                   ),
                 ),
                 const TextSpan(
-                  text: ".\nYou're one step away from full institutional access.",
+                  text:
+                      ".\nYou're one step away from full institutional access.",
                 ),
               ],
             ),
@@ -127,7 +128,7 @@ class _AccountSuccessState extends State<AccountSuccess> {
           Text(
             "ONBOARDING PROCESS",
             style: TextStyle(
-              color: AnansiColors.darkBlue.withOpacity(0.4),
+              color: AnansiColors.darkBlue.withValues(alpha: 0.4),
               fontSize: 11,
               fontWeight: FontWeight.w900,
               letterSpacing: 1.5,
@@ -202,7 +203,7 @@ class _AccountSuccessState extends State<AccountSuccess> {
         border: Border.all(color: Colors.grey.shade100),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.02),
+            color: Colors.black.withValues(alpha: 0.02),
             blurRadius: 10,
             offset: const Offset(0, 4),
           ),
@@ -215,7 +216,7 @@ class _AccountSuccessState extends State<AccountSuccess> {
             width: 44,
             decoration: BoxDecoration(
               color: isPrimary
-                  ? const Color(0xFF17C6C6).withOpacity(0.1)
+                  ? const Color(0xFF17C6C6).withValues(alpha: 0.1)
                   : Colors.grey.shade50,
               borderRadius: BorderRadius.circular(14),
             ),
@@ -223,7 +224,7 @@ class _AccountSuccessState extends State<AccountSuccess> {
               icon,
               color: isPrimary
                   ? const Color(0xFF17C6C6)
-                  : AnansiColors.darkBlue.withOpacity(0.4),
+                  : AnansiColors.darkBlue.withValues(alpha: 0.4),
               size: 22,
             ),
           ),

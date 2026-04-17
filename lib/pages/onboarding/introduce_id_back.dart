@@ -127,7 +127,7 @@ class _IntroduceBackOfIdState extends State<IntroduceBackOfId> {
             height: 80,
             width: 80,
             decoration: BoxDecoration(
-              color: const Color(0xFF17C6C6).withOpacity(0.05),
+              color: const Color(0xFF17C6C6).withValues(alpha: 0.05),
               shape: BoxShape.circle,
             ),
           ),
@@ -265,7 +265,7 @@ class _IntroduceBackOfIdState extends State<IntroduceBackOfId> {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: const Color(0xFF17C6C6).withOpacity(0.05),
+        color: const Color(0xFF17C6C6).withValues(alpha: 0.05),
         borderRadius: BorderRadius.circular(16),
       ),
       child: Row(

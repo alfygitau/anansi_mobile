@@ -33,10 +33,12 @@ class _WelcomeState extends State<Welcome> {
                         decoration: BoxDecoration(
                           color: const Color(
                             0xFF17C6C6,
-                          ).withOpacity(0.15), // Subtle background
+                          ).withValues(alpha: 0.15), // Subtle background
                           borderRadius: BorderRadius.circular(12),
                           border: Border.all(
-                            color: const Color(0xFF17C6C6).withOpacity(0.5),
+                            color: const Color(
+                              0xFF17C6C6,
+                            ).withValues(alpha: 0.5),
                             width: 1.5,
                           ),
                         ),
@@ -89,7 +91,7 @@ class _WelcomeState extends State<Welcome> {
                   Text(
                     "Experience a sophisticated evolution of cooperative banking. From encrypted high-yield savings accounts to smart credit lines powered by AI-driven risk assessment—ANANSI provides the tools you need to engineer lasting financial legacy.",
                     style: TextStyle(
-                      color: Colors.white.withOpacity(0.7),
+                      color: Colors.white.withValues(alpha: 0.7),
                       fontSize: 16,
                       height: 1.6,
                       fontWeight: FontWeight.w300,
@@ -137,7 +139,7 @@ class _WelcomeState extends State<Welcome> {
         ),
         boxShadow: [
           BoxShadow(
-            color: const Color(0xFF17C6C6).withOpacity(0.3),
+            color: const Color(0xFF17C6C6).withValues(alpha: 0.3),
             blurRadius: 20,
             offset: const Offset(0, 10),
           ),
@@ -174,7 +176,7 @@ class _WelcomeState extends State<Welcome> {
       child: OutlinedButton(
         onPressed: onPressed,
         style: OutlinedButton.styleFrom(
-          side: BorderSide(color: Colors.white.withOpacity(0.2)),
+          side: BorderSide(color: Colors.white.withValues(alpha: 0.2)),
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(16),
           ),
@@ -198,7 +200,7 @@ class _WelcomeState extends State<Welcome> {
         Text(
           "SASRA REGULATED",
           style: TextStyle(
-            color: Colors.white.withOpacity(0.5),
+            color: Colors.white.withValues(alpha: 0.5),
             fontSize: 11,
             letterSpacing: 1.5,
             fontWeight: FontWeight.w600,

@@ -99,8 +99,8 @@ class _TermsConditionsState extends State<TermsConditions> {
                             begin: Alignment.topCenter,
                             end: Alignment.bottomCenter,
                             colors: [
-                              Colors.white.withOpacity(0),
-                              Colors.white.withOpacity(0.9),
+                              Colors.white.withValues(alpha: 0),
+                              Colors.white.withValues(alpha: 0.9),
                             ],
                           ),
                         ),
@@ -321,7 +321,7 @@ class _TermsConditionsState extends State<TermsConditions> {
         color: Colors.white,
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.05),
+            color: Colors.black.withValues(alpha: 0.05),
             blurRadius: 20,
             offset: const Offset(0, -4),
           ),
