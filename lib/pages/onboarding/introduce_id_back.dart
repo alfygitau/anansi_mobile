@@ -122,10 +122,9 @@ class _IntroduceBackOfIdState extends State<IntroduceBackOfId> {
       child: Stack(
         alignment: Alignment.center,
         children: [
-          // Decorative "Reverse Side" Iconography
           Container(
-            height: 80,
-            width: 80,
+            height: 150,
+            width: 150,
             decoration: BoxDecoration(
               color: const Color(0xFF17C6C6).withValues(alpha: 0.05),
               shape: BoxShape.circle,
@@ -134,8 +133,8 @@ class _IntroduceBackOfIdState extends State<IntroduceBackOfId> {
           const Opacity(
             opacity: 0.6,
             child: Icon(
-              CupertinoIcons.arrow_2_squarepath, // Implies "the other side"
-              size: 50,
+              CupertinoIcons.arrow_2_squarepath,
+              size: 100,
               color: AnansiColors.darkBlue,
             ),
           ),
@@ -154,20 +153,33 @@ class _IntroduceBackOfIdState extends State<IntroduceBackOfId> {
     required String text,
     required String description,
   }) {
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 24),
+    return Container(
+      margin: const EdgeInsets.only(bottom: 16),
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(color: const Color(0xFFF1F5F9), width: 1.5),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.02),
+            blurRadius: 10,
+            offset: const Offset(0, 4),
+          ),
+        ],
+      ),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Container(
             padding: const EdgeInsets.all(12),
             decoration: BoxDecoration(
-              color: const Color(0xFFE0F7F6),
+              color: const Color(0xFFF1F5F9),
               borderRadius: BorderRadius.circular(14),
             ),
-            child: Icon(icon, color: const Color(0xFF17C6C6), size: 20),
+            child: Icon(icon, color: AnansiColors.darkBlue, size: 20),
           ),
-          const SizedBox(width: 20),
+          const SizedBox(width: 16),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -176,17 +188,19 @@ class _IntroduceBackOfIdState extends State<IntroduceBackOfId> {
                   text,
                   style: const TextStyle(
                     color: AnansiColors.darkBlue,
-                    fontWeight: FontWeight.w800,
+                    fontWeight: FontWeight.w900,
                     fontSize: 15,
+                    letterSpacing: -0.3,
                   ),
                 ),
-                const SizedBox(height: 6),
+                const SizedBox(height: 4),
                 Text(
                   description,
                   style: TextStyle(
-                    color: Colors.grey.shade500,
-                    fontSize: 13,
-                    height: 1.5,
+                    color: Colors.blueGrey.shade400,
+                    fontSize: 12,
+                    height: 1.6,
+                    fontWeight: FontWeight.w500,
                   ),
                 ),
               ],
@@ -293,7 +307,7 @@ class _IntroduceBackOfIdState extends State<IntroduceBackOfId> {
 
   Widget _buildCaptureButton() {
     return Container(
-      padding: const EdgeInsets.all(24),
+      padding: const EdgeInsets.fromLTRB(24, 16, 24, 10),
       decoration: BoxDecoration(
         color: Colors.white,
         border: Border(top: BorderSide(color: Colors.grey.shade100)),

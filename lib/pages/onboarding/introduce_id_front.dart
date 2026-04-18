@@ -61,7 +61,7 @@ class _IntroduceFrontOfIdState extends State<IntroduceFrontOfId> {
                     Align(
                       alignment: Alignment.centerLeft,
                       child: const Text(
-                        "Verify Your ID",
+                        "Verify Your Identification",
                         textAlign: TextAlign.start,
                         style: TextStyle(
                           color: AnansiColors.darkBlue,
@@ -193,8 +193,8 @@ class _IntroduceFrontOfIdState extends State<IntroduceFrontOfId> {
         alignment: Alignment.center,
         children: [
           Container(
-            height: 80,
-            width: 80,
+            height: 150,
+            width: 150,
             decoration: BoxDecoration(
               color: const Color(0xFF17C6C6).withValues(alpha: 0.05),
               shape: BoxShape.circle,
@@ -204,7 +204,7 @@ class _IntroduceFrontOfIdState extends State<IntroduceFrontOfId> {
             opacity: 0.6,
             child: Icon(
               CupertinoIcons.doc_text_viewfinder,
-              size: 60,
+              size: 100,
               color: AnansiColors.darkBlue,
             ),
           ),
@@ -223,20 +223,39 @@ class _IntroduceFrontOfIdState extends State<IntroduceFrontOfId> {
     required String text,
     required String description,
   }) {
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 24),
+    return Container(
+      margin: const EdgeInsets.only(bottom: 16),
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(20),
+        // Thin, crisp border for that "Institutional" feel
+        border: Border.all(color: const Color(0xFFF1F5F9), width: 1.5),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.02),
+            blurRadius: 10,
+            offset: const Offset(0, 4),
+          ),
+        ],
+      ),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
+          // The Refined Icon Anchor
           Container(
             padding: const EdgeInsets.all(12),
             decoration: BoxDecoration(
-              color: const Color(0xFFE0F7F6),
+              color: const Color(0xFFF1F5F9), // Slate 100
               borderRadius: BorderRadius.circular(14),
             ),
-            child: Icon(icon, color: const Color(0xFF17C6C6), size: 20),
+            child: Icon(
+              icon,
+              color: AnansiColors.darkBlue, // Darker icon for more authority
+              size: 20,
+            ),
           ),
-          const SizedBox(width: 20),
+          const SizedBox(width: 16),
 
           // Detailed Content
           Expanded(
@@ -247,18 +266,19 @@ class _IntroduceFrontOfIdState extends State<IntroduceFrontOfId> {
                   text,
                   style: const TextStyle(
                     color: AnansiColors.darkBlue,
-                    fontWeight: FontWeight.w800,
+                    fontWeight: FontWeight.w900, // Heavy weight for headlines
                     fontSize: 15,
+                    letterSpacing: -0.3,
                   ),
                 ),
-                const SizedBox(height: 6),
+                const SizedBox(height: 4),
                 Text(
                   description,
                   style: TextStyle(
-                    color: Colors.grey.shade500,
-                    fontSize: 13,
-                    height: 1.5,
-                    fontWeight: FontWeight.w400,
+                    color: Colors.blueGrey.shade400,
+                    fontSize: 12,
+                    height: 1.6,
+                    fontWeight: FontWeight.w500,
                   ),
                 ),
               ],
@@ -310,7 +330,7 @@ class _IntroduceFrontOfIdState extends State<IntroduceFrontOfId> {
 
   Widget _buildCaptureButton(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.all(24),
+      padding: const EdgeInsets.fromLTRB(24, 16, 24, 10),
       decoration: BoxDecoration(color: Colors.white),
       child: ElevatedButton(
         onPressed: () async {
