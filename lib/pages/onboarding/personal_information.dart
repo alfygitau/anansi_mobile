@@ -453,7 +453,7 @@ class _PersonalInformationState extends State<PersonalInformation> {
 
   Widget _buildActionDock() {
     return Container(
-      padding: const EdgeInsets.fromLTRB(24, 16, 24, 32),
+      padding: const EdgeInsets.fromLTRB(24, 16, 24, 12),
       decoration: BoxDecoration(color: Colors.white),
       child: ElevatedButton(
         onPressed: _isLoading ? null : createAddress,

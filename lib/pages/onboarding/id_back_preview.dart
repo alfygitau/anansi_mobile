@@ -290,7 +290,7 @@ class IdBackPreview extends StatelessWidget {
 
   Widget _buildActionButtons(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.fromLTRB(24, 16, 24, 32),
+      padding: const EdgeInsets.fromLTRB(24, 16, 24, 12),
       decoration: BoxDecoration(
         color: Colors.white,
         boxShadow: [

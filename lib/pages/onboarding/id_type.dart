@@ -294,7 +294,7 @@ class _IdTypeState extends State<IdType> {
 
   Widget _buildContinueButton() {
     return Container(
-      padding: const EdgeInsets.all(24),
+      padding: const EdgeInsets.fromLTRB(24, 16, 24, 10),
       decoration: BoxDecoration(color: Colors.white),
       child: ElevatedButton(
         onPressed: _updateCustomer,

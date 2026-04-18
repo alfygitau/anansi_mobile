@@ -63,21 +63,21 @@ class _IntroduceSelfieState extends State<IntroduceSelfie> {
                     const SizedBox(height: 10),
                     _buildLivenessIllustration(),
                     const SizedBox(height: 20),
-                    _buildInstructionItem(
+                    _buildRequirementItem(
                       icon: CupertinoIcons.sun_max,
-                      title: "Optimal Lighting",
+                      text: "Optimal Lighting",
                       description:
                           "Find a spot with clear, even lighting. Avoid strong backlighting or deep shadows on your face.",
                     ),
-                    _buildInstructionItem(
+                    _buildRequirementItem(
                       icon: CupertinoIcons.person_crop_circle_badge_checkmark,
-                      title: "Clear Visibility",
+                      text: "Clear Visibility",
                       description:
                           "Please remove any glasses, masks, or hats. Your entire face must be visible within the frame.",
                     ),
-                    _buildInstructionItem(
+                    _buildRequirementItem(
                       icon: CupertinoIcons.device_phone_portrait,
-                      title: "Eye Level Positioning",
+                      text: "Eye Level Positioning",
                       description:
                           "Hold your phone at eye level and keep a neutral expression until the scan is complete.",
                     ),
@@ -252,45 +252,67 @@ class _IntroduceSelfieState extends State<IntroduceSelfie> {
     );
   }
 
-  Widget _buildInstructionItem({
+  Widget _buildRequirementItem({
     required IconData icon,
-    required String title,
+    required String text,
     required String description,
   }) {
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 24),
+    return Container(
+      margin: const EdgeInsets.only(bottom: 16),
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(20),
+        // Thin, crisp border for that "Institutional" feel
+        border: Border.all(color: const Color(0xFFF1F5F9), width: 1.5),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.02),
+            blurRadius: 10,
+            offset: const Offset(0, 4),
+          ),
+        ],
+      ),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
+          // The Refined Icon Anchor
           Container(
             padding: const EdgeInsets.all(12),
             decoration: BoxDecoration(
-              color: Colors.grey.shade100,
+              color: const Color(0xFFF1F5F9), // Slate 100
               borderRadius: BorderRadius.circular(14),
-              border: Border.all(color: Colors.grey.shade100),
             ),
-            child: Icon(icon, color: const Color(0xFF17C6C6), size: 20),
+            child: Icon(
+              icon,
+              color: AnansiColors.darkBlue, // Darker icon for more authority
+              size: 20,
+            ),
           ),
           const SizedBox(width: 16),
+
+          // Detailed Content
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  title,
+                  text,
                   style: const TextStyle(
                     color: AnansiColors.darkBlue,
-                    fontWeight: FontWeight.w800,
+                    fontWeight: FontWeight.w900, // Heavy weight for headlines
                     fontSize: 15,
+                    letterSpacing: -0.3,
                   ),
                 ),
                 const SizedBox(height: 4),
                 Text(
                   description,
                   style: TextStyle(
-                    color: Colors.grey.shade500,
-                    fontSize: 13,
-                    height: 1.5,
+                    color: Colors.blueGrey.shade400,
+                    fontSize: 12,
+                    height: 1.6,
+                    fontWeight: FontWeight.w500,
                   ),
                 ),
               ],
@@ -346,7 +368,7 @@ class _IntroduceSelfieState extends State<IntroduceSelfie> {
 
   Widget _buildActionDock(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.fromLTRB(24, 16, 24, 32),
+      padding: const EdgeInsets.fromLTRB(24, 16, 24, 12),
       decoration: BoxDecoration(color: Colors.white),
       child: ElevatedButton(
         onPressed: () {
