@@ -26,7 +26,7 @@ class _HomepageState extends State<Homepage> {
         slivers: [
           _buildDashboardAppBar(context),
           SliverPadding(
-            padding: const EdgeInsets.fromLTRB(20, 10, 20, 10),
+            padding: const EdgeInsets.fromLTRB(20, 5, 20, 10),
             sliver: SliverToBoxAdapter(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -34,7 +34,7 @@ class _HomepageState extends State<Homepage> {
                   const Text(
                     "Dashboard",
                     style: TextStyle(
-                      fontSize: 28,
+                      fontSize: 24,
                       fontWeight: FontWeight.bold,
                       color: AnansiColors.darkBlue,
                     ),
@@ -54,11 +54,11 @@ class _HomepageState extends State<Homepage> {
             ),
           ),
           SliverPadding(
-            padding: const EdgeInsets.all(20),
+            padding: const EdgeInsets.fromLTRB(20, 12, 20, 10),
             sliver: SliverList(
               delegate: SliverChildListDelegate([
                 const Padding(
-                  padding: EdgeInsets.symmetric(vertical: 10),
+                  padding: EdgeInsets.symmetric(vertical: 8),
                   child: Text(
                     "ACCOUNTS",
                     style: TextStyle(

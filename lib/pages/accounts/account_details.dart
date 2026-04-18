@@ -424,7 +424,7 @@ class _AccountDetailsState extends State<AccountDetails> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     const Text(
-                      "M-PESA DEPOSIT",
+                      "M-PESA",
                       style: TextStyle(
                         fontWeight: FontWeight.w900,
                         fontSize: 14,
@@ -432,7 +432,15 @@ class _AccountDetailsState extends State<AccountDetails> {
                       ),
                     ),
                     Text(
-                      "12 Apr, 2026 • REF: XJ92K...",
+                      "REF: XJ92K6587GT0Y",
+                      style: TextStyle(
+                        color: Colors.grey.shade500,
+                        fontSize: 10,
+                        fontWeight: FontWeight.w500,
+                      ),
+                    ),
+                    Text(
+                      "12 Apr, 2026",
                       style: TextStyle(
                         color: Colors.grey.shade500,
                         fontSize: 10,
