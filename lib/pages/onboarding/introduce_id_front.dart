@@ -240,7 +240,7 @@ class _IntroduceFrontOfIdState extends State<IntroduceFrontOfId> {
         ],
       ),
       child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
+        crossAxisAlignment: CrossAxisAlignment.center,
         children: [
           // The Refined Icon Anchor
           Container(

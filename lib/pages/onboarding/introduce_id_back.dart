@@ -169,7 +169,7 @@ class _IntroduceBackOfIdState extends State<IntroduceBackOfId> {
         ],
       ),
       child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
+        crossAxisAlignment: CrossAxisAlignment.center,
         children: [
           Container(
             padding: const EdgeInsets.all(12),

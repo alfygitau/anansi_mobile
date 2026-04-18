@@ -171,7 +171,7 @@ class _IntroduceSelfieState extends State<IntroduceSelfie> {
             letterSpacing: -0.5,
           ),
         ),
-        const SizedBox(height: 12),
+        const SizedBox(height: 2),
         Text(
           "To secure your account, we need to perform a quick liveness check. This ensures that you are a real person and matches you to your identification.",
           style: TextStyle(
@@ -274,7 +274,7 @@ class _IntroduceSelfieState extends State<IntroduceSelfie> {
         ],
       ),
       child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
+        crossAxisAlignment: CrossAxisAlignment.center,
         children: [
           // The Refined Icon Anchor
           Container(

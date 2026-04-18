@@ -418,7 +418,7 @@ class _CreatePasswordState extends State<CreatePassword> {
           elevation: 0,
         ),
         child: const Text(
-          "FINALIZE ACCOUNT",
+          "SECURE ACCOUNT",
           style: TextStyle(
             fontWeight: FontWeight.w900,
             fontSize: 14,
