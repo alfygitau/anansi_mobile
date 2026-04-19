@@ -4,6 +4,7 @@ import 'package:app_anansi_mobile/pages/invest/invest_amount.dart';
 import 'package:app_anansi_mobile/theme/app_theme.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 
 class AccountDetails extends StatefulWidget {
   final String accountId;
@@ -202,10 +203,10 @@ class _AccountDetailsState extends State<AccountDetails> {
                             _balanceVisible
                                 ? formatAmount(230000)
                                 : "KES ••••••••",
-                            style: const TextStyle(
-                              color: Colors.white,
-                              fontSize: 24,
+                            style: GoogleFonts.robotoMono(
                               fontWeight: FontWeight.w900,
+                              fontSize: 24,
+                              color: Colors.white,
                               letterSpacing: -1,
                             ),
                           ),

@@ -2,9 +2,11 @@ import 'package:app_anansi_mobile/helpers/format_amount.dart';
 import 'package:app_anansi_mobile/pages/accounts/account_details.dart';
 import 'package:app_anansi_mobile/pages/deposit-savings/deposit_amount.dart';
 import 'package:app_anansi_mobile/pages/invest/invest_amount.dart';
+import 'package:app_anansi_mobile/pages/notifications/notifications.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:app_anansi_mobile/theme/app_theme.dart';
+import 'package:google_fonts/google_fonts.dart';
 
 class Homepage extends StatefulWidget {
   const Homepage({super.key});
@@ -219,7 +221,7 @@ class _HomepageState extends State<Homepage> {
                     statusColor: const Color(0xFF17C6C6),
                     maturityDate: "19th/09/2026",
                   ),
-                  const SizedBox(height: 16),
+                  const SizedBox(height: 10),
                   _buildLoanItem(
                     title: "Executive Personal Credit",
                     id: "LN-SEC-2025-0918",
@@ -329,7 +331,14 @@ class _HomepageState extends State<Homepage> {
             child: _buildGlassActionButton(
               icon: CupertinoIcons.bell_fill,
               hasNotification: true,
-              onTap: () {},
+              onTap: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => const Notifications(),
+                  ),
+                );
+              },
             ),
           ),
         ),
@@ -367,7 +376,7 @@ class _HomepageState extends State<Homepage> {
               width: 10,
               height: 10,
               decoration: BoxDecoration(
-                color: const Color(0xFFEF4444), // Notification Red
+                color: const Color(0xFFEF4444),
                 shape: BoxShape.circle,
                 border: Border.all(color: Colors.white, width: 2),
               ),
@@ -380,14 +389,12 @@ class _HomepageState extends State<Homepage> {
   Widget _buildQuickAction({
     required String label,
     required IconData icon,
-    required VoidCallback onTap, // Added navigation/action callback
+    required VoidCallback onTap,
   }) {
     final double screenWidth = MediaQuery.of(context).size.width;
     final double sidePadding = 48.0;
     final double spacing = 16.0;
-    // Dynamic width calculation for a 4-column grid layout
     final double width = (screenWidth - sidePadding - (spacing * 3)) / 4;
-
     return Column(
       mainAxisSize: MainAxisSize.min,
       children: [
@@ -448,120 +455,131 @@ class _HomepageState extends State<Homepage> {
   }
 
   Widget _buildMembershipProgress(double percentage) {
+    bool isCompleted = percentage >= 1.0;
+
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 20),
+      padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        gradient: LinearGradient(
-          colors: [
-            Colors.white,
-            const Color(0xFFF0FFFE).withValues(alpha: 0.5),
-          ],
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-        ),
+        color: Colors.white,
         borderRadius: BorderRadius.circular(32),
-        border: Border.all(
-          color: AnansiColors.darkBlue.withValues(alpha: 0.2),
-          width: 1.5,
-        ),
+        border: Border.all(color: const Color(0xFFF1F4F8), width: 2),
+        boxShadow: [
+          BoxShadow(
+            color: AnansiColors.darkBlue.withValues(alpha: 0.03),
+            blurRadius: 20,
+            offset: const Offset(0, 10),
+          ),
+        ],
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            crossAxisAlignment: CrossAxisAlignment.center,
             children: [
-              Row(
-                children: [
-                  Container(
-                    padding: const EdgeInsets.all(10),
-                    decoration: BoxDecoration(
-                      color: AnansiColors.darkBlue,
-                      borderRadius: BorderRadius.circular(14),
-                      boxShadow: [
-                        BoxShadow(
-                          color: AnansiColors.darkBlue.withValues(alpha: 0.3),
-                          blurRadius: 10,
-                          offset: const Offset(0, 4),
-                        ),
-                      ],
-                    ),
-                    child: const Icon(
-                      Icons.verified_user_rounded,
-                      color: Color(0xFF17C6C6),
-                      size: 18,
-                    ),
-                  ),
-                  const SizedBox(width: 14),
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        "SHARES STATUS",
-                        style: TextStyle(
-                          fontWeight: FontWeight.w900,
-                          fontSize: 10,
-                          letterSpacing: 1.5,
-                          color: AnansiColors.darkBlue.withValues(alpha: 0.5),
-                        ),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      "MEMBERSHIP PROGRESS",
+                      style: TextStyle(
+                        fontWeight: FontWeight.w900,
+                        fontSize: 10,
+                        letterSpacing: 1.5,
+                        color: AnansiColors.darkBlue.withValues(alpha: 0.4),
                       ),
-                      const Text(
-                        "Membership",
-                        style: TextStyle(
-                          fontWeight: FontWeight.w900,
-                          fontSize: 16,
-                          color: AnansiColors.darkBlue,
-                        ),
-                      ),
-                    ],
-                  ),
-                ],
+                    ),
+                  ],
+                ),
               ),
               _buildCircularMiniIndicator(percentage),
             ],
           ),
-          const SizedBox(height: 16),
-          RichText(
-            text: TextSpan(
-              style: const TextStyle(
-                fontSize: 13,
-                color: Colors.black54,
-                height: 1.5,
-              ),
-              children: [
-                const TextSpan(text: "Acquire "),
-                TextSpan(
-                  text: "10 Shares ",
-                  style: TextStyle(
-                    fontWeight: FontWeight.w800,
-                    color: AnansiColors.darkBlue,
-                  ),
-                ),
-                const TextSpan(text: "to unlock "),
-                TextSpan(text: "Institutional Credit Intelligence"),
-                const TextSpan(text: " and full dividend rights."),
-              ],
-            ),
-          ),
-          const SizedBox(height: 16),
+          const SizedBox(height: 10),
           _buildGlowProgressBar(percentage),
-          const SizedBox(height: 16),
+          const SizedBox(height: 12),
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              _buildProgressMetric(
-                "Current Shares Holding",
-                "${currentShares.toInt()} Shares",
+              Text(
+                "${currentShares.toInt()} of 10 Shares",
+                style: TextStyle(
+                  fontWeight: FontWeight.w800,
+                  fontSize: 12,
+                  color: AnansiColors.darkBlue.withValues(alpha: 0.7),
+                ),
               ),
-              _buildProgressMetric("Target", "10.0 Shares", isEnd: true),
+              if (!isCompleted)
+                Text(
+                  "${((1.0 - percentage) * 10).toInt()} shares left",
+                  style: const TextStyle(
+                    fontWeight: FontWeight.w700,
+                    fontSize: 11,
+                    color: Color(0xFF17C6C6),
+                  ),
+                ),
             ],
+          ),
+          const SizedBox(height: 10),
+          Container(
+            padding: const EdgeInsets.all(16),
+            decoration: BoxDecoration(
+              color: const Color(0xFFF1F5F9),
+              borderRadius: BorderRadius.circular(20),
+            ),
+            child: Column(
+              children: [
+                Row(
+                  children: [
+                    Expanded(
+                      child: Text(
+                        "Unlock Institutional Credit Intelligence and full dividend rights.",
+                        style: TextStyle(
+                          fontSize: 12,
+                          color: Colors.blueGrey.shade600,
+                          fontWeight: FontWeight.w500,
+                          height: 1.4,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 10),
+                ElevatedButton(
+                  onPressed: () {},
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: AnansiColors.darkBlue,
+                    foregroundColor: Colors.white,
+                    minimumSize: const Size(double.infinity, 54),
+                    elevation: 0,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(16),
+                    ),
+                  ),
+                  child: const Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Text(
+                        "Buy Shares",
+                        style: TextStyle(
+                          fontWeight: FontWeight.w900,
+                          fontSize: 14,
+                        ),
+                      ),
+                      SizedBox(width: 8),
+                      Icon(CupertinoIcons.arrow_right, size: 16),
+                    ],
+                  ),
+                ),
+              ],
+            ),
           ),
         ],
       ),
     );
   }
 
-  // HELPER: Small circular percentage badge
   Widget _buildCircularMiniIndicator(double percentage) {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
@@ -580,7 +598,6 @@ class _HomepageState extends State<Homepage> {
     );
   }
 
-  // HELPER: Glow Progress Bar
   Widget _buildGlowProgressBar(double percentage) {
     return Stack(
       children: [
@@ -608,38 +625,6 @@ class _HomepageState extends State<Homepage> {
                 offset: const Offset(0, 4),
               ),
             ],
-          ),
-        ),
-      ],
-    );
-  }
-
-  // HELPER: Small Metric Item
-  Widget _buildProgressMetric(
-    String label,
-    String value, {
-    bool isEnd = false,
-  }) {
-    return Column(
-      crossAxisAlignment: isEnd
-          ? CrossAxisAlignment.end
-          : CrossAxisAlignment.start,
-      children: [
-        Text(
-          label,
-          style: TextStyle(
-            fontSize: 10,
-            fontWeight: FontWeight.bold,
-            color: Colors.grey.shade400,
-          ),
-        ),
-        const SizedBox(height: 4),
-        Text(
-          value,
-          style: const TextStyle(
-            fontSize: 13,
-            fontWeight: FontWeight.w900,
-            color: AnansiColors.darkBlue,
           ),
         ),
       ],
@@ -718,9 +703,10 @@ class _HomepageState extends State<Homepage> {
               children: [
                 Text(
                   _isBalanceVisible ? formatAmount(balance) : "KES ••••••••",
-                  style: TextStyle(
-                    fontSize: 24,
+                  style: GoogleFonts.robotoMono(
                     fontWeight: FontWeight.bold,
+                    fontSize: 24,
+                    letterSpacing: -1,
                     color: isPrimary ? Colors.white : AnansiColors.darkBlue,
                   ),
                 ),
@@ -759,7 +745,7 @@ class _HomepageState extends State<Homepage> {
     required String maturityDate,
   }) {
     return Container(
-      margin: const EdgeInsets.only(bottom: 20),
+      margin: const EdgeInsets.only(bottom: 10),
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(30),
@@ -845,9 +831,9 @@ class _HomepageState extends State<Homepage> {
             children: [
               TextSpan(
                 text: value,
-                style: TextStyle(
-                  fontSize: 15,
+                style: GoogleFonts.robotoMono(
                   fontWeight: FontWeight.w900,
+                  fontSize: 15,
                   color: isHighlight
                       ? const Color(0xFF17C6C6)
                       : AnansiColors.darkBlue,
@@ -874,7 +860,6 @@ class _HomepageState extends State<Homepage> {
     );
   }
 
-  // Helper: Modern Maturity Badge
   Widget _buildMaturityBadge(String date) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.end,
@@ -944,10 +929,11 @@ class _HomepageState extends State<Homepage> {
             children: [
               Text(
                 amount,
-                style: const TextStyle(
+                style: GoogleFonts.robotoMono(
                   fontWeight: FontWeight.w800,
                   fontSize: 13,
                   color: AnansiColors.darkBlue,
+                  letterSpacing: -1,
                 ),
               ),
               Text(
