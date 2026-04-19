@@ -177,9 +177,8 @@ class _HomepageState extends State<Homepage> {
               ),
             ),
           ),
-          const SliverToBoxAdapter(child: SizedBox(height: 20)),
           SliverPadding(
-            padding: const EdgeInsets.fromLTRB(0, 10, 0, 0),
+            padding: const EdgeInsets.fromLTRB(0, 5, 0, 0),
             sliver: SliverToBoxAdapter(
               child: _buildSectionHeader("Active Applications", "2 Active"),
             ),
@@ -207,7 +206,7 @@ class _HomepageState extends State<Homepage> {
             ),
           ),
           SliverPadding(
-            padding: const EdgeInsets.fromLTRB(0, 10, 0, 0),
+            padding: const EdgeInsets.fromLTRB(0, 0, 0, 0),
             sliver: SliverToBoxAdapter(
               child: _buildSectionHeader("Recent Loans", "2 Active"),
             ),
