@@ -2,6 +2,7 @@ import 'package:app_anansi_mobile/helpers/format_amount.dart';
 import 'package:app_anansi_mobile/pages/accounts/account_details.dart';
 import 'package:app_anansi_mobile/pages/buy-shares/shares_amount.dart';
 import 'package:app_anansi_mobile/pages/deposit-savings/deposit_amount.dart';
+import 'package:app_anansi_mobile/pages/guarantorship/guarantorship.dart';
 import 'package:app_anansi_mobile/pages/invest/invest_amount.dart';
 import 'package:app_anansi_mobile/pages/notifications/notifications.dart';
 import 'package:flutter/cupertino.dart';
@@ -163,8 +164,12 @@ class _HomepageState extends State<Homepage> {
                       _buildQuickAction(
                         label: "Guarantorship",
                         icon: Icons.gavel_rounded,
-                        onTap: () =>
-                            Navigator.pushNamed(context, '/guarantorship'),
+                        onTap: () => Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => const Guarantorship(),
+                          ),
+                        ),
                       ),
                       _buildQuickAction(
                         label: "Loans",
