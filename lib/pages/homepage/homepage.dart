@@ -1,5 +1,6 @@
 import 'package:app_anansi_mobile/helpers/format_amount.dart';
 import 'package:app_anansi_mobile/pages/accounts/account_details.dart';
+import 'package:app_anansi_mobile/pages/buy-shares/shares_amount.dart';
 import 'package:app_anansi_mobile/pages/deposit-savings/deposit_amount.dart';
 import 'package:app_anansi_mobile/pages/invest/invest_amount.dart';
 import 'package:app_anansi_mobile/pages/notifications/notifications.dart';
@@ -135,7 +136,12 @@ class _HomepageState extends State<Homepage> {
                       _buildQuickAction(
                         label: "Shares",
                         icon: Icons.pie_chart_rounded,
-                        onTap: () => Navigator.pushNamed(context, '/shares'),
+                        onTap: () => Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => const SharesAmount(),
+                          ),
+                        ),
                       ),
                       _buildQuickAction(
                         label: "Calculator",
