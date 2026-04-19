@@ -339,6 +339,139 @@ class _ReviewGuarantorshipState extends State<ReviewGuarantorship> {
     );
   }
 
+  void _showStatusSheet({
+    required BuildContext context,
+    required bool isSuccess,
+    required String message,
+    required String amount,
+  }) {
+    showModalBottomSheet(
+      context: context,
+      isDismissible: false, // Prevents tapping outside to close
+      enableDrag: false, // Prevents swiping down to close
+      backgroundColor: Colors.transparent,
+      builder: (context) {
+        return Container(
+          padding: const EdgeInsets.all(24),
+          decoration: const BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.vertical(top: Radius.circular(32)),
+          ),
+          child: Column(
+            mainAxisSize: MainAxisSize.min, // Sheet fits content size
+            children: [
+              // 1. Status Icon with soft glow
+              Container(
+                height: 80,
+                width: 80,
+                decoration: BoxDecoration(
+                  color: (isSuccess ? AnansiColors.accentCyan : Colors.red)
+                      .withOpacity(0.1),
+                  shape: BoxShape.circle,
+                ),
+                child: Icon(
+                  isSuccess
+                      ? CupertinoIcons.checkmark_seal_fill
+                      : CupertinoIcons.exclamationmark_triangle_fill,
+                  color: isSuccess ? AnansiColors.accentCyan : Colors.red,
+                  size: 40,
+                ),
+              ),
+              const SizedBox(height: 24),
+
+              // 2. Title & Message
+              Text(
+                isSuccess ? "Request Successful" : "Action Failed",
+                style: const TextStyle(
+                  fontSize: 20,
+                  fontWeight: FontWeight.w900,
+                  color: AnansiColors.darkBlue,
+                ),
+              ),
+              const SizedBox(height: 8),
+              Text(
+                message,
+                textAlign: TextAlign.center,
+                style: TextStyle(
+                  fontSize: 14,
+                  color: Colors.grey.shade500,
+                  height: 1.5,
+                ),
+              ),
+
+              // 3. Amount Summary (Optional Context)
+              if (isSuccess) ...[
+                const SizedBox(height: 24),
+                Container(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 20,
+                    vertical: 12,
+                  ),
+                  decoration: BoxDecoration(
+                    color: const Color(0xFFF8FAFC),
+                    borderRadius: BorderRadius.circular(16),
+                  ),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text(
+                        "Guaranteed",
+                        style: TextStyle(
+                          color: Colors.grey.shade500,
+                          fontSize: 12,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                      Text(
+                        amount, // Use your KES formatter here
+                        style: const TextStyle(
+                          color: AnansiColors.darkBlue,
+                          fontSize: 14,
+                          fontWeight: FontWeight.w800,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+
+              const SizedBox(height: 32),
+
+              // 4. THE ONLY EXIT POINT
+              SizedBox(
+                width: double.infinity,
+                height: 58,
+                child: ElevatedButton(
+                  onPressed: () {
+                    Navigator.pop(context); // Close sheet
+                    if (isSuccess) {
+                      // Navigate to Dashboard or clear stack
+                    }
+                  },
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: AnansiColors.darkBlue,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(18),
+                    ),
+                    elevation: 0,
+                  ),
+                  child: const Text(
+                    "Return to Home",
+                    style: TextStyle(
+                      fontWeight: FontWeight.w900,
+                      color: Colors.white,
+                    ),
+                  ),
+                ),
+              ),
+              const SizedBox(height: 16), // Padding for bottom notch
+            ],
+          ),
+        );
+      },
+    );
+  }
+
   Widget _buildActionFooter() {
     bool canContinue = _isChecked && !_isSubmitting;
 
@@ -403,11 +536,12 @@ class _ReviewGuarantorshipState extends State<ReviewGuarantorship> {
   }
 
   void _submitRequest() async {
-    setState(() => _isSubmitting = true);
-    // Call respondToGuarantor logic here
-    await Future.delayed(const Duration(seconds: 2)); // Mock delay
-    setState(() => _isSubmitting = false);
-    // Navigate to Success Page
+    _showStatusSheet(
+      context: context,
+      amount: "120000",
+      isSuccess: true,
+      message: "Request accepted successfully",
+    );
   }
 }
 
