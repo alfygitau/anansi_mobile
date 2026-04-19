@@ -1,3 +1,5 @@
+import 'package:app_anansi_mobile/pages/guarantorship/decline_guarantorship.dart';
+import 'package:app_anansi_mobile/pages/guarantorship/guarantee_amount.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:app_anansi_mobile/theme/app_theme.dart';
@@ -411,7 +413,15 @@ class _ViewRequestState extends State<ViewRequest> {
                 Expanded(
                   flex: 2,
                   child: OutlinedButton(
-                    onPressed: () {},
+                    onPressed: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) =>
+                              DeclineGuarantorship(loanInfo: widget.loanInfo),
+                        ),
+                      );
+                    },
                     style: OutlinedButton.styleFrom(
                       side: const BorderSide(
                         color: Colors.redAccent,
@@ -435,7 +445,15 @@ class _ViewRequestState extends State<ViewRequest> {
                 Expanded(
                   flex: 3,
                   child: ElevatedButton(
-                    onPressed: () {},
+                    onPressed: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) =>
+                              GuaranteeAmount(loanInfo: widget.loanInfo),
+                        ),
+                      );
+                    },
                     style: ElevatedButton.styleFrom(
                       backgroundColor: AnansiColors.darkBlue,
                       padding: const EdgeInsets.symmetric(vertical: 18),
