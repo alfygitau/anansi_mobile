@@ -361,11 +361,10 @@ class _DepositAmountState extends State<DepositAmount> {
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             Text(
-              "Review Deposit",
+              "Continue",
               style: TextStyle(fontWeight: FontWeight.w900, fontSize: 16),
             ),
-            const SizedBox(width: 8),
-            Icon(CupertinoIcons.arrow_right, size: 18),
+            SizedBox(width: 8),
           ],
         ),
       ),

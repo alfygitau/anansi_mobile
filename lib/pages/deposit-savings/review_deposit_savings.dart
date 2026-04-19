@@ -337,7 +337,7 @@ class _ReviewDepositSavingsState extends State<ReviewDepositSavings> {
         border: Border.all(color: color.withValues(alpha: 0.1)),
       ),
       child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
+        crossAxisAlignment: CrossAxisAlignment.center,
         children: [
           Icon(icon, size: 20, color: color),
           const SizedBox(width: 16),

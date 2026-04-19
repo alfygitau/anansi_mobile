@@ -1,5 +1,6 @@
 import 'package:app_anansi_mobile/helpers/format_amount.dart';
 import 'package:app_anansi_mobile/pages/deposit-savings/deposit_amount.dart';
+import 'package:app_anansi_mobile/pages/invest/invest_amount.dart';
 import 'package:app_anansi_mobile/theme/app_theme.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -304,7 +305,7 @@ class _AccountDetailsState extends State<AccountDetails> {
           icon: CupertinoIcons.doc_text_fill,
           backgroundColor: Colors.white,
           contentColor: AnansiColors.darkBlue,
-          onTap: () => print("Deposit clicked"),
+          onTap: () {},
         ),
         const SizedBox(width: 12),
         _buildActionItem(
@@ -312,7 +313,12 @@ class _AccountDetailsState extends State<AccountDetails> {
           icon: CupertinoIcons.graph_square_fill,
           backgroundColor: Colors.white,
           contentColor: AnansiColors.darkBlue,
-          onTap: () => print("Deposit clicked"),
+          onTap: () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (context) => const InvestAmount()),
+            );
+          },
         ),
       ],
     );

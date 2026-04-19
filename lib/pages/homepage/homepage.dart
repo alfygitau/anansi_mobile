@@ -1,5 +1,7 @@
 import 'package:app_anansi_mobile/helpers/format_amount.dart';
 import 'package:app_anansi_mobile/pages/accounts/account_details.dart';
+import 'package:app_anansi_mobile/pages/deposit-savings/deposit_amount.dart';
+import 'package:app_anansi_mobile/pages/invest/invest_amount.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:app_anansi_mobile/theme/app_theme.dart';
@@ -108,22 +110,58 @@ class _HomepageState extends State<Homepage> {
                     runSpacing: 20,
                     alignment: WrapAlignment.start,
                     children: [
-                      _buildQuickAction("Invest", Icons.trending_up_rounded),
                       _buildQuickAction(
-                        "Deposit",
-                        Icons.account_balance_wallet_rounded,
+                        label: "Invest",
+                        icon: Icons.trending_up_rounded,
+                        onTap: () => Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => const InvestAmount(),
+                          ),
+                        ),
                       ),
-                      _buildQuickAction("Shares", Icons.pie_chart_rounded),
-                      _buildQuickAction("Calculator", Icons.calculate_rounded),
                       _buildQuickAction(
-                        "Statements",
-                        Icons.description_rounded,
+                        label: "Deposit",
+                        icon: Icons.account_balance_wallet_rounded,
+                        onTap: () => Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => const DepositAmount(),
+                          ),
+                        ),
                       ),
-                      _buildQuickAction("Products", Icons.grid_view_rounded),
-                      _buildQuickAction("Guarantorship", Icons.gavel_rounded),
                       _buildQuickAction(
-                        "Loans",
-                        CupertinoIcons.chart_bar_alt_fill,
+                        label: "Shares",
+                        icon: Icons.pie_chart_rounded,
+                        onTap: () => Navigator.pushNamed(context, '/shares'),
+                      ),
+                      _buildQuickAction(
+                        label: "Calculator",
+                        icon: Icons.calculate_rounded,
+                        onTap: () =>
+                            Navigator.pushNamed(context, '/loan-calculator'),
+                      ),
+                      _buildQuickAction(
+                        label: "Statements",
+                        icon: Icons.description_rounded,
+                        onTap: () =>
+                            Navigator.pushNamed(context, '/statements'),
+                      ),
+                      _buildQuickAction(
+                        label: "Products",
+                        icon: Icons.grid_view_rounded,
+                        onTap: () => Navigator.pushNamed(context, '/products'),
+                      ),
+                      _buildQuickAction(
+                        label: "Guarantorship",
+                        icon: Icons.gavel_rounded,
+                        onTap: () =>
+                            Navigator.pushNamed(context, '/guarantorship'),
+                      ),
+                      _buildQuickAction(
+                        label: "Loans",
+                        icon: CupertinoIcons.chart_bar_alt_fill,
+                        onTap: () => Navigator.pushNamed(context, '/loans'),
                       ),
                     ],
                   ),
@@ -339,10 +377,15 @@ class _HomepageState extends State<Homepage> {
     );
   }
 
-  Widget _buildQuickAction(String label, IconData icon) {
+  Widget _buildQuickAction({
+    required String label,
+    required IconData icon,
+    required VoidCallback onTap, // Added navigation/action callback
+  }) {
     final double screenWidth = MediaQuery.of(context).size.width;
     final double sidePadding = 48.0;
     final double spacing = 16.0;
+    // Dynamic width calculation for a 4-column grid layout
     final double width = (screenWidth - sidePadding - (spacing * 3)) / 4;
 
     return Column(
@@ -366,7 +409,7 @@ class _HomepageState extends State<Homepage> {
           child: Material(
             color: Colors.transparent,
             child: InkWell(
-              onTap: () {},
+              onTap: onTap, // Callback implemented here
               borderRadius: BorderRadius.circular(24),
               splashColor: const Color(0xFF17C6C6).withValues(alpha: 0.1),
               child: Center(
@@ -378,7 +421,11 @@ class _HomepageState extends State<Homepage> {
                     shape: BoxShape.circle,
                   ),
                   child: Center(
-                    child: Icon(icon, size: 32, color: const Color(0xFF17C6C6)),
+                    child: Icon(
+                      icon,
+                      size: width * 0.35,
+                      color: const Color(0xFF17C6C6),
+                    ),
                   ),
                 ),
               ),
