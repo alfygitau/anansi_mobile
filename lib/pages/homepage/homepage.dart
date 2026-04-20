@@ -194,6 +194,7 @@ class _HomepageState extends State<Homepage> {
               child: Column(
                 children: [
                   _buildApplicationItem(
+                    reference: "HGVFDTCS4327T",
                     title: "Emergency Medical Credit",
                     date: "Applied Today, 10:45 AM",
                     amount: "KES 50,000.00",
@@ -201,6 +202,7 @@ class _HomepageState extends State<Homepage> {
                   ),
                   const SizedBox(height: 12),
                   _buildApplicationItem(
+                    reference: "UHGBFCT6754DCR",
                     title: "Asset Finance: MacBook Pro",
                     date: "Applied 15 Mar 2026",
                     amount: "KES 320,000.00",
@@ -896,6 +898,7 @@ class _HomepageState extends State<Homepage> {
   }
 
   Widget _buildApplicationItem({
+    required String reference,
     required String title,
     required String date,
     required String amount,
@@ -920,6 +923,10 @@ class _HomepageState extends State<Homepage> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
+                Text(
+                  reference,
+                  style: TextStyle(color: Colors.grey.shade400, fontSize: 11),
+                ),
                 Text(
                   title,
                   style: const TextStyle(
