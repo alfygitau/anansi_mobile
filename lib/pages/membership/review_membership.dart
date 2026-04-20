@@ -1,4 +1,4 @@
-import 'package:app_anansi_mobile/pages/invest/invest_stk_push.dart';
+import 'package:app_anansi_mobile/pages/membership/await_stk_membership.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
 
@@ -6,7 +6,7 @@ class ReviewMembership extends StatefulWidget {
   final double savingsAmount;
   final double sharesAmount;
   final String phoneNumber;
-  final double registrationFee = 1000.0; // Standard Sacco Fee
+  final double registrationFee = 1000.0;
 
   const ReviewMembership({
     super.key,
@@ -350,7 +350,7 @@ class _ReviewMembershipState extends State<ReviewMembership> {
           context,
           MaterialPageRoute(
             builder: (context) =>
-                const InvestStkPush(reference: "ANANSI-REG-772"),
+                const AwaitStkMembership(reference: "ANANSI-REG-772"),
           ),
         ),
         style: ElevatedButton.styleFrom(
