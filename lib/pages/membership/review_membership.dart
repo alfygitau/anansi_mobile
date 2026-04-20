@@ -85,7 +85,7 @@ class _ReviewMembershipState extends State<ReviewMembership> {
         border: Border.all(color: const Color(0xFFF1F4F8), width: 2),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.02),
+            color: Colors.black.withValues(alpha: 0.02),
             blurRadius: 20,
             offset: const Offset(0, 10),
           ),
@@ -157,7 +157,7 @@ class _ReviewMembershipState extends State<ReviewMembership> {
   Widget _buildAppBar(BuildContext context) {
     return SliverAppBar(
       pinned: true,
-      backgroundColor: const Color(0xFFF8FAFC).withOpacity(0.95),
+      backgroundColor: const Color(0xFFF8FAFC).withValues(alpha: 0.95),
       elevation: 0,
       centerTitle: true,
       leadingWidth: 64,
@@ -263,7 +263,7 @@ class _ReviewMembershipState extends State<ReviewMembership> {
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: color.withOpacity(0.1)),
+        border: Border.all(color: color.withValues(alpha: 0.1)),
       ),
       child: Row(
         children: [

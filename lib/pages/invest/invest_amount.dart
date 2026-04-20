@@ -432,7 +432,7 @@ class InvestAmountState extends State<InvestAmount> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Icon(CupertinoIcons.shield_fill, color: Color(0xFF17C6C6), size: 18),
-          const SizedBox(width: 12),
+          SizedBox(width: 12),
           Expanded(
             child: Text(
               "Transactions are KES protected and regulated by SASRA. Ensure your M-PESA is active.",
