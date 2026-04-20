@@ -3,10 +3,12 @@ import 'package:app_anansi_mobile/pages/homepage/homepage.dart';
 import 'package:app_anansi_mobile/services/auth_service.dart';
 import 'package:app_anansi_mobile/services/error_service.dart';
 import 'package:app_anansi_mobile/services/secure_storage_service.dart';
+import 'package:app_anansi_mobile/state/auth_provider.dart';
 import 'package:app_anansi_mobile/theme/app_theme.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:provider/provider.dart';
 
 class Login extends StatefulWidget {
   const Login({super.key});
@@ -56,23 +58,23 @@ class _LoginState extends State<Login> {
       return;
     }
     setState(() => _isLoading = true);
-    final (response, error) = await AuthService().login(
-      email: _emailController.text.trim(),
-      password: _passwordController.text.trim(),
-    );
-    if (error != null) {
-      ErrorService.showActionableError(
-        context,
-        title: error[0],
-        message: error[1],
+    try {
+      final (response, error) = await AuthService().login(
+        email: _emailController.text.trim(),
+        password: _passwordController.text.trim(),
       );
-      if (mounted) setState(() => _isLoading = false);
-      return;
-    } else if (response != null) {
-      final responseInfo = response.data['data'];
-      HapticFeedback.lightImpact();
-      await storeUserInfo(responseInfo, context);
-    } else {
+      if (error != null) {
+        ErrorService.showActionableError(
+          context,
+          title: error[0],
+          message: error[1],
+        );
+      } else if (response != null) {
+        final responseInfo = response.data['data'];
+        HapticFeedback.lightImpact();
+        await storeUserInfo(responseInfo, context);
+      }
+    } finally {
       if (mounted) setState(() => _isLoading = false);
     }
   }
@@ -99,10 +101,12 @@ class _LoginState extends State<Login> {
     Map<String, dynamic> data,
     BuildContext context,
   ) async {
+    final authProvider = Provider.of<AuthProvider>(context, listen: false);
     final user = data['user'];
     final tokens = data['tokens'];
 
     if (user != null) {
+      authProvider.setUser(user);
       await SecureStorageService().write("user", user);
     }
     if (tokens == null) {

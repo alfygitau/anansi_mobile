@@ -60,11 +60,11 @@ class ApiException {
           serverMessage ??
               "Some information provided is incorrect. Please review your entries and try again.",
         ];
-      case 401:
-        return [
-          "Session Expired",
-          "For your security, you've been signed out. Please log in again to continue.",
-        ];
+      // case 401:
+      //   return [
+      //     "Session Expired",
+      //     "For your security, you've been signed out. Please log in again to continue.",
+      //   ];
       case 403:
         return [
           "Access Denied",
