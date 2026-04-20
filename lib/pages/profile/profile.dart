@@ -350,7 +350,9 @@ class _ProfileState extends State<Profile> {
       actions: [
         Padding(
           padding: const EdgeInsets.only(right: 16),
-          child: _buildCircleAction(CupertinoIcons.question_circle, () {}),
+          child: _buildCircleAction(CupertinoIcons.square_arrow_right, () {
+
+          }),
         ),
       ],
     );
@@ -542,7 +544,7 @@ class _InfoCardTemplate extends StatelessWidget {
                   Container(
                     padding: const EdgeInsets.all(8),
                     decoration: BoxDecoration(
-                      color: Colors.blue.withValues(alpha: 0.05),
+                      color: Colors.blue.withValues(alpha: 0.1),
                       borderRadius: BorderRadius.circular(10),
                     ),
                     child: Icon(icon, size: 16, color: ThemeColors.secondary),

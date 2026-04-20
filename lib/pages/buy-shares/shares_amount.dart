@@ -297,13 +297,13 @@ class _SharesAmountState extends State<SharesAmount> {
                   controller: controller,
                   keyboardType: TextInputType.number,
                   style: GoogleFonts.robotoMono(
-                    // Precision input look
                     fontWeight: FontWeight.w700,
                     color: AnansiColors.darkBlue,
                     fontSize: 18,
                   ),
                   decoration: InputDecoration(
                     hintText: hint,
+                    hintStyle: TextStyle(color: Colors.grey),
                     isDense: true,
                     contentPadding: const EdgeInsets.symmetric(vertical: 4),
                     border: InputBorder.none,
