@@ -1,4 +1,5 @@
 import 'package:app_anansi_mobile/pages/welcome/welcome.dart';
+import 'package:app_anansi_mobile/services/route_service.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
@@ -13,6 +14,8 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       title: 'Anansi Tech',
+      navigatorKey: NavigationService.navigatorKey, 
+      initialRoute: '/',
       theme: ThemeData(
         colorScheme: .fromSeed(seedColor: Colors.deepPurple),
         textTheme: GoogleFonts.outfitTextTheme(Theme.of(context).textTheme),

@@ -289,7 +289,7 @@ class _AccountDetailsState extends State<AccountDetails> {
     return Row(
       children: [
         _buildActionItem(
-          label: "Deposit",
+          label: "Save",
           icon: CupertinoIcons.arrow_down_circle_fill,
           backgroundColor: const Color(0xFF17C6C6),
           contentColor: Colors.white,
@@ -302,7 +302,7 @@ class _AccountDetailsState extends State<AccountDetails> {
         ),
         const SizedBox(width: 12),
         _buildActionItem(
-          label: "Statement",
+          label: "Statements",
           icon: CupertinoIcons.doc_text_fill,
           backgroundColor: Colors.white,
           contentColor: AnansiColors.darkBlue,

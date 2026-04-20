@@ -40,7 +40,7 @@ class _CreatePasswordState extends State<CreatePassword> {
               _buildBrandIdentity(),
               const SizedBox(height: 20),
               Text(
-                "Establishing a robust security protocol is the final step in engineering your digital wealth portal. Choose a password that is both memorable and resilient.",
+                "Establishing a robust security protocol is a critical step in engineering your digital wealth portal. Choose a password that is both memorable and resilient.",
                 style: TextStyle(
                   color: Colors.grey.shade500,
                   fontSize: 15,
