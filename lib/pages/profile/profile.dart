@@ -1,3 +1,5 @@
+import 'package:app_anansi_mobile/pages/profile/edit_address.dart';
+import 'package:app_anansi_mobile/pages/profile/edit_financial_details.dart';
 import 'package:app_anansi_mobile/pages/profile/edit_personal_information.dart';
 import 'package:app_anansi_mobile/theme/app_theme.dart';
 import 'package:flutter/cupertino.dart';
@@ -210,7 +212,14 @@ class _ProfileState extends State<Profile> {
         _InfoCardTemplate(
           title: "Residential Address",
           icon: CupertinoIcons.map_pin_ellipse,
-          onEdit: () {},
+          onEdit: () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => EditAddressPage(customer: staticCustomer),
+              ),
+            );
+          },
           child: Column(
             children: [
               _DataField(label: "Country", value: "Kenya", isFullWidth: true),
@@ -235,7 +244,15 @@ class _ProfileState extends State<Profile> {
         _InfoCardTemplate(
           title: "Employment & Financials",
           icon: CupertinoIcons.briefcase_fill,
-          onEdit: () {},
+          onEdit: () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) =>
+                    EditFinancialsPage(customer: staticCustomer),
+              ),
+            );
+          },
           child: Column(
             children: [
               _DataField(
