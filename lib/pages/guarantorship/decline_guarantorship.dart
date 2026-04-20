@@ -127,7 +127,7 @@ class _DeclineGuarantorshipState extends State<DeclineGuarantorship> {
           height: 120,
           width: 120,
           decoration: BoxDecoration(
-            color: Colors.red.withOpacity(0.05),
+            color: Colors.red.withValues(alpha: 0.05),
             shape: BoxShape.circle,
           ),
           child: const Center(
@@ -196,7 +196,7 @@ class _DeclineGuarantorshipState extends State<DeclineGuarantorship> {
           boxShadow: isSelected
               ? [
                   BoxShadow(
-                    color: Colors.black.withOpacity(0.05),
+                    color: Colors.black.withValues(alpha: 0.05),
                     blurRadius: 10,
                     offset: const Offset(0, 4),
                   ),
@@ -233,7 +233,7 @@ class _DeclineGuarantorshipState extends State<DeclineGuarantorship> {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: Colors.grey.withOpacity(0.05),
+        color: Colors.grey.withValues(alpha: 0.05),
         borderRadius: BorderRadius.circular(12),
       ),
       child: Row(
@@ -266,7 +266,7 @@ class _DeclineGuarantorshipState extends State<DeclineGuarantorship> {
         color: Colors.white,
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.04),
+            color: Colors.black.withValues(alpha: 0.04),
             blurRadius: 20,
             offset: const Offset(0, -5),
           ),
@@ -338,7 +338,7 @@ class _DeclineGuarantorshipState extends State<DeclineGuarantorship> {
                 width: 80,
                 decoration: BoxDecoration(
                   color: (isSuccess ? AnansiColors.accentCyan : Colors.red)
-                      .withOpacity(0.1),
+                      .withValues(alpha: 0.1),
                   shape: BoxShape.circle,
                 ),
                 child: Icon(

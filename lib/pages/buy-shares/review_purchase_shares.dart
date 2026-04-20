@@ -210,6 +210,31 @@ class _ReviewPurchaseSharesState extends State<ReviewPurchaseShares> {
           ),
         ),
       ),
+      actions: [
+        Padding(
+          padding: const EdgeInsets.only(right: 16),
+          child: _buildCircleAction(CupertinoIcons.question_circle, () {}),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildCircleAction(IconData icon, VoidCallback onTap) {
+    return Center(
+      child: Container(
+        width: 38,
+        height: 38,
+        decoration: BoxDecoration(
+          color: Colors.white,
+          shape: BoxShape.circle,
+          border: Border.all(color: Colors.grey.shade100),
+        ),
+        child: IconButton(
+          padding: EdgeInsets.zero,
+          icon: Icon(icon, size: 18, color: AnansiColors.darkBlue),
+          onPressed: onTap,
+        ),
+      ),
     );
   }
 

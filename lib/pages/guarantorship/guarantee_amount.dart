@@ -279,7 +279,7 @@ class _GuaranteeAmountState extends State<GuaranteeAmount> {
         borderRadius: BorderRadius.circular(24),
         border: Border.all(
           color: _hasAgreed
-              ? AnansiColors.accentCyan.withOpacity(0.3)
+              ? AnansiColors.accentCyan.withValues(alpha: 0.3)
               : Colors.transparent,
         ),
       ),
@@ -325,7 +325,7 @@ class _GuaranteeAmountState extends State<GuaranteeAmount> {
         color: Colors.white,
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.04),
+            color: Colors.black.withValues(alpha: 0.04),
             blurRadius: 20,
             offset: const Offset(0, -5),
           ),

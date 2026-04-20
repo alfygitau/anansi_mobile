@@ -202,7 +202,7 @@ class _ReviewGuarantorshipState extends State<ReviewGuarantorship> {
         gradient: LinearGradient(
           colors: [
             AnansiColors.darkBlue,
-            AnansiColors.darkBlue.withOpacity(0.85),
+            AnansiColors.darkBlue.withValues(alpha: 0.85),
           ],
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
@@ -210,7 +210,7 @@ class _ReviewGuarantorshipState extends State<ReviewGuarantorship> {
         borderRadius: BorderRadius.circular(24),
         boxShadow: [
           BoxShadow(
-            color: AnansiColors.darkBlue.withOpacity(0.2),
+            color: AnansiColors.darkBlue.withValues(alpha: 0.2),
             blurRadius: 20,
             offset: const Offset(0, 10),
           ),
@@ -222,7 +222,7 @@ class _ReviewGuarantorshipState extends State<ReviewGuarantorship> {
           Text(
             "AMOUNT TO GUARANTEE",
             style: TextStyle(
-              color: Colors.white.withOpacity(0.6),
+              color: Colors.white.withValues(alpha: 0.6),
               fontSize: 9,
               fontWeight: FontWeight.w800,
               letterSpacing: 1,
@@ -250,7 +250,7 @@ class _ReviewGuarantorshipState extends State<ReviewGuarantorship> {
         borderRadius: BorderRadius.circular(24),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.02),
+            color: Colors.black.withValues(alpha: 0.02),
             blurRadius: 20,
             offset: const Offset(0, 4),
           ),
@@ -366,7 +366,7 @@ class _ReviewGuarantorshipState extends State<ReviewGuarantorship> {
                 width: 80,
                 decoration: BoxDecoration(
                   color: (isSuccess ? AnansiColors.accentCyan : Colors.red)
-                      .withOpacity(0.1),
+                      .withValues(alpha: 0.1),
                   shape: BoxShape.circle,
                 ),
                 child: Icon(
@@ -482,7 +482,7 @@ class _ReviewGuarantorshipState extends State<ReviewGuarantorship> {
         // Slightly more prominent shadow for depth
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.06),
+            color: Colors.black.withValues(alpha: 0.06),
             blurRadius: 24,
             offset: const Offset(0, -8),
           ),
