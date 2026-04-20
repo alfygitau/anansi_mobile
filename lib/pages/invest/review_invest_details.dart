@@ -57,7 +57,7 @@ class _ReviewInvestDetailsState extends State<ReviewInvestDetails> {
                         ),
                         boxShadow: [
                           BoxShadow(
-                            color: Colors.black.withOpacity(0.02),
+                            color: Colors.black.withValues(alpha: 0.02),
                             blurRadius: 20,
                             offset: const Offset(0, 10),
                           ),
@@ -210,7 +210,7 @@ class _ReviewInvestDetailsState extends State<ReviewInvestDetails> {
     return SliverAppBar(
       pinned: true,
       floating: true,
-      backgroundColor: const Color(0xFFF8FAFC).withOpacity(0.9),
+      backgroundColor: const Color(0xFFF8FAFC).withValues(alpha: 0.9),
       elevation: 0,
       centerTitle: true,
       leadingWidth: 64,
@@ -359,7 +359,7 @@ class _ReviewInvestDetailsState extends State<ReviewInvestDetails> {
         color: Colors.white,
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.05),
+            color: Colors.black.withValues(alpha: 0.05),
             blurRadius: 20,
             offset: const Offset(0, -5),
           ),
