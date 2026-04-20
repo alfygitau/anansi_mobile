@@ -302,7 +302,7 @@ class _HomepageState extends State<Homepage> {
       leading: IconButton(
         padding: EdgeInsets.zero,
         icon: Icon(
-          CupertinoIcons.square_grid_2x2_fill,
+          CupertinoIcons.square_grid_2x2,
           size: 30,
           color: AnansiColors.darkBlue,
         ),
@@ -342,7 +342,7 @@ class _HomepageState extends State<Homepage> {
           padding: const EdgeInsets.only(right: 10),
           child: Center(
             child: _buildGlassActionButton(
-              icon: CupertinoIcons.bell_fill,
+              icon: CupertinoIcons.bell,
               hasNotification: true,
               onTap: () {
                 Navigator.push(
@@ -360,7 +360,7 @@ class _HomepageState extends State<Homepage> {
           child: Center(
             child: _buildGlassActionButton(
               icon: CupertinoIcons.person,
-              hasNotification: true,
+              hasNotification: false,
               onTap: () {
                 Navigator.push(
                   context,

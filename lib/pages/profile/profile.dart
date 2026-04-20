@@ -1,6 +1,7 @@
 import 'package:app_anansi_mobile/pages/profile/edit_address.dart';
 import 'package:app_anansi_mobile/pages/profile/edit_financial_details.dart';
 import 'package:app_anansi_mobile/pages/profile/edit_personal_information.dart';
+import 'package:app_anansi_mobile/pages/profile/edit_profile_image.dart';
 import 'package:app_anansi_mobile/theme/app_theme.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -121,16 +122,27 @@ class _ProfileState extends State<Profile> {
               Positioned(
                 bottom: 0,
                 right: 0,
-                child: Container(
-                  padding: const EdgeInsets.all(8),
-                  decoration: const BoxDecoration(
-                    color: ThemeColors.secondary,
-                    shape: BoxShape.circle,
-                  ),
-                  child: const Icon(
-                    CupertinoIcons.camera_fill,
-                    size: 14,
-                    color: Colors.white,
+                child: GestureDetector(
+                  onTap: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) =>
+                            EditProfilePicturePage(customer: staticCustomer),
+                      ),
+                    );
+                  },
+                  child: Container(
+                    padding: const EdgeInsets.all(8),
+                    decoration: const BoxDecoration(
+                      color: ThemeColors.secondary,
+                      shape: BoxShape.circle,
+                    ),
+                    child: const Icon(
+                      CupertinoIcons.camera_fill,
+                      size: 14,
+                      color: Colors.white,
+                    ),
                   ),
                 ),
               ),

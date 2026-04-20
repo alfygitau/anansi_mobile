@@ -197,9 +197,11 @@ class _EditFinancialsPageState extends State<EditFinancialsPage> {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: const Color(0xFF17C6C6).withOpacity(0.05),
+        color: const Color(0xFF17C6C6).withValues(alpha: 0.05),
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: const Color(0xFF17C6C6).withOpacity(0.1)),
+        border: Border.all(
+          color: const Color(0xFF17C6C6).withValues(alpha: 0.1),
+        ),
       ),
       child: const Row(
         children: [
@@ -208,7 +210,7 @@ class _EditFinancialsPageState extends State<EditFinancialsPage> {
             color: Color(0xFF17C6C6),
             size: 20,
           ),
-          const SizedBox(width: 12),
+           SizedBox(width: 12),
           Expanded(
             child: Text(
               "Your financial data is encrypted and used only for credit scoring and Sacco compliance.",
@@ -270,7 +272,7 @@ class _EditFinancialsPageState extends State<EditFinancialsPage> {
           border: Border.all(color: const Color(0xFFF1F4F8), width: 1.5),
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withOpacity(0.02),
+              color: Colors.black.withValues(alpha: 0.02),
               blurRadius: 10,
               offset: const Offset(0, 4),
             ),
@@ -281,7 +283,7 @@ class _EditFinancialsPageState extends State<EditFinancialsPage> {
             Container(
               padding: const EdgeInsets.all(10),
               decoration: BoxDecoration(
-                color: const Color(0xFF17C6C6).withOpacity(0.08),
+                color: const Color(0xFF17C6C6).withValues(alpha: 0.08),
                 borderRadius: BorderRadius.circular(12),
               ),
               child: Icon(icon, size: 18, color: const Color(0xFF17C6C6)),
