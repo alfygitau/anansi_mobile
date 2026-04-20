@@ -5,6 +5,7 @@ import 'package:app_anansi_mobile/pages/deposit-savings/deposit_amount.dart';
 import 'package:app_anansi_mobile/pages/guarantorship/guarantorship.dart';
 import 'package:app_anansi_mobile/pages/invest/invest_amount.dart';
 import 'package:app_anansi_mobile/pages/notifications/notifications.dart';
+import 'package:app_anansi_mobile/pages/profile/profile.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:app_anansi_mobile/theme/app_theme.dart';
@@ -338,7 +339,7 @@ class _HomepageState extends State<Homepage> {
       ),
       actions: [
         Padding(
-          padding: const EdgeInsets.only(right: 16),
+          padding: const EdgeInsets.only(right: 10),
           child: Center(
             child: _buildGlassActionButton(
               icon: CupertinoIcons.bell_fill,
@@ -349,6 +350,21 @@ class _HomepageState extends State<Homepage> {
                   MaterialPageRoute(
                     builder: (context) => const Notifications(),
                   ),
+                );
+              },
+            ),
+          ),
+        ),
+        Padding(
+          padding: const EdgeInsets.only(right: 16),
+          child: Center(
+            child: _buildGlassActionButton(
+              icon: CupertinoIcons.person,
+              hasNotification: true,
+              onTap: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => const Profile()),
                 );
               },
             ),
@@ -559,7 +575,14 @@ class _HomepageState extends State<Homepage> {
                 ),
                 const SizedBox(height: 10),
                 ElevatedButton(
-                  onPressed: () {},
+                  onPressed: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => const SharesAmount(),
+                      ),
+                    );
+                  },
                   style: ElevatedButton.styleFrom(
                     backgroundColor: AnansiColors.darkBlue,
                     foregroundColor: Colors.white,
