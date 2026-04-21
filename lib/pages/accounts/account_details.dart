@@ -598,84 +598,89 @@ class _AccountDetailsState extends State<AccountDetails> {
         final Color amountColor = isDeposit
             ? const Color(0xFF10B981)
             : Colors.orange.shade700;
-        return Container(
-          padding: const EdgeInsets.all(16),
-          decoration: BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.circular(24),
-            border: Border.all(color: const Color(0xFFF1F5F9)),
-          ),
-          child: Row(
-            children: [
-              Container(
-                padding: const EdgeInsets.all(12),
-                decoration: BoxDecoration(
-                  color: const Color(0xFFF1F5F9),
-                  borderRadius: BorderRadius.circular(16),
+        return GestureDetector(
+          onTap: () {
+            showTransactionDetailSheet(context, tx);
+          },
+          child: Container(
+            padding: const EdgeInsets.all(16),
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(24),
+              border: Border.all(color: const Color(0xFFF1F5F9)),
+            ),
+            child: Row(
+              children: [
+                Container(
+                  padding: const EdgeInsets.all(12),
+                  decoration: BoxDecoration(
+                    color: const Color(0xFFF1F5F9),
+                    borderRadius: BorderRadius.circular(16),
+                  ),
+                  child: const Icon(
+                    CupertinoIcons.device_phone_portrait,
+                    color: Colors.blueGrey,
+                    size: 20,
+                  ),
                 ),
-                child: const Icon(
-                  CupertinoIcons.device_phone_portrait,
-                  color: Colors.blueGrey,
-                  size: 20,
+                const SizedBox(width: 16),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        tx['type'] ?? "MPESA",
+                        style: TextStyle(
+                          fontWeight: FontWeight.w900,
+                          fontSize: 14,
+                          color: AnansiColors.darkBlue,
+                        ),
+                      ),
+                      Text(
+                        "REF: ${tx['ref_number'] ?? "GFD654345WH"}",
+                        style: TextStyle(
+                          color: Colors.grey.shade500,
+                          fontSize: 10,
+                          fontWeight: FontWeight.w500,
+                        ),
+                      ),
+                      Text(
+                        formatPostgresDateWithTime(
+                          tx['createdAt'] ?? tx['updatedAt'],
+                        ),
+                        style: TextStyle(
+                          color: Colors.grey.shade500,
+                          fontSize: 10,
+                          fontWeight: FontWeight.w500,
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
-              ),
-              const SizedBox(width: 16),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.end,
                   children: [
                     Text(
-                      tx['type'] ?? "MPESA",
+                      formatAmount(tx['amount'] ?? 0),
                       style: TextStyle(
+                        color: amountColor,
                         fontWeight: FontWeight.w900,
                         fontSize: 14,
-                        color: AnansiColors.darkBlue,
                       ),
                     ),
                     Text(
-                      "REF: ${tx['ref_number'] ?? "GFD654345WH"}",
+                      tx['amount'] ?? "0.0".toString().toUpperCase(),
                       style: TextStyle(
-                        color: Colors.grey.shade500,
-                        fontSize: 10,
-                        fontWeight: FontWeight.w500,
-                      ),
-                    ),
-                    Text(
-                      formatPostgresDateWithTime(
-                        tx['createdAt'] ?? tx['updatedAt'],
-                      ),
-                      style: TextStyle(
-                        color: Colors.grey.shade500,
-                        fontSize: 10,
-                        fontWeight: FontWeight.w500,
+                        color: Colors.grey.shade400,
+                        fontSize: 8,
+                        fontWeight: FontWeight.w900,
+                        letterSpacing: 1,
                       ),
                     ),
                   ],
                 ),
-              ),
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.end,
-                children: [
-                  Text(
-                    formatAmount(tx['amount'] ?? 0),
-                    style: TextStyle(
-                      color: amountColor,
-                      fontWeight: FontWeight.w900,
-                      fontSize: 14,
-                    ),
-                  ),
-                  Text(
-                    tx['amount'] ?? "0.0".toString().toUpperCase(),
-                    style: TextStyle(
-                      color: Colors.grey.shade400,
-                      fontSize: 8,
-                      fontWeight: FontWeight.w900,
-                      letterSpacing: 1,
-                    ),
-                  ),
-                ],
-              ),
-            ],
+              ],
+            ),
           ),
         );
       },
@@ -727,6 +732,222 @@ class _AccountDetailsState extends State<AccountDetails> {
             ),
           ),
         ],
+      ),
+    );
+  }
+
+  void showTransactionDetailSheet(
+    BuildContext context,
+    Map<String, dynamic> tx,
+  ) {
+    final bool isDeposit = tx['deposit_method'] == 'MPESA';
+
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (context) => Container(
+        padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 32),
+        decoration: const BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.vertical(top: Radius.circular(32)),
+        ),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            // Handle
+            Container(
+              width: 40,
+              height: 4,
+              decoration: BoxDecoration(
+                color: Colors.grey.shade200,
+                borderRadius: BorderRadius.circular(10),
+              ),
+            ),
+            const SizedBox(height: 32),
+
+            // Status Icon
+            Container(
+              padding: const EdgeInsets.all(20),
+              decoration: BoxDecoration(
+                color: const Color(0xFF10B981).withValues(alpha: 0.1),
+                shape: BoxShape.circle,
+              ),
+              child: const Icon(
+                CupertinoIcons.checkmark_circle_fill,
+                color: Color(0xFF10B981),
+                size: 40,
+              ),
+            ),
+            const SizedBox(height: 16),
+            const Text(
+              "Transaction Successful",
+              style: TextStyle(
+                fontSize: 14,
+                fontWeight: FontWeight.w600,
+                color: Colors.grey,
+              ),
+            ),
+            const SizedBox(height: 8),
+
+            // Hero Amount
+            Text(
+              "${isDeposit ? '+' : '-'} ${formatAmount(tx['amount'])}",
+              style: GoogleFonts.robotoMono(
+                fontSize: 32,
+                fontWeight: FontWeight.w900,
+                color: AnansiColors.darkBlue,
+                letterSpacing: -1,
+              ),
+            ),
+            const SizedBox(height: 32),
+
+            // Detailed Info Card
+            Container(
+              padding: const EdgeInsets.all(20),
+              decoration: BoxDecoration(
+                color: const Color(0xFFF8FAFC),
+                borderRadius: BorderRadius.circular(24),
+                border: Border.all(color: const Color(0xFFF1F5F9)),
+              ),
+              child: Column(
+                children: [
+                  _buildDetailRow("Transaction Type", tx['type'] ?? "MPESA"),
+                  _buildDivider(),
+                  _buildDetailRow(
+                    "Reference",
+                    tx['ref_number'] ?? "N/A",
+                    isCopyable: true,
+                  ),
+                  _buildDivider(),
+                  _buildDetailRow(
+                    "Date & Time",
+                    formatPostgresDateWithTime(tx['createdAt'] ?? "N/A"),
+                  ),
+                  _buildDivider(),
+                  _buildDetailRow("Payment Method", "M-PESA Wallet"),
+                  _buildDivider(),
+                  _buildDetailRow(
+                    "Status",
+                    "${tx['status'] ?? 'COMPLETED'}",
+                    isStatus: true,
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(height: 32),
+            Row(
+              children: [
+                Expanded(
+                  child: _buildActionButton(
+                    icon: CupertinoIcons.share,
+                    label: "Share",
+                    onTap: () {},
+                  ),
+                ),
+                const SizedBox(width: 16),
+                Expanded(
+                  child: _buildActionButton(
+                    icon: CupertinoIcons.cloud_download,
+                    label: "PDF Receipt",
+                    onTap: () {},
+                    isPrimary: true,
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 16),
+          ],
+        ),
+      ),
+    );
+  }
+
+  // --- Internal UI Helpers ---
+
+  Widget _buildDetailRow(
+    String label,
+    String value, {
+    bool isCopyable = false,
+    bool isStatus = false,
+  }) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 12),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Text(
+            label,
+            style: TextStyle(
+              color: Colors.grey.shade500,
+              fontSize: 13,
+              fontWeight: FontWeight.w500,
+            ),
+          ),
+          Row(
+            children: [
+              Text(
+                value,
+                style: TextStyle(
+                  color: isStatus
+                      ? const Color(0xFF10B981)
+                      : AnansiColors.darkBlue,
+                  fontSize: 13,
+                  fontWeight: FontWeight.w700,
+                ),
+              ),
+              if (isCopyable) ...[
+                const SizedBox(width: 6),
+                const Icon(
+                  CupertinoIcons.doc_on_doc,
+                  size: 14,
+                  color: Colors.blue,
+                ),
+              ],
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildDivider() => Divider(color: Colors.grey.shade200, height: 1);
+
+  Widget _buildActionButton({
+    required IconData icon,
+    required String label,
+    required VoidCallback onTap,
+    bool isPrimary = false,
+  }) {
+    return InkWell(
+      onTap: onTap,
+      child: Container(
+        padding: const EdgeInsets.symmetric(vertical: 16),
+        decoration: BoxDecoration(
+          color: isPrimary ? AnansiColors.darkBlue : Colors.white,
+          borderRadius: BorderRadius.circular(16),
+          border: Border.all(
+            color: isPrimary ? Colors.transparent : Colors.grey.shade200,
+          ),
+        ),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(
+              icon,
+              size: 18,
+              color: isPrimary ? Colors.white : AnansiColors.darkBlue,
+            ),
+            const SizedBox(width: 8),
+            Text(
+              label,
+              style: TextStyle(
+                color: isPrimary ? Colors.white : AnansiColors.darkBlue,
+                fontWeight: FontWeight.w800,
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
