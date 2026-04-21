@@ -17,4 +17,22 @@ class NotificationService {
       return (null, ["Authentication Error!", "An unknown error occurred."]);
     }
   }
+
+  Future<(Response?, List<String>?)> readNotification({
+    required String id,
+  }) async {
+    try {
+      final response = await _secureClient.patch(
+        '/notification/$id',
+        data: {"is_read": true},
+      );
+      return (response, null);
+    } on DioException catch (e) {
+      final apiException = ApiException();
+      final errorMessages = apiException.getExceptionMessage(e);
+      return (null, errorMessages);
+    } catch (e) {
+      return (null, ["Authentication Error!", "An unknown error occurred."]);
+    }
+  }
 }

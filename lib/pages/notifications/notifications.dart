@@ -16,6 +16,7 @@ class Notifications extends StatefulWidget {
 class _NotificationsState extends State<Notifications> {
   List<Map<String, dynamic>> notifications = [];
   bool _isLoading = false;
+  int? _loadingNotificationId;
 
   void fetchNotifications() async {
     _isLoading = true;
@@ -34,6 +35,23 @@ class _NotificationsState extends State<Notifications> {
       }
     } finally {
       if (mounted) setState(() => _isLoading = false);
+    }
+  }
+
+  Future<void> readNotification(String id) async {
+    final (response, errors) = await NotificationService().readNotification(
+      id: id,
+    );
+    if (errors != null) {
+      ErrorService.showActionableError(
+        context,
+        title: errors[0],
+        message: errors[1],
+      );
+    } else if (response != null) {
+      if (mounted) {
+        fetchNotifications();
+      }
     }
   }
 
@@ -103,12 +121,46 @@ class _NotificationsState extends State<Notifications> {
             SliverList(
               delegate: SliverChildBuilderDelegate((context, index) {
                 final item = notifications[index];
-                return _buildNotificationCard(
-                  title: "Guarantor Request",
-                  message: item['message'],
-                  time: formatPostgresDateWithTime(item['createdAt']),
-                  type: item['module'],
-                  isUnread: item['is_read'],
+                final bool isThisItemLoading = _loadingNotificationId == index;
+                return Padding(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 20,
+                    vertical: 8,
+                  ),
+                  child: InkWell(
+                    borderRadius: BorderRadius.circular(24),
+                    onTap: (_isLoading || _loadingNotificationId != null)
+                        ? null
+                        : () async {
+                            setState(() => _loadingNotificationId = index);
+                            await readNotification(item['id']);
+                            setState(() => _loadingNotificationId = null);
+                            showNotificationDetailSheet(context, item);
+                          },
+                    child: Stack(
+                      children: [
+                        _buildNotificationCard(
+                          title: "Guarantor Request",
+                          message: item['message'],
+                          time: formatPostgresDateWithTime(item['createdAt']),
+                          type: item['module'],
+                          isUnread: !item['is_read'],
+                        ),
+                        if (isThisItemLoading)
+                          Positioned.fill(
+                            child: Container(
+                              decoration: BoxDecoration(
+                                color: Colors.white.withValues(alpha: 0.7),
+                                borderRadius: BorderRadius.circular(24),
+                              ),
+                              child: const Center(
+                                child: CupertinoActivityIndicator(radius: 10),
+                              ),
+                            ),
+                          ),
+                      ],
+                    ),
+                  ),
                 );
               }, childCount: notifications.length),
             ),
@@ -126,7 +178,6 @@ class _NotificationsState extends State<Notifications> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            // 1. Premium Icon with Layered Background
             Stack(
               alignment: Alignment.center,
               children: [
@@ -189,10 +240,7 @@ class _NotificationsState extends State<Notifications> {
                 height: 1.5,
               ),
             ),
-
             const SizedBox(height: 40),
-
-            // 3. Optional: Helpful Action
             TextButton(
               onPressed: () => Navigator.pop(context),
               style: TextButton.styleFrom(
@@ -268,17 +316,175 @@ class _NotificationsState extends State<Notifications> {
     );
   }
 
+  void showNotificationDetailSheet(
+    BuildContext context,
+    Map<String, dynamic> item,
+  ) {
+    IconData icon;
+    Color color;
+    String actionText;
+
+    switch (item['module']) {
+      case "transaction":
+        icon = CupertinoIcons.arrow_up_right_circle_fill;
+        color = const Color(0xFF17C6C6);
+        actionText = "View Transaction";
+        break;
+      case "security":
+        icon = CupertinoIcons.shield_fill;
+        color = Colors.orange;
+        actionText = "Secure Account";
+        break;
+      case "action":
+        icon = CupertinoIcons.person_2_fill;
+        color = AnansiColors.darkBlue;
+        actionText = "View Profile";
+        break;
+      case "update":
+      default:
+        icon = CupertinoIcons.bell_fill;
+        color = Colors.blue;
+        actionText = "Check Update";
+        break;
+    }
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: Colors.transparent,
+      isScrollControlled: true,
+      builder: (context) => Container(
+        padding: const EdgeInsets.all(24),
+        decoration: const BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.vertical(top: Radius.circular(32)),
+        ),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Container(
+              width: 40,
+              height: 4,
+              decoration: BoxDecoration(
+                color: Colors.grey.shade200,
+                borderRadius: BorderRadius.circular(10),
+              ),
+            ),
+            const SizedBox(height: 32),
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+              decoration: BoxDecoration(
+                color: color.withValues(alpha: 0.1),
+                borderRadius: BorderRadius.circular(20),
+              ),
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Icon(icon, color: color, size: 16),
+                  const SizedBox(width: 8),
+                  Text(
+                    item['module'].toString().toUpperCase(),
+                    style: TextStyle(
+                      color: color,
+                      fontSize: 10,
+                      fontWeight: FontWeight.w900,
+                      letterSpacing: 1.2,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(height: 24),
+            Text(
+              "Guarantor Request",
+              textAlign: TextAlign.center,
+              style: const TextStyle(
+                fontSize: 22,
+                fontWeight: FontWeight.w900,
+                color: AnansiColors.darkBlue,
+                letterSpacing: -0.5,
+              ),
+            ),
+            const SizedBox(height: 12),
+            Text(
+              item['message'],
+              textAlign: TextAlign.center,
+              style: TextStyle(
+                fontSize: 15,
+                color: Colors.grey.shade600,
+                height: 1.6,
+              ),
+            ),
+            const SizedBox(height: 12),
+            Text(
+              formatPostgresDateWithTime(item['createdAt']),
+              style: TextStyle(
+                fontSize: 12,
+                color: Colors.grey.shade400,
+                fontWeight: FontWeight.w600,
+              ),
+            ),
+            const SizedBox(height: 40),
+            Row(
+              children: [
+                Expanded(
+                  child: OutlinedButton(
+                    onPressed: () => Navigator.pop(context),
+                    style: OutlinedButton.styleFrom(
+                      padding: const EdgeInsets.symmetric(vertical: 18),
+                      side: BorderSide(color: Colors.grey.shade200),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(16),
+                      ),
+                    ),
+                    child: const Text(
+                      "Close",
+                      style: TextStyle(
+                        fontWeight: FontWeight.w800,
+                        color: AnansiColors.darkBlue,
+                      ),
+                    ),
+                  ),
+                ),
+                const SizedBox(width: 16),
+                Expanded(
+                  child: ElevatedButton(
+                    onPressed: () {
+                      Navigator.pop(context);
+                    },
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: color,
+                      elevation: 0,
+                      padding: const EdgeInsets.symmetric(vertical: 18),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(16),
+                      ),
+                    ),
+                    child: Text(
+                      actionText,
+                      style: const TextStyle(
+                        fontWeight: FontWeight.w900,
+                        color: Colors.white,
+                      ),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 12),
+          ],
+        ),
+      ),
+    );
+  }
+
   Widget _buildNotificationCard({
     required String title,
     required String message,
     required String time,
-    required String type, // 👈 Change this from NotificationType to String
+    required String type,
     required bool isUnread,
   }) {
     IconData icon;
     Color color;
-
-    // Use String keys to match the values in your notificationData map
     switch (type) {
       case "transaction":
         icon = CupertinoIcons.arrow_up_right_circle_fill;
