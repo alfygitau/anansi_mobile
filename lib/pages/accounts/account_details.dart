@@ -864,7 +864,6 @@ class _AccountDetailsState extends State<AccountDetails> {
   }
 
   // --- Internal UI Helpers ---
-
   Widget _buildDetailRow(
     String label,
     String value, {
