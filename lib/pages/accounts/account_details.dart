@@ -594,7 +594,7 @@ class _AccountDetailsState extends State<AccountDetails> {
       separatorBuilder: (_, __) => const SizedBox(height: 12),
       itemBuilder: (context, index) {
         final tx = transactions[index];
-        final bool isDeposit = tx['deposit_method'] == 'MPESA';
+        final bool isDeposit = tx['status'] == 'completed';
         final Color amountColor = isDeposit
             ? const Color(0xFF10B981)
             : Colors.orange.shade700;
