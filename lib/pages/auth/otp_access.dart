@@ -110,7 +110,7 @@ class _OtpAccessState extends State<OtpAccess> {
     if (!mounted) return;
 
     final String token = responseInfo['tokens']?['access_token'] ?? "";
-    await SecureStorageService().write('token', token);
+    await SecureStorageService().write("accessToken", token);
 
     final user = await getUser();
     if (user == null) return;
