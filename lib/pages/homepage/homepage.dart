@@ -5,7 +5,7 @@ import 'package:app_anansi_mobile/pages/deposit-savings/deposit_amount.dart';
 import 'package:app_anansi_mobile/pages/guarantorship/guarantorship.dart';
 import 'package:app_anansi_mobile/pages/invest/invest_amount.dart';
 import 'package:app_anansi_mobile/pages/loan-applications/loan_applications.dart';
-import 'package:app_anansi_mobile/pages/membership/intro_membership.dart';
+import 'package:app_anansi_mobile/pages/loans/loans.dart';
 import 'package:app_anansi_mobile/pages/notifications/notifications.dart';
 import 'package:app_anansi_mobile/pages/profile/profile.dart';
 import 'package:app_anansi_mobile/services/account_service.dart';
@@ -243,12 +243,12 @@ class _HomepageState extends State<Homepage> {
                         ),
                       ),
                       _buildQuickAction(
-                        label: "Calculator",
-                        icon: Icons.calculate_rounded,
+                        label: "Loans",
+                        icon: CupertinoIcons.graph_square,
                         onTap: () => Navigator.push(
                           context,
                           MaterialPageRoute(
-                            builder: (context) => const IntroMember(),
+                            builder: (context) => const MyLoans(),
                           ),
                         ),
                       ),

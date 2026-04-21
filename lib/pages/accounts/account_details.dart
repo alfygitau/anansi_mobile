@@ -104,6 +104,8 @@ class _AccountDetailsState extends State<AccountDetails> {
                   _buildTransactionHeader(),
                   _loading
                       ? buildTransactionListSkeleton()
+                      : transactions.isEmpty
+                      ? _buildEmptyTransactions()
                       : _buildTransactionList(),
                   const SizedBox(height: 20),
                   _buildSecurityCard(),
@@ -216,6 +218,71 @@ class _AccountDetailsState extends State<AccountDetails> {
           ),
         ),
       ],
+    );
+  }
+
+  Widget _buildEmptyTransactions() {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 30),
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Container(
+            padding: const EdgeInsets.all(24),
+            decoration: BoxDecoration(
+              color: AnansiColors.darkBlue.withValues(alpha: 0.05),
+              shape: BoxShape.circle,
+            ),
+            child: Icon(
+              CupertinoIcons.square_list,
+              size: 50,
+              color: AnansiColors.darkBlue.withValues(alpha: 0.4),
+            ),
+          ),
+          const SizedBox(height: 24),
+          const Text(
+            "No Transactions Yet",
+            textAlign: TextAlign.center,
+            style: TextStyle(
+              fontSize: 18,
+              fontWeight: FontWeight.w900,
+              color: AnansiColors.darkBlue,
+              letterSpacing: -0.5,
+            ),
+          ),
+          const SizedBox(height: 12),
+          Text(
+            "Your financial journey with Anansi starts here. Once you make your first payment or receive a loan, it will appear in this list.",
+            textAlign: TextAlign.center,
+            style: TextStyle(
+              fontSize: 13,
+              height: 1.5,
+              color: Colors.grey.shade500,
+              fontWeight: FontWeight.w500,
+            ),
+          ),
+          const SizedBox(height: 32),
+          SizedBox(
+            width: 200,
+            child: ElevatedButton(
+              onPressed: () {},
+              style: ElevatedButton.styleFrom(
+                backgroundColor: AnansiColors.darkBlue,
+                foregroundColor: Colors.white,
+                elevation: 0,
+                padding: const EdgeInsets.symmetric(vertical: 14),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(16),
+                ),
+              ),
+              child: const Text(
+                "Make a Deposit",
+                style: TextStyle(fontWeight: FontWeight.w800, fontSize: 14),
+              ),
+            ),
+          ),
+        ],
+      ),
     );
   }
 
