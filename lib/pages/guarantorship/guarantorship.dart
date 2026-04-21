@@ -1,10 +1,13 @@
 import 'package:app_anansi_mobile/helpers/format_amount.dart';
+import 'package:app_anansi_mobile/helpers/format_time.dart';
 import 'package:app_anansi_mobile/pages/guarantorship/view_request.dart';
+import 'package:app_anansi_mobile/services/error_service.dart';
+import 'package:app_anansi_mobile/services/guarantorship_service.dart';
+import 'package:app_anansi_mobile/shimmers/guarantorship/guarantorship.dart';
 import 'package:app_anansi_mobile/theme/app_theme.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:intl/intl.dart';
 
 class Guarantorship extends StatefulWidget {
   const Guarantorship({super.key});
@@ -15,142 +18,63 @@ class Guarantorship extends StatefulWidget {
 
 class _GuarantorshipState extends State<Guarantorship> {
   String activeTab = 'Requests';
+  bool _isLoading = false;
+  bool _loading = false;
 
-  final Map<String, dynamic> loanStatus = {
-    'availableBalance': 485000.00,
-    'totalAmountAlreadyGuaranteed': 312500.00,
-    'guaranteedLoans': [
-      {
-        'borrowerName': 'David Kamau',
-        'amountGuaranteed': 50000.0,
-        'loanInfo': {
-          'loancode': 'LN-992',
-          'loanamount': 150000.0,
-          'duration': '12 Months',
-        },
-        'phone': '0712345678',
-      },
-      {
-        'borrowerName': 'Sarah Wanjiku',
-        'amountGuaranteed': 70500.0,
-        'loanInfo': {
-          'loancode': 'LN-441',
-          'loanamount': 200000.0,
-          'duration': '24 Months',
-        },
-        'phone': '0722000111',
-      },
-      {
-        'borrowerName': 'Michael Otieno',
-        'amountGuaranteed': 25000.0,
-        'loanInfo': {
-          'loancode': 'LN-102',
-          'loanamount': 50000.0,
-          'duration': '6 Months',
-        },
-        'phone': '0733000222',
-      },
-      {
-        'borrowerName': 'Faith Mutua',
-        'amountGuaranteed': 100000.0,
-        'loanInfo': {
-          'loancode': 'LN-558',
-          'loanamount': 500000.0,
-          'duration': '36 Months',
-        },
-        'phone': '0744000333',
-      },
-      {
-        'borrowerName': 'Brian Kipkorir',
-        'amountGuaranteed': 15000.0,
-        'loanInfo': {
-          'loancode': 'LN-229',
-          'loanamount': 30000.0,
-          'duration': '3 Months',
-        },
-        'phone': '0755000444',
-      },
-      {
-        'borrowerName': 'Alice Njeri',
-        'amountGuaranteed': 40000.0,
-        'loanInfo': {
-          'loancode': 'LN-881',
-          'loanamount': 120000.0,
-          'duration': '12 Months',
-        },
-        'phone': '0766000555',
-      },
-      {
-        'borrowerName': 'James Omondi',
-        'amountGuaranteed': 12000.0,
-        'loanInfo': {
-          'loancode': 'LN-337',
-          'loanamount': 25000.0,
-          'duration': '6 Months',
-        },
-        'phone': '0777000666',
-      },
-    ],
-  };
+  Map<String, dynamic> loanStatus = {};
 
-  final Map<String, dynamic> sampleLoanRequest = {
-    'borrowerName': 'Alfred Kariuki',
-    'borrowerPhone': '0712 345 678',
-    'status': 'pending', 
-    'date': '2026-04-19',
-    'loanInfo': {
-      'loancode': 'LN-AN-8821',
-      'loanamount': 75000.00,
-      'loanInterest': 3.5,
-      'duration': '12 Months',
-      'loanRepaymentAmount': 84000.00, 
-    },
-  };
+  List<Map<String, dynamic>> myRequests = [];
 
-  final List<Map<String, dynamic>> myRequests = [
-    {
-      'name': 'John Doe',
-      'msg': 'Guarantorship for KES 45,000 Personal Loan',
-      'status': 'pending',
-      'date': '2026-04-18',
-    },
-    {
-      'name': 'Jane Smith',
-      'msg': 'Guarantorship for KES 100,000 Business Loan',
-      'status': 'accepted',
-      'date': '2026-04-17',
-    },
-    {
-      'name': 'Peter Parker',
-      'msg': 'Guarantorship for KES 15,000 Emergency Loan',
-      'status': 'rejected',
-      'date': '2026-04-16',
-    },
-    {
-      'name': 'Mary Jane',
-      'msg': 'Guarantorship for KES 200,000 School Fees',
-      'status': 'pending',
-      'date': '2026-04-15',
-    },
-    {
-      'name': 'Bruce Wayne',
-      'msg': 'Guarantorship for KES 50,000 Tech Loan',
-      'status': 'accepted',
-      'date': '2026-04-14',
-    },
-    {
-      'name': 'Clark Kent',
-      'msg': 'Guarantorship for KES 30,000 Travel Loan',
-      'status': 'pending',
-      'date': '2026-04-13',
-    },
-    {
-      'name': 'Diana Prince',
-      'msg': 'Guarantorship for KES 75,000 Asset Finance',
-      'status': 'accepted',
-      'date': '2026-04-12',
-    },
-  ];
+  void getGuarantorRequests() async {
+    _isLoading = true;
+    try {
+      final (response, errors) = await GuarantorshipService()
+          .guarantorRequests();
+      if (errors != null) {
+        ErrorService.showActionableError(
+          context,
+          title: errors[0],
+          message: errors[1],
+        );
+      } else if (response != null) {
+        setState(() {
+          myRequests = List<Map<String, dynamic>>.from(
+            response.data['data'] ?? [],
+          );
+        });
+      }
+    } finally {
+      if (mounted) setState(() => _isLoading = false);
+    }
+  }
+
+  void getGuarantorshipSummary() async {
+    _loading = true;
+    try {
+      final (response, errors) = await GuarantorshipService()
+          .guarantorshipSummary();
+      if (errors != null) {
+        ErrorService.showActionableError(
+          context,
+          title: errors[0],
+          message: errors[1],
+        );
+      } else if (response != null) {
+        setState(() {
+          loanStatus = response.data ?? {};
+        });
+      }
+    } finally {
+      if (mounted) setState(() => _loading = false);
+    }
+  }
+
+  @override
+  void initState() {
+    getGuarantorRequests();
+    getGuarantorshipSummary();
+    super.initState();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -159,14 +83,25 @@ class _GuarantorshipState extends State<Guarantorship> {
       body: CustomScrollView(
         slivers: [
           _buildAppBar(),
-          SliverToBoxAdapter(child: _buildBalanceDashboard()),
+          SliverToBoxAdapter(
+            child: _loading
+                ? buildBalanceDashboardSkeleton()
+                : _buildBalanceDashboard(),
+          ),
           SliverPersistentHeader(
             pinned: true,
             delegate: _TabDelegate(_buildTabRow()),
           ),
           SliverPadding(
             padding: const EdgeInsets.all(16),
-            sliver: activeTab == 'Requests'
+            sliver: _isLoading
+                ? SliverList(
+                    delegate: SliverChildBuilderDelegate(
+                      (context, index) => buildModernCardListSkeleton(),
+                      childCount: 3,
+                    ),
+                  )
+                : activeTab == 'Requests'
                 ? _buildRequestSliverList()
                 : _buildLoanSliverList(),
           ),
@@ -272,7 +207,7 @@ class _GuarantorshipState extends State<Guarantorship> {
             children: [
               _headerStat(
                 "Available",
-                loanStatus['availableBalance'],
+                (loanStatus['availableBalance'] ?? 0).toDouble(),
                 AnansiColors.iconBlue,
               ),
               Container(
@@ -282,7 +217,7 @@ class _GuarantorshipState extends State<Guarantorship> {
               ),
               _headerStat(
                 "Guaranteed",
-                loanStatus['totalAmountAlreadyGuaranteed'],
+                (loanStatus['totalAmountAlreadyGuaranteed'] ?? 0).toDouble(),
                 AnansiColors.darkBlue,
               ),
             ],
@@ -303,7 +238,7 @@ class _GuarantorshipState extends State<Guarantorship> {
                 ),
                 const SizedBox(width: 10),
                 Text(
-                  "You are currently guaranteeing ${loanStatus['guaranteedLoans'].length} active loans.",
+                  "You are currently guaranteeing ${loanStatus['guaranteedLoans']?.length} active loans.",
                   style: const TextStyle(
                     fontSize: 12,
                     color: AnansiColors.darkBlue,
@@ -325,7 +260,7 @@ class _GuarantorshipState extends State<Guarantorship> {
         Text(label, style: const TextStyle(color: Colors.grey, fontSize: 12)),
         const SizedBox(height: 4),
         Text(
-          formatAmount(value),
+          formatAmount(value).toString(),
           style: GoogleFonts.robotoMono(
             fontWeight: FontWeight.bold,
             fontSize: 18,
@@ -394,16 +329,16 @@ class _GuarantorshipState extends State<Guarantorship> {
       delegate: SliverChildBuilderDelegate((context, i) {
         final req = myRequests[i];
         return _modernCard(
-          title: req['name'],
-          subtitle: req['msg'],
+          title: req['borrowerName'],
+          subtitle: req['message'],
           trailing: _statusBadge(req['status']),
-          date: req['date'],
+          date: formatPostgresDateWithTime(req['createdAt']),
           icon: Icons.person_add_alt_1_rounded,
           onTap: () {
             Navigator.push(
               context,
               MaterialPageRoute(
-                builder: (context) => ViewRequest(loanInfo: sampleLoanRequest),
+                builder: (context) => ViewRequest(loanInfo: req),
               ),
             );
           },
@@ -434,13 +369,13 @@ class _GuarantorshipState extends State<Guarantorship> {
           title: loan['borrowerName'],
           subtitle: "Loan ID: ${loan['loanInfo']['loancode']}",
           trailing: Text(
-            "KES ${NumberFormat('#,###').format(loan['amountGuaranteed'])}",
+            formatAmount(loan['amountGuaranteed'] ?? 0),
             style: const TextStyle(
               fontWeight: FontWeight.bold,
               color: AnansiColors.darkBlue,
             ),
           ),
-          date: loan['phone'],
+          date: loan['borrowerPhone'],
           icon: Icons.shield_outlined,
           onTap: () => _showDetailedSheet(loan),
         );
@@ -539,7 +474,7 @@ class _GuarantorshipState extends State<Guarantorship> {
                   Text(
                     subtitle,
                     style: const TextStyle(color: Colors.grey, fontSize: 11),
-                    maxLines: 1,
+                    maxLines: 3,
                     overflow: TextOverflow.ellipsis,
                   ),
                   const SizedBox(height: 6),
@@ -640,7 +575,10 @@ class _GuarantorshipState extends State<Guarantorship> {
                           icon: CupertinoIcons.person_fill,
                           children: [
                             _infoRow("Full Name", loan['borrowerName']),
-                            _infoRow("Mobile Number", loan['phone'] ?? "N/A"),
+                            _infoRow(
+                              "Mobile Number",
+                              loan['borrowerPhone'] ?? "N/A",
+                            ),
                           ],
                         ),
                         const SizedBox(height: 16),
@@ -650,13 +588,16 @@ class _GuarantorshipState extends State<Guarantorship> {
                           children: [
                             _infoRow(
                               "Total Loan",
-                              "KES ${NumberFormat('#,###').format(loan['loanInfo']['loanamount'])}",
+                              "KES ${formatAmount(loan['loanInfo']['loanamount'] ?? 0)}",
                             ),
-                            _infoRow("Duration", loan['loanInfo']['duration']),
+                            _infoRow(
+                              "Duration",
+                              loan['loanInfo']['loanperiod'],
+                            ),
                             const Divider(height: 30, thickness: 0.5),
                             _infoRow(
                               "Your Guarantee",
-                              "KES ${NumberFormat('#,###').format(loan['amountGuaranteed'])}",
+                              "KES ${formatAmount(loan['amountGuaranteed'] ?? 0)}",
                               isHighlight: true,
                             ),
                           ],

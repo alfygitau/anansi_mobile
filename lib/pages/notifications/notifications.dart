@@ -124,8 +124,8 @@ class _NotificationsState extends State<Notifications> {
                 final bool isThisItemLoading = _loadingNotificationId == index;
                 return Padding(
                   padding: const EdgeInsets.symmetric(
-                    horizontal: 20,
-                    vertical: 8,
+                    horizontal: 0,
+                    vertical: 0,
                   ),
                   child: InkWell(
                     borderRadius: BorderRadius.circular(24),

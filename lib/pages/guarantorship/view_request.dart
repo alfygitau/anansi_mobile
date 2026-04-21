@@ -1,10 +1,10 @@
+import 'package:app_anansi_mobile/helpers/format_amount.dart';
 import 'package:app_anansi_mobile/pages/guarantorship/decline_guarantorship.dart';
 import 'package:app_anansi_mobile/pages/guarantorship/guarantee_amount.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:app_anansi_mobile/theme/app_theme.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:intl/intl.dart';
 
 class ViewRequest extends StatefulWidget {
   final Map<String, dynamic> loanInfo;
@@ -59,20 +59,25 @@ class _ViewRequestState extends State<ViewRequest> {
                       _buildInfoCard([
                         _infoRowNumber(
                           "Principal Amount",
-                          "KES ${NumberFormat('#,###.00').format(widget.loanInfo['loanInfo']['loanamount'])}",
+                          formatAmount(
+                            widget.loanInfo['loanInfo']['loanamount'] ?? 0,
+                          ),
                         ),
                         _infoRow(
                           "Interest Rate",
-                          "${widget.loanInfo['loanInfo']['loanInterest'] ?? '0'}% p.m",
+                          "${widget.loanInfo['loanInfo']['loaninterest'] ?? '0'}% per month",
                         ),
                         _infoRow(
                           "Repayment Period",
-                          "${widget.loanInfo['loanInfo']['duration']}",
+                          "${widget.loanInfo['loanInfo']['loanperiod']} days",
                         ),
                         const Divider(height: 32, thickness: 0.5),
                         _infoRowNumber(
                           "Total Repayable",
-                          "KES ${NumberFormat('#,###.00').format(widget.loanInfo['loanInfo']['loanRepaymentAmount'] ?? 0)}",
+                          formatAmount(
+                            widget.loanInfo['loanInfo']['loanrepaymentamount'] ??
+                                0,
+                          ),
                           isHighlight: true,
                         ),
                       ]),
