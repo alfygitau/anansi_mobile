@@ -7,10 +7,16 @@ import 'package:app_anansi_mobile/pages/invest/invest_amount.dart';
 import 'package:app_anansi_mobile/pages/membership/intro_membership.dart';
 import 'package:app_anansi_mobile/pages/notifications/notifications.dart';
 import 'package:app_anansi_mobile/pages/profile/profile.dart';
+import 'package:app_anansi_mobile/services/account_service.dart';
+import 'package:app_anansi_mobile/services/error_service.dart';
+import 'package:app_anansi_mobile/shimmers/homepage/accounts.dart';
+import 'package:app_anansi_mobile/shimmers/homepage/shares_summary.dart';
+import 'package:app_anansi_mobile/state/auth_provider.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:app_anansi_mobile/theme/app_theme.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:provider/provider.dart';
 
 class Homepage extends StatefulWidget {
   const Homepage({super.key});
@@ -23,10 +29,74 @@ class _HomepageState extends State<Homepage> {
   final double currentShares = 4.5;
   final double targetShares = 10.0;
   bool _isBalanceVisible = true;
+  bool _loading = false;
+  bool _isLoading = false;
+  List<Map<String, dynamic>> accounts = [];
+  Map<String, dynamic> sharesSummary = {};
+
+  void fetchCustomerDetails() async {
+    _isLoading = true;
+    try {
+      final (response, errors) = await AccountService().customerDetails();
+      if (errors != null) {
+        ErrorService.showActionableError(
+          context,
+          title: errors[0],
+          message: errors[1],
+        );
+      } else if (response != null) {
+        final responseInfo = response.data['data'];
+        setState(() {
+          accounts = List<Map<String, dynamic>>.from(
+            responseInfo['accounts'] ?? [],
+          );
+        });
+      }
+    } finally {
+      if (mounted) setState(() => _isLoading = false);
+    }
+  }
+
+  void fetchSharesDetails() async {
+    _loading = true;
+    try {
+      final authProvider = Provider.of<AuthProvider>(context, listen: false);
+      final (response, errors) = await AccountService().sharesSummary(
+        publicId: authProvider.user?['public_id'],
+      );
+      if (errors != null) {
+        ErrorService.showActionableError(
+          context,
+          title: errors[0],
+          message: errors[1],
+        );
+      } else if (response != null) {
+        setState(() {
+          sharesSummary = response.data['data'] ?? {};
+        });
+      }
+    } finally {
+      if (mounted) setState(() => _loading = false);
+    }
+  }
+
+  @override
+  void initState() {
+    fetchCustomerDetails();
+    fetchSharesDetails();
+    super.initState();
+  }
 
   @override
   Widget build(BuildContext context) {
+    final double currentShares =
+        double.tryParse(sharesSummary['numberOfShares']?.toString() ?? '0') ??
+        0.0;
+    const double targetShares = 10.0;
+
     double percentage = (currentShares / targetShares).clamp(0.0, 1.0);
+
+    bool shouldShowProgress = currentShares < targetShares;
     return Scaffold(
       backgroundColor: const Color(0xFFF8FAFC),
       body: CustomScrollView(
@@ -55,14 +125,24 @@ class _HomepageState extends State<Homepage> {
               ),
             ),
           ),
+          if (_loading)
+            SliverPadding(
+              padding: const EdgeInsets.symmetric(horizontal: 20),
+              sliver: SliverToBoxAdapter(
+                child: buildMembershipProgressShimmer(),
+              ),
+            )
+          else if (shouldShowProgress)
+            SliverPadding(
+              padding: const EdgeInsets.symmetric(horizontal: 20),
+              sliver: SliverToBoxAdapter(
+                child: _buildMembershipProgress(percentage),
+              ),
+            )
+          else
+            const SliverToBoxAdapter(child: SizedBox.shrink()),
           SliverPadding(
-            padding: const EdgeInsets.symmetric(horizontal: 20),
-            sliver: SliverToBoxAdapter(
-              child: _buildMembershipProgress(percentage),
-            ),
-          ),
-          SliverPadding(
-            padding: const EdgeInsets.fromLTRB(20, 12, 20, 10),
+            padding: const EdgeInsets.fromLTRB(20, 10, 20, 10),
             sliver: SliverList(
               delegate: SliverChildListDelegate([
                 const Padding(
@@ -77,19 +157,34 @@ class _HomepageState extends State<Homepage> {
                     ),
                   ),
                 ),
-                _buildAccountCard(
-                  title: "SAVINGS",
-                  accountNumber: "ACC-092834",
-                  balance: "450230.00",
-                  isPrimary: true,
-                ),
-                const SizedBox(height: 16),
-                _buildAccountCard(
-                  title: "SHARES",
-                  accountNumber: "INV-882103",
-                  balance: "12000.00",
-                  isPrimary: false,
-                ),
+                if (_isLoading) ...[
+                  buildAccountCardShimmer(),
+                  const SizedBox(height: 16),
+                  buildAccountCardShimmer(),
+                ] else if (accounts.isEmpty)
+                  _buildEmptyAccountsState()
+                else
+                  ...accounts.asMap().entries.map((entry) {
+                    int index = entry.key;
+                    var account = entry.value;
+                    return Column(
+                      children: [
+                        _buildAccountCard(
+                          id: account['id'] ?? "",
+                          title:
+                              account['product']['name']
+                                  ?.toString()
+                                  .toUpperCase() ??
+                              "ACCOUNT",
+                          accountNumber: account['account_number'] ?? "N/A",
+                          balance: account['balance']?.toString() ?? "0",
+                          isPrimary: index == 0,
+                        ),
+                        if (index != accounts.length - 1)
+                          const SizedBox(height: 16),
+                      ],
+                    );
+                  }),
               ]),
             ),
           ),
@@ -287,6 +382,70 @@ class _HomepageState extends State<Homepage> {
                 fontWeight: FontWeight.bold,
                 color: Color(0xFF00796B),
               ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildEmptyAccountsState() {
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.symmetric(vertical: 40, horizontal: 24),
+      decoration: BoxDecoration(
+        color: const Color(0xFFF8FAFC),
+        borderRadius: BorderRadius.circular(32),
+        border: Border.all(color: const Color(0xFFF1F4F8)),
+      ),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Container(
+            padding: const EdgeInsets.all(16),
+            decoration: BoxDecoration(
+              color: Colors.white,
+              shape: BoxShape.circle,
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withValues(alpha: 0.03),
+                  blurRadius: 10,
+                ),
+              ],
+            ),
+            child: Icon(
+              CupertinoIcons.doc_text_search,
+              color: Colors.grey.shade400,
+              size: 32,
+            ),
+          ),
+          const SizedBox(height: 20),
+          const Text(
+            "No Accounts Found",
+            style: TextStyle(
+              fontWeight: FontWeight.w900,
+              fontSize: 16,
+              color: AnansiColors.darkBlue,
+            ),
+          ),
+          const SizedBox(height: 8),
+          Text(
+            "We couldn't find any active accounts linked to your profile. Try refreshing or contact your Sacco admin.",
+            textAlign: TextAlign.center,
+            style: TextStyle(
+              color: Colors.blueGrey.shade400,
+              fontSize: 13,
+              height: 1.5,
+            ),
+          ),
+          const SizedBox(height: 20),
+          TextButton.icon(
+            onPressed: () => fetchCustomerDetails(),
+            icon: const Icon(CupertinoIcons.refresh, size: 16),
+            label: const Text("Refresh Records"),
+            style: TextButton.styleFrom(
+              foregroundColor: const Color(0xFF17C6C6),
+              textStyle: const TextStyle(fontWeight: FontWeight.w700),
             ),
           ),
         ],
@@ -672,6 +831,7 @@ class _HomepageState extends State<Homepage> {
   }
 
   Widget _buildAccountCard({
+    required String id,
     required String title,
     required String accountNumber,
     required String balance,
@@ -682,10 +842,8 @@ class _HomepageState extends State<Homepage> {
         Navigator.push(
           context,
           MaterialPageRoute(
-            builder: (context) => const AccountDetails(
-              accountId: "SHVGF5438",
-              accountNumber: "GCFR54378tG",
-            ),
+            builder: (context) =>
+                AccountDetails(accountId: id, accountNumber: accountNumber),
           ),
         );
       },

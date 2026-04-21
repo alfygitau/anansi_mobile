@@ -1,3 +1,4 @@
+import 'package:app_anansi_mobile/pages/auth/login.dart';
 import 'package:app_anansi_mobile/pages/welcome/welcome.dart';
 import 'package:app_anansi_mobile/services/route_service.dart';
 import 'package:app_anansi_mobile/state/auth_provider.dart';
@@ -23,6 +24,7 @@ class MyApp extends StatelessWidget {
       title: 'Anansi Tech',
       navigatorKey: NavigationService.navigatorKey,
       initialRoute: '/',
+      routes: {'/login': (context) => const Login()},
       theme: ThemeData(
         colorScheme: .fromSeed(seedColor: Colors.deepPurple),
         textTheme: GoogleFonts.outfitTextTheme(Theme.of(context).textTheme),

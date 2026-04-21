@@ -1,3 +1,4 @@
+import 'package:app_anansi_mobile/theme/app_theme.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/services.dart';
@@ -23,6 +24,45 @@ class ErrorService {
             ),
           ],
         ),
+      ),
+    );
+  }
+
+  static void showProgressiveResponse(BuildContext context, String message) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Row(
+          children: [
+            const Icon(
+              CupertinoIcons.checkmark_circle_fill,
+              color: Colors.white,
+              size: 20,
+            ),
+            const SizedBox(width: 12),
+            Expanded(
+              child: Text(
+                message,
+                style: TextStyle(
+                  color: Colors.white,
+                  fontWeight: FontWeight.w600,
+                  fontSize: 14,
+                ),
+              ),
+            ),
+          ],
+        ),
+        backgroundColor: AnansiColors.darkBlue.withValues(alpha: 0.9),
+        behavior: SnackBarBehavior.floating,
+        elevation: 0,
+        margin: const EdgeInsets.fromLTRB(24, 0, 24, 32),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(16),
+          side: BorderSide(
+            color: Colors.white.withValues(alpha: 0.1),
+            width: 1,
+          ),
+        ),
+        duration: const Duration(seconds: 3),
       ),
     );
   }

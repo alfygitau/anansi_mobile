@@ -116,11 +116,7 @@ class _LoginState extends State<Login> {
         (route) => false,
       );
     } else {
-      await SecureStorageService().write("accessToken", tokens['accessToken']);
-      await SecureStorageService().write(
-        "refreshToken",
-        tokens['refreshToken'],
-      );
+      await SecureStorageService().write("accessToken", tokens['access_token']);
       Navigator.pushAndRemoveUntil(
         context,
         MaterialPageRoute(builder: (context) => const Homepage()),

@@ -2,9 +2,15 @@ import 'package:app_anansi_mobile/pages/profile/edit_address.dart';
 import 'package:app_anansi_mobile/pages/profile/edit_financial_details.dart';
 import 'package:app_anansi_mobile/pages/profile/edit_personal_information.dart';
 import 'package:app_anansi_mobile/pages/profile/edit_profile_image.dart';
+import 'package:app_anansi_mobile/services/error_service.dart';
+import 'package:app_anansi_mobile/services/profile_service.dart';
+import 'package:app_anansi_mobile/services/secure_storage_service.dart';
+import 'package:app_anansi_mobile/shimmers/profile/shimmer_profile.dart';
+import 'package:app_anansi_mobile/state/auth_provider.dart';
 import 'package:app_anansi_mobile/theme/app_theme.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
 class Profile extends StatefulWidget {
   const Profile({super.key});
@@ -14,6 +20,8 @@ class Profile extends StatefulWidget {
 }
 
 class _ProfileState extends State<Profile> {
+  Map<String, dynamic> profileInformation = {};
+  bool _isLoading = false;
   final Map<String, dynamic> staticCustomer = {
     "id": "user_88291",
     "public_id": "ANS-99201-KE",
@@ -53,6 +61,40 @@ class _ProfileState extends State<Profile> {
       },
     ],
   };
+
+  void fetchProfileInformation() async {
+    _isLoading = true;
+    try {
+      final (response, errors) = await ProfileService().profileInformation();
+      if (errors != null) {
+        ErrorService.showActionableError(
+          context,
+          title: errors[0],
+          message: errors[1],
+        );
+      } else if (response != null) {
+        setState(() {
+          profileInformation = response.data['data'];
+        });
+      }
+    } finally {
+      if (mounted) setState(() => _isLoading = false);
+    }
+  }
+
+  void _logout() async {
+    final authProvider = Provider.of<AuthProvider>(context, listen: false);
+    SecureStorageService().deleteAll();
+    authProvider.logout();
+    Navigator.pushNamedAndRemoveUntil(context, '/login', (route) => false);
+  }
+
+  @override
+  void initState() {
+    fetchProfileInformation();
+    super.initState();
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -62,28 +104,154 @@ class _ProfileState extends State<Profile> {
         slivers: [
           _buildAppBar(),
           SliverToBoxAdapter(
-            child: Padding(
-              padding: const EdgeInsets.fromLTRB(20.0, 10, 20, 10),
-              child: Column(
-                children: [
-                  _buildTopIdentitySection(),
-                  const SizedBox(height: 20),
-                  _buildPersonalInfoCard(),
-                  const SizedBox(height: 20),
-                  _buildGridSections(),
-                  const SizedBox(height: 24),
-                  _buildExitPolicySection(),
-                  const SizedBox(height: 40),
-                ],
-              ),
-            ),
+            child: _isLoading
+                ? buildProfileSkeleton()
+                : Padding(
+                    padding: const EdgeInsets.fromLTRB(20.0, 10, 20, 10),
+                    child: Column(
+                      children: [
+                        _buildTopIdentitySection(),
+                        const SizedBox(height: 20),
+                        _buildPersonalInfoCard(),
+                        const SizedBox(height: 20),
+                        _buildGridSections(),
+                        const SizedBox(height: 24),
+                        _buildExitPolicySection(),
+                        const SizedBox(height: 40),
+                      ],
+                    ),
+                  ),
           ),
         ],
       ),
     );
   }
 
+  void showLogoutBottomSheet(BuildContext context) {
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: Colors.transparent,
+      isScrollControlled: true,
+      builder: (context) {
+        return Container(
+          padding: const EdgeInsets.all(24),
+          decoration: const BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.vertical(top: Radius.circular(32)),
+          ),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              // Handle Bar
+              Container(
+                width: 40,
+                height: 4,
+                decoration: BoxDecoration(
+                  color: Colors.grey.shade300,
+                  borderRadius: BorderRadius.circular(10),
+                ),
+              ),
+              const SizedBox(height: 32),
+
+              // Icon
+              Container(
+                padding: const EdgeInsets.all(20),
+                decoration: BoxDecoration(
+                  color: ThemeColors.rose.withValues(alpha: 0.1),
+                  shape: BoxShape.circle,
+                ),
+                child: const Icon(
+                  CupertinoIcons.square_arrow_right,
+                  color: ThemeColors.rose,
+                  size: 32,
+                ),
+              ),
+              const SizedBox(height: 24),
+
+              // Text Content
+              const Text(
+                "Sign Out",
+                style: TextStyle(
+                  fontSize: 20,
+                  fontWeight: FontWeight.w900,
+                  color: ThemeColors.primary,
+                ),
+              ),
+              const SizedBox(height: 12),
+              Text(
+                "Are you sure you want to sign out? You will need to re-authenticate to access your Anansi accounts.",
+                textAlign: TextAlign.center,
+                style: TextStyle(
+                  fontSize: 14,
+                  color: Colors.grey.shade600,
+                  height: 1.5,
+                ),
+              ),
+              const SizedBox(height: 32),
+
+              // Actions
+              Row(
+                children: [
+                  Expanded(
+                    child: OutlinedButton(
+                      onPressed: () => Navigator.pop(context),
+                      style: OutlinedButton.styleFrom(
+                        padding: const EdgeInsets.symmetric(vertical: 18),
+                        side: BorderSide(color: Colors.grey.shade200),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(16),
+                        ),
+                      ),
+                      child: const Text(
+                        "Cancel",
+                        style: TextStyle(
+                          fontWeight: FontWeight.w800,
+                          color: ThemeColors.primary,
+                        ),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(width: 16),
+                  Expanded(
+                    child: ElevatedButton(
+                      onPressed: _logout,
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: ThemeColors.rose,
+                        elevation: 0,
+                        padding: const EdgeInsets.symmetric(vertical: 18),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(16),
+                        ),
+                      ),
+                      child: const Text(
+                        "Logout",
+                        style: TextStyle(
+                          fontWeight: FontWeight.w900,
+                          color: Colors.white,
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 16), // Bottom safe area padding
+            ],
+          ),
+        );
+      },
+    );
+  }
+
   Widget _buildTopIdentitySection() {
+    // 1. Logic to combine names cleanly
+    String firstName = profileInformation['firstname'] ?? "";
+    String middleName = profileInformation['middlename'] ?? "";
+    String lastName = profileInformation['lastname'] ?? "";
+    String fullName = [
+      firstName,
+      middleName,
+      lastName,
+    ].where((name) => name.isNotEmpty).join(" ");
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.symmetric(vertical: 40, horizontal: 20),
@@ -111,12 +279,11 @@ class _ProfileState extends State<Profile> {
                     color: Colors.white.withValues(alpha: 0.2),
                     width: 4,
                   ),
-                  image: const DecorationImage(
-                    image: NetworkImage(
-                      "https://ui-avatars.com/api/?name=Alfred+Kariuki&background=random",
-                    ),
-                    fit: BoxFit.cover,
-                  ),
+                ),
+                child: Icon(
+                  CupertinoIcons.person,
+                  size: 60,
+                  color: Colors.white,
                 ),
               ),
               Positioned(
@@ -149,8 +316,8 @@ class _ProfileState extends State<Profile> {
             ],
           ),
           const SizedBox(height: 16),
-          const Text(
-            "Alfred Kariuki Gitau",
+          Text(
+            fullName,
             style: TextStyle(
               color: Colors.white,
               fontSize: 20,
@@ -159,7 +326,7 @@ class _ProfileState extends State<Profile> {
           ),
           const SizedBox(height: 4),
           Text(
-            "alfred@anansi.co.ke",
+            profileInformation['email'] ?? "",
             style: TextStyle(
               color: Colors.white.withValues(alpha: 0.6),
               fontSize: 12,
@@ -173,8 +340,8 @@ class _ProfileState extends State<Profile> {
               color: Colors.white.withValues(alpha: 0.1),
               borderRadius: BorderRadius.circular(100),
             ),
-            child: const Text(
-              "ID: ANS-99201-KE",
+            child: Text(
+              "ID: ${profileInformation['public_id']}",
               style: TextStyle(
                 color: Colors.white,
                 fontSize: 10,
@@ -198,7 +365,7 @@ class _ProfileState extends State<Profile> {
           context,
           MaterialPageRoute(
             builder: (context) =>
-                EditPersonalInformation(customer: staticCustomer),
+                EditPersonalInformation(customer: profileInformation),
           ),
         );
       },
@@ -206,12 +373,34 @@ class _ProfileState extends State<Profile> {
         spacing: 20,
         runSpacing: 20,
         children: [
-          _DataField(label: "First Name", value: "Alfred"),
-          _DataField(label: "Last Name", value: "Kariuki"),
-          _DataField(label: "Phone Number", value: "+254 712 345 678"),
-          _DataField(label: "Date of Birth", value: "12 May 1994"),
-          _DataField(label: "Gender", value: "Male"),
-          _DataField(label: "ID Type", value: "National ID"),
+          _DataField(
+            label: "First Name",
+            value: profileInformation['firstname'] ?? "N/A",
+          ),
+          _DataField(
+            label: "Last Name",
+            value: profileInformation['lastname'] ?? "N/A",
+          ),
+          _DataField(
+            label: "Phone Number",
+            value: profileInformation['mobileno'] ?? "N/A",
+          ),
+          _DataField(
+            label: "Date of Birth",
+            value: profileInformation['dob'] ?? "N/A",
+          ),
+          _DataField(
+            label: "Gender",
+            value: profileInformation['gender'] ?? "N/A",
+          ),
+          _DataField(
+            label: "ID Type",
+            value: profileInformation['identification_type'] ?? "N/A",
+          ),
+          _DataField(
+            label: "ID Number",
+            value: profileInformation['identification'] ?? "N/A",
+          ),
         ],
       ),
     );
@@ -219,6 +408,9 @@ class _ProfileState extends State<Profile> {
 
   // --- 3. GRID SECTIONS (Residential, Financial, Kin) ---
   Widget _buildGridSections() {
+    final Map<String, dynamic> address = profileInformation['addresses'][0];
+    final Map<String, dynamic> nextOfKin =
+        profileInformation['nextOfKins'][0] ?? {};
     return Column(
       children: [
         _InfoCardTemplate(
@@ -228,25 +420,34 @@ class _ProfileState extends State<Profile> {
             Navigator.push(
               context,
               MaterialPageRoute(
-                builder: (context) => EditAddressPage(customer: staticCustomer),
+                builder: (context) =>
+                    EditAddressPage(customer: profileInformation),
               ),
             );
           },
           child: Column(
             children: [
-              _DataField(label: "Country", value: "Kenya", isFullWidth: true),
+              _DataField(
+                label: "Country",
+                value: profileInformation['country_of_residence'] ?? "N/A",
+                isFullWidth: true,
+              ),
               const SizedBox(height: 12),
-              _DataField(label: "County", value: "Nairobi", isFullWidth: true),
+              _DataField(
+                label: "County",
+                value: address['county'] ?? "N/A",
+                isFullWidth: true,
+              ),
               const SizedBox(height: 12),
               _DataField(
                 label: "Sub County",
-                value: "Langata",
+                value: address['subcounty'] ?? "N/A",
                 isFullWidth: true,
               ),
               const SizedBox(height: 12),
               _DataField(
                 label: "Physical Address",
-                value: "Westlands, Delta Towers, 4th Floor",
+                value: address['physical_address'] ?? "N/A",
                 isFullWidth: true,
               ),
             ],
@@ -261,7 +462,7 @@ class _ProfileState extends State<Profile> {
               context,
               MaterialPageRoute(
                 builder: (context) =>
-                    EditFinancialsPage(customer: staticCustomer),
+                    EditFinancialsPage(customer: profileInformation),
               ),
             );
           },
@@ -269,25 +470,64 @@ class _ProfileState extends State<Profile> {
             children: [
               _DataField(
                 label: "Job Title",
-                value: "Senior Full-Stack Developer",
+                value: profileInformation['occupation'] ?? "N/A",
                 isFullWidth: true,
               ),
               const SizedBox(height: 16),
               _DataField(
                 label: "Income Range",
-                value: "KES 200,000 - 400,000",
+                value: profileInformation['income_range'] ?? "N/A",
                 isFullWidth: true,
               ),
               const SizedBox(height: 16),
               _DataField(
                 label: "KRA Pin",
-                value: "A123456789Q",
+                value: profileInformation['kraPin'] ?? "N/A",
                 isFullWidth: true,
               ),
               const SizedBox(height: 16),
               _DataField(
                 label: "Job Type",
-                value: "Employed",
+                value: profileInformation['employment_type'] ?? "N/A",
+                isFullWidth: true,
+              ),
+            ],
+          ),
+        ),
+        const SizedBox(height: 20),
+        _InfoCardTemplate(
+          title: "Next of Kin",
+          icon: CupertinoIcons.person,
+          onEdit: () {},
+          child: Column(
+            children: [
+              _DataField(
+                label: "Name",
+                value: nextOfKin['name'] ?? "N/A",
+                isFullWidth: true,
+              ),
+              const SizedBox(height: 16),
+              _DataField(
+                label: "Relationship",
+                value: nextOfKin['relationship'] ?? "N/A",
+                isFullWidth: true,
+              ),
+              const SizedBox(height: 16),
+              _DataField(
+                label: "Mobile Number",
+                value: nextOfKin['phoneNumber'] ?? "N/A",
+                isFullWidth: true,
+              ),
+              const SizedBox(height: 16),
+              _DataField(
+                label: "Location",
+                value: nextOfKin['location'] ?? "N/A",
+                isFullWidth: true,
+              ),
+              const SizedBox(height: 16),
+              _DataField(
+                label: "Date of Birth",
+                value: nextOfKin['dateOfBirth'] ?? "N/A",
                 isFullWidth: true,
               ),
             ],
@@ -351,7 +591,7 @@ class _ProfileState extends State<Profile> {
         Padding(
           padding: const EdgeInsets.only(right: 16),
           child: _buildCircleAction(CupertinoIcons.square_arrow_right, () {
-
+            showLogoutBottomSheet(context);
           }),
         ),
       ],

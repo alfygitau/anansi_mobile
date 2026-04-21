@@ -166,16 +166,9 @@ class _OtpAccessState extends State<OtpAccess> {
       return;
     } else if (response != null) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: const Text("A new code has been sent to your phone"),
-            backgroundColor: AnansiColors.darkBlue,
-            behavior: SnackBarBehavior.floating,
-            duration: const Duration(seconds: 3),
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(10),
-            ),
-          ),
+        ErrorService.showProgressiveResponse(
+          context,
+          "A new code has been sent to your phone",
         );
       }
     }

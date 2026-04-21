@@ -1,6 +1,10 @@
 import 'package:app_anansi_mobile/helpers/format_amount.dart';
+import 'package:app_anansi_mobile/helpers/format_time.dart';
 import 'package:app_anansi_mobile/pages/deposit-savings/deposit_amount.dart';
 import 'package:app_anansi_mobile/pages/invest/invest_amount.dart';
+import 'package:app_anansi_mobile/services/account_service.dart';
+import 'package:app_anansi_mobile/services/error_service.dart';
+import 'package:app_anansi_mobile/shimmers/account/card_account.dart';
 import 'package:app_anansi_mobile/theme/app_theme.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -22,6 +26,62 @@ class AccountDetails extends StatefulWidget {
 
 class _AccountDetailsState extends State<AccountDetails> {
   bool _balanceVisible = true;
+  bool _loading = false;
+  bool _isLoading = false;
+  List<Map<String, dynamic>> transactions = [];
+  Map<String, dynamic> accountInfo = {};
+
+  void fetchAccount() async {
+    _isLoading = true;
+    try {
+      final (response, errors) = await AccountService().accounts(
+        accountId: widget.accountId,
+      );
+      if (errors != null) {
+        ErrorService.showActionableError(
+          context,
+          title: errors[0],
+          message: errors[1],
+        );
+      } else if (response != null) {
+        setState(() {
+          accountInfo = response.data['data'] ?? {};
+        });
+      }
+    } finally {
+      if (mounted) setState(() => _isLoading = false);
+    }
+  }
+
+  void fetchTransactions() async {
+    _loading = true;
+    try {
+      final (response, errors) = await AccountService().transactions(
+        accountNumber: widget.accountNumber,
+      );
+      if (errors != null) {
+        ErrorService.showActionableError(
+          context,
+          title: errors[0],
+          message: errors[1],
+        );
+      } else if (response != null) {
+        final responseInfo = response.data['data'];
+        setState(() {
+          transactions = List<Map<String, dynamic>>.from(responseInfo ?? []);
+        });
+      }
+    } finally {
+      if (mounted) setState(() => _loading = false);
+    }
+  }
+
+  @override
+  void initState() {
+    fetchAccount();
+    fetchTransactions();
+    super.initState();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -37,12 +97,14 @@ class _AccountDetailsState extends State<AccountDetails> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  _buildBalanceHero(),
+                  _getHeroState(),
                   const SizedBox(height: 24),
                   _buildQuickActions(),
                   const SizedBox(height: 20),
                   _buildTransactionHeader(),
-                  _buildTransactionList(),
+                  _loading
+                      ? buildTransactionListSkeleton()
+                      : _buildTransactionList(),
                   const SizedBox(height: 20),
                   _buildSecurityCard(),
                   const SizedBox(height: 40),
@@ -53,6 +115,16 @@ class _AccountDetailsState extends State<AccountDetails> {
         ],
       ),
     );
+  }
+
+  Widget _getHeroState() {
+    if (_isLoading) return buildBalanceHeroSkeleton();
+
+    if (accountInfo.isEmpty || !accountInfo.containsKey('id')) {
+      return _buildEmptyBalanceHero();
+    }
+
+    return _buildBalanceHero();
   }
 
   Widget _buildAppBar() {
@@ -184,8 +256,8 @@ class _AccountDetailsState extends State<AccountDetails> {
                           ),
                         ),
                         const SizedBox(width: 8),
-                        const Text(
-                          "SAVINGS",
+                        Text(
+                          accountInfo['product']['name'] ?? "N/A",
                           style: TextStyle(
                             color: Colors.white60,
                             fontSize: 10,
@@ -201,7 +273,7 @@ class _AccountDetailsState extends State<AccountDetails> {
                         Expanded(
                           child: Text(
                             _balanceVisible
-                                ? formatAmount(230000)
+                                ? formatAmount(accountInfo['balance'] ?? 0)
                                 : "KES ••••••••",
                             style: GoogleFonts.robotoMono(
                               fontWeight: FontWeight.w900,
@@ -252,7 +324,7 @@ class _AccountDetailsState extends State<AccountDetails> {
                           Row(
                             children: [
                               Text(
-                                widget.accountNumber,
+                                accountInfo['account_number'] ?? "N/A",
                                 style: const TextStyle(
                                   color: Colors.white,
                                   fontFamily: 'Monospace',
@@ -276,6 +348,123 @@ class _AccountDetailsState extends State<AccountDetails> {
                       ),
                     ],
                   ),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildEmptyBalanceHero() {
+    return Container(
+      height: 200,
+      width: double.infinity,
+      decoration: BoxDecoration(
+        color: AnansiColors.darkBlue,
+        borderRadius: BorderRadius.circular(32),
+        // Subtle glow to keep it premium even when empty
+        boxShadow: [
+          BoxShadow(
+            color: AnansiColors.darkBlue.withValues(alpha: 0.2),
+            blurRadius: 30,
+            offset: const Offset(0, 15),
+          ),
+        ],
+      ),
+      child: Stack(
+        children: [
+          // Background Decorative Graphic (Optional for "Premium" feel)
+          Positioned(
+            right: -20,
+            top: -20,
+            child: Icon(
+              CupertinoIcons.sparkles,
+              size: 150,
+              color: Colors.white.withValues(alpha: 0.03),
+            ),
+          ),
+          Padding(
+            padding: const EdgeInsets.all(24.0),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      children: [
+                        Container(
+                          width: 8,
+                          height: 8,
+                          decoration: BoxDecoration(
+                            color: Colors.white24, // Muted indicator
+                            shape: BoxShape.circle,
+                          ),
+                        ),
+                        const SizedBox(width: 8),
+                        const Text(
+                          "SAVINGS",
+                          style: TextStyle(
+                            color: Colors.white38,
+                            fontSize: 10,
+                            fontWeight: FontWeight.w900,
+                            letterSpacing: 1.5,
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 12),
+                    Text(
+                      formatAmount(0),
+                      style: GoogleFonts.robotoMono(
+                        fontWeight: FontWeight.w900,
+                        fontSize: 28,
+                        color: Colors.white.withValues(
+                          alpha: 0.5,
+                        ), // Desaturated
+                        letterSpacing: -1,
+                      ),
+                    ),
+                  ],
+                ),
+
+                // Action Area for Empty State
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    const Text(
+                      "No active savings yet",
+                      style: TextStyle(
+                        color: Colors.white24,
+                        fontSize: 12,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                    TextButton.icon(
+                      onPressed: () {
+                        // Navigate to Deposit/Top-up
+                      },
+                      icon: const Icon(
+                        CupertinoIcons.add_circled_solid,
+                        size: 18,
+                      ),
+                      label: const Text("Start Saving"),
+                      style: TextButton.styleFrom(
+                        foregroundColor: const Color(0xFF17C6C6),
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 16,
+                          vertical: 8,
+                        ),
+                        backgroundColor: Colors.white.withValues(alpha: 0.05),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                      ),
+                    ),
+                  ],
                 ),
               ],
             ),
@@ -401,9 +590,14 @@ class _AccountDetailsState extends State<AccountDetails> {
       shrinkWrap: true,
       padding: EdgeInsets.zero,
       physics: const NeverScrollableScrollPhysics(),
-      itemCount: 6,
+      itemCount: transactions.length,
       separatorBuilder: (_, __) => const SizedBox(height: 12),
       itemBuilder: (context, index) {
+        final tx = transactions[index];
+        final bool isDeposit = tx['deposit_method'] == 'MPESA';
+        final Color amountColor = isDeposit
+            ? const Color(0xFF10B981)
+            : Colors.orange.shade700;
         return Container(
           padding: const EdgeInsets.all(16),
           decoration: BoxDecoration(
@@ -430,8 +624,8 @@ class _AccountDetailsState extends State<AccountDetails> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    const Text(
-                      "M-PESA",
+                    Text(
+                      tx['type'] ?? "MPESA",
                       style: TextStyle(
                         fontWeight: FontWeight.w900,
                         fontSize: 14,
@@ -439,7 +633,7 @@ class _AccountDetailsState extends State<AccountDetails> {
                       ),
                     ),
                     Text(
-                      "REF: XJ92K6587GT0Y",
+                      "REF: ${tx['ref_number'] ?? "GFD654345WH"}",
                       style: TextStyle(
                         color: Colors.grey.shade500,
                         fontSize: 10,
@@ -447,7 +641,9 @@ class _AccountDetailsState extends State<AccountDetails> {
                       ),
                     ),
                     Text(
-                      "12 Apr, 2026",
+                      formatPostgresDateWithTime(
+                        tx['createdAt'] ?? tx['updatedAt'],
+                      ),
                       style: TextStyle(
                         color: Colors.grey.shade500,
                         fontSize: 10,
@@ -461,15 +657,15 @@ class _AccountDetailsState extends State<AccountDetails> {
                 crossAxisAlignment: CrossAxisAlignment.end,
                 children: [
                   Text(
-                    formatAmount("2500"),
+                    formatAmount(tx['amount'] ?? 0),
                     style: TextStyle(
-                      color: Color(0xFF10B981),
+                      color: amountColor,
                       fontWeight: FontWeight.w900,
                       fontSize: 14,
                     ),
                   ),
                   Text(
-                    "SUCCESS",
+                    tx['amount'] ?? "0.0".toString().toUpperCase(),
                     style: TextStyle(
                       color: Colors.grey.shade400,
                       fontSize: 8,
