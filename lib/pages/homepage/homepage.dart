@@ -4,6 +4,7 @@ import 'package:app_anansi_mobile/pages/buy-shares/shares_amount.dart';
 import 'package:app_anansi_mobile/pages/deposit-savings/deposit_amount.dart';
 import 'package:app_anansi_mobile/pages/guarantorship/guarantorship.dart';
 import 'package:app_anansi_mobile/pages/invest/invest_amount.dart';
+import 'package:app_anansi_mobile/pages/loan-applications/loan_applications.dart';
 import 'package:app_anansi_mobile/pages/membership/intro_membership.dart';
 import 'package:app_anansi_mobile/pages/notifications/notifications.dart';
 import 'package:app_anansi_mobile/pages/profile/profile.dart';
@@ -273,9 +274,14 @@ class _HomepageState extends State<Homepage> {
                         ),
                       ),
                       _buildQuickAction(
-                        label: "Loans",
+                        label: "Loan Applications",
                         icon: CupertinoIcons.chart_bar_alt_fill,
-                        onTap: () => Navigator.pushNamed(context, '/loans'),
+                        onTap: () => Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => const LoanApplications(),
+                          ),
+                        ),
                       ),
                     ],
                   ),
@@ -326,10 +332,9 @@ class _HomepageState extends State<Homepage> {
                 children: [
                   _buildLoanItem(
                     title: "Business Growth Loan",
-                    id: "LN-SEC-2026-0042",
+                    id: "LN-670042",
                     amount: "KES 1,200,000.00",
                     balance: "KES 740,500.00",
-                    progress: 0.38,
                     status: "Active",
                     statusColor: const Color(0xFF17C6C6),
                     maturityDate: "19th/09/2026",
@@ -337,10 +342,9 @@ class _HomepageState extends State<Homepage> {
                   const SizedBox(height: 10),
                   _buildLoanItem(
                     title: "Executive Personal Credit",
-                    id: "LN-SEC-2025-0918",
+                    id: "LN-450918",
                     amount: "KES 150,000.00",
                     balance: "KES 12,000.00",
-                    progress: 0.92,
                     status: "Near Completion",
                     statusColor: Colors.green.shade400,
                     maturityDate: "20th/01/2027",
@@ -937,13 +941,12 @@ class _HomepageState extends State<Homepage> {
     required String id,
     required String amount,
     required String balance,
-    required double progress,
     required String status,
     required Color statusColor,
     required String maturityDate,
   }) {
     return Container(
-      margin: const EdgeInsets.only(bottom: 10),
+      margin: const EdgeInsets.only(bottom: 16),
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(30),
@@ -957,8 +960,9 @@ class _HomepageState extends State<Homepage> {
       ),
       child: Column(
         children: [
+          // 1. Header Section
           Padding(
-            padding: const EdgeInsets.fromLTRB(24, 10, 24, 14),
+            padding: const EdgeInsets.fromLTRB(24, 20, 24, 14),
             child: Row(
               children: [
                 Expanded(
@@ -982,6 +986,8 @@ class _HomepageState extends State<Homepage> {
               ],
             ),
           ),
+
+          // 2. The Main Stats Box
           Container(
             margin: const EdgeInsets.symmetric(horizontal: 16),
             padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 18),
@@ -993,12 +999,79 @@ class _HomepageState extends State<Homepage> {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 _buildLoanStat("Principal", amount),
-                Container(width: 1, height: 30, color: Colors.grey.shade400),
+                Container(
+                  width: 1,
+                  height: 30,
+                  color: Colors.grey.withValues(alpha: 0.15),
+                ),
                 _buildLoanStat("Current Balance", balance, isHighlight: true),
               ],
             ),
           ),
-          SizedBox(height: 8),
+
+          // 3. NEW REFINED STATUS FOOTER
+          Padding(
+            padding: const EdgeInsets.fromLTRB(24, 16, 24, 20),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                // Status Chip
+                Container(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 12,
+                    vertical: 6,
+                  ),
+                  decoration: BoxDecoration(
+                    color: statusColor.withValues(alpha: 0.1),
+                    borderRadius: BorderRadius.circular(100),
+                  ),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Container(
+                        width: 6,
+                        height: 6,
+                        decoration: BoxDecoration(
+                          color: statusColor,
+                          shape: BoxShape.circle,
+                        ),
+                      ),
+                      const SizedBox(width: 8),
+                      Text(
+                        status.toUpperCase(),
+                        style: TextStyle(
+                          color: statusColor,
+                          fontSize: 10,
+                          fontWeight: FontWeight.w900,
+                          letterSpacing: 0.5,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+
+                // Simple "Manage" or "Details" Text
+                const Row(
+                  children: [
+                    Text(
+                      "View Details",
+                      style: TextStyle(
+                        color: AnansiColors.darkBlue,
+                        fontSize: 11,
+                        fontWeight: FontWeight.w700,
+                      ),
+                    ),
+                    SizedBox(width: 4),
+                    Icon(
+                      CupertinoIcons.chevron_right,
+                      size: 12,
+                      color: AnansiColors.darkBlue,
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          ),
         ],
       ),
     );
@@ -1053,7 +1126,6 @@ class _HomepageState extends State<Homepage> {
         fontSize: 13,
         fontWeight: FontWeight.w700,
         letterSpacing: 0.8,
-        fontFamily: 'Courier',
       ),
     );
   }
@@ -1118,6 +1190,7 @@ class _HomepageState extends State<Homepage> {
                   style: const TextStyle(
                     fontWeight: FontWeight.w700,
                     fontSize: 13,
+                    color: AnansiColors.darkBlue,
                   ),
                 ),
                 Text(
