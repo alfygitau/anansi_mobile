@@ -103,6 +103,9 @@ class _OtpBoxesState extends State<OtpBoxes>
                 focusNode: widget.focusNode,
                 keyboardType: TextInputType.number,
                 maxLength: 6,
+                onTapOutside: (event) {
+                  FocusScope.of(context).unfocus();
+                },
                 decoration: const InputDecoration(
                   counterText: '',
                   border: InputBorder.none,

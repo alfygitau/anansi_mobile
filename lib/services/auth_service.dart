@@ -32,4 +32,51 @@ class AuthService {
       return (null, ["Authentication Error!", "An unknown error occurred."]);
     }
   }
+
+  Future<(Response?, List<String>?)> verifyLogin({
+    required String email,
+    required String oneTimePassword,
+    required String mobile,
+    required String customerId,
+  }) async {
+    final deviceId = await getDeviceId();
+    try {
+      final response = await _publicClient.post(
+        '/customer/otp/verify-login',
+        data: {
+          'code': oneTimePassword,
+          'isEmail': false,
+          'phoneNumber': mobile,
+          "customerId": customerId,
+          "email": email,
+          "deviceId": deviceId,
+        },
+      );
+      return (response, null);
+    } on DioException catch (e) {
+      final apiException = ApiException();
+      final errorMessages = apiException.getExceptionMessage(e);
+      return (null, errorMessages);
+    } catch (e) {
+      return (null, ["Authentication Error!", "An unknown error occurred."]);
+    }
+  }
+
+  Future<(Response?, List<String>?)> sendMobileOtp({
+    required String userId,
+  }) async {
+    try {
+      final response = await _publicClient.post(
+        '/otp',
+        data: {'userId': userId, 'isEmail': false},
+      );
+      return (response, null);
+    } on DioException catch (e) {
+      final apiException = ApiException();
+      final errorMessages = apiException.getExceptionMessage(e);
+      return (null, errorMessages);
+    } catch (e) {
+      return (null, ["Authentication Error!", "An unknown error occurred."]);
+    }
+  }
 }

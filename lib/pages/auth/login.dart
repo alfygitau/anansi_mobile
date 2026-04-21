@@ -580,6 +580,10 @@ class _LoginState extends State<Login> {
                           fontWeight: FontWeight.w500,
                         ),
                         isDense: true,
+                        suffixIconConstraints: const BoxConstraints(
+                          minWidth: 30,
+                          minHeight: 30,
+                        ),
                         contentPadding: const EdgeInsets.symmetric(vertical: 4),
                         border: InputBorder.none,
                         suffixIcon: GestureDetector(

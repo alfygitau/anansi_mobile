@@ -1,9 +1,17 @@
 import 'dart:async';
-import 'package:app_anansi_mobile/pages/onboarding/account_success.dart';
+import 'dart:convert';
+import 'package:app_anansi_mobile/pages/homepage/homepage.dart';
+import 'package:app_anansi_mobile/pages/membership/intro_membership.dart';
+import 'package:app_anansi_mobile/services/auth_service.dart';
+import 'package:app_anansi_mobile/services/error_service.dart';
+import 'package:app_anansi_mobile/services/secure_storage_service.dart';
+import 'package:app_anansi_mobile/state/auth_provider.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:app_anansi_mobile/theme/app_theme.dart';
 import 'package:app_anansi_mobile/components/otp_boxes.dart';
+import 'package:flutter/services.dart';
+import 'package:provider/provider.dart';
 
 class OtpAccess extends StatefulWidget {
   final String phoneNumber;
@@ -18,12 +26,23 @@ class _OtpAccessState extends State<OtpAccess> {
   final _focus = FocusNode();
   Timer? _timer;
   int _secondsRemaining = 59;
+  String? _errorText;
+  bool _isLoading = false;
 
   @override
   void initState() {
     super.initState();
     _startTimer();
+
+    _controller.addListener(() {
+      if (_errorText != null) {
+        setState(() => _errorText = null);
+      }
+      setState(() {});
+    });
   }
+
+  bool get _isOtpReady => _controller.text.length == 6 && !_isLoading;
 
   void _startTimer() {
     _secondsRemaining = 59;
@@ -41,12 +60,125 @@ class _OtpAccessState extends State<OtpAccess> {
     });
   }
 
+  void _verifyLogin() async {
+    if (!_isOtpReady) return;
+
+    setState(() {
+      _isLoading = true;
+      _errorText = null;
+    });
+    try {
+      final authProvider = Provider.of<AuthProvider>(context, listen: false);
+      final (response, error) = await AuthService().verifyLogin(
+        email: authProvider.user?['email'],
+        oneTimePassword: _controller.text.trim(),
+        mobile: authProvider.user?['mobileno'],
+        customerId: authProvider.user?['id'],
+      );
+      if (error != null) {
+        ErrorService.showActionableError(
+          context,
+          title: error[0],
+          message: error[1],
+        );
+      } else if (response != null) {
+        HapticFeedback.lightImpact();
+        final responseInfo = response.data['data'] ?? {};
+        await storeUserInfo(responseInfo);
+      }
+    } finally {
+      if (mounted) setState(() => _isLoading = false);
+    }
+  }
+
+  Future<Map<String, dynamic>?> getUser() async {
+    String? userJson = await SecureStorageService().read('user');
+    if (userJson == null) return null;
+    Map<String, dynamic> userMap = jsonDecode(userJson);
+    return userMap;
+  }
+
   @override
   void dispose() {
     _timer?.cancel();
     _controller.dispose();
     _focus.dispose();
     super.dispose();
+  }
+
+  Future<void> storeUserInfo(Map<String, dynamic> responseInfo) async {
+    if (!mounted) return;
+
+    final String token = responseInfo['tokens']?['access_token'] ?? "";
+    await SecureStorageService().write('token', token);
+
+    final user = await getUser();
+    if (user == null) return;
+
+    final String status = user['status']?.toString().toLowerCase() ?? "";
+    final String stage =
+        user['onboardingStage']?.toString().toLowerCase() ?? "";
+    final bool isMember = user['member'] == true;
+    final bool isTempPass = user['temporary_password'] == true;
+    final bool isOnboarded = stage == 'completed';
+
+    if (status == 'active' && isTempPass) {
+      return;
+    }
+
+    if (isOnboarded && !isMember && !isTempPass) {
+      _navigateTo(const IntroMember());
+      return;
+    }
+
+    if (isOnboarded && status == 'pending') {
+      return;
+    }
+
+    if (!isMember && status == "incomplete" && !isOnboarded) {
+      return;
+    }
+
+    _navigateTo(const Homepage());
+  }
+
+  void _navigateTo(Widget page) {
+    Navigator.pushAndRemoveUntil(
+      context,
+      MaterialPageRoute(builder: (context) => page),
+      (route) => false,
+    );
+  }
+
+  void _resendOtp() async {
+    _controller.clear();
+    _startTimer();
+    final authProvider = Provider.of<AuthProvider>(context, listen: false);
+    final (response, errors) = await AuthService().sendMobileOtp(
+      userId: authProvider.user?['id'],
+    );
+    if (errors != null) {
+      ErrorService.showActionableError(
+        context,
+        title: errors[0],
+        message: errors[1],
+      );
+      return;
+    } else if (response != null) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: const Text("A new code has been sent to your phone"),
+            backgroundColor: AnansiColors.darkBlue,
+            behavior: SnackBarBehavior.floating,
+            duration: const Duration(seconds: 3),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(10),
+            ),
+          ),
+        );
+      }
+    }
   }
 
   @override
@@ -132,13 +264,13 @@ class _OtpAccessState extends State<OtpAccess> {
         const SizedBox(height: 10),
         GestureDetector(
           onTap: () {
-            Navigator.pop(context); // Go back to change number
+            Navigator.pop(context);
           },
           child: Row(
             mainAxisSize: MainAxisSize.min,
             children: [
               const Text(
-                "Want to change your number?",
+                "Trouble receiving the code?",
                 style: TextStyle(
                   color: Color(0xFF17C6C6),
                   fontSize: 13,
@@ -148,7 +280,7 @@ class _OtpAccessState extends State<OtpAccess> {
               ),
               const SizedBox(width: 6),
               Icon(
-                CupertinoIcons.create,
+                CupertinoIcons.question_circle_fill,
                 size: 14,
                 color: const Color(0xFF17C6C6).withValues(alpha: 0.8),
               ),
@@ -181,7 +313,7 @@ class _OtpAccessState extends State<OtpAccess> {
                 ),
               )
             : GestureDetector(
-                onTap: _startTimer,
+                onTap: _resendOtp,
                 child: const Text(
                   "Resend Code",
                   style: TextStyle(
@@ -215,7 +347,7 @@ class _OtpAccessState extends State<OtpAccess> {
                 color: AnansiColors.darkBlue,
               ),
               SizedBox(width: 10),
-              const Text(
+              Text(
                 "SECURITY NOTICE",
                 style: TextStyle(
                   fontSize: 10,
@@ -242,36 +374,51 @@ class _OtpAccessState extends State<OtpAccess> {
   }
 
   Widget _buildFixedBottomAction() {
+    final bool active = _isOtpReady;
+
     return Container(
       padding: const EdgeInsets.fromLTRB(24, 10, 24, 20),
       decoration: const BoxDecoration(color: Colors.white),
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
+          if (_errorText != null) ...[
+            Text(
+              _errorText!,
+              style: const TextStyle(
+                color: Colors.redAccent,
+                fontSize: 12,
+                fontWeight: FontWeight.w600,
+              ),
+            ),
+            const SizedBox(height: 12),
+          ],
           ElevatedButton(
-            onPressed: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(builder: (context) => const AccountSuccess()),
-              );
-            },
+            onPressed: active ? _verifyLogin : null,
             style: ElevatedButton.styleFrom(
               backgroundColor: AnansiColors.darkBlue,
+              // Keep blue background while loading so loader is visible
+              disabledBackgroundColor: _isLoading
+                  ? AnansiColors.darkBlue
+                  : Colors.grey.shade200,
               foregroundColor: Colors.white,
+              disabledForegroundColor: Colors.white,
               minimumSize: const Size(double.infinity, 64),
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(20),
               ),
               elevation: 0,
             ),
-            child: const Text(
-              "VERIFY MOBILE NUMBER",
-              style: TextStyle(
-                fontWeight: FontWeight.w900,
-                letterSpacing: 1.5,
-                fontSize: 14,
-              ),
-            ),
+            child: _isLoading
+                ? const CupertinoActivityIndicator(color: Colors.white)
+                : const Text(
+                    "VERIFY MOBILE NUMBER",
+                    style: TextStyle(
+                      fontWeight: FontWeight.w900,
+                      letterSpacing: 1.5,
+                      fontSize: 14,
+                    ),
+                  ),
           ),
           const SizedBox(height: 16),
           Row(
