@@ -148,6 +148,8 @@ class _ResetPasswordState extends State<ResetPassword> {
             children: [
               _buildSectionHeader(),
               const SizedBox(height: 32),
+              _buildValidationCard(),
+              const SizedBox(height: 24),
               _buildPasswordField(
                 label: "New Password",
                 fieldKey: "password",
@@ -166,8 +168,6 @@ class _ResetPasswordState extends State<ResetPassword> {
                 icon: CupertinoIcons.checkmark_shield_fill,
                 focusNode: _confirmFocus,
               ),
-              const SizedBox(height: 24),
-              _buildValidationCard(),
               const SizedBox(height: 32),
               _buildDisclaimerBox(),
               const SizedBox(height: 60),
