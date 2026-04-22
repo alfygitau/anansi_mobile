@@ -3,8 +3,6 @@ import 'package:app_anansi_mobile/theme/app_theme.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
-enum MyOtpType { email, mobile }
-
 class OtpType extends StatefulWidget {
   const OtpType({super.key});
 
@@ -98,7 +96,7 @@ class _OtpTypeState extends State<OtpType> {
                       context,
                       MaterialPageRoute(
                         builder: (context) =>
-                            ForgetIdentity(otpType: MyOtpType.mobile),
+                            ForgetIdentity(method: _selectedMethod),
                       ),
                     );
                   },

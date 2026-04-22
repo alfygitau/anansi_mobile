@@ -1,12 +1,11 @@
 import 'package:app_anansi_mobile/pages/forget-password/forget_otp_access.dart';
-import 'package:app_anansi_mobile/pages/forget-password/otp_type.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
 class ForgetIdentity extends StatefulWidget {
-  final MyOtpType otpType;
+  final String method;
 
-  const ForgetIdentity({super.key, required this.otpType});
+  const ForgetIdentity({super.key, required this.method});
 
   @override
   State<ForgetIdentity> createState() => _ForgetIdentityState();
@@ -34,7 +33,7 @@ class _ForgetIdentityState extends State<ForgetIdentity> {
 
   @override
   Widget build(BuildContext context) {
-    final bool isEmail = widget.otpType == MyOtpType.email;
+    final bool isEmail = widget.method == "email";
 
     return Scaffold(
       backgroundColor: Colors.white,
@@ -65,6 +64,9 @@ class _ForgetIdentityState extends State<ForgetIdentity> {
                     hint: isEmail ? "example@domain.com" : "0712 345 678",
                     icon: isEmail ? CupertinoIcons.mail : CupertinoIcons.phone,
                     focusNode: _focusNode,
+                    keyboardType: isEmail
+                        ? TextInputType.emailAddress
+                        : TextInputType.phone,
                   ),
                   const SizedBox(height: 40),
                   _buildDisclaimers(),
@@ -140,6 +142,7 @@ class _ForgetIdentityState extends State<ForgetIdentity> {
     required String hint,
     required IconData icon,
     required FocusNode focusNode,
+    required TextInputType keyboardType,
   }) {
     // 1. Extract the current state for this specific field
     final String? errorText = formErrors[fieldKey];
@@ -216,6 +219,7 @@ class _ForgetIdentityState extends State<ForgetIdentity> {
                     TextField(
                       focusNode: focusNode,
                       controller: controller,
+                      keyboardType: keyboardType,
                       onChanged: (val) {
                         if (formErrors[fieldKey] != null) {
                           setState(() => formErrors[fieldKey] = null);
@@ -342,7 +346,7 @@ class _ForgetIdentityState extends State<ForgetIdentity> {
       Navigator.push(
         context,
         MaterialPageRoute(
-          builder: (context) => ForgetOtpAccess(),
+          builder: (context) => ForgetOtpAccess(method: widget.method),
         ),
       );
     }

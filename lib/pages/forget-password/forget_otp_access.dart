@@ -6,7 +6,8 @@ import 'package:app_anansi_mobile/theme/app_theme.dart';
 import 'package:app_anansi_mobile/components/otp_boxes.dart';
 
 class ForgetOtpAccess extends StatefulWidget {
-  const ForgetOtpAccess({super.key});
+  final String method;
+  const ForgetOtpAccess({super.key, required this.method});
 
   @override
   State<ForgetOtpAccess> createState() => _ForgetOtpAccessState();
@@ -50,6 +51,7 @@ class _ForgetOtpAccessState extends State<ForgetOtpAccess> {
 
   @override
   Widget build(BuildContext context) {
+    final bool isEmail = widget.method == "email";
     return Scaffold(
       backgroundColor: Colors.white,
       body: SafeArea(
@@ -65,8 +67,8 @@ class _ForgetOtpAccessState extends State<ForgetOtpAccess> {
                     const SizedBox(height: 20),
                     _buildIconHeader(),
                     const SizedBox(height: 10),
-                    const Text(
-                      "Verify your email",
+                    Text(
+                      "Verify your ${isEmail ? 'email' : 'phone'}",
                       style: TextStyle(
                         color: AnansiColors.darkBlue,
                         fontSize: 24,
@@ -116,11 +118,14 @@ class _ForgetOtpAccessState extends State<ForgetOtpAccess> {
   }
 
   Widget _buildEmailDescription() {
+    final bool isEmail = widget.method == "email";
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          "We've sent a 6-digit verification code to the email address email@example.com. Please check your spam folder if you don't see it.",
+          isEmail
+              ? "We've sent a 6-digit verification code to the email address email@example.com. Please check your spam folder if you don't see it."
+              : "We've sent a 6-digit verification code to the mobile number 0700000000. Please check your messages.",
           style: TextStyle(
             color: Colors.blueGrey.shade400,
             fontSize: 15,
@@ -136,8 +141,10 @@ class _ForgetOtpAccessState extends State<ForgetOtpAccess> {
           child: Row(
             mainAxisSize: MainAxisSize.min,
             children: [
-              const Text(
-                "You want to change your email?",
+              Text(
+                isEmail
+                    ? "You want to change your email?"
+                    : "You want to change your mobile number?",
                 style: TextStyle(
                   color: Color(0xFF17C6C6),
                   fontSize: 13,
@@ -241,6 +248,7 @@ class _ForgetOtpAccessState extends State<ForgetOtpAccess> {
   }
 
   Widget _buildFixedBottomAction() {
+    final bool isEmail = widget.method == "email";
     return Container(
       padding: const EdgeInsets.fromLTRB(24, 10, 24, 10),
       decoration: BoxDecoration(color: Colors.white),
@@ -263,8 +271,8 @@ class _ForgetOtpAccessState extends State<ForgetOtpAccess> {
               ),
               elevation: 0,
             ),
-            child: const Text(
-              "VERIFY EMAIL ADDRESS",
+            child:  Text(
+              isEmail ? "VERIFY EMAIL ADDRESS" : "VERIFY MOBILE NUMBER",
               style: TextStyle(
                 fontWeight: FontWeight.w900,
                 letterSpacing: 1.5,
