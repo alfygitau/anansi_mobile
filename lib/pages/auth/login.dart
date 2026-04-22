@@ -1,5 +1,7 @@
 import 'package:app_anansi_mobile/pages/auth/otp_access.dart';
+import 'package:app_anansi_mobile/pages/forget-password/otp_type.dart';
 import 'package:app_anansi_mobile/pages/homepage/homepage.dart';
+import 'package:app_anansi_mobile/pages/onboarding/register.dart';
 import 'package:app_anansi_mobile/services/auth_service.dart';
 import 'package:app_anansi_mobile/services/error_service.dart';
 import 'package:app_anansi_mobile/services/secure_storage_service.dart';
@@ -192,7 +194,14 @@ class _LoginState extends State<Login> {
                     Align(
                       alignment: Alignment.centerRight,
                       child: TextButton(
-                        onPressed: () {},
+                        onPressed: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => const OtpType(),
+                            ),
+                          );
+                        },
                         child: const Text(
                           "Forgot Password?",
                           style: TextStyle(
@@ -317,7 +326,12 @@ class _LoginState extends State<Login> {
           style: TextStyle(color: Colors.grey.shade600),
         ),
         TextButton(
-          onPressed: () {},
+          onPressed: () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (context) => const Register()),
+            );
+          },
           child: const Text(
             "Register",
             style: TextStyle(
@@ -356,7 +370,7 @@ class _LoginState extends State<Login> {
             // BORDER LOGIC: Error > Focused > Neutral
             border: Border.all(
               color: hasError
-                  ? Colors.redAccent.withOpacity(0.6)
+                  ? Colors.redAccent.withValues(alpha: 0.6)
                   : (isFocused
                         ? const Color(0xFF17C6C6)
                         : const Color(0xFFF1F4F8)),
@@ -471,7 +485,7 @@ class _LoginState extends State<Login> {
 
   Widget _buildPasswordField({
     required String label,
-    required String fieldKey, // Dictionary key: 'password'
+    required String fieldKey,
     required TextEditingController controller,
     required String hint,
     required IconData icon,
@@ -493,7 +507,7 @@ class _LoginState extends State<Login> {
             // BORDER LOGIC
             border: Border.all(
               color: hasError
-                  ? Colors.redAccent.withOpacity(0.6)
+                  ? Colors.redAccent.withValues(alpha: 0.6)
                   : (isFocused
                         ? const Color(0xFF17C6C6)
                         : const Color(0xFFF1F4F8)),
@@ -592,7 +606,7 @@ class _LoginState extends State<Login> {
                                 : CupertinoIcons.eye_fill,
                             size: 18,
                             color: hasError
-                                ? Colors.redAccent.withOpacity(0.5)
+                                ? Colors.redAccent.withValues(alpha: 0.5)
                                 : Colors.grey.shade400,
                           ),
                         ),
@@ -604,8 +618,6 @@ class _LoginState extends State<Login> {
             ],
           ),
         ),
-
-        // Animated Error Message below the field
         AnimatedSize(
           duration: const Duration(milliseconds: 200),
           child: SizedBox(
