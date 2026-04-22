@@ -14,8 +14,7 @@ import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 
 class OtpAccess extends StatefulWidget {
-  final String phoneNumber;
-  const OtpAccess({super.key, this.phoneNumber = "+254 700 000 000"});
+  const OtpAccess({super.key});
 
   @override
   State<OtpAccess> createState() => _OtpAccessState();
@@ -121,24 +120,19 @@ class _OtpAccessState extends State<OtpAccess> {
     final bool isMember = user['member'] == true;
     final bool isTempPass = user['temporary_password'] == true;
     final bool isOnboarded = stage == 'completed';
-
     if (status == 'active' && isTempPass) {
       return;
     }
-
     if (isOnboarded && !isMember && !isTempPass) {
       _navigateTo(const IntroMember());
       return;
     }
-
     if (isOnboarded && status == 'pending') {
       return;
     }
-
     if (!isMember && status == "incomplete" && !isOnboarded) {
       return;
     }
-
     _navigateTo(const Homepage());
   }
 
@@ -242,11 +236,12 @@ class _OtpAccessState extends State<OtpAccess> {
   }
 
   Widget _buildMobileDescription() {
+    final authProvider = Provider.of<AuthProvider>(context, listen: false);
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          "We've sent a 6-digit verification code to the mobile number ${widget.phoneNumber}. Please check your messages.",
+          "We've sent a 6-digit verification code to the mobile number ${authProvider.user?['mobileno'] ?? "0700000000"}. Please check your messages.",
           style: TextStyle(
             color: Colors.blueGrey.shade400,
             fontSize: 15,
