@@ -69,7 +69,9 @@ class _ForgetIdentityState extends State<ForgetIdentity> {
   }
 
   void _handleSubmit() async {
-    _isLoading = true;
+    setState(() {
+      _isLoading = true;
+    });
     try {
       final (response, errors) = await RecoveryService().forgetEmail(
         email: _controller.text.trim(),
@@ -157,9 +159,9 @@ class _ForgetIdentityState extends State<ForgetIdentity> {
             width: double.infinity,
             height: 56,
             child: ElevatedButton(
-              onPressed: (!_isLoading && _isInputValid())
-                  ? _handleSubmit
-                  : null,
+              onPressed: !_isInputValid()
+                  ? null
+                  : (_isLoading ? () {} : _handleSubmit),
               style: ElevatedButton.styleFrom(
                 backgroundColor: const Color(0xFF074073),
                 disabledBackgroundColor: Colors.grey.shade300,

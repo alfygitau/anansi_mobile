@@ -1,9 +1,12 @@
 import 'dart:async';
 import 'package:app_anansi_mobile/pages/forget-password/reset_password.dart';
+import 'package:app_anansi_mobile/services/error_service.dart';
+import 'package:app_anansi_mobile/services/recovery_service.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:app_anansi_mobile/theme/app_theme.dart';
 import 'package:app_anansi_mobile/components/otp_boxes.dart';
+import 'package:flutter/services.dart';
 
 class ForgetOtpAccess extends StatefulWidget {
   final String method;
@@ -23,12 +26,22 @@ class _ForgetOtpAccessState extends State<ForgetOtpAccess> {
   final _focus = FocusNode();
   Timer? _timer;
   int _secondsRemaining = 59;
+  String? _errorText;
+  bool _isLoading = false;
 
   @override
   void initState() {
     super.initState();
     _startTimer();
+    _controller.addListener(() {
+      if (_errorText != null) {
+        setState(() => _errorText = null);
+      }
+      setState(() {});
+    });
   }
+
+  bool get _isOtpReady => _controller.text.length == 6 && !_isLoading;
 
   void _startTimer() {
     _secondsRemaining = 59;
@@ -44,6 +57,84 @@ class _ForgetOtpAccessState extends State<ForgetOtpAccess> {
         });
       }
     });
+  }
+
+  void _handleSubmit() async {
+    if (!_isOtpReady) return;
+
+    setState(() {
+      _isLoading = true;
+      _errorText = null;
+    });
+
+    try {
+      final (response, errors) = await RecoveryService().verifyEmailAddress(
+        otp: _controller.text.trim(),
+        email: widget.identity,
+      );
+      if (errors != null) {
+        ErrorService.showActionableError(
+          context,
+          title: errors[0],
+          message: errors[1],
+        );
+      } else if (response != null) {
+        HapticFeedback.lightImpact();
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) =>
+                ResetPassword(identity: _controller.text.trim()),
+          ),
+        );
+      }
+    } finally {
+      if (mounted) setState(() => _isLoading = false);
+    }
+  }
+
+  void resendEmailIdentity() async {
+    _controller.clear();
+    _startTimer();
+    final (response, errors) = await RecoveryService().forgetEmail(
+      email: widget.identity,
+    );
+    if (errors != null) {
+      ErrorService.showActionableError(
+        context,
+        title: errors[0],
+        message: errors[1],
+      );
+    } else if (response != null) {
+      if (mounted) {
+        ErrorService.showProgressiveResponse(
+          context,
+          "A new code has been sent to your email",
+        );
+      }
+    }
+  }
+
+  void resendMobileIdentity() async {
+    _controller.clear();
+    _startTimer();
+    final (response, errors) = await RecoveryService().forgetMobileNumber(
+      mobileno: widget.identity,
+    );
+    if (errors != null) {
+      ErrorService.showActionableError(
+        context,
+        title: errors[0],
+        message: errors[1],
+      );
+    } else if (response != null) {
+      if (mounted) {
+        ErrorService.showProgressiveResponse(
+          context,
+          "A new code has been sent to your mobile number",
+        );
+      }
+    }
   }
 
   @override
@@ -129,8 +220,8 @@ class _ForgetOtpAccessState extends State<ForgetOtpAccess> {
       children: [
         Text(
           isEmail
-              ? "We've sent a 6-digit verification code to the email address email@example.com. Please check your spam folder if you don't see it."
-              : "We've sent a 6-digit verification code to the mobile number 0700000000. Please check your messages.",
+              ? "We've sent a 6-digit verification code to the email address ${widget.identity}. Please check your spam folder if you don't see it."
+              : "We've sent a 6-digit verification code to the mobile number ${widget.identity}. Please check your messages.",
           style: TextStyle(
             color: Colors.blueGrey.shade400,
             fontSize: 15,
@@ -141,15 +232,15 @@ class _ForgetOtpAccessState extends State<ForgetOtpAccess> {
         const SizedBox(height: 10),
         GestureDetector(
           onTap: () {
-            // Edit Logic
+            Navigator.of(context).pop();
           },
           child: Row(
             mainAxisSize: MainAxisSize.min,
             children: [
               Text(
                 isEmail
-                    ? "You want to change your email?"
-                    : "You want to change your mobile number?",
+                    ? "You want to change your recovery email?"
+                    : "You want to change your recovery mobile number?",
                 style: TextStyle(
                   color: Color(0xFF17C6C6),
                   fontSize: 13,
@@ -171,6 +262,7 @@ class _ForgetOtpAccessState extends State<ForgetOtpAccess> {
   }
 
   Widget _buildResendLogic() {
+    final bool isEmail = widget.method == "email";
     return Row(
       children: [
         Text(
@@ -192,7 +284,7 @@ class _ForgetOtpAccessState extends State<ForgetOtpAccess> {
                 ),
               )
             : GestureDetector(
-                onTap: _startTimer,
+                onTap: isEmail ? resendEmailIdentity : resendMobileIdentity,
                 child: const Text(
                   "Resend Code",
                   style: TextStyle(
@@ -254,39 +346,49 @@ class _ForgetOtpAccessState extends State<ForgetOtpAccess> {
 
   Widget _buildFixedBottomAction() {
     final bool isEmail = widget.method == "email";
+    final bool active = _isOtpReady;
     return Container(
       padding: const EdgeInsets.fromLTRB(24, 10, 24, 10),
       decoration: BoxDecoration(color: Colors.white),
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
+          if (_errorText != null) ...[
+            Text(
+              _errorText!,
+              style: const TextStyle(
+                color: Colors.redAccent,
+                fontSize: 12,
+                fontWeight: FontWeight.w600,
+              ),
+            ),
+            const SizedBox(height: 12),
+          ],
           ElevatedButton(
-            onPressed: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) =>
-                      ResetPassword(identity: widget.identity),
-                ),
-              );
-            },
+            onPressed: active ? _handleSubmit : null,
             style: ElevatedButton.styleFrom(
               backgroundColor: AnansiColors.darkBlue,
+              disabledBackgroundColor: _isLoading
+                  ? AnansiColors.darkBlue
+                  : Colors.grey.shade200,
               foregroundColor: Colors.white,
+              disabledForegroundColor: Colors.white,
               minimumSize: const Size(double.infinity, 64),
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(20),
               ),
               elevation: 0,
             ),
-            child: Text(
-              isEmail ? "VERIFY EMAIL ADDRESS" : "VERIFY MOBILE NUMBER",
-              style: TextStyle(
-                fontWeight: FontWeight.w900,
-                letterSpacing: 1.5,
-                fontSize: 14,
-              ),
-            ),
+            child: _isLoading
+                ? const CupertinoActivityIndicator(color: Colors.white)
+                : Text(
+                    isEmail ? "VERIFY EMAIL ADDRESS" : "VERIFY MOBILE NUMBER",
+                    style: TextStyle(
+                      fontWeight: FontWeight.w900,
+                      letterSpacing: 1.5,
+                      fontSize: 14,
+                    ),
+                  ),
           ),
           const SizedBox(height: 16),
           Row(

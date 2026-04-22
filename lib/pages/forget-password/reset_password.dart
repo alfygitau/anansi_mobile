@@ -1,5 +1,8 @@
+import 'package:app_anansi_mobile/services/error_service.dart';
+import 'package:app_anansi_mobile/services/recovery_service.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 
 class ResetPassword extends StatefulWidget {
   final String identity;
@@ -14,7 +17,7 @@ class _ResetPasswordState extends State<ResetPassword> {
   final TextEditingController _confirmPassController = TextEditingController();
   final FocusNode _passFocus = FocusNode();
   final FocusNode _confirmFocus = FocusNode();
-
+  bool _isLoading = false;
   bool _isPasswordVisible = false;
   Map<String, String?> formErrors = {};
 
@@ -115,12 +118,32 @@ class _ResetPasswordState extends State<ResetPassword> {
     });
   }
 
-  void _handleReset() {
+  void _handleReset() async {
     if (_passController.text != _confirmPassController.text) {
       setState(() => formErrors['confirm'] = "Passwords do not match");
       return;
     }
-    _showSuccessSheet(context);
+    setState(() {
+      _isLoading = true;
+    });
+    try {
+      final (response, errors) = await RecoveryService().setNewPassword(
+        email: widget.identity,
+        password: _passController.text.trim(),
+      );
+      if (errors != null) {
+        ErrorService.showActionableError(
+          context,
+          title: errors[0],
+          message: errors[1],
+        );
+      } else if (response != null) {
+        HapticFeedback.lightImpact();
+        _showSuccessSheet(context);
+      }
+    } finally {
+      if (mounted) setState(() => _isLoading = false);
+    }
   }
 
   @override
@@ -176,7 +199,9 @@ class _ResetPasswordState extends State<ResetPassword> {
                 width: double.infinity,
                 height: 60,
                 child: ElevatedButton(
-                  onPressed: allRequirementsMet ? () => _handleReset() : null,
+                  onPressed: allRequirementsMet
+                      ? null
+                      : (_isLoading ? () {} : _handleReset),
                   style: ElevatedButton.styleFrom(
                     backgroundColor: const Color(0xFF074073),
                     disabledBackgroundColor: const Color(0xFFF1F4F8),
@@ -185,16 +210,18 @@ class _ResetPasswordState extends State<ResetPassword> {
                     ),
                     elevation: 0,
                   ),
-                  child: Text(
-                    "Update Password",
-                    style: TextStyle(
-                      fontWeight: FontWeight.w900,
-                      fontSize: 16,
-                      color: allRequirementsMet
-                          ? Colors.white
-                          : Colors.grey.shade400,
-                    ),
-                  ),
+                  child: _isLoading
+                      ? const CupertinoActivityIndicator(color: Colors.white)
+                      : Text(
+                          "Update Password",
+                          style: TextStyle(
+                            fontWeight: FontWeight.w900,
+                            fontSize: 16,
+                            color: allRequirementsMet
+                                ? Colors.white
+                                : Colors.grey.shade400,
+                          ),
+                        ),
                 ),
               ),
               const SizedBox(height: 24),
@@ -233,7 +260,7 @@ class _ResetPasswordState extends State<ResetPassword> {
         ),
         const SizedBox(height: 8),
         Text(
-          "Ensure your new password is unique and difficult to guess to protect your funds.",
+          "Ensure your new password is unique and difficult to guess to protect your account.",
           style: TextStyle(
             color: Colors.grey.shade500,
             fontSize: 14,
