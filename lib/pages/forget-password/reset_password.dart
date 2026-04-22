@@ -20,8 +20,6 @@ class _ResetPasswordState extends State<ResetPassword> {
   bool _isLoading = false;
   bool _isPasswordVisible = false;
   Map<String, String?> formErrors = {};
-
-  // Validation States
   bool _has8Chars = false;
   bool _hasSpecialChar = false;
   bool _hasNumber = false;
@@ -49,7 +47,7 @@ class _ResetPasswordState extends State<ResetPassword> {
       final pass = _passController.text;
       if (pass.isEmpty) {
         formErrors['password'] = "Password is required";
-        return; // Exit early if empty
+        return;
       }
       List<String> missingRequirements = [];
       if (pass.length < 8) {
