@@ -84,7 +84,7 @@ class _ForgetOtpAccessState extends State<ForgetOtpAccess> {
           context,
           MaterialPageRoute(
             builder: (context) =>
-                ResetPassword(identity: _controller.text.trim()),
+                ResetPassword(identity: widget.identity),
           ),
         );
       }

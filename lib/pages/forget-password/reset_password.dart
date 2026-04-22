@@ -197,7 +197,7 @@ class _ResetPasswordState extends State<ResetPassword> {
                 width: double.infinity,
                 height: 60,
                 child: ElevatedButton(
-                  onPressed: allRequirementsMet
+                  onPressed: !allRequirementsMet
                       ? null
                       : (_isLoading ? () {} : _handleReset),
                   style: ElevatedButton.styleFrom(

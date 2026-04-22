@@ -85,7 +85,7 @@ class RecoveryService {
   }) async {
     try {
       final response = await _publicClient.post(
-        '/api/v1/customer/reset-password-web',
+        '/customer/reset-password-web',
         data: {'email': email, 'password': password},
       );
       return (response, null);
