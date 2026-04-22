@@ -1,6 +1,9 @@
 import 'package:app_anansi_mobile/pages/forget-password/forget_otp_access.dart';
+import 'package:app_anansi_mobile/services/error_service.dart';
+import 'package:app_anansi_mobile/services/recovery_service.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 
 class ForgetIdentity extends StatefulWidget {
   final String method;
@@ -14,14 +17,84 @@ class ForgetIdentity extends StatefulWidget {
 class _ForgetIdentityState extends State<ForgetIdentity> {
   final TextEditingController _controller = TextEditingController();
   final FocusNode _focusNode = FocusNode();
-
-  // Storing form errors
+  bool _isLoading = false;
   Map<String, String?> formErrors = {};
 
   @override
   void initState() {
     super.initState();
-    _focusNode.addListener(() => setState(() {}));
+    _focusNode.addListener(() {
+      if (!_focusNode.hasFocus) {
+        _validateField();
+      }
+      setState(() {});
+    });
+  }
+
+  void _validateField() {
+    final String value = _controller.text.trim();
+    final bool isEmail = widget.method == "email";
+
+    final emailRegex = RegExp(
+      r"^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$",
+    );
+    final phoneRegex = RegExp(r"^\+?[0-9]{10,15}$");
+
+    setState(() {
+      if (value.isEmpty) {
+        formErrors["identifier"] = "This field is required to continue";
+      } else if (isEmail && !emailRegex.hasMatch(value)) {
+        formErrors["identifier"] = "Please enter a valid email address";
+      } else if (!isEmail && !phoneRegex.hasMatch(value)) {
+        formErrors["identifier"] = "Please enter a valid phone number";
+      } else {
+        formErrors["identifier"] = null;
+      }
+    });
+  }
+
+  bool _isInputValid() {
+    final String value = _controller.text.trim();
+    final bool isEmail = widget.method == "email";
+    final emailRegex = RegExp(
+      r"^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$",
+    );
+    final phoneRegex = RegExp(r"^\+?[0-9]{10,15}$");
+
+    if (isEmail) {
+      return emailRegex.hasMatch(value);
+    } else {
+      return phoneRegex.hasMatch(value);
+    }
+  }
+
+  void _handleSubmit() async {
+    _isLoading = true;
+    try {
+      final (response, errors) = await RecoveryService().forgetEmail(
+        email: _controller.text.trim(),
+      );
+      if (errors != null) {
+        ErrorService.showActionableError(
+          context,
+          title: errors[0],
+          message: errors[1],
+        );
+      } else if (response != null) {
+        HapticFeedback.lightImpact();
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => ForgetOtpAccess(
+              method: widget.method,
+              identity: _controller.text.trim(),
+            ),
+          ),
+        );
+      }
+    } finally {
+      if (mounted) setState(() => _isLoading = false);
+    }
   }
 
   @override
@@ -70,34 +143,44 @@ class _ForgetIdentityState extends State<ForgetIdentity> {
                   ),
                   const SizedBox(height: 40),
                   _buildDisclaimers(),
-                  const SizedBox(height: 50),
-                  SizedBox(
-                    width: double.infinity,
-                    height: 56,
-                    child: ElevatedButton(
-                      onPressed: _handleSubmit,
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: const Color(0xFF074073),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(20),
-                        ),
-                        elevation: 0,
-                      ),
-                      child: const Text(
-                        "Send Code",
-                        style: TextStyle(
-                          color: Colors.white,
-                          fontWeight: FontWeight.w900,
-                          fontSize: 16,
-                        ),
-                      ),
-                    ),
-                  ),
-                  const SizedBox(height: 20),
+                  const SizedBox(height: 150),
                 ]),
               ),
             ),
           ],
+        ),
+      ),
+      bottomNavigationBar: SafeArea(
+        child: Padding(
+          padding: const EdgeInsets.fromLTRB(24, 0, 24, 20),
+          child: SizedBox(
+            width: double.infinity,
+            height: 56,
+            child: ElevatedButton(
+              onPressed: (!_isLoading && _isInputValid())
+                  ? _handleSubmit
+                  : null,
+              style: ElevatedButton.styleFrom(
+                backgroundColor: const Color(0xFF074073),
+                disabledBackgroundColor: Colors.grey.shade300,
+                disabledForegroundColor: Colors.grey.shade500,
+                foregroundColor: Colors.white,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(20),
+                ),
+                elevation: 0,
+              ),
+              child: _isLoading
+                  ? const CupertinoActivityIndicator(color: Colors.white)
+                  : const Text(
+                      "Send Code",
+                      style: TextStyle(
+                        fontWeight: FontWeight.w900,
+                        fontSize: 16,
+                      ),
+                    ),
+            ),
+          ),
         ),
       ),
     );
@@ -335,20 +418,5 @@ class _ForgetIdentityState extends State<ForgetIdentity> {
         ],
       ),
     );
-  }
-
-  void _handleSubmit() {
-    if (_controller.text.isEmpty) {
-      setState(
-        () => formErrors["identifier"] = "This field is required to continue",
-      );
-    } else {
-      Navigator.push(
-        context,
-        MaterialPageRoute(
-          builder: (context) => ForgetOtpAccess(method: widget.method),
-        ),
-      );
-    }
   }
 }

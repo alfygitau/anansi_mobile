@@ -2,7 +2,8 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
 class ResetPassword extends StatefulWidget {
-  const ResetPassword({super.key});
+  final String identity;
+  const ResetPassword({super.key, required this.identity});
 
   @override
   State<ResetPassword> createState() => _ResetPasswordState();

@@ -7,7 +7,12 @@ import 'package:app_anansi_mobile/components/otp_boxes.dart';
 
 class ForgetOtpAccess extends StatefulWidget {
   final String method;
-  const ForgetOtpAccess({super.key, required this.method});
+  final String identity;
+  const ForgetOtpAccess({
+    super.key,
+    required this.method,
+    required this.identity,
+  });
 
   @override
   State<ForgetOtpAccess> createState() => _ForgetOtpAccessState();
@@ -259,7 +264,10 @@ class _ForgetOtpAccessState extends State<ForgetOtpAccess> {
             onPressed: () {
               Navigator.push(
                 context,
-                MaterialPageRoute(builder: (context) => const ResetPassword()),
+                MaterialPageRoute(
+                  builder: (context) =>
+                      ResetPassword(identity: widget.identity),
+                ),
               );
             },
             style: ElevatedButton.styleFrom(
@@ -271,7 +279,7 @@ class _ForgetOtpAccessState extends State<ForgetOtpAccess> {
               ),
               elevation: 0,
             ),
-            child:  Text(
+            child: Text(
               isEmail ? "VERIFY EMAIL ADDRESS" : "VERIFY MOBILE NUMBER",
               style: TextStyle(
                 fontWeight: FontWeight.w900,
