@@ -1,13 +1,16 @@
 import 'package:app_anansi_mobile/helpers/format_mobile.dart';
 import 'package:app_anansi_mobile/pages/auth/login.dart';
 import 'package:app_anansi_mobile/pages/onboarding/verify_email.dart';
+import 'package:app_anansi_mobile/services/auth_service.dart';
 import 'package:app_anansi_mobile/services/error_service.dart';
 import 'package:app_anansi_mobile/services/onboarding_service.dart';
+import 'package:app_anansi_mobile/state/auth_provider.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:app_anansi_mobile/theme/app_theme.dart';
 import 'package:flutter/services.dart';
+import 'package:provider/provider.dart';
 
 class Register extends StatefulWidget {
   const Register({super.key});
@@ -214,14 +217,33 @@ class _RegisterState extends State<Register> {
           message: errors[1],
         );
       } else if (response != null) {
-        HapticFeedback.lightImpact();
-        Navigator.push(
-          context,
-          MaterialPageRoute(builder: (context) => const VerifyEmail()),
-        );
+        await login();
       }
     } finally {
       if (mounted) setState(() => _isLoading = false);
+    }
+  }
+
+  Future<void> login() async {
+    final (response, error) = await AuthService().login(
+      email: _emailController.text.trim(),
+      password: _passwordController.text.trim(),
+    );
+    if (error != null) {
+      ErrorService.showActionableError(
+        context,
+        title: error[0],
+        message: error[1],
+      );
+    } else if (response != null) {
+      HapticFeedback.lightImpact();
+      final authProvider = Provider.of<AuthProvider>(context, listen: false);
+      final responseInfo = response.data['data'];
+      authProvider.setUser(responseInfo['user'] ?? {});
+      Navigator.push(
+        context,
+        MaterialPageRoute(builder: (context) => const VerifyEmail()),
+      );
     }
   }
 
