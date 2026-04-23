@@ -1,17 +1,24 @@
+import 'dart:math';
 import 'package:app_anansi_mobile/helpers/format_amount.dart';
+import 'package:app_anansi_mobile/helpers/format_mobile.dart';
 import 'package:app_anansi_mobile/pages/deposit-savings/await_stk_push.dart';
+import 'package:app_anansi_mobile/services/account_service.dart';
+import 'package:app_anansi_mobile/services/error_service.dart';
 import 'package:app_anansi_mobile/theme/app_theme.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 
 class ReviewDepositSavings extends StatefulWidget {
   final String amount;
   final String phone;
+  final String id;
 
   const ReviewDepositSavings({
     super.key,
     required this.amount,
     required this.phone,
+    required this.id,
   });
 
   @override
@@ -19,6 +26,53 @@ class ReviewDepositSavings extends StatefulWidget {
 }
 
 class _ReviewDepositSavingsState extends State<ReviewDepositSavings> {
+  String? _reference;
+  bool _isLoading = false;
+
+  String generateAlphaNumericId([int length = 8]) {
+    const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+    final random = Random.secure();
+
+    return Iterable.generate(
+      length,
+      (_) => chars[random.nextInt(chars.length)],
+    ).join();
+  }
+
+  void buyShares() async {
+    final String ref = generateAlphaNumericId();
+    setState(() {
+      _isLoading = true;
+      _reference = ref;
+    });
+    try {
+      final (response, errors) = await AccountService().buyShares(
+        amount: widget.amount,
+        reference: ref,
+        accountId: widget.id,
+        mobileNumber: formatToKenyanPhone(widget.phone) ?? "",
+      );
+      if (errors != null) {
+        ErrorService.showActionableError(
+          context,
+          title: errors[0],
+          message: errors[1],
+        );
+      } else if (response != null) {
+        HapticFeedback.lightImpact();
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) =>
+                AwaitStkPush(reference: _reference ?? "", id: widget.id),
+          ),
+        );
+      }
+    } finally {
+      if (mounted) setState(() => _isLoading = false);
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -262,27 +316,26 @@ class _ReviewDepositSavingsState extends State<ReviewDepositSavings> {
       width: double.infinity,
       height: 60,
       child: ElevatedButton(
-        onPressed: () {
-          Navigator.push(
-            context,
-            MaterialPageRoute(
-              builder: (context) => AwaitStkPush(reference: "BGFCDSRT543SD54"),
-            ),
-          );
-        },
+        onPressed: _isLoading ? () {} : buyShares,
         style: ElevatedButton.styleFrom(
           backgroundColor: AnansiColors.darkBlue,
+          disabledBackgroundColor: _isLoading
+              ? AnansiColors.darkBlue
+              : Colors.grey.shade300,
           foregroundColor: Colors.white,
+          disabledForegroundColor: Colors.white,
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(24),
           ),
           elevation: 8,
           shadowColor: const Color(0xFF10B981).withValues(alpha: 0.3),
         ),
-        child: const Text(
-          "Confirm Deposit",
-          style: TextStyle(fontWeight: FontWeight.w900, fontSize: 16),
-        ),
+        child: _isLoading
+            ? const CupertinoActivityIndicator(color: Colors.white)
+            : const Text(
+                "Confirm Deposit",
+                style: TextStyle(fontWeight: FontWeight.w900, fontSize: 16),
+              ),
       ),
     );
   }

@@ -565,7 +565,8 @@ class _AccountDetailsState extends State<AccountDetails> {
                   Navigator.push(
                     context,
                     MaterialPageRoute(
-                      builder: (context) => const DepositAmount(),
+                      builder: (context) =>
+                          DepositAmount(id: accountInfo['id'] ?? ""),
                     ),
                   );
                 },

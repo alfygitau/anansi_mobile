@@ -1,10 +1,13 @@
 import 'package:app_anansi_mobile/pages/deposit-savings/review_deposit_savings.dart';
+import 'package:app_anansi_mobile/state/auth_provider.dart';
 import 'package:app_anansi_mobile/theme/app_theme.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
 class DepositAmount extends StatefulWidget {
-  const DepositAmount({super.key});
+  final String id;
+  const DepositAmount({super.key, required this.id});
 
   @override
   State<DepositAmount> createState() => _DepositAmountState();
@@ -12,7 +15,91 @@ class DepositAmount extends StatefulWidget {
 
 class _DepositAmountState extends State<DepositAmount> {
   final TextEditingController _amountController = TextEditingController();
-  final TextEditingController _noteController = TextEditingController();
+  final TextEditingController _phoneController = TextEditingController();
+  final FocusNode _amountFocus = FocusNode();
+  final FocusNode _phoneFocus = FocusNode();
+  Map<String, String?> formErrors = {'amount': null, 'phone': null};
+
+  void clearAllErrors() => setState(() => formErrors.updateAll((k, v) => null));
+
+  void _validateField(String key) {
+    final amount = _amountController.text.trim();
+    final phone = _phoneController.text.trim();
+    final phoneRegex = RegExp(r'^(?:254|\+254|0)?([71][0-9]{8})$');
+
+    setState(() {
+      if (key == 'amount') {
+        if (amount.isEmpty) {
+          formErrors['amount'] = "Amount is required";
+        } else if (double.tryParse(amount) == null ||
+            double.parse(amount) <= 0) {
+          formErrors['amount'] = "Enter a valid investment amount";
+        } else {
+          formErrors['amount'] = null;
+        }
+      }
+
+      if (key == 'phone') {
+        if (phone.isEmpty) {
+          formErrors['phone'] = "Phone number is required";
+        } else if (!phoneRegex.hasMatch(phone)) {
+          formErrors['phone'] = "Enter a valid Kenyan phone number";
+        } else {
+          formErrors['phone'] = null;
+        }
+      }
+    });
+  }
+
+  bool _isFormValid() {
+    final amount = _amountController.text.trim();
+    final phone = _phoneController.text.trim();
+    final phoneRegex = RegExp(r'^(?:254|\+254|0)?([71][0-9]{8})$');
+
+    bool amountValid =
+        amount.isNotEmpty &&
+        double.tryParse(amount) != null &&
+        double.parse(amount) > 0;
+    bool phoneValid = phone.isNotEmpty && phoneRegex.hasMatch(phone);
+
+    return amountValid &&
+        phoneValid &&
+        formErrors['amount'] == null &&
+        formErrors['phone'] == null;
+  }
+
+  void _prefillUserData() {
+    final authProvider = Provider.of<AuthProvider>(context, listen: false);
+    if (authProvider.user != null && authProvider.user?['mobileno'] != null) {
+      setState(() {
+        _phoneController.text = authProvider.user?['mobileno'] ?? "".toString();
+        _validateField('phone');
+      });
+    }
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    _prefillUserData();
+
+    _amountFocus.addListener(() {
+      if (!_amountFocus.hasFocus) _validateField('amount');
+      setState(() {});
+    });
+
+    _phoneFocus.addListener(() {
+      if (!_phoneFocus.hasFocus) _validateField('phone');
+      setState(() {});
+    });
+  }
+
+  @override
+  void dispose() {
+    _amountController.dispose();
+    _phoneController.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -51,6 +138,9 @@ class _DepositAmountState extends State<DepositAmount> {
                     controller: _amountController,
                     hint: "0.00",
                     icon: CupertinoIcons.money_dollar_circle_fill,
+                    focusNode: _amountFocus,
+                    fieldKey: "amount",
+                    keyboardType: TextInputType.number,
                   ),
                   const SizedBox(height: 42),
                   _buildPremiumDisclaimer(
@@ -79,9 +169,12 @@ class _DepositAmountState extends State<DepositAmount> {
                   const SizedBox(height: 42),
                   _buildInputField(
                     label: "Confirm Phone Number",
-                    controller: _noteController,
+                    controller: _phoneController,
                     hint: "e.g. 0700,000,000",
                     icon: CupertinoIcons.phone,
+                    focusNode: _phoneFocus,
+                    fieldKey: "phone",
+                    keyboardType: TextInputType.phone,
                   ),
                   const SizedBox(height: 100),
                   _buildContinueButton(),
@@ -202,78 +295,142 @@ class _DepositAmountState extends State<DepositAmount> {
   // YOUR CUSTOM INPUT DESIGN
   Widget _buildInputField({
     required String label,
+    required String fieldKey,
     required TextEditingController controller,
     required String hint,
     required IconData icon,
-    bool isPhone = false,
+    required FocusNode focusNode,
+    required TextInputType keyboardType,
   }) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: const Color(0xFFF1F4F8), width: 1.5),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: 0.02),
-            blurRadius: 10,
-            offset: const Offset(0, 4),
-          ),
-        ],
-      ),
-      child: Row(
-        children: [
-          Container(
-            padding: const EdgeInsets.all(10),
-            decoration: BoxDecoration(
-              color: const Color(0xFF17C6C6).withValues(alpha: 0.08),
-              borderRadius: BorderRadius.circular(12),
+    // 1. Extract the current state for this specific field
+    final String? errorText = formErrors[fieldKey];
+    final bool hasError = errorText != null;
+    final bool isFocused = focusNode.hasFocus;
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        AnimatedContainer(
+          duration: const Duration(milliseconds: 250),
+          curve: Curves.easeInOut,
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(20),
+            // BORDER LOGIC: Error > Focused > Neutral
+            border: Border.all(
+              color: hasError
+                  ? Colors.redAccent.withValues(alpha: 0.6)
+                  : (isFocused
+                        ? const Color(0xFF17C6C6)
+                        : const Color(0xFFF1F4F8)),
+              width: 1.6,
             ),
-            child: Icon(icon, size: 18, color: const Color(0xFF17C6C6)),
+            boxShadow: [
+              BoxShadow(
+                color: hasError
+                    ? Colors.redAccent.withValues(alpha: 0.05)
+                    : (isFocused
+                          ? const Color(0xFF17C6C6).withValues(alpha: 0.08)
+                          : Colors.black.withValues(alpha: 0.02)),
+                blurRadius: 12,
+                offset: const Offset(0, 4),
+              ),
+            ],
           ),
-          const SizedBox(width: 16),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Text(
-                  label.toUpperCase(),
-                  style: const TextStyle(
-                    color: Color(0xFF9E9E9E),
-                    fontWeight: FontWeight.w800,
-                    fontSize: 9,
-                    letterSpacing: 1.2,
-                  ),
+          child: Row(
+            children: [
+              // Icon Container reacts to state
+              AnimatedContainer(
+                duration: const Duration(milliseconds: 250),
+                padding: const EdgeInsets.all(10),
+                decoration: BoxDecoration(
+                  color: hasError
+                      ? Colors.redAccent.withValues(alpha: 0.08)
+                      : const Color(0xFF17C6C6).withValues(alpha: 0.08),
+                  borderRadius: BorderRadius.circular(12),
                 ),
-                const SizedBox(height: 2),
-                TextField(
-                  controller: controller,
-                  keyboardType: isPhone
-                      ? TextInputType.phone
-                      : TextInputType.number,
-                  style: const TextStyle(
-                    fontWeight: FontWeight.w500,
-                    color: Colors.black,
-                    fontSize: 17,
-                  ),
-                  decoration: InputDecoration(
-                    hintText: hint,
-                    hintStyle: TextStyle(
-                      color: Colors.grey.shade300,
-                      fontSize: 14,
-                      fontWeight: FontWeight.w500,
+                child: Icon(
+                  icon,
+                  size: 18,
+                  color: hasError ? Colors.redAccent : const Color(0xFF17C6C6),
+                ),
+              ),
+              const SizedBox(width: 16),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Text(
+                      label.toUpperCase(),
+                      style: TextStyle(
+                        color: hasError
+                            ? Colors.redAccent
+                            : const Color(0xFF9E9E9E),
+                        fontWeight: FontWeight.w800,
+                        fontSize: 9,
+                        letterSpacing: 1.2,
+                      ),
                     ),
-                    isDense: true,
-                    contentPadding: const EdgeInsets.symmetric(vertical: 4),
-                    border: InputBorder.none,
-                  ),
+                    const SizedBox(height: 2),
+                    TextField(
+                      focusNode: focusNode,
+                      controller: controller,
+                      keyboardType: keyboardType,
+                      onChanged: (val) {
+                        if (formErrors[fieldKey] != null) {
+                          setState(() => formErrors[fieldKey] = null);
+                        }
+                        setState(() {});
+                      },
+                      style: const TextStyle(
+                        fontWeight: FontWeight.w500,
+                        color: Colors.black,
+                        fontSize: 17,
+                      ),
+                      onTapOutside: (event) {
+                        FocusScope.of(context).unfocus();
+                      },
+                      decoration: InputDecoration(
+                        hintText: hint,
+                        hintStyle: TextStyle(
+                          color: Colors.grey.shade300,
+                          fontSize: 14,
+                          fontWeight: FontWeight.w500,
+                        ),
+                        isDense: true,
+                        contentPadding: const EdgeInsets.symmetric(vertical: 4),
+                        border: InputBorder.none,
+                      ),
+                    ),
+                  ],
                 ),
-              ],
+              ),
+            ],
+          ),
+        ),
+
+        // ERROR MESSAGE: Animated Slide-in
+        AnimatedSize(
+          duration: const Duration(milliseconds: 200),
+          child: SizedBox(
+            height: hasError ? null : 0,
+            child: Padding(
+              padding: const EdgeInsets.only(left: 16, top: 8),
+              child: Text(
+                errorText ?? "",
+                style: const TextStyle(
+                  color: Colors.redAccent,
+                  fontSize: 12,
+                  fontWeight: FontWeight.w600,
+                  height: 1.2,
+                ),
+              ),
             ),
           ),
-        ],
-      ),
+        ),
+      ],
     );
   }
 
@@ -335,26 +492,35 @@ class _DepositAmountState extends State<DepositAmount> {
   }
 
   Widget _buildContinueButton() {
+    final bool isValid = _isFormValid();
+
     return SizedBox(
       width: double.infinity,
       height: 60,
       child: ElevatedButton(
-        onPressed: () {
-          Navigator.push(
-            context,
-            MaterialPageRoute(
-              builder: (context) =>
-                  ReviewDepositSavings(amount: "200", phone: "0769500500"),
-            ),
-          );
-        },
+        onPressed: isValid
+            ? () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => ReviewDepositSavings(
+                      amount: _amountController.text.trim(),
+                      phone: _phoneController.text.trim(),
+                      id: widget.id,
+                    ),
+                  ),
+                );
+              }
+            : null, // This is what tells the button to be disabled and turn grey
         style: ElevatedButton.styleFrom(
           backgroundColor: AnansiColors.darkBlue,
+          // The button automatically uses disabledBackgroundColor when onPressed is null
+          disabledBackgroundColor: Colors.grey.shade300,
           foregroundColor: Colors.white,
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(24),
           ),
-          elevation: 12,
+          elevation: isValid ? 12 : 0, // Remove elevation when disabled
           shadowColor: AnansiColors.darkBlue.withValues(alpha: 0.3),
         ),
         child: const Row(
@@ -364,7 +530,6 @@ class _DepositAmountState extends State<DepositAmount> {
               "Continue",
               style: TextStyle(fontWeight: FontWeight.w900, fontSize: 16),
             ),
-            SizedBox(width: 8),
           ],
         ),
       ),

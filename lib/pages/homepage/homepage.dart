@@ -242,7 +242,8 @@ class _HomepageState extends State<Homepage> {
                         onTap: () => Navigator.push(
                           context,
                           MaterialPageRoute(
-                            builder: (context) => const DepositAmount(),
+                            builder: (context) =>
+                                DepositAmount(id: savingsAccount['id'] ?? ""),
                           ),
                         ),
                       ),
