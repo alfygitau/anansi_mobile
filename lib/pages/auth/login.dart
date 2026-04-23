@@ -346,7 +346,7 @@ class _LoginState extends State<Login> {
 
   Widget _buildInputField({
     required String label,
-    required String fieldKey, // The key in our formErrors dictionary
+    required String fieldKey,
     required TextEditingController controller,
     required String hint,
     required IconData icon,

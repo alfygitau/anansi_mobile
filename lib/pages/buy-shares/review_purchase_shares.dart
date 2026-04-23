@@ -99,7 +99,6 @@ class _ReviewPurchaseSharesState extends State<ReviewPurchaseShares> {
       ),
       child: Column(
         children: [
-          // Share Count Header (The Translation)
           Container(
             padding: const EdgeInsets.symmetric(vertical: 20),
             width: double.infinity,
@@ -122,7 +121,7 @@ class _ReviewPurchaseSharesState extends State<ReviewPurchaseShares> {
                 ),
                 const SizedBox(height: 4),
                 Text(
-                  _calculatedShares.toStringAsFixed(2),
+                  _calculatedShares.toStringAsFixed(3),
                   style: GoogleFonts.robotoMono(
                     fontSize: 32,
                     fontWeight: FontWeight.w900,
