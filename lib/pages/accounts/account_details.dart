@@ -3,7 +3,6 @@ import 'package:app_anansi_mobile/helpers/format_time.dart';
 import 'package:app_anansi_mobile/pages/buy-shares/shares_amount.dart';
 import 'package:app_anansi_mobile/pages/deposit-savings/deposit_amount.dart';
 import 'package:app_anansi_mobile/pages/help&support/help_support.dart';
-import 'package:app_anansi_mobile/pages/invest/invest_amount.dart';
 import 'package:app_anansi_mobile/services/account_service.dart';
 import 'package:app_anansi_mobile/services/error_service.dart';
 import 'package:app_anansi_mobile/shimmers/account/appbar_loader.dart';
@@ -596,16 +595,11 @@ class _AccountDetailsState extends State<AccountDetails> {
         ),
         const SizedBox(width: 12),
         _buildActionItem(
-          label: "Invest",
-          icon: CupertinoIcons.graph_square_fill,
+          label: "Products",
+          icon: Icons.grid_view_rounded,
           backgroundColor: Colors.white,
           contentColor: AnansiColors.darkBlue,
-          onTap: () {
-            Navigator.push(
-              context,
-              MaterialPageRoute(builder: (context) => const InvestAmount()),
-            );
-          },
+          onTap: () {},
         ),
       ],
     );
