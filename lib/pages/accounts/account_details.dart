@@ -3,6 +3,8 @@ import 'package:app_anansi_mobile/helpers/format_time.dart';
 import 'package:app_anansi_mobile/pages/buy-shares/shares_amount.dart';
 import 'package:app_anansi_mobile/pages/deposit-savings/deposit_amount.dart';
 import 'package:app_anansi_mobile/pages/help&support/help_support.dart';
+import 'package:app_anansi_mobile/pages/loan_products/loan_products.dart';
+import 'package:app_anansi_mobile/pages/statements/statements.dart';
 import 'package:app_anansi_mobile/services/account_service.dart';
 import 'package:app_anansi_mobile/services/error_service.dart';
 import 'package:app_anansi_mobile/shimmers/account/appbar_loader.dart';
@@ -591,7 +593,12 @@ class _AccountDetailsState extends State<AccountDetails> {
           icon: CupertinoIcons.doc_text_fill,
           backgroundColor: Colors.white,
           contentColor: AnansiColors.darkBlue,
-          onTap: () {},
+          onTap: () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (context) => Statements()),
+            );
+          },
         ),
         const SizedBox(width: 12),
         _buildActionItem(
@@ -599,7 +606,12 @@ class _AccountDetailsState extends State<AccountDetails> {
           icon: Icons.grid_view_rounded,
           backgroundColor: Colors.white,
           contentColor: AnansiColors.darkBlue,
-          onTap: () {},
+          onTap: () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (context) => LoanProducts()),
+            );
+          },
         ),
       ],
     );
@@ -682,7 +694,7 @@ class _AccountDetailsState extends State<AccountDetails> {
       padding: EdgeInsets.zero,
       physics: const NeverScrollableScrollPhysics(),
       itemCount: transactions.length,
-      separatorBuilder: (_, __) => const SizedBox(height: 12),
+      separatorBuilder: (_, _) => const SizedBox(height: 12),
       itemBuilder: (context, index) {
         final tx = transactions[index];
         final bool isDeposit = tx['status'] == 'completed';
