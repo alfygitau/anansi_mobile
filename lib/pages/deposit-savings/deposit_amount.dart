@@ -1,4 +1,5 @@
 import 'package:app_anansi_mobile/pages/deposit-savings/review_deposit_savings.dart';
+import 'package:app_anansi_mobile/pages/help&support/help_support.dart';
 import 'package:app_anansi_mobile/state/auth_provider.dart';
 import 'package:app_anansi_mobile/theme/app_theme.dart';
 import 'package:flutter/cupertino.dart';
@@ -271,7 +272,14 @@ class _DepositAmountState extends State<DepositAmount> {
                   size: 18,
                   color: AnansiColors.darkBlue,
                 ),
-                onPressed: () {},
+                onPressed: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => const HelpSupport(),
+                    ),
+                  );
+                },
               ),
             ),
           ),

@@ -1,6 +1,7 @@
 import 'package:app_anansi_mobile/helpers/format_amount.dart';
 import 'package:app_anansi_mobile/pages/guarantorship/decline_guarantorship.dart';
 import 'package:app_anansi_mobile/pages/guarantorship/guarantee_amount.dart';
+import 'package:app_anansi_mobile/pages/help&support/help_support.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:app_anansi_mobile/theme/app_theme.dart';
@@ -151,17 +152,25 @@ class _ViewRequestState extends State<ViewRequest> {
         Padding(
           padding: const EdgeInsets.only(right: 16),
           child: Center(
-            child: Container(
-              width: 38,
-              height: 38,
-              decoration: const BoxDecoration(
-                color: Colors.white,
-                shape: BoxShape.circle,
-              ),
-              child: const Icon(
-                CupertinoIcons.question_circle,
-                size: 18,
-                color: AnansiColors.darkBlue,
+            child: GestureDetector(
+              onTap: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => const HelpSupport()),
+                );
+              },
+              child: Container(
+                width: 38,
+                height: 38,
+                decoration: const BoxDecoration(
+                  color: Colors.white,
+                  shape: BoxShape.circle,
+                ),
+                child: const Icon(
+                  CupertinoIcons.question_circle,
+                  size: 18,
+                  color: AnansiColors.darkBlue,
+                ),
               ),
             ),
           ),

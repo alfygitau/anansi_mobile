@@ -1,6 +1,7 @@
 import 'package:app_anansi_mobile/helpers/format_amount.dart';
 import 'package:app_anansi_mobile/helpers/format_time.dart';
 import 'package:app_anansi_mobile/pages/guarantorship/view_request.dart';
+import 'package:app_anansi_mobile/pages/help&support/help_support.dart';
 import 'package:app_anansi_mobile/services/error_service.dart';
 import 'package:app_anansi_mobile/services/guarantorship_service.dart';
 import 'package:app_anansi_mobile/shimmers/guarantorship/guarantorship.dart';
@@ -166,17 +167,25 @@ class _GuarantorshipState extends State<Guarantorship> {
         Padding(
           padding: const EdgeInsets.only(right: 16),
           child: Center(
-            child: Container(
-              width: 38,
-              height: 38,
-              decoration: BoxDecoration(
-                color: Colors.white,
-                shape: BoxShape.circle,
-              ),
-              child: const Icon(
-                CupertinoIcons.question_circle,
-                size: 18,
-                color: AnansiColors.darkBlue,
+            child: GestureDetector(
+              onTap: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => const HelpSupport()),
+                );
+              },
+              child: Container(
+                width: 38,
+                height: 38,
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  shape: BoxShape.circle,
+                ),
+                child: const Icon(
+                  CupertinoIcons.question_circle,
+                  size: 18,
+                  color: AnansiColors.darkBlue,
+                ),
               ),
             ),
           ),

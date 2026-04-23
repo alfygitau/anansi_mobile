@@ -1,3 +1,4 @@
+import 'package:app_anansi_mobile/pages/help&support/help_support.dart';
 import 'package:app_anansi_mobile/pages/invest/review_invest_details.dart';
 import 'package:app_anansi_mobile/state/auth_provider.dart';
 import 'package:flutter/material.dart';
@@ -338,7 +339,14 @@ class InvestAmountState extends State<InvestAmount> {
                   size: 18,
                   color: AnansiColors.darkBlue,
                 ),
-                onPressed: () {},
+                onPressed: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => const HelpSupport(),
+                    ),
+                  );
+                },
               ),
             ),
           ),

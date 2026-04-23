@@ -1,4 +1,5 @@
 import 'package:app_anansi_mobile/pages/buy-shares/review_purchase_shares.dart';
+import 'package:app_anansi_mobile/pages/help&support/help_support.dart';
 import 'package:app_anansi_mobile/state/auth_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
@@ -285,7 +286,12 @@ class _SharesAmountState extends State<SharesAmount> {
       actions: [
         Padding(
           padding: const EdgeInsets.only(right: 16),
-          child: _buildCircleAction(CupertinoIcons.question_circle, () {}),
+          child: _buildCircleAction(CupertinoIcons.question_circle, () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (context) => const HelpSupport()),
+            );
+          }),
         ),
       ],
     );
