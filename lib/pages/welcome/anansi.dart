@@ -1,5 +1,5 @@
 import 'package:app_anansi_mobile/pages/auth/login.dart';
-import 'package:app_anansi_mobile/pages/onboarding/register.dart';
+import 'package:app_anansi_mobile/pages/onboarding/introduction.dart';
 import 'package:app_anansi_mobile/theme/app_theme.dart';
 import 'package:flutter/material.dart';
 
@@ -110,7 +110,9 @@ class _WelcomeState extends State<Welcome> {
                     text: "Create Account",
                     onPressed: () => Navigator.push(
                       context,
-                      MaterialPageRoute(builder: (context) => const Register()),
+                      MaterialPageRoute(
+                        builder: (context) => const Introduction(),
+                      ),
                     ),
                   ),
                   const SizedBox(height: 20),

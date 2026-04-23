@@ -1,5 +1,5 @@
 import 'package:app_anansi_mobile/pages/auth/login.dart';
-import 'package:app_anansi_mobile/pages/onboarding/create_password.dart';
+import 'package:app_anansi_mobile/pages/onboarding/verify_email.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
@@ -16,6 +16,11 @@ class _RegisterState extends State<Register> {
   final TextEditingController _usernameController = TextEditingController();
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _phoneController = TextEditingController();
+  bool _isChecked = false;
+  bool _isPasswordVisible = false;
+  final TextEditingController _passwordController = TextEditingController();
+  final TextEditingController _confirmPasswordController =
+      TextEditingController();
   Map<String, dynamic> user = {};
 
   @override
@@ -38,7 +43,7 @@ class _RegisterState extends State<Register> {
               _buildBrandIdentity(),
               const SizedBox(height: 20),
               Text(
-                "Hello there! We're excited to have you. Create your Anansi account today to start managing your assets, tracking your progress, and mastering your financial journey.",
+                "Create your Anansi profile today to manage your assets and track your financial progress.",
                 style: TextStyle(
                   color: Colors.grey.shade500,
                   fontSize: 15,
@@ -47,11 +52,11 @@ class _RegisterState extends State<Register> {
                 ),
               ),
               SizedBox(height: 15),
-              _buildDisclaimerCard(),
+              _buildSectionLabel("PROFILE INFORMATION"),
               const SizedBox(height: 10),
               _buildInputField(
                 label: "Username",
-                hint: "Your unique handle",
+                hint: "Your unique username",
                 controller: _usernameController,
                 icon: Icons.person_2_outlined,
               ),
@@ -70,7 +75,25 @@ class _RegisterState extends State<Register> {
                 icon: CupertinoIcons.phone_fill,
                 isPhone: true,
               ),
-              const SizedBox(height: 36),
+              const SizedBox(height: 26),
+              _buildSectionLabel("CREATE PASSWORD"),
+              const SizedBox(height: 10),
+              _buildPasswordField(
+                label: "Create Password",
+                controller: _passwordController,
+                hint: "Enter your security key",
+                icon: CupertinoIcons.lock_shield_fill,
+              ),
+              const SizedBox(height: 20),
+              _buildPasswordField(
+                label: "Confirm Password",
+                controller: _confirmPasswordController,
+                hint: "Repeat your security key",
+                icon: CupertinoIcons.lock_shield_fill,
+              ),
+              const SizedBox(height: 32),
+              _buildAgreementSection(),
+              const SizedBox(height: 40),
               _buildPremiumSubmit(isFormValid),
               const SizedBox(height: 32),
               _buildSignInFooter(),
@@ -78,101 +101,6 @@ class _RegisterState extends State<Register> {
             ],
           ),
         ),
-      ),
-    );
-  }
-
-  Widget _buildDisclaimerCard() {
-    return Container(
-      margin: const EdgeInsets.symmetric(vertical: 10),
-      padding: const EdgeInsets.all(20),
-      decoration: BoxDecoration(
-        color: const Color(0xFFF0FDFA),
-        borderRadius: BorderRadius.circular(20),
-        border: Border.all(
-          color: const Color(0xFF17C6C6).withValues(alpha: 0.15),
-          width: 1.5,
-        ),
-      ),
-      child: Column(
-        children: [
-          Row(
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: [
-              Container(
-                padding: const EdgeInsets.all(8),
-                decoration: BoxDecoration(
-                  color: const Color(0xFF17C6C6).withValues(alpha: 0.1),
-                  shape: BoxShape.circle,
-                ),
-                child: const Icon(
-                  CupertinoIcons.shield_lefthalf_fill,
-                  color: Color(0xFF17C6C6),
-                  size: 18,
-                ),
-              ),
-              const SizedBox(width: 14),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      "DATA PROTECTION & CONSENT",
-                      style: TextStyle(
-                        color: AnansiColors.darkBlue.withValues(alpha: 0.8),
-                        fontSize: 10,
-                        fontWeight: FontWeight.w900,
-                        letterSpacing: 1.2,
-                      ),
-                    ),
-                    const SizedBox(height: 8),
-                    RichText(
-                      text: TextSpan(
-                        style: TextStyle(
-                          color: AnansiColors.darkBlue.withValues(alpha: 0.6),
-                          fontSize: 13,
-                          height: 1.6,
-                          fontWeight: FontWeight.w500,
-                        ),
-                        children: [
-                          const TextSpan(
-                            text:
-                                "By proceeding, you acknowledge that you have read and agreed to the Anansi ",
-                          ),
-                          TextSpan(
-                            text: "Terms of Service",
-                            style: const TextStyle(
-                              color: Color(0xFF17C6C6),
-                              fontWeight: FontWeight.w700,
-                              decoration: TextDecoration.underline,
-                            ),
-                            recognizer: TapGestureRecognizer()
-                              ..onTap = () => _showPrivacyPolicy(context),
-                          ),
-                          const TextSpan(text: " and our "),
-                          TextSpan(
-                            text: "Privacy & Data Policy",
-                            style: const TextStyle(
-                              color: Color(0xFF17C6C6),
-                              fontWeight: FontWeight.w700,
-                              decoration: TextDecoration.underline,
-                            ),
-                            recognizer: TapGestureRecognizer()
-                              ..onTap = () => _showPrivacyPolicy(context),
-                          ),
-                          const TextSpan(
-                            text:
-                                ". Your data is used strictly for credit assessment and is never shared with unauthorized third parties.",
-                          ),
-                        ],
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ],
-          ),
-        ],
       ),
     );
   }
@@ -238,6 +166,18 @@ class _RegisterState extends State<Register> {
           ),
         ),
       ],
+    );
+  }
+
+  Widget _buildSectionLabel(String label) {
+    return Text(
+      label,
+      style: const TextStyle(
+        fontSize: 10,
+        fontWeight: FontWeight.w900,
+        letterSpacing: 1.5,
+        color: Color(0xFFBDBDBD),
+      ),
     );
   }
 
@@ -323,12 +263,176 @@ class _RegisterState extends State<Register> {
     );
   }
 
+  Widget _buildAgreementSection() {
+    return GestureDetector(
+      onTap: () => setState(() => _isChecked = !_isChecked),
+      behavior: HitTestBehavior.opaque,
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Padding(
+            padding: const EdgeInsets.only(top: 4),
+            child: SizedBox(
+              height: 18,
+              width: 18,
+              child: Checkbox(
+                value: _isChecked,
+                activeColor: AnansiColors.darkBlue,
+                side: BorderSide(
+                  color: Colors.grey.shade300,
+                  width: 1.5,
+                ), // Thicker border for premium look
+                materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                visualDensity: VisualDensity.compact,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(5),
+                ),
+                onChanged: (val) => setState(() => _isChecked = val ?? false),
+              ),
+            ),
+          ),
+          const SizedBox(width: 12),
+          Expanded(
+            child: RichText(
+              text: TextSpan(
+                style: TextStyle(
+                  color: Colors.blueGrey.shade400,
+                  fontSize: 13,
+                  fontFamily: 'Inter',
+                  height: 1.4,
+                ),
+                children: [
+                  const TextSpan(text: "I acknowledge and agree to the "),
+                  TextSpan(
+                    text: "Privacy Policy",
+                    style: const TextStyle(
+                      color: AnansiColors.darkBlue,
+                      fontWeight: FontWeight.w900,
+                    ),
+                    recognizer: TapGestureRecognizer()
+                      ..onTap = () => _showPrivacyPolicy(context),
+                  ),
+                  const TextSpan(
+                    text: " and the terms & conditions of Anansi SACCO.",
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildPasswordField({
+    required String label,
+    required TextEditingController controller,
+    required String hint,
+    required IconData icon,
+  }) {
+    return StatefulBuilder(
+      builder: (context, setState) {
+        return Container(
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(20),
+            border: Border.all(color: const Color(0xFFF1F4F8), width: 1.5),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withValues(alpha: 0.02),
+                blurRadius: 10,
+                offset: const Offset(0, 4),
+              ),
+            ],
+          ),
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              // 1. The Anchor Icon
+              Container(
+                padding: const EdgeInsets.all(10),
+                decoration: BoxDecoration(
+                  color: const Color(0xFF17C6C6).withValues(alpha: 0.08),
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: Icon(icon, size: 18, color: const Color(0xFF17C6C6)),
+              ),
+              const SizedBox(width: 16),
+
+              // 2. The Input Content
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Text(
+                      label.toUpperCase(),
+                      style: const TextStyle(
+                        color: Color(0xFF9E9E9E),
+                        fontWeight: FontWeight.w800,
+                        fontSize: 9,
+                        letterSpacing: 1.2,
+                      ),
+                    ),
+                    const SizedBox(height: 2),
+                    TextField(
+                      controller: controller,
+                      obscureText: !_isPasswordVisible,
+                      enableSuggestions: false,
+                      autocorrect: false,
+                      style: const TextStyle(
+                        fontWeight: FontWeight.w500,
+                        color: Colors.black,
+                        fontSize: 17,
+                      ),
+                      decoration: InputDecoration(
+                        hintText: hint,
+                        hintStyle: TextStyle(
+                          color: Colors.grey.shade300,
+                          fontSize: 14,
+                          fontWeight: FontWeight.w500,
+                        ),
+                        isDense: true,
+                        contentPadding: const EdgeInsets.symmetric(vertical: 4),
+                        border: InputBorder.none,
+                        // Adding the toggle as a suffix to the decoration
+                        suffixIcon: GestureDetector(
+                          onTap: () {
+                            setState(() {
+                              _isPasswordVisible = !_isPasswordVisible;
+                            });
+                          },
+                          child: Icon(
+                            _isPasswordVisible
+                                ? CupertinoIcons.eye_slash_fill
+                                : CupertinoIcons.eye_fill,
+                            size: 18,
+                            color: Colors.grey.shade400,
+                          ),
+                        ),
+                        suffixIconConstraints: const BoxConstraints(
+                          minWidth: 30,
+                          minHeight: 30,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+        );
+      },
+    );
+  }
+
   Widget _buildPremiumSubmit(bool isValid) {
     return ElevatedButton(
       onPressed: () {
         Navigator.push(
           context,
-          MaterialPageRoute(builder: (context) => CreatePassword(user: user)),
+          MaterialPageRoute(builder: (context) => VerifyEmail()),
         );
       },
       style: ElevatedButton.styleFrom(
@@ -340,7 +444,7 @@ class _RegisterState extends State<Register> {
         elevation: 0,
       ),
       child: const Text(
-        "CREATE ACCOUNT",
+        "CREATE PROFILE",
         style: TextStyle(
           fontWeight: FontWeight.w900,
           fontSize: 14,
