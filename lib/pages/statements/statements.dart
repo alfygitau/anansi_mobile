@@ -202,7 +202,6 @@ class _StatementsState extends State<Statements> {
               ),
             ),
           ),
-
           // 1. Modern Segmented Picker
           SliverToBoxAdapter(
             child: Padding(
@@ -248,7 +247,6 @@ class _StatementsState extends State<Statements> {
               ),
             ),
           ),
-
           // 3. Dynamic List Content
           SliverPadding(
             padding: const EdgeInsets.symmetric(horizontal: 24),
@@ -275,6 +273,7 @@ class _StatementsState extends State<Statements> {
     bool isActive = _activeSegment == index;
     return Expanded(
       child: GestureDetector(
+        key: ValueKey(index),
         onTap: () => setState(() => _activeSegment = index),
         child: AnimatedContainer(
           duration: const Duration(milliseconds: 200),
