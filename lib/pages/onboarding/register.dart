@@ -16,19 +16,185 @@ class _RegisterState extends State<Register> {
   final TextEditingController _usernameController = TextEditingController();
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _phoneController = TextEditingController();
-  bool _isChecked = false;
-  bool _isPasswordVisible = false;
   final TextEditingController _passwordController = TextEditingController();
   final TextEditingController _confirmPasswordController =
       TextEditingController();
+  bool _isChecked = false;
+  bool _isPasswordVisible = false;
   Map<String, dynamic> user = {};
+  Map<String, String?> formErrors = {
+    'email': null,
+    'password': null,
+    "username": null,
+    "mobile": null,
+    "confirmPassword": null,
+  };
+  final FocusNode _passFocus = FocusNode();
+  final FocusNode _emailFocus = FocusNode();
+  final FocusNode _usernameFocus = FocusNode();
+  final FocusNode _mobileFocus = FocusNode();
+  final FocusNode _confirmPassFocus = FocusNode();
+
+  void _validateUsername(String value) {
+    setState(() {
+      if (value.isEmpty) {
+        formErrors['username'] = "Username is required";
+      } else if (value.length < 3) {
+        formErrors['username'] = "Too short";
+      } else {
+        formErrors['username'] = null;
+      }
+    });
+  }
+
+  // 2. Email: Standard RFC format
+  void _validateEmail(String value) {
+    setState(() {
+      final bool emailValid = RegExp(
+        r"^[a-zA-Z0-9.a-zA-Z0-9.!#$%&'*+-/=?^_`{|}~]+@[a-zA-Z0-9]+\.[a-zA-Z]+",
+      ).hasMatch(value);
+      if (value.isEmpty) {
+        formErrors['email'] = "Email address is required";
+      } else if (!emailValid) {
+        formErrors['email'] = "Please enter a valid email address";
+      } else {
+        formErrors['email'] = null;
+      }
+    });
+  }
+
+  // 3. Phone: Kenyan format (07... or +254...)
+  void _validatePhone(String value) {
+    setState(() {
+      // Matches 07XXXXXXXX, 01XXXXXXXX, or +254...
+      final bool phoneValid = RegExp(
+        r'^(?:254|\+254|0)?(7|1)(?:[0-9]){8}$',
+      ).hasMatch(value);
+      if (value.isEmpty) {
+        formErrors['phone'] = "Mobile number is required";
+      } else if (!phoneValid) {
+        formErrors['phone'] = "Enter a valid Kenyan mobile number";
+      } else {
+        formErrors['phone'] = null;
+      }
+    });
+  }
+
+  // 4. Password: Min 8 chars, 1 Letter, 1 Number
+  void _validatePassword(String value) {
+    setState(() {
+      bool hasUppercase = value.contains(RegExp(r'[A-Z]'));
+      bool hasDigits = value.contains(RegExp(r'[0-9]'));
+
+      if (value.isEmpty) {
+        formErrors['password'] = "Secure your account with a password";
+      } else if (value.length < 8) {
+        formErrors['password'] = "Password must be at least 8 characters";
+      } else if (!hasUppercase || !hasDigits) {
+        formErrors['password'] =
+            "Include at least one capital letter and a number";
+      } else {
+        formErrors['password'] = null;
+      }
+
+      // Always re-validate confirm password if it's not empty
+      if (_confirmPasswordController.text.isNotEmpty) {
+        _validateConfirmPassword(_confirmPasswordController.text);
+      }
+    });
+  }
+
+  // 5. Confirm Password: Must match _passwordController
+  void _validateConfirmPassword(String value) {
+    setState(() {
+      if (value.isEmpty) {
+        formErrors['confirmPassword'] = "Please confirm your password";
+      } else if (value != _passwordController.text) {
+        formErrors['confirmPassword'] = "Passwords do not match";
+      } else {
+        formErrors['confirmPassword'] = null;
+      }
+    });
+  }
+
+  @override
+  void initState() {
+    super.initState();
+
+    // Username Listener
+    _usernameFocus.addListener(() {
+      if (!_usernameFocus.hasFocus) {
+        _validateUsername(_usernameController.text);
+      }
+    });
+
+    // Email Listener
+    _emailFocus.addListener(() {
+      if (!_emailFocus.hasFocus) {
+        _validateEmail(_emailController.text);
+      }
+    });
+
+    // Phone Listener
+    _mobileFocus.addListener(() {
+      if (!_mobileFocus.hasFocus) {
+        _validatePhone(_phoneController.text);
+      }
+    });
+
+    // Password Listener
+    _passFocus.addListener(() {
+      if (!_passFocus.hasFocus) {
+        _validatePassword(_passwordController.text);
+      }
+    });
+
+    // Confirm Password Listener
+    _confirmPassFocus.addListener(() {
+      if (!_confirmPassFocus.hasFocus) {
+        _validateConfirmPassword(_confirmPasswordController.text);
+      }
+    });
+  }
+
+  bool get _isValid {
+    // 1. Check if any error messages exist in our map
+    bool hasNoErrors = formErrors.values.every((error) => error == null);
+
+    // 2. Ensure mandatory fields aren't just empty strings
+    bool fieldsNotEmpty =
+        _usernameController.text.isNotEmpty &&
+        _emailController.text.isNotEmpty &&
+        _phoneController.text.isNotEmpty &&
+        _passwordController.text.isNotEmpty &&
+        _confirmPasswordController.text.isNotEmpty;
+
+    // 3. Ensure passwords match and the agreement is checked
+    bool passwordsMatch =
+        _passwordController.text == _confirmPasswordController.text;
+
+    return hasNoErrors && fieldsNotEmpty && passwordsMatch && _isChecked;
+  }
+
+  @override
+  void dispose() {
+    _usernameFocus.dispose();
+    _emailFocus.dispose();
+    _mobileFocus.dispose();
+    _passFocus.dispose();
+    _confirmPassFocus.dispose();
+
+    _usernameFocus.dispose();
+    _emailFocus.dispose();
+    _mobileFocus.dispose();
+    _passFocus.dispose();
+    _confirmPassFocus.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
-    final bool isFormValid =
-        _usernameController.text.isNotEmpty &&
-        _emailController.text.isNotEmpty &&
-        _phoneController.text.isNotEmpty;
+    final bool isFormValid = _isValid;
 
     return Scaffold(
       backgroundColor: Colors.white,
@@ -59,6 +225,9 @@ class _RegisterState extends State<Register> {
                 hint: "Your unique username",
                 controller: _usernameController,
                 icon: Icons.person_2_outlined,
+                fieldKey: "username",
+                focusNode: _usernameFocus,
+                keyboardType: TextInputType.text,
               ),
               const SizedBox(height: 24),
               _buildInputField(
@@ -66,6 +235,9 @@ class _RegisterState extends State<Register> {
                 hint: "name@example.com",
                 controller: _emailController,
                 icon: Icons.alternate_email_rounded,
+                fieldKey: "email",
+                focusNode: _emailFocus,
+                keyboardType: TextInputType.emailAddress,
               ),
               const SizedBox(height: 24),
               _buildInputField(
@@ -73,7 +245,9 @@ class _RegisterState extends State<Register> {
                 controller: _phoneController,
                 hint: "e.g 0712345678",
                 icon: CupertinoIcons.phone_fill,
-                isPhone: true,
+                fieldKey: "mobile",
+                focusNode: _mobileFocus,
+                keyboardType: TextInputType.phone,
               ),
               const SizedBox(height: 26),
               _buildSectionLabel("CREATE PASSWORD"),
@@ -83,6 +257,9 @@ class _RegisterState extends State<Register> {
                 controller: _passwordController,
                 hint: "Enter your security key",
                 icon: CupertinoIcons.lock_shield_fill,
+                fieldKey: "password",
+                focusNode: _passFocus,
+                keyboardType: TextInputType.text,
               ),
               const SizedBox(height: 20),
               _buildPasswordField(
@@ -90,12 +267,15 @@ class _RegisterState extends State<Register> {
                 controller: _confirmPasswordController,
                 hint: "Repeat your security key",
                 icon: CupertinoIcons.lock_shield_fill,
+                fieldKey: "confirmPassword",
+                focusNode: _confirmPassFocus,
+                keyboardType: TextInputType.text,
               ),
               const SizedBox(height: 32),
               _buildAgreementSection(),
-              const SizedBox(height: 40),
+              const SizedBox(height: 30),
               _buildPremiumSubmit(isFormValid),
-              const SizedBox(height: 32),
+              const SizedBox(height: 12),
               _buildSignInFooter(),
               const SizedBox(height: 24),
             ],
@@ -184,82 +364,300 @@ class _RegisterState extends State<Register> {
   // YOUR REQUESTED BUILD INPUT
   Widget _buildInputField({
     required String label,
+    required String fieldKey,
     required TextEditingController controller,
     required String hint,
     required IconData icon,
-    bool isPhone = false,
+    required FocusNode focusNode,
+    required TextInputType keyboardType,
   }) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: const Color(0xFFF1F4F8), width: 1.5),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: 0.02),
-            blurRadius: 10,
-            offset: const Offset(0, 4),
-          ),
-        ],
-      ),
-      child: Row(
-        children: [
-          Container(
-            padding: const EdgeInsets.all(10),
-            decoration: BoxDecoration(
-              color: const Color(0xFF17C6C6).withValues(alpha: 0.08),
-              borderRadius: BorderRadius.circular(12),
+    // 1. Extract the current state for this specific field
+    final String? errorText = formErrors[fieldKey];
+    final bool hasError = errorText != null;
+    final bool isFocused = focusNode.hasFocus;
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        AnimatedContainer(
+          duration: const Duration(milliseconds: 250),
+          curve: Curves.easeInOut,
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(20),
+            // BORDER LOGIC: Error > Focused > Neutral
+            border: Border.all(
+              color: hasError
+                  ? Colors.redAccent.withValues(alpha: 0.6)
+                  : (isFocused
+                        ? const Color(0xFF17C6C6)
+                        : const Color(0xFFF1F4F8)),
+              width: 1.6,
             ),
-            child: Icon(icon, size: 18, color: const Color(0xFF17C6C6)),
+            boxShadow: [
+              BoxShadow(
+                color: hasError
+                    ? Colors.redAccent.withValues(alpha: 0.05)
+                    : (isFocused
+                          ? const Color(0xFF17C6C6).withValues(alpha: 0.08)
+                          : Colors.black.withValues(alpha: 0.02)),
+                blurRadius: 12,
+                offset: const Offset(0, 4),
+              ),
+            ],
           ),
-          const SizedBox(width: 16),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Text(
-                  label.toUpperCase(),
-                  style: const TextStyle(
-                    color: Color(0xFF9E9E9E),
-                    fontWeight: FontWeight.w800,
-                    fontSize: 9,
-                    letterSpacing: 1.2,
-                  ),
+          child: Row(
+            children: [
+              // Icon Container reacts to state
+              AnimatedContainer(
+                duration: const Duration(milliseconds: 250),
+                padding: const EdgeInsets.all(10),
+                decoration: BoxDecoration(
+                  color: hasError
+                      ? Colors.redAccent.withValues(alpha: 0.08)
+                      : const Color(0xFF17C6C6).withValues(alpha: 0.08),
+                  borderRadius: BorderRadius.circular(12),
                 ),
-                const SizedBox(height: 2),
-                TextField(
-                  controller: controller,
-                  keyboardType: isPhone
-                      ? TextInputType.phone
-                      : TextInputType.text,
-                  style: const TextStyle(
-                    fontWeight: FontWeight.w500,
-                    color: Colors.black,
-                    fontSize: 17,
-                  ),
-                  decoration: InputDecoration(
-                    prefixStyle: const TextStyle(
-                      color: Color(0xFF17C6C6),
-                      fontWeight: FontWeight.w900,
-                    ),
-                    hintText: hint,
-                    hintStyle: TextStyle(
-                      color: Colors.grey.shade300,
-                      fontSize: 14,
-                      fontWeight: FontWeight.w500,
-                    ),
-                    isDense: true,
-                    contentPadding: const EdgeInsets.symmetric(vertical: 4),
-                    border: InputBorder.none,
-                  ),
+                child: Icon(
+                  icon,
+                  size: 18,
+                  color: hasError ? Colors.redAccent : const Color(0xFF17C6C6),
                 ),
-              ],
+              ),
+              const SizedBox(width: 16),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Text(
+                      label.toUpperCase(),
+                      style: TextStyle(
+                        color: hasError
+                            ? Colors.redAccent
+                            : const Color(0xFF9E9E9E),
+                        fontWeight: FontWeight.w800,
+                        fontSize: 9,
+                        letterSpacing: 1.2,
+                      ),
+                    ),
+                    const SizedBox(height: 2),
+                    TextField(
+                      focusNode: focusNode,
+                      controller: controller,
+                      keyboardType: keyboardType,
+                      onChanged: (val) {
+                        if (formErrors[fieldKey] != null) {
+                          setState(() => formErrors[fieldKey] = null);
+                        }
+                        setState(() {});
+                      },
+                      style: const TextStyle(
+                        fontWeight: FontWeight.w500,
+                        color: Colors.black,
+                        fontSize: 17,
+                      ),
+                      onTapOutside: (event) {
+                        FocusScope.of(context).unfocus();
+                      },
+                      decoration: InputDecoration(
+                        hintText: hint,
+                        hintStyle: TextStyle(
+                          color: Colors.grey.shade300,
+                          fontSize: 14,
+                          fontWeight: FontWeight.w500,
+                        ),
+                        isDense: true,
+                        contentPadding: const EdgeInsets.symmetric(vertical: 4),
+                        border: InputBorder.none,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+        ),
+
+        // ERROR MESSAGE: Animated Slide-in
+        AnimatedSize(
+          duration: const Duration(milliseconds: 200),
+          child: SizedBox(
+            height: hasError ? null : 0,
+            child: Padding(
+              padding: const EdgeInsets.only(left: 16, top: 8),
+              child: Text(
+                errorText ?? "",
+                style: const TextStyle(
+                  color: Colors.redAccent,
+                  fontSize: 12,
+                  fontWeight: FontWeight.w600,
+                  height: 1.2,
+                ),
+              ),
             ),
           ),
-        ],
-      ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildPasswordField({
+    required String label,
+    required String fieldKey,
+    required TextEditingController controller,
+    required String hint,
+    required IconData icon,
+    required FocusNode focusNode,
+    required TextInputType keyboardType,
+  }) {
+    final String? errorText = formErrors[fieldKey];
+    final bool hasError = errorText != null;
+    final bool isFocused = focusNode.hasFocus;
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        AnimatedContainer(
+          duration: const Duration(milliseconds: 250),
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(20),
+            // BORDER LOGIC
+            border: Border.all(
+              color: hasError
+                  ? Colors.redAccent.withValues(alpha: 0.6)
+                  : (isFocused
+                        ? const Color(0xFF17C6C6)
+                        : const Color(0xFFF1F4F8)),
+              width: 1.6,
+            ),
+            boxShadow: [
+              BoxShadow(
+                color: hasError
+                    ? Colors.redAccent.withValues(alpha: 0.05)
+                    : (isFocused
+                          ? const Color(0xFF17C6C6).withValues(alpha: 0.08)
+                          : Colors.black.withValues(alpha: 0.02)),
+                blurRadius: 12,
+                offset: const Offset(0, 4),
+              ),
+            ],
+          ),
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              // 1. Animated Icon Container
+              AnimatedContainer(
+                duration: const Duration(milliseconds: 250),
+                padding: const EdgeInsets.all(10),
+                decoration: BoxDecoration(
+                  color: hasError
+                      ? Colors.redAccent.withValues(alpha: 0.08)
+                      : const Color(0xFF17C6C6).withValues(alpha: 0.08),
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: Icon(
+                  icon,
+                  size: 18,
+                  color: hasError ? Colors.redAccent : const Color(0xFF17C6C6),
+                ),
+              ),
+              const SizedBox(width: 16),
+
+              // 2. Input Content
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Text(
+                      label.toUpperCase(),
+                      style: TextStyle(
+                        color: hasError
+                            ? Colors.redAccent
+                            : const Color(0xFF9E9E9E),
+                        fontWeight: FontWeight.w800,
+                        fontSize: 9,
+                        letterSpacing: 1.2,
+                      ),
+                    ),
+                    const SizedBox(height: 2),
+                    TextField(
+                      focusNode: focusNode,
+                      controller: controller,
+                      obscureText: !_isPasswordVisible,
+                      keyboardType: keyboardType,
+                      onChanged: (val) {
+                        if (formErrors[fieldKey] != null) {
+                          setState(() => formErrors[fieldKey] = null);
+                        }
+                        setState(() {});
+                      },
+                      style: const TextStyle(
+                        fontWeight: FontWeight.w500,
+                        color: Colors.black,
+                        fontSize: 17,
+                      ),
+                      onTapOutside: (event) {
+                        FocusScope.of(context).unfocus();
+                      },
+                      decoration: InputDecoration(
+                        hintText: hint,
+                        hintStyle: TextStyle(
+                          color: Colors.grey.shade300,
+                          fontSize: 14,
+                          fontWeight: FontWeight.w500,
+                        ),
+                        isDense: true,
+                        suffixIconConstraints: const BoxConstraints(
+                          minWidth: 30,
+                          minHeight: 30,
+                        ),
+                        contentPadding: const EdgeInsets.symmetric(vertical: 4),
+                        border: InputBorder.none,
+                        suffixIcon: GestureDetector(
+                          onTap: () => setState(
+                            () => _isPasswordVisible = !_isPasswordVisible,
+                          ),
+                          child: Icon(
+                            _isPasswordVisible
+                                ? CupertinoIcons.eye_slash_fill
+                                : CupertinoIcons.eye_fill,
+                            size: 18,
+                            color: hasError
+                                ? Colors.redAccent.withValues(alpha: 0.5)
+                                : Colors.grey.shade400,
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+        ),
+        AnimatedSize(
+          duration: const Duration(milliseconds: 200),
+          child: SizedBox(
+            height: hasError ? null : 0,
+            child: Padding(
+              padding: const EdgeInsets.only(left: 16, top: 8),
+              child: Text(
+                errorText ?? "",
+                style: const TextStyle(
+                  color: Colors.redAccent,
+                  fontSize: 11,
+                  fontWeight: FontWeight.w700,
+                ),
+              ),
+            ),
+          ),
+        ),
+      ],
     );
   }
 
@@ -271,7 +669,7 @@ class _RegisterState extends State<Register> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Padding(
-            padding: const EdgeInsets.only(top: 4),
+            padding: const EdgeInsets.only(top: 2),
             child: SizedBox(
               height: 18,
               width: 18,
@@ -297,7 +695,7 @@ class _RegisterState extends State<Register> {
               text: TextSpan(
                 style: TextStyle(
                   color: Colors.blueGrey.shade400,
-                  fontSize: 13,
+                  fontSize: 12,
                   fontFamily: 'Inter',
                   height: 1.4,
                 ),
@@ -324,131 +722,38 @@ class _RegisterState extends State<Register> {
     );
   }
 
-  Widget _buildPasswordField({
-    required String label,
-    required TextEditingController controller,
-    required String hint,
-    required IconData icon,
-  }) {
-    return StatefulBuilder(
-      builder: (context, setState) {
-        return Container(
-          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-          decoration: BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.circular(20),
-            border: Border.all(color: const Color(0xFFF1F4F8), width: 1.5),
-            boxShadow: [
-              BoxShadow(
-                color: Colors.black.withValues(alpha: 0.02),
-                blurRadius: 10,
-                offset: const Offset(0, 4),
-              ),
-            ],
-          ),
-          child: Row(
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: [
-              // 1. The Anchor Icon
-              Container(
-                padding: const EdgeInsets.all(10),
-                decoration: BoxDecoration(
-                  color: const Color(0xFF17C6C6).withValues(alpha: 0.08),
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                child: Icon(icon, size: 18, color: const Color(0xFF17C6C6)),
-              ),
-              const SizedBox(width: 16),
-
-              // 2. The Input Content
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Text(
-                      label.toUpperCase(),
-                      style: const TextStyle(
-                        color: Color(0xFF9E9E9E),
-                        fontWeight: FontWeight.w800,
-                        fontSize: 9,
-                        letterSpacing: 1.2,
-                      ),
-                    ),
-                    const SizedBox(height: 2),
-                    TextField(
-                      controller: controller,
-                      obscureText: !_isPasswordVisible,
-                      enableSuggestions: false,
-                      autocorrect: false,
-                      style: const TextStyle(
-                        fontWeight: FontWeight.w500,
-                        color: Colors.black,
-                        fontSize: 17,
-                      ),
-                      decoration: InputDecoration(
-                        hintText: hint,
-                        hintStyle: TextStyle(
-                          color: Colors.grey.shade300,
-                          fontSize: 14,
-                          fontWeight: FontWeight.w500,
-                        ),
-                        isDense: true,
-                        contentPadding: const EdgeInsets.symmetric(vertical: 4),
-                        border: InputBorder.none,
-                        // Adding the toggle as a suffix to the decoration
-                        suffixIcon: GestureDetector(
-                          onTap: () {
-                            setState(() {
-                              _isPasswordVisible = !_isPasswordVisible;
-                            });
-                          },
-                          child: Icon(
-                            _isPasswordVisible
-                                ? CupertinoIcons.eye_slash_fill
-                                : CupertinoIcons.eye_fill,
-                            size: 18,
-                            color: Colors.grey.shade400,
-                          ),
-                        ),
-                        suffixIconConstraints: const BoxConstraints(
-                          minWidth: 30,
-                          minHeight: 30,
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ],
-          ),
-        );
-      },
-    );
-  }
-
   Widget _buildPremiumSubmit(bool isValid) {
     return ElevatedButton(
-      onPressed: () {
-        Navigator.push(
-          context,
-          MaterialPageRoute(builder: (context) => VerifyEmail()),
-        );
-      },
+      // When isValid is false, onPressed is null, disabling the button
+      onPressed: isValid
+          ? () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => const VerifyEmail()),
+              );
+            }
+          : null,
       style: ElevatedButton.styleFrom(
         backgroundColor: AnansiColors.darkBlue,
         foregroundColor: Colors.white,
+        // This is the color used when onPressed is null
         disabledBackgroundColor: Colors.grey.shade200,
+        // This is the text color when disabled
+        disabledForegroundColor: Colors.grey.shade500,
         minimumSize: const Size(double.infinity, 64),
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(18)),
-        elevation: 0,
+        // Premium touch: only show elevation/shadow when the form is valid
+        elevation: isValid ? 4 : 0,
+        shadowColor: AnansiColors.darkBlue.withValues(alpha: 0.3),
       ),
-      child: const Text(
+      child: Text(
         "CREATE PROFILE",
         style: TextStyle(
           fontWeight: FontWeight.w900,
           fontSize: 14,
           letterSpacing: 1.5,
+          // Ensure the text looks "muted" when disabled
+          color: isValid ? Colors.white : Colors.grey.shade500,
         ),
       ),
     );
