@@ -1,9 +1,13 @@
+import 'package:app_anansi_mobile/helpers/format_mobile.dart';
 import 'package:app_anansi_mobile/pages/auth/login.dart';
 import 'package:app_anansi_mobile/pages/onboarding/verify_email.dart';
+import 'package:app_anansi_mobile/services/error_service.dart';
+import 'package:app_anansi_mobile/services/onboarding_service.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:app_anansi_mobile/theme/app_theme.dart';
+import 'package:flutter/services.dart';
 
 class Register extends StatefulWidget {
   const Register({super.key});
@@ -21,6 +25,7 @@ class _RegisterState extends State<Register> {
       TextEditingController();
   bool _isChecked = false;
   bool _isPasswordVisible = false;
+  bool _isLoading = false;
   Map<String, dynamic> user = {};
   Map<String, String?> formErrors = {
     'email': null,
@@ -71,11 +76,11 @@ class _RegisterState extends State<Register> {
         r'^(?:254|\+254|0)?(7|1)(?:[0-9]){8}$',
       ).hasMatch(value);
       if (value.isEmpty) {
-        formErrors['phone'] = "Mobile number is required";
+        formErrors['mobile'] = "Mobile number is required";
       } else if (!phoneValid) {
-        formErrors['phone'] = "Enter a valid Kenyan mobile number";
+        formErrors['mobile'] = "Enter a valid Kenyan mobile number";
       } else {
-        formErrors['phone'] = null;
+        formErrors['mobile'] = null;
       }
     });
   }
@@ -157,23 +162,67 @@ class _RegisterState extends State<Register> {
     });
   }
 
-  bool get _isValid {
-    // 1. Check if any error messages exist in our map
-    bool hasNoErrors = formErrors.values.every((error) => error == null);
+  bool _isEverythingValid() {
+    // 1. Username: 3+ characters
+    final bool isUsernameValid = _usernameController.text.trim().length >= 3;
 
-    // 2. Ensure mandatory fields aren't just empty strings
-    bool fieldsNotEmpty =
-        _usernameController.text.isNotEmpty &&
-        _emailController.text.isNotEmpty &&
-        _phoneController.text.isNotEmpty &&
-        _passwordController.text.isNotEmpty &&
-        _confirmPasswordController.text.isNotEmpty;
+    // 2. Email: Simple Regex check
+    final bool isEmailValid = RegExp(
+      r"^[a-zA-Z0-9.a-zA-Z0-9.!#$%&'*+-/=?^_`{|}~]+@[a-zA-Z0-9]+\.[a-zA-Z]+",
+    ).hasMatch(_emailController.text.trim());
 
-    // 3. Ensure passwords match and the agreement is checked
-    bool passwordsMatch =
-        _passwordController.text == _confirmPasswordController.text;
+    // 3. Phone: Kenyan Format (7 or 1 prefix + 8 digits)
+    final bool isPhoneValid = RegExp(
+      r'^(?:254|\+254|0)?(7|1)(?:[0-9]){8}$',
+    ).hasMatch(_phoneController.text.trim());
 
-    return hasNoErrors && fieldsNotEmpty && passwordsMatch && _isChecked;
+    // 4. Password: Min 8 chars + 1 Uppercase + 1 Number
+    final String pass = _passwordController.text;
+    final bool isPasswordSecure =
+        pass.length >= 8 &&
+        pass.contains(RegExp(r'[A-Z]')) &&
+        pass.contains(RegExp(r'[0-9]'));
+
+    // 5. Match & Agreement
+    final bool passwordsMatch = pass == _confirmPasswordController.text;
+    final bool hasAgreed = _isChecked;
+
+    // Final aggregate check
+    return isUsernameValid &&
+        isEmailValid &&
+        isPhoneValid &&
+        isPasswordSecure &&
+        passwordsMatch &&
+        hasAgreed;
+  }
+
+  void createProfile() async {
+    setState(() {
+      _isLoading = true;
+    });
+    try {
+      final (response, errors) = await OnboardingService().createProfile(
+        email: _emailController.text.trim(),
+        password: _passwordController.text.trim(),
+        username: _usernameController.text.trim(),
+        phoneNumber: formatToKenyanPhone(_phoneController.text.trim()) ?? "",
+      );
+      if (errors != null) {
+        ErrorService.showActionableError(
+          context,
+          title: errors[0],
+          message: errors[1],
+        );
+      } else if (response != null) {
+        HapticFeedback.lightImpact();
+        Navigator.push(
+          context,
+          MaterialPageRoute(builder: (context) => const VerifyEmail()),
+        );
+      }
+    } finally {
+      if (mounted) setState(() => _isLoading = false);
+    }
   }
 
   @override
@@ -194,7 +243,7 @@ class _RegisterState extends State<Register> {
 
   @override
   Widget build(BuildContext context) {
-    final bool isFormValid = _isValid;
+    final bool canSubmit = _isEverythingValid();
 
     return Scaffold(
       backgroundColor: Colors.white,
@@ -274,7 +323,7 @@ class _RegisterState extends State<Register> {
               const SizedBox(height: 32),
               _buildAgreementSection(),
               const SizedBox(height: 30),
-              _buildPremiumSubmit(isFormValid),
+              _buildPremiumSubmit(canSubmit),
               const SizedBox(height: 12),
               _buildSignInFooter(),
               const SizedBox(height: 24),
@@ -725,14 +774,7 @@ class _RegisterState extends State<Register> {
   Widget _buildPremiumSubmit(bool isValid) {
     return ElevatedButton(
       // When isValid is false, onPressed is null, disabling the button
-      onPressed: isValid
-          ? () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(builder: (context) => const VerifyEmail()),
-              );
-            }
-          : null,
+      onPressed: isValid ? createProfile : null,
       style: ElevatedButton.styleFrom(
         backgroundColor: AnansiColors.darkBlue,
         foregroundColor: Colors.white,
@@ -746,16 +788,18 @@ class _RegisterState extends State<Register> {
         elevation: isValid ? 4 : 0,
         shadowColor: AnansiColors.darkBlue.withValues(alpha: 0.3),
       ),
-      child: Text(
-        "CREATE PROFILE",
-        style: TextStyle(
-          fontWeight: FontWeight.w900,
-          fontSize: 14,
-          letterSpacing: 1.5,
-          // Ensure the text looks "muted" when disabled
-          color: isValid ? Colors.white : Colors.grey.shade500,
-        ),
-      ),
+      child: _isLoading
+          ? const CupertinoActivityIndicator(color: Colors.white)
+          : Text(
+              "CREATE PROFILE",
+              style: TextStyle(
+                fontWeight: FontWeight.w900,
+                fontSize: 14,
+                letterSpacing: 1.5,
+                // Ensure the text looks "muted" when disabled
+                color: isValid ? Colors.white : Colors.grey.shade500,
+              ),
+            ),
     );
   }
 
