@@ -9,6 +9,7 @@ import 'package:app_anansi_mobile/pages/loan_products/loan_products.dart';
 import 'package:app_anansi_mobile/pages/loans/loans.dart';
 import 'package:app_anansi_mobile/pages/notifications/notifications.dart';
 import 'package:app_anansi_mobile/pages/profile/profile.dart';
+import 'package:app_anansi_mobile/pages/statements/statements.dart';
 import 'package:app_anansi_mobile/services/account_service.dart';
 import 'package:app_anansi_mobile/services/error_service.dart';
 import 'package:app_anansi_mobile/shimmers/homepage/accounts.dart';
@@ -272,8 +273,12 @@ class _HomepageState extends State<Homepage> {
                       _buildQuickAction(
                         label: "Statements",
                         icon: Icons.description_rounded,
-                        onTap: () =>
-                            Navigator.pushNamed(context, '/statements'),
+                        onTap: () => Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => const Statements(),
+                          ),
+                        ),
                       ),
                       _buildQuickAction(
                         label: "Products",
