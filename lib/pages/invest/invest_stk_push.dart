@@ -1,6 +1,10 @@
+import 'package:app_anansi_mobile/helpers/polling.dart';
+import 'package:app_anansi_mobile/pages/homepage/homepage.dart';
+import 'package:app_anansi_mobile/services/account_service.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:app_anansi_mobile/theme/app_theme.dart';
+import 'package:flutter/services.dart';
 
 class InvestStkPush extends StatefulWidget {
   final String reference;
@@ -14,6 +18,48 @@ class InvestStkPush extends StatefulWidget {
 class _InvestStkPushState extends State<InvestStkPush>
     with TickerProviderStateMixin {
   late AnimationController _pulseController;
+  bool _isLoading = false;
+  bool _shouldStopPolling = false;
+
+  Future<bool> _checkPurchaseStatus() async {
+    try {
+      final (response, errors) = await AccountService().confirmQuickInvest(
+        reference: widget.reference,
+      );
+      if (errors == null && response != null) {
+        return response.data['data']['exists'] == true;
+      }
+    } catch (e) {
+      debugPrint("Polling error: $e");
+    }
+    return false;
+  }
+
+  void handleConfirmPurchase() async {
+    _shouldStopPolling = false;
+    bool success = await polling(
+      apiCallback: _checkPurchaseStatus,
+      interval: const Duration(seconds: 3),
+      timeout: const Duration(seconds: 25),
+    );
+
+    if (mounted) {
+      setState(() => _isLoading = false);
+
+      if (success) {
+        HapticFeedback.lightImpact();
+        showSuccessSheet(context);
+      } else {
+        if (!_shouldStopPolling) {
+          showFailureSheet(
+            context: context,
+            onRetry: handleConfirmPurchase,
+            onCancel: () => _shouldStopPolling = true,
+          );
+        }
+      }
+    }
+  }
 
   @override
   void initState() {
@@ -22,6 +68,8 @@ class _InvestStkPushState extends State<InvestStkPush>
       vsync: this,
       duration: const Duration(seconds: 2),
     )..repeat();
+
+    handleConfirmPurchase();
   }
 
   @override
@@ -177,8 +225,8 @@ class _InvestStkPushState extends State<InvestStkPush>
               children: [
                 Row(
                   children: [
-                    const Text(
-                      "Request Sent",
+                    Text(
+                      _isLoading ? "Request Sent" : "Verification Complete",
                       style: TextStyle(
                         color: Color(0xFF166534),
                         fontWeight: FontWeight.w900,
@@ -209,7 +257,9 @@ class _InvestStkPushState extends State<InvestStkPush>
                 ),
                 const SizedBox(height: 4),
                 Text(
-                  "M-PESA checkout session is now active.",
+                  _isLoading
+                      ? "M-PESA checkout session is now active."
+                      : "Transaction has been verified.",
                   style: TextStyle(
                     color: const Color(0xFF166534).withValues(alpha: 0.7),
                     fontSize: 12,
@@ -410,6 +460,203 @@ class _InvestStkPushState extends State<InvestStkPush>
           fontWeight: FontWeight.w800,
           color: AnansiColors.darkBlue.withValues(alpha: 0.5),
           letterSpacing: 1.0,
+        ),
+      ),
+    );
+  }
+
+  void showSuccessSheet(BuildContext context) {
+    showModalBottomSheet(
+      context: context,
+      isDismissible: false, // Cannot tap outside to close
+      enableDrag: false, // Cannot swipe down to close
+      backgroundColor: Colors.transparent,
+      builder: (context) => Container(
+        padding: const EdgeInsets.all(32),
+        decoration: const BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.vertical(top: Radius.circular(32)),
+        ),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Container(
+              width: 80,
+              height: 80,
+              decoration: BoxDecoration(
+                color: const Color(0xFF17C6C6).withValues(alpha: 0.1),
+                shape: BoxShape.circle,
+              ),
+              child: const Icon(
+                CupertinoIcons.check_mark_circled_solid,
+                color: Color(0xFF17C6C6),
+                size: 50,
+              ),
+            ),
+            const SizedBox(height: 24),
+            const Text(
+              "Transaction Successful",
+              style: TextStyle(
+                fontSize: 22,
+                fontWeight: FontWeight.w900,
+                color: Color(0xFF074073),
+                letterSpacing: -0.5,
+              ),
+            ),
+            const SizedBox(height: 12),
+            Text(
+              "Your share and savings purchase has been processed successfully. You can now view your updated portfolio in the dashboard.",
+              textAlign: TextAlign.center,
+              style: TextStyle(
+                color: Colors.blueGrey.shade400,
+                fontSize: 14,
+                height: 1.5,
+              ),
+            ),
+            const SizedBox(height: 32),
+            SizedBox(
+              width: double.infinity,
+              height: 56,
+              child: ElevatedButton(
+                onPressed: () =>
+                    Navigator.popUntil(context, (route) => route.isFirst),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: const Color(0xFF074073),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(16),
+                  ),
+                  elevation: 0,
+                ),
+                child: const Text(
+                  "View Portfolio",
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  void showFailureSheet({
+    required BuildContext context,
+    required VoidCallback onRetry,
+    required VoidCallback onCancel,
+  }) {
+    showModalBottomSheet(
+      context: context,
+      isDismissible: true,
+      backgroundColor: Colors.transparent,
+      builder: (context) => Container(
+        padding: const EdgeInsets.fromLTRB(32, 12, 32, 32),
+        decoration: const BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.vertical(top: Radius.circular(32)),
+        ),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            // Handle bar for swipeability
+            Container(
+              width: 40,
+              height: 4,
+              decoration: BoxDecoration(
+                color: Colors.grey.shade200,
+                borderRadius: BorderRadius.circular(2),
+              ),
+            ),
+            const SizedBox(height: 30),
+            Container(
+              width: 80,
+              height: 80,
+              decoration: BoxDecoration(
+                color: Colors.redAccent.withValues(alpha: 0.1),
+                shape: BoxShape.circle,
+              ),
+              child: const Icon(
+                CupertinoIcons.xmark_circle_fill,
+                color: Colors.redAccent,
+                size: 50,
+              ),
+            ),
+            const SizedBox(height: 24),
+            const Text(
+              "Payment Not Detected",
+              style: TextStyle(
+                fontSize: 22,
+                fontWeight: FontWeight.w900,
+                color: Color(0xFF074073),
+              ),
+            ),
+            const SizedBox(height: 12),
+            Text(
+              "We couldn't verify your M-Pesa payment within the expected time. Please ensure you entered your PIN or try again.",
+              textAlign: TextAlign.center,
+              style: TextStyle(
+                color: Colors.blueGrey.shade400,
+                fontSize: 14,
+                height: 1.5,
+              ),
+            ),
+            const SizedBox(height: 32),
+            Row(
+              children: [
+                Expanded(
+                  child: OutlinedButton(
+                    onPressed: () {
+                      onCancel();
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(builder: (context) => Homepage()),
+                      );
+                    },
+                    style: OutlinedButton.styleFrom(
+                      minimumSize: const Size(double.infinity, 56),
+                      side: BorderSide(color: Colors.grey.shade200),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(16),
+                      ),
+                    ),
+                    child: Text(
+                      "Cancel",
+                      style: TextStyle(
+                        color: Colors.blueGrey.shade700,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ),
+                ),
+                const SizedBox(width: 16),
+                Expanded(
+                  child: ElevatedButton(
+                    onPressed: () {
+                      Navigator.pop(context);
+                      onRetry(); // Restarts the logic
+                    },
+                    style: ElevatedButton.styleFrom(
+                      minimumSize: const Size(double.infinity, 56),
+                      backgroundColor: const Color(0xFF074073),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(16),
+                      ),
+                      elevation: 0,
+                    ),
+                    child: const Text(
+                      "Retry Now",
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ],
         ),
       ),
     );

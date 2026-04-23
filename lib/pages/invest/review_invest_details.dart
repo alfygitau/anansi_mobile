@@ -1,11 +1,19 @@
+import 'dart:math';
+import 'package:app_anansi_mobile/helpers/format_amount.dart';
+import 'package:app_anansi_mobile/helpers/format_mobile.dart';
 import 'package:app_anansi_mobile/pages/invest/invest_stk_push.dart';
+import 'package:app_anansi_mobile/services/account_service.dart';
+import 'package:app_anansi_mobile/services/error_service.dart';
+import 'package:app_anansi_mobile/state/auth_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:app_anansi_mobile/theme/app_theme.dart';
+import 'package:flutter/services.dart';
+import 'package:provider/provider.dart';
 
 class ReviewInvestDetails extends StatefulWidget {
-  final double savingsAmount;
-  final double sharesAmount;
+  final String savingsAmount;
+  final String sharesAmount;
   final String phoneNumber;
 
   const ReviewInvestDetails({
@@ -21,11 +29,62 @@ class ReviewInvestDetails extends StatefulWidget {
 
 class _ReviewInvestDetailsState extends State<ReviewInvestDetails> {
   final double sharePrice = 1000.0;
+  String? _reference;
+  bool _isLoading = false;
+
+  String generateAlphaNumericId([int length = 8]) {
+    const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+    final random = Random.secure();
+
+    return Iterable.generate(
+      length,
+      (_) => chars[random.nextInt(chars.length)],
+    ).join();
+  }
+
+  void quickInvest() async {
+    final String ref = generateAlphaNumericId();
+    setState(() {
+      _isLoading = true;
+      _reference = ref;
+    });
+    try {
+      final authProvider = Provider.of<AuthProvider>(context, listen: false);
+      final (response, errors) = await AccountService().quickInvest(
+        savingsAmount: widget.savingsAmount.toString(),
+        reference: ref,
+        sharesAmount: widget.sharesAmount.toString(),
+        id: authProvider.user?['id'] ?? "",
+        mobile: formatToKenyanPhone(widget.phoneNumber) ?? "",
+      );
+      if (errors != null) {
+        ErrorService.showActionableError(
+          context,
+          title: errors[0],
+          message: errors[1],
+        );
+      } else if (response != null) {
+        HapticFeedback.lightImpact();
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => InvestStkPush(reference: _reference ?? ""),
+          ),
+        );
+      }
+    } finally {
+      if (mounted) setState(() => _isLoading = false);
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
-    final double total = widget.savingsAmount + widget.sharesAmount;
-    final double sharesCount = widget.sharesAmount / sharePrice;
+    final double savings = double.tryParse(widget.savingsAmount) ?? 0.0;
+    final double shares = double.tryParse(widget.sharesAmount) ?? 0.0;
+
+    // 2. Perform the calculations
+    final double total = savings + shares;
+    final double sharesCount = shares / sharePrice;
 
     return Scaffold(
       backgroundColor: const Color(0xFFF8FAFC),
@@ -82,12 +141,12 @@ class _ReviewInvestDetailsState extends State<ReviewInvestDetails> {
                                 _buildDivider(),
                                 _buildAttributeRow(
                                   "Savings",
-                                  "KES ${widget.savingsAmount.toStringAsFixed(2)}",
+                                  formatAmount(widget.savingsAmount),
                                 ),
                                 _buildDivider(),
                                 _buildAttributeRow(
                                   "Shares",
-                                  "KES ${widget.sharesAmount.toStringAsFixed(2)}",
+                                  formatAmount(widget.sharesAmount),
                                 ),
                                 _buildAttributeRow(
                                   "Number of shares",
@@ -104,7 +163,7 @@ class _ReviewInvestDetailsState extends State<ReviewInvestDetails> {
                                 _buildDivider(),
                                 _buildAttributeRow(
                                   "Total Payable",
-                                  "KES ${total.toString()}",
+                                  formatAmount(total),
                                   color: const Color(0xFF17C6C6),
                                 ),
                               ],
@@ -132,7 +191,7 @@ class _ReviewInvestDetailsState extends State<ReviewInvestDetails> {
                       icon: CupertinoIcons.info_circle_fill,
                       color: Colors.orange.shade700,
                     ),
-                    const SizedBox(height: 120), // Spacer for bottom button
+                    const SizedBox(height: 120),
                   ],
                 ),
               ),
@@ -366,31 +425,30 @@ class _ReviewInvestDetailsState extends State<ReviewInvestDetails> {
         ],
       ),
       child: ElevatedButton(
-        onPressed: () {
-          Navigator.push(
-            context,
-            MaterialPageRoute(
-              builder: (context) =>
-                  const InvestStkPush(reference: "DGVT54632GHKL"),
-            ),
-          );
-        },
+        onPressed: _isLoading ? () {} : quickInvest,
         style: ElevatedButton.styleFrom(
           backgroundColor: AnansiColors.darkBlue,
+          disabledBackgroundColor: _isLoading
+              ? AnansiColors.darkBlue
+              : Colors.grey.shade300,
+          foregroundColor: Colors.white,
+          disabledForegroundColor: Colors.white,
           minimumSize: const Size(double.infinity, 60),
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(20),
           ),
           elevation: 0,
         ),
-        child: const Text(
-          "Confirm & Authorize",
-          style: TextStyle(
-            color: Colors.white,
-            fontWeight: FontWeight.w900,
-            fontSize: 16,
-          ),
-        ),
+        child: _isLoading
+            ? const CupertinoActivityIndicator(color: Colors.white)
+            : const Text(
+                "Confirm & Authorize",
+                style: TextStyle(
+                  color: Colors.white,
+                  fontWeight: FontWeight.w900,
+                  fontSize: 16,
+                ),
+              ),
       ),
     );
   }
