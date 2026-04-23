@@ -5,6 +5,7 @@ import 'package:app_anansi_mobile/pages/deposit-savings/deposit_amount.dart';
 import 'package:app_anansi_mobile/pages/guarantorship/guarantorship.dart';
 import 'package:app_anansi_mobile/pages/invest/invest_amount.dart';
 import 'package:app_anansi_mobile/pages/loan-applications/loan_applications.dart';
+import 'package:app_anansi_mobile/pages/loan_products/loan_products.dart';
 import 'package:app_anansi_mobile/pages/loans/loans.dart';
 import 'package:app_anansi_mobile/pages/notifications/notifications.dart';
 import 'package:app_anansi_mobile/pages/profile/profile.dart';
@@ -277,7 +278,12 @@ class _HomepageState extends State<Homepage> {
                       _buildQuickAction(
                         label: "Products",
                         icon: Icons.grid_view_rounded,
-                        onTap: () => Navigator.pushNamed(context, '/products'),
+                        onTap: () => Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => const LoanProducts(),
+                          ),
+                        ),
                       ),
                       _buildQuickAction(
                         label: "Guarantorship",
