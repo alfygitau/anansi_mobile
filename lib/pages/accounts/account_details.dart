@@ -1,10 +1,12 @@
 import 'package:app_anansi_mobile/helpers/format_amount.dart';
 import 'package:app_anansi_mobile/helpers/format_time.dart';
+import 'package:app_anansi_mobile/pages/buy-shares/shares_amount.dart';
 import 'package:app_anansi_mobile/pages/deposit-savings/deposit_amount.dart';
 import 'package:app_anansi_mobile/pages/help&support/help_support.dart';
 import 'package:app_anansi_mobile/pages/invest/invest_amount.dart';
 import 'package:app_anansi_mobile/services/account_service.dart';
 import 'package:app_anansi_mobile/services/error_service.dart';
+import 'package:app_anansi_mobile/shimmers/account/appbar_loader.dart';
 import 'package:app_anansi_mobile/shimmers/account/card_account.dart';
 import 'package:app_anansi_mobile/theme/app_theme.dart';
 import 'package:flutter/cupertino.dart';
@@ -91,7 +93,7 @@ class _AccountDetailsState extends State<AccountDetails> {
       body: CustomScrollView(
         physics: const BouncingScrollPhysics(),
         slivers: [
-          _buildAppBar(),
+          _isLoading ? buildAppBarSkeleton() : _buildAppBar(),
           SliverToBoxAdapter(
             child: Padding(
               padding: const EdgeInsets.fromLTRB(20.0, 10.0, 20.0, 20.0),
@@ -155,7 +157,8 @@ class _AccountDetailsState extends State<AccountDetails> {
             mainAxisSize: MainAxisSize.min,
             children: [
               Text(
-                "SAVINGS ACCOUNT",
+                accountInfo['product']['name']?.toString().toUpperCase() ??
+                    "SAVINGS",
                 style: TextStyle(
                   color: Colors.grey.shade500,
                   fontSize: 7,
@@ -552,18 +555,36 @@ class _AccountDetailsState extends State<AccountDetails> {
   Widget _buildQuickActions() {
     return Row(
       children: [
-        _buildActionItem(
-          label: "Save",
-          icon: CupertinoIcons.arrow_down_circle_fill,
-          backgroundColor: const Color(0xFF17C6C6),
-          contentColor: Colors.white,
-          onTap: () {
-            Navigator.push(
-              context,
-              MaterialPageRoute(builder: (context) => const DepositAmount()),
-            );
-          },
-        ),
+        (accountInfo["product"]?['name'] ?? "") == "Savings"
+            ? _buildActionItem(
+                label: "Save",
+                icon: CupertinoIcons.arrow_down_circle_fill,
+                backgroundColor: const Color(0xFF17C6C6),
+                contentColor: Colors.white,
+                onTap: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => const DepositAmount(),
+                    ),
+                  );
+                },
+              )
+            : _buildActionItem(
+                label: "Buy Shares",
+                icon: Icons.pie_chart_rounded,
+                backgroundColor: const Color(0xFF17C6C6),
+                contentColor: Colors.white,
+                onTap: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) =>
+                          SharesAmount(id: accountInfo['id'] ?? ""),
+                    ),
+                  );
+                },
+              ),
         const SizedBox(width: 12),
         _buildActionItem(
           label: "Statements",
@@ -841,22 +862,36 @@ class _AccountDetailsState extends State<AccountDetails> {
             ),
             const SizedBox(height: 32),
 
-            // Status Icon
-            Container(
-              padding: const EdgeInsets.all(20),
-              decoration: BoxDecoration(
-                color: const Color(0xFF10B981).withValues(alpha: 0.1),
-                shape: BoxShape.circle,
-              ),
-              child: const Icon(
-                CupertinoIcons.checkmark_circle_fill,
-                color: Color(0xFF10B981),
-                size: 40,
-              ),
-            ),
+            tx['status'] == 'completed'
+                ? Container(
+                    padding: const EdgeInsets.all(20),
+                    decoration: BoxDecoration(
+                      color: const Color(0xFF10B981).withValues(alpha: 0.1),
+                      shape: BoxShape.circle,
+                    ),
+                    child: const Icon(
+                      CupertinoIcons.checkmark_circle_fill,
+                      color: Color(0xFF10B981),
+                      size: 40,
+                    ),
+                  )
+                : Container(
+                    padding: const EdgeInsets.all(20),
+                    decoration: BoxDecoration(
+                      color: const Color(0xFFF59E0B).withValues(alpha: 0.1),
+                      shape: BoxShape.circle,
+                    ),
+                    child: const Icon(
+                      CupertinoIcons.timer,
+                      color: Color(0xFFF59E0B),
+                      size: 40,
+                    ),
+                  ),
             const SizedBox(height: 16),
-            const Text(
-              "Transaction Successful",
+            Text(
+              tx['status'] == 'completed'
+                  ? "Transaction Successful"
+                  : "Transaction Pending",
               style: TextStyle(
                 fontSize: 14,
                 fontWeight: FontWeight.w600,
@@ -905,7 +940,7 @@ class _AccountDetailsState extends State<AccountDetails> {
                   _buildDetailRow(
                     "Status",
                     "${tx['status'] ?? 'COMPLETED'}",
-                    isStatus: true,
+                    isStatus: tx['status'] == 'completed',
                   ),
                 ],
               ),
