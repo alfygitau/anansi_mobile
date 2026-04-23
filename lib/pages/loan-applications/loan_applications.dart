@@ -71,6 +71,9 @@ class _LoanApplicationsState extends State<LoanApplications> {
       "status": "Approved",
     },
   ];
+
+  void _handleNewApplication(BuildContext context) {}
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -79,7 +82,9 @@ class _LoanApplicationsState extends State<LoanApplications> {
         slivers: [
           _buildAppBar(),
           SliverToBoxAdapter(child: _buildApplicationSummary()),
+          SliverToBoxAdapter(child: _buildApplyLoanAction(context)),
           SliverToBoxAdapter(child: _buildSectionHeader("History")),
+          // 3. Application Action
           SliverPadding(
             padding: const EdgeInsets.symmetric(horizontal: 20),
             sliver: SliverList(
@@ -189,6 +194,65 @@ class _LoanApplicationsState extends State<LoanApplications> {
           ),
         ),
       ],
+    );
+  }
+
+  Widget _buildApplyLoanAction(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+      child: InkWell(
+        onTap: () => _handleNewApplication(context),
+        child: Container(
+          padding: const EdgeInsets.all(16),
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(24),
+            border: Border.all(
+              color: AnansiColors.darkBlue.withValues(alpha: 0.1),
+            ),
+          ),
+          child: Row(
+            children: [
+              Container(
+                padding: const EdgeInsets.all(12),
+                decoration: const BoxDecoration(
+                  color: AnansiColors.darkBlue,
+                  shape: BoxShape.circle,
+                ),
+                child: const Icon(
+                  CupertinoIcons.add,
+                  color: Colors.white,
+                  size: 20,
+                ),
+              ),
+              const SizedBox(width: 16),
+              const Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      "Apply for a new Loan",
+                      style: TextStyle(
+                        fontWeight: FontWeight.w900,
+                        color: AnansiColors.darkBlue,
+                      ),
+                    ),
+                    Text(
+                      "Instant processing for eligible members",
+                      style: TextStyle(fontSize: 11, color: Colors.grey),
+                    ),
+                  ],
+                ),
+              ),
+              const Icon(
+                CupertinoIcons.chevron_right,
+                size: 16,
+                color: Colors.grey,
+              ),
+            ],
+          ),
+        ),
+      ),
     );
   }
 
