@@ -34,6 +34,8 @@ class _HomepageState extends State<Homepage> {
   bool _isLoading = false;
   List<Map<String, dynamic>> accounts = [];
   Map<String, dynamic> sharesSummary = {};
+  Map<String, dynamic> sharesAccount = {};
+  Map<String, dynamic> savingsAccount = {};
 
   void fetchCustomerDetails() async {
     _isLoading = true;
@@ -50,6 +52,18 @@ class _HomepageState extends State<Homepage> {
         setState(() {
           accounts = List<Map<String, dynamic>>.from(
             responseInfo['accounts'] ?? [],
+          );
+
+          // 2. Extract Shares Account
+          sharesAccount = accounts.firstWhere(
+            (acc) => acc['product']?['name'] == "Shares",
+            orElse: () => {}, // Returns empty map if not found
+          );
+
+          // 3. Extract Savings Account
+          savingsAccount = accounts.firstWhere(
+            (acc) => acc['product']?['name'] == "Savings",
+            orElse: () => {},
           );
         });
       }
@@ -238,7 +252,8 @@ class _HomepageState extends State<Homepage> {
                         onTap: () => Navigator.push(
                           context,
                           MaterialPageRoute(
-                            builder: (context) => const SharesAmount(),
+                            builder: (context) =>
+                                SharesAmount(id: sharesAccount['id'] ?? ""),
                           ),
                         ),
                       ),
@@ -747,7 +762,8 @@ class _HomepageState extends State<Homepage> {
                     Navigator.push(
                       context,
                       MaterialPageRoute(
-                        builder: (context) => const SharesAmount(),
+                        builder: (context) =>
+                            SharesAmount(id: sharesAccount['id'] ?? ""),
                       ),
                     );
                   },

@@ -7,7 +7,8 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 
 class SharesAmount extends StatefulWidget {
-  const SharesAmount({super.key});
+  final String id;
+  const SharesAmount({super.key, required this.id});
 
   @override
   State<SharesAmount> createState() => _SharesAmountState();
@@ -524,6 +525,7 @@ class _SharesAmountState extends State<SharesAmount> {
                     builder: (context) => ReviewPurchaseShares(
                       amount: _amountController.text.trim(),
                       phone: _phoneController.text.trim(),
+                      id: widget.id,
                     ),
                   ),
                 );

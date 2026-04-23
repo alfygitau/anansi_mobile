@@ -1,19 +1,26 @@
+import 'dart:math';
+
 import 'package:app_anansi_mobile/helpers/format_amount.dart';
 import 'package:app_anansi_mobile/pages/buy-shares/await_stk_shares.dart';
+import 'package:app_anansi_mobile/services/account_service.dart';
+import 'package:app_anansi_mobile/services/error_service.dart';
 import 'package:app_anansi_mobile/theme/app_theme.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 class ReviewPurchaseShares extends StatefulWidget {
   final String amount;
   final String phone;
+  final String id;
   final double sharePrice;
 
   const ReviewPurchaseShares({
     super.key,
     required this.amount,
     required this.phone,
+    required this.id,
     this.sharePrice = 1000.0,
   });
 
@@ -22,8 +29,54 @@ class ReviewPurchaseShares extends StatefulWidget {
 }
 
 class _ReviewPurchaseSharesState extends State<ReviewPurchaseShares> {
+  String? _reference;
+  bool _isLoading = false;
   double get _calculatedShares =>
       (double.tryParse(widget.amount) ?? 0.0) / widget.sharePrice;
+
+  String generateAlphaNumericId([int length = 8]) {
+    const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+    final random = Random.secure();
+
+    return Iterable.generate(
+      length,
+      (_) => chars[random.nextInt(chars.length)],
+    ).join();
+  }
+
+  void buyShares() async {
+    final String ref = generateAlphaNumericId();
+    setState(() {
+      _isLoading = true;
+      _reference = ref;
+    });
+    try {
+      final (response, errors) = await AccountService().buyShares(
+        amount: widget.amount,
+        reference: ref,
+        accountId: widget.id,
+        mobileNumber: widget.phone,
+      );
+      if (errors != null) {
+        ErrorService.showActionableError(
+          context,
+          title: errors[0],
+          message: errors[1],
+        );
+      } else if (response != null) {
+        HapticFeedback.lightImpact();
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) =>
+                AwaitStkShares(reference: _reference ?? "", id: widget.id),
+          ),
+        );
+      }
+    } finally {
+      if (mounted) setState(() => _isLoading = false);
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -254,32 +307,25 @@ class _ReviewPurchaseSharesState extends State<ReviewPurchaseShares> {
       width: double.infinity,
       height: 62,
       child: ElevatedButton(
-        onPressed: () {
-          Navigator.push(
-            context,
-            MaterialPageRoute(
-              builder: (context) => AwaitStkShares(
-                reference:
-                    "ANANSI-SHR-${DateTime.now().millisecondsSinceEpoch}",
-              ),
-            ),
-          );
-        },
+        onPressed: _isLoading ? () {} : buyShares,
         style: ElevatedButton.styleFrom(
           backgroundColor: AnansiColors.darkBlue,
+          disabledBackgroundColor: AnansiColors.darkBlue.withValues(alpha: 0.8),
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(20),
           ),
           elevation: 0,
         ),
-        child: const Text(
-          "Buy Shares Now",
-          style: TextStyle(
-            color: Colors.white,
-            fontWeight: FontWeight.w900,
-            fontSize: 16,
-          ),
-        ),
+        child: _isLoading
+            ? const CupertinoActivityIndicator(color: Colors.white)
+            : const Text(
+                "Buy Shares Now",
+                style: TextStyle(
+                  color: Colors.white,
+                  fontWeight: FontWeight.w900,
+                  fontSize: 16,
+                ),
+              ),
       ),
     );
   }
