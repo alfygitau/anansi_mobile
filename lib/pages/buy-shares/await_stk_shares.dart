@@ -1,4 +1,5 @@
 import 'package:app_anansi_mobile/helpers/polling.dart';
+import 'package:app_anansi_mobile/pages/homepage/homepage.dart';
 import 'package:app_anansi_mobile/services/account_service.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -609,8 +610,11 @@ class _AwaitStkSharesState extends State<AwaitStkShares>
                 Expanded(
                   child: OutlinedButton(
                     onPressed: () {
-                      Navigator.pop(context);
-                      onCancel(); // Stops polling logic
+                      onCancel();
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(builder: (context) => Homepage()),
+                      );
                     },
                     style: OutlinedButton.styleFrom(
                       minimumSize: const Size(double.infinity, 56),

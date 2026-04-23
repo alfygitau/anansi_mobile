@@ -33,6 +33,7 @@ class SecureDioClient {
 
   SecureDioClient._internal() {
     dio = Dio(DioConfig.options);
+    dio.interceptors.add(LogInterceptor(responseBody: true, requestBody: true));
 
     dio.interceptors.add(
       InterceptorsWrapper(

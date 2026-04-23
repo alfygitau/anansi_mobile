@@ -1,6 +1,7 @@
 import 'dart:math';
 
 import 'package:app_anansi_mobile/helpers/format_amount.dart';
+import 'package:app_anansi_mobile/helpers/format_mobile.dart';
 import 'package:app_anansi_mobile/pages/buy-shares/await_stk_shares.dart';
 import 'package:app_anansi_mobile/services/account_service.dart';
 import 'package:app_anansi_mobile/services/error_service.dart';
@@ -55,7 +56,7 @@ class _ReviewPurchaseSharesState extends State<ReviewPurchaseShares> {
         amount: widget.amount,
         reference: ref,
         accountId: widget.id,
-        mobileNumber: widget.phone,
+        mobileNumber: formatToKenyanPhone(widget.phone) ?? "",
       );
       if (errors != null) {
         ErrorService.showActionableError(
@@ -310,7 +311,11 @@ class _ReviewPurchaseSharesState extends State<ReviewPurchaseShares> {
         onPressed: _isLoading ? () {} : buyShares,
         style: ElevatedButton.styleFrom(
           backgroundColor: AnansiColors.darkBlue,
-          disabledBackgroundColor: AnansiColors.darkBlue.withValues(alpha: 0.8),
+          disabledBackgroundColor: _isLoading
+              ? AnansiColors.darkBlue
+              : Colors.grey.shade300,
+          foregroundColor: Colors.white,
+          disabledForegroundColor: Colors.white,
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(20),
           ),
