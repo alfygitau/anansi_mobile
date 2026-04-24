@@ -30,8 +30,6 @@ class _PersonalInformationState extends State<PersonalInformation> {
   List<String> _subCounties = [];
   List<String> _states = [];
   List<Map<String, dynamic>> _allCounties = [];
-  List<Map<String, dynamic>> _allStates = [];
-
   @override
   void initState() {
     super.initState();
@@ -81,7 +79,6 @@ class _PersonalInformationState extends State<PersonalInformation> {
         response.data['data'] ?? [],
       );
       setState(() {
-        _allStates = myStates;
         _states = myStates
             .where((state) => state['name'] != null)
             .map<String>((state) => state['name'].toString())
