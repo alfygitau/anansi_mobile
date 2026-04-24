@@ -90,16 +90,16 @@ class _AccountSuccessState extends State<AccountSuccess> {
             ),
           ),
           const SizedBox(height: 12),
-          RichText(
+          Text.rich(
             textAlign: TextAlign.center,
-            text: TextSpan(
+            TextSpan(
               style: TextStyle(
                 color: Colors.grey.shade500,
                 fontSize: 15,
                 height: 1.5,
               ),
               children: [
-                const TextSpan(text: "Your account is ready, "),
+                const TextSpan(text: "Your profile is ready, "),
                 TextSpan(
                   text: "Alfy",
                   style: const TextStyle(
@@ -142,7 +142,7 @@ class _AccountSuccessState extends State<AccountSuccess> {
                 "Our institutional-grade verification requires a valid Government ID and a biometric liveness check (selfie).",
             isPrimary: true,
           ),
-          const SizedBox(height: 16),
+          const SizedBox(height: 20),
           _buildStepCard(
             icon: CupertinoIcons.house_fill,
             title: "Residential Details",
@@ -150,7 +150,7 @@ class _AccountSuccessState extends State<AccountSuccess> {
                 "To establish your regional eligibility and facilitate official communication, please provide your current physical address.",
             isPrimary: false,
           ),
-          const SizedBox(height: 16),
+          const SizedBox(height: 20),
           _buildStepCard(
             icon: CupertinoIcons.signature,
             title: "Institutional Agreements",
@@ -158,7 +158,7 @@ class _AccountSuccessState extends State<AccountSuccess> {
                 "Carefully review and digitally sign the SACCO Terms of Service and Privacy Framework. This formalizes your membership and secures your rights within the ecosystem.",
             isPrimary: false,
           ),
-          const SizedBox(height: 42),
+          const SizedBox(height: 52),
           _buildStartButton(),
           const SizedBox(height: 30),
           Center(
@@ -268,6 +268,10 @@ class _AccountSuccessState extends State<AccountSuccess> {
         style: ElevatedButton.styleFrom(
           backgroundColor: AnansiColors.darkBlue,
           foregroundColor: Colors.white,
+          // This is the color used when onPressed is null
+          disabledBackgroundColor: Colors.grey.shade200,
+          // This is the text color when disabled
+          disabledForegroundColor: Colors.grey.shade500,
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(18),
           ),
