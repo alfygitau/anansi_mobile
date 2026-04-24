@@ -69,7 +69,7 @@ class OcrService {
           filename: "selfie_file",
         ),
       });
-      final response = await _secureClient.post(
+      final response = await _secureClient.patch(
         '/customer/$id/selfie-image',
         data: formData,
         options: Options(headers: {'Content-Type': 'multipart/form-data'}),

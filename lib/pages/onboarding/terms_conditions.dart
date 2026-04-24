@@ -1,3 +1,4 @@
+import 'package:app_anansi_mobile/pages/membership/intro_membership.dart';
 import 'package:app_anansi_mobile/theme/app_theme.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -279,7 +280,11 @@ class _TermsConditionsState extends State<TermsConditions> {
               ),
             ),
           ElevatedButton(
-            onPressed: (_hasScrolledToBottom && !_isLoading) ? () {} : null,
+            onPressed: (_hasScrolledToBottom && !_isLoading)
+                ? () {
+                    showSuccessSheet(context);
+                  }
+                : null,
             style: ElevatedButton.styleFrom(
               backgroundColor: AnansiColors.darkBlue,
               disabledBackgroundColor: Colors.grey.shade200,
@@ -304,6 +309,126 @@ class _TermsConditionsState extends State<TermsConditions> {
           ),
         ],
       ),
+    );
+  }
+
+  void showSuccessSheet(BuildContext context) {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (context) => Container(
+        padding: const EdgeInsets.all(24),
+        decoration: const BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.vertical(top: Radius.circular(32)),
+        ),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Container(
+              width: 80,
+              height: 80,
+              decoration: BoxDecoration(
+                color: AnansiColors.darkBlue.withValues(alpha: 0.1),
+                shape: BoxShape.circle,
+              ),
+              child: const Center(
+                child: Icon(
+                  CupertinoIcons.checkmark_seal_fill,
+                  color: AnansiColors.darkBlue,
+                  size: 40,
+                ),
+              ),
+            ),
+            const SizedBox(height: 24),
+            const Text(
+              "Terms Accepted!",
+              style: TextStyle(
+                fontSize: 24,
+                fontWeight: FontWeight.w900,
+                color: Color(0xFF1A1A1A),
+              ),
+            ),
+            const SizedBox(height: 12),
+            Text(
+              "Your digital signature has been successfully recorded. You now have full access to the Anansi ecosystem.",
+              textAlign: TextAlign.center,
+              style: TextStyle(
+                fontSize: 15,
+                height: 1.5,
+                color: Colors.grey.shade600,
+              ),
+            ),
+            const SizedBox(height: 32),
+            Container(
+              padding: const EdgeInsets.all(16),
+              decoration: BoxDecoration(
+                color: const Color(0xFFF8FAFC),
+                borderRadius: BorderRadius.circular(16),
+                border: Border.all(color: const Color(0xFFF1F4F8)),
+              ),
+              child: Column(
+                children: [
+                  _buildDetailRow("Document", "General T&Cs v2.4"),
+                  const Divider(height: 24),
+                  _buildDetailRow("Signed On", "April 24, 2026"),
+                  const Divider(height: 24),
+                  _buildDetailRow("Reference", "AN-992-X"),
+                ],
+              ),
+            ),
+            const SizedBox(height: 40),
+            ElevatedButton(
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => const IntroMember()),
+                );
+              },
+              style: ElevatedButton.styleFrom(
+                backgroundColor: AnansiColors.darkBlue,
+                minimumSize: const Size(double.infinity, 64),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(20),
+                ),
+                elevation: 0,
+              ),
+              child: const Text(
+                "CONTINUE TO MEMBERSHIP",
+                style: TextStyle(
+                  fontWeight: FontWeight.w900,
+                  letterSpacing: 1.1,
+                  color: Colors.white,
+                ),
+              ),
+            ),
+            const SizedBox(height: 12),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildDetailRow(String label, String value) {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: [
+        Text(
+          label,
+          style: TextStyle(
+            color: Colors.grey.shade500,
+            fontWeight: FontWeight.w500,
+          ),
+        ),
+        Text(
+          value,
+          style: const TextStyle(
+            color: Color(0xFF1A1A1A),
+            fontWeight: FontWeight.bold,
+          ),
+        ),
+      ],
     );
   }
 }
