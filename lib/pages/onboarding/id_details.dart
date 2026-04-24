@@ -1,5 +1,4 @@
 import 'dart:io';
-
 import 'package:app_anansi_mobile/pages/onboarding/introduce_id_front.dart';
 import 'package:app_anansi_mobile/pages/onboarding/introduce_selfie.dart';
 import 'package:app_anansi_mobile/state/auth_provider.dart';
@@ -61,12 +60,10 @@ class _IdDetailsState extends State<IdDetails> {
     final authProvider = context.watch<AuthProvider>();
     final kycData = authProvider.kycDetails;
 
-    // 2. Extract basic fields safely (handle null kycDetails)
     final String idNumber = kycData?['idNumber'] ?? '';
     final String dob = kycData?['dateOfBirth'] ?? '';
     final String gender = kycData?['sex'] ?? '';
 
-    // 3. Handle Name Splitting logic
     final String fullName = kycData?['fullNames'] ?? '';
     final List<String> nameParts = fullName.trim().isEmpty
         ? []
@@ -75,7 +72,6 @@ class _IdDetailsState extends State<IdDetails> {
     final String firstName = nameParts.isNotEmpty ? nameParts.first : '';
     final String lastName = nameParts.length > 1 ? nameParts.last : '';
 
-    // Joins all names in between first and last (handles 3+ names)
     final String middleName = nameParts.length > 2
         ? nameParts.sublist(1, nameParts.length - 1).join(' ')
         : '';
