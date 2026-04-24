@@ -1,6 +1,8 @@
 import 'package:app_anansi_mobile/pages/membership/register_invest.dart';
+import 'package:app_anansi_mobile/state/auth_provider.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
 class MembershipDetails extends StatefulWidget {
   const MembershipDetails({super.key});
@@ -15,12 +17,14 @@ class _MembershipDetailsState extends State<MembershipDetails> {
     text: "1,000.00",
   );
 
-  String? userName;
-  String? userEmail;
-
   @override
   void initState() {
     super.initState();
+    final authProvider = Provider.of<AuthProvider>(context, listen: false);
+    final mobile = authProvider.user?['mobileno'] ?? "";
+    setState(() {
+      _mobileController.text = mobile;
+    });
   }
 
   @override
@@ -161,6 +165,23 @@ class _MembershipDetailsState extends State<MembershipDetails> {
   }
 
   Widget _buildSummaryCard() {
+    final authProvider = context.watch<AuthProvider>();
+    final String firstName = authProvider.user?["firstname"] ?? "Guest";
+    final String middleName = authProvider.user?["middlename"] ?? "";
+    final String lastName = authProvider.user?["lastname"] ?? "User";
+    final String email = authProvider.user?["email"] ?? "Not provided";
+    final String fullName =
+        [
+          firstName,
+          middleName,
+          lastName,
+        ].map((s) => s.trim()).where((s) => s.isNotEmpty).join(' ').isEmpty
+        ? "Anansi User"
+        : [
+            firstName,
+            middleName,
+            lastName,
+          ].map((s) => s.trim()).where((s) => s.isNotEmpty).join(' ');
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
@@ -176,17 +197,9 @@ class _MembershipDetailsState extends State<MembershipDetails> {
       ),
       child: Column(
         children: [
-          _buildSummaryRow(
-            CupertinoIcons.person,
-            "Full Name",
-            userName ?? "N/A",
-          ),
+          _buildSummaryRow(CupertinoIcons.person, "Full Name", fullName),
           const Divider(height: 32, color: Color(0xFFF1F4F8)),
-          _buildSummaryRow(
-            CupertinoIcons.mail,
-            "Email Address",
-            userEmail ?? "N/A",
-          ),
+          _buildSummaryRow(CupertinoIcons.mail, "Email Address", email),
           const Divider(height: 32, color: Color(0xFFF1F4F8)),
           _buildSummaryRow(
             CupertinoIcons.tag,
