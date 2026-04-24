@@ -41,7 +41,10 @@ class _IdFrontPreviewState extends State<IdFrontPreview> {
         authProvider.setKyc(response.data['data'] ?? {});
         Navigator.push(
           context,
-          MaterialPageRoute(builder: (context) => const IntroduceBackOfId()),
+          MaterialPageRoute(
+            builder: (context) =>
+                IntroduceBackOfId(frontFile: widget.imageFile),
+          ),
         );
       }
     } finally {

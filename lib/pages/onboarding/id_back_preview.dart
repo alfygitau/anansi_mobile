@@ -9,8 +9,13 @@ import 'package:flutter/services.dart';
 
 class IdBackPreview extends StatefulWidget {
   final File imageFile;
+  final File frontFile;
 
-  const IdBackPreview({super.key, required this.imageFile});
+  const IdBackPreview({
+    super.key,
+    required this.imageFile,
+    required this.frontFile,
+  });
 
   @override
   State<IdBackPreview> createState() => _IdBackPreviewState();
@@ -37,7 +42,12 @@ class _IdBackPreviewState extends State<IdBackPreview> {
         HapticFeedback.lightImpact();
         Navigator.push(
           context,
-          MaterialPageRoute(builder: (context) => const IdDetails()),
+          MaterialPageRoute(
+            builder: (context) => IdDetails(
+              backFile: widget.imageFile,
+              frontFile: widget.frontFile,
+            ),
+          ),
         );
       }
     } finally {

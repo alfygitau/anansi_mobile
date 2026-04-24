@@ -1,40 +1,43 @@
+import 'dart:io';
+
+import 'package:app_anansi_mobile/pages/onboarding/introduce_id_front.dart';
 import 'package:app_anansi_mobile/pages/onboarding/introduce_selfie.dart';
+import 'package:app_anansi_mobile/state/auth_provider.dart';
 import 'package:app_anansi_mobile/theme/app_theme.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
 class IdDetails extends StatefulWidget {
-  const IdDetails({super.key});
+  final File frontFile;
+  final File backFile;
+  const IdDetails({super.key, required this.backFile, required this.frontFile});
 
   @override
   State<IdDetails> createState() => _IdDetailsState();
 }
 
 class _IdDetailsState extends State<IdDetails> {
-  String firstName = 'ALFY';
-  String middleName = 'KARIUKI';
-  String lastName = 'GITAU';
-  String idNumber = '38492011';
-  String birthDate = '12/04/1996';
-  String gender = 'MALE';
-  String frontImageUrl =
-      'https://images.unsplash.com/photo-1554774853-719586f82d77?q=80&w=500';
-  String backImageUrl =
-      'https://images.unsplash.com/photo-1554774853-719586f82d77?q=80&w=500';
-
-  bool get hasValidNames {
-    int count = 0;
-    if (firstName.isNotEmpty) count++;
-    if (middleName.isNotEmpty) count++;
-    if (lastName.isNotEmpty) count++;
-    return count >= 2;
+  bool hasValidNames(Map<String, dynamic>? kycDetails) {
+    if (kycDetails == null) return false;
+    final String fullName = kycDetails['fullNames'] ?? '';
+    final List<String> nameParts = fullName
+        .trim()
+        .split(RegExp(r'\s+'))
+        .where((s) => s.isNotEmpty)
+        .toList();
+    return nameParts.length >= 2;
   }
 
-  bool get hasAllRequiredFields {
-    return idNumber.isNotEmpty &&
-        birthDate.isNotEmpty &&
-        gender.isNotEmpty &&
-        hasValidNames;
+  bool hasAllRequiredFields(Map<String, dynamic>? kycDetails) {
+    if (kycDetails == null) return false;
+    final bool hasId =
+        (kycDetails['idNumber']?.toString().trim().isNotEmpty ?? false);
+    final bool hasDob =
+        (kycDetails['dateOfBirth']?.toString().trim().isNotEmpty ?? false);
+    final bool hasGender =
+        (kycDetails['sex']?.toString().trim().isNotEmpty ?? false);
+    return hasId && hasDob && hasGender && hasValidNames(kycDetails);
   }
 
   final Map<String, IconData> _labelIcons = {
@@ -55,6 +58,27 @@ class _IdDetailsState extends State<IdDetails> {
 
   @override
   Widget build(BuildContext context) {
+    final authProvider = context.watch<AuthProvider>();
+    final kycData = authProvider.kycDetails;
+
+    // 2. Extract basic fields safely (handle null kycDetails)
+    final String idNumber = kycData?['idNumber'] ?? '';
+    final String dob = kycData?['dateOfBirth'] ?? '';
+    final String gender = kycData?['sex'] ?? '';
+
+    // 3. Handle Name Splitting logic
+    final String fullName = kycData?['fullNames'] ?? '';
+    final List<String> nameParts = fullName.trim().isEmpty
+        ? []
+        : fullName.trim().split(RegExp(r'\s+'));
+
+    final String firstName = nameParts.isNotEmpty ? nameParts.first : '';
+    final String lastName = nameParts.length > 1 ? nameParts.last : '';
+
+    // Joins all names in between first and last (handles 3+ names)
+    final String middleName = nameParts.length > 2
+        ? nameParts.sublist(1, nameParts.length - 1).join(' ')
+        : '';
     return Scaffold(
       backgroundColor: Colors.white,
       body: SafeArea(
@@ -66,8 +90,16 @@ class _IdDetailsState extends State<IdDetails> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    _buildBrandHeader(context),
-                    const SizedBox(height: 20),
+                    const Text(
+                      "Verify Identity",
+                      style: TextStyle(
+                        fontSize: 24,
+                        fontWeight: FontWeight.w900,
+                        color: AnansiColors.darkBlue,
+                        letterSpacing: -1.5,
+                      ),
+                    ),
+                    const SizedBox(height: 10),
                     _buildStepHeader(),
                     const SizedBox(height: 20),
                     _buildImageThumbnails(),
@@ -79,7 +111,7 @@ class _IdDetailsState extends State<IdDetails> {
                     _buildDetailRow('Middle Name', middleName),
                     _buildDetailRow('Last Name', lastName),
                     _buildDetailRow('Gender', gender),
-                    _buildDetailRow('Date of Birth', birthDate),
+                    _buildDetailRow('Date of Birth', dob),
                     const SizedBox(height: 20),
                   ],
                 ),
@@ -92,86 +124,23 @@ class _IdDetailsState extends State<IdDetails> {
     );
   }
 
-  Widget _buildBrandHeader(BuildContext context) {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-      children: [
-        Row(
-          children: [
-            Container(
-              width: 44,
-              height: 44,
-              decoration: BoxDecoration(
-                color: AnansiColors.darkBlue,
-                borderRadius: BorderRadius.circular(12),
-              ),
-              child: const Center(
-                child: Text(
-                  "A",
-                  style: TextStyle(
-                    color: Color(0xFF17C6C6),
-                    fontSize: 22,
-                    fontWeight: FontWeight.w900,
-                  ),
-                ),
-              ),
-            ),
-            const SizedBox(width: 12),
-            const Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  "ONBOARDING",
-                  style: TextStyle(
-                    fontWeight: FontWeight.w900,
-                    fontSize: 13,
-                    letterSpacing: 1.5,
-                    color: AnansiColors.darkBlue,
-                  ),
-                ),
-                Text(
-                  "ID or Passport Details",
-                  style: TextStyle(fontSize: 14, color: Colors.grey),
-                ),
-              ],
-            ),
-          ],
-        ),
-        GestureDetector(
-          onTap: () => Navigator.pop(context),
-          child: Container(
-            padding: const EdgeInsets.all(8),
-            decoration: BoxDecoration(
-              color: Colors.grey.shade100,
-              shape: BoxShape.circle,
-            ),
-            child: const Icon(
-              CupertinoIcons.xmark,
-              size: 18,
-              color: AnansiColors.darkBlue,
-            ),
-          ),
-        ),
-      ],
-    );
-  }
-
   Widget _buildStepHeader() {
+    final authProvider = context.watch<AuthProvider>();
+    final kycData = authProvider.kycDetails;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         const Text(
           "Confirm Details",
           style: TextStyle(
-            color: AnansiColors.darkBlue,
-            fontSize: 24,
-            fontWeight: FontWeight.w900,
+            fontSize: 20,
+            fontWeight: FontWeight.w500,
             letterSpacing: -0.5,
           ),
         ),
         const SizedBox(height: 5),
         Text(
-          hasAllRequiredFields
+          hasAllRequiredFields(kycData)
               ? "We've analyzed your document. Please verify that the details below exactly match your government ID."
               : "Some details were obscured during the scan. Please provide the missing information manually.",
           style: TextStyle(
@@ -187,14 +156,14 @@ class _IdDetailsState extends State<IdDetails> {
   Widget _buildImageThumbnails() {
     return Row(
       children: [
-        _buildThumbnail("Front Side", frontImageUrl),
+        _buildThumbnail("Front Side", widget.frontFile),
         const SizedBox(width: 16),
-        _buildThumbnail("Back Side", backImageUrl),
+        _buildThumbnail("Back Side", widget.backFile),
       ],
     );
   }
 
-  Widget _buildThumbnail(String label, String url) {
+  Widget _buildThumbnail(String label, File url) {
     return Expanded(
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -214,7 +183,7 @@ class _IdDetailsState extends State<IdDetails> {
             ),
             child: ClipRRect(
               borderRadius: BorderRadius.circular(18),
-              child: Image.network(
+              child: Image.file(
                 url,
                 fit: BoxFit.cover,
                 width: double.infinity,
@@ -325,13 +294,15 @@ class _IdDetailsState extends State<IdDetails> {
   }
 
   Widget _buildActionDock(BuildContext context) {
+    final authProvider = context.watch<AuthProvider>();
+    final kycData = authProvider.kycDetails;
     return Container(
       padding: const EdgeInsets.fromLTRB(24, 16, 24, 12),
       decoration: BoxDecoration(color: Colors.white),
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          if (hasAllRequiredFields) ...[
+          if (hasAllRequiredFields(kycData)) ...[
             ElevatedButton(
               onPressed: _onContinue,
               style: ElevatedButton.styleFrom(
@@ -352,15 +323,13 @@ class _IdDetailsState extends State<IdDetails> {
               ),
             ),
             const SizedBox(height: 12),
-            OutlinedButton(
-              onPressed: () => Navigator.pop(context),
-              style: OutlinedButton.styleFrom(
-                padding: const EdgeInsets.symmetric(vertical: 20),
-                side: const BorderSide(color: Color(0xFFFF5757), width: 1.5),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(20),
-                ),
-              ),
+            GestureDetector(
+              onTap: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (_) => const IntroduceFrontOfId()),
+                );
+              },
               child: const Center(
                 child: Text(
                   "RESCAN DOCUMENT",

@@ -7,7 +7,8 @@ import 'package:app_anansi_mobile/theme/app_theme.dart';
 import 'package:image_picker/image_picker.dart';
 
 class IntroduceBackOfId extends StatefulWidget {
-  const IntroduceBackOfId({super.key});
+  final File frontFile;
+  const IntroduceBackOfId({super.key, required this.frontFile});
 
   @override
   State<IntroduceBackOfId> createState() => _IntroduceBackOfIdState();
@@ -36,7 +37,10 @@ class _IntroduceBackOfIdState extends State<IntroduceBackOfId> {
       Navigator.push(
         context,
         CupertinoPageRoute(
-          builder: (context) => IdBackPreview(imageFile: capturedFile),
+          builder: (context) => IdBackPreview(
+            imageFile: capturedFile,
+            frontFile: widget.frontFile,
+          ),
         ),
       );
     }
