@@ -24,17 +24,123 @@ class _PersonalInformationState extends State<PersonalInformation> {
   final TextEditingController _addressTwoController = TextEditingController();
   final TextEditingController _cityController = TextEditingController();
   final TextEditingController _zipCodeController = TextEditingController();
+  Map<String, String?> formErrors = {
+    'address': null,
+    'address_one': null,
+    'address_two': null,
+    'city': null,
+    'zip_code': null,
+    'county': null,
+    'sub-county': null,
+    'country': null,
+    'state': null,
+  };
+  final FocusNode _addressFocus = FocusNode();
+  final FocusNode _addressOneFocus = FocusNode();
+  final FocusNode _addressTwoFocus = FocusNode();
+  final FocusNode _zipCodeFocus = FocusNode();
+  final FocusNode _cityFocus = FocusNode();
 
   bool _isLoading = false;
   List<String> _counties = [];
   List<String> _subCounties = [];
   List<String> _states = [];
   List<Map<String, dynamic>> _allCounties = [];
+
+  void _validateField(String key, String value) {
+    String? error;
+
+    switch (key) {
+      case 'address':
+      case 'address_one':
+        if (value.trim().isEmpty) {
+          error = "Please enter your street address";
+        } else if (value.trim().length < 3) {
+          error = "Address is too short";
+        }
+        break;
+
+      case 'city':
+        if (value.trim().isEmpty) {
+          error = "City/Town is required";
+        }
+        break;
+
+      case 'zip_code':
+        if (value.trim().isEmpty) {
+          error = "Zip/Postal code is required";
+        } else if (value.trim().length < 4) {
+          error = "Enter a valid postal code";
+        }
+        break;
+
+      case 'country':
+        if (value.isEmpty || value == 'Select country') {
+          error = "Please select your country";
+        }
+        break;
+
+      case 'county':
+        if (value.isEmpty || value == 'Select county') {
+          error = "Please select your county";
+        }
+        break;
+
+      case 'sub-county':
+        if (value.isEmpty || value == 'Select subcounty') {
+          error = "Please select your sub-county";
+        }
+        break;
+
+      default:
+        error = null;
+    }
+
+    setState(() {
+      formErrors[key] = error;
+    });
+  }
+
   @override
   void initState() {
     super.initState();
     fetchCounties();
     fetchStates();
+
+    // Physical Address / General Address
+    _addressFocus.addListener(() {
+      if (!_addressFocus.hasFocus) {
+        _validateField('address', _physicalAddressController.text);
+      }
+    });
+
+    // Address Line 1
+    _addressOneFocus.addListener(() {
+      if (!_addressOneFocus.hasFocus) {
+        _validateField('address_one', _addressOneController.text);
+      }
+    });
+
+    // Address Line 2 (Usually optional, but good to have the listener)
+    _addressTwoFocus.addListener(() {
+      if (!_addressTwoFocus.hasFocus) {
+        _validateField('address_two', _addressTwoController.text);
+      }
+    });
+
+    // City
+    _cityFocus.addListener(() {
+      if (!_cityFocus.hasFocus) {
+        _validateField('city', _cityController.text);
+      }
+    });
+
+    // Zip Code
+    _zipCodeFocus.addListener(() {
+      if (!_zipCodeFocus.hasFocus) {
+        _validateField('zip_code', _zipCodeController.text);
+      }
+    });
   }
 
   Future<void> fetchCounties() async {
@@ -97,6 +203,26 @@ class _PersonalInformationState extends State<PersonalInformation> {
           ? _subCounties.first
           : 'Select subcounty';
     });
+    _validateField('state', value);
+  }
+
+  @override
+  void dispose() {
+    // Dispose Controllers
+    _physicalAddressController.dispose();
+    _addressOneController.dispose();
+    _addressTwoController.dispose();
+    _cityController.dispose();
+    _zipCodeController.dispose();
+
+    // Dispose FocusNodes
+    _addressFocus.dispose();
+    _addressOneFocus.dispose();
+    _addressTwoFocus.dispose();
+    _cityFocus.dispose();
+    _zipCodeFocus.dispose();
+
+    super.dispose();
   }
 
   Future<void> createAddress() async {
@@ -129,7 +255,11 @@ class _PersonalInformationState extends State<PersonalInformation> {
                       value: selectedCountry,
                       items: ['Kenya', 'United States'],
                       icon: CupertinoIcons.globe,
-                      onChanged: (val) => setState(() => selectedCountry = val),
+                      onChanged: (val) {
+                        setState(() => selectedCountry = val);
+                        _validateField('country', val ?? '');
+                      },
+                      fieldKey: "country",
                     ),
 
                     const SizedBox(height: 24),
@@ -143,6 +273,7 @@ class _PersonalInformationState extends State<PersonalInformation> {
                         items: _counties,
                         icon: CupertinoIcons.map_pin_ellipse,
                         onChanged: _changeCounty,
+                        fieldKey: "county",
                       ),
                       const SizedBox(height: 20),
                       _buildDropdownField(
@@ -150,8 +281,11 @@ class _PersonalInformationState extends State<PersonalInformation> {
                         value: selectedSubCounty,
                         items: _subCounties,
                         icon: Icons.location_city,
-                        onChanged: (val) =>
-                            setState(() => selectedSubCounty = val),
+                        onChanged: (val) {
+                          setState(() => selectedSubCounty = val);
+                          _validateField('sub-county', val ?? '');
+                        },
+                        fieldKey: "sub-county",
                       ),
                       const SizedBox(height: 20),
                       _buildInputField(
@@ -159,6 +293,8 @@ class _PersonalInformationState extends State<PersonalInformation> {
                         controller: _physicalAddressController,
                         hint: "e.g Apartment, House No, Street",
                         icon: CupertinoIcons.house,
+                        focusNode: _addressFocus,
+                        fieldKey: "address",
                       ),
                     ] else ...[
                       _buildInputField(
@@ -166,6 +302,8 @@ class _PersonalInformationState extends State<PersonalInformation> {
                         controller: _addressOneController,
                         hint: "Street address or P.O. Box",
                         icon: CupertinoIcons.house,
+                        focusNode: _addressOneFocus,
+                        fieldKey: "address_one",
                       ),
                       const SizedBox(height: 20),
                       _buildInputField(
@@ -173,6 +311,8 @@ class _PersonalInformationState extends State<PersonalInformation> {
                         controller: _addressTwoController,
                         hint: "Apartment, suite, unit, building",
                         icon: CupertinoIcons.info_circle,
+                        focusNode: _addressTwoFocus,
+                        fieldKey: "address_two",
                       ),
                       const SizedBox(height: 20),
                       _buildDropdownField(
@@ -180,7 +320,11 @@ class _PersonalInformationState extends State<PersonalInformation> {
                         value: selectedState,
                         items: _states,
                         icon: CupertinoIcons.map,
-                        onChanged: (val) => setState(() => selectedState = val),
+                        onChanged: (val) {
+                          setState(() => selectedState = val);
+                          _validateField('state', val ?? '');
+                        },
+                        fieldKey: "states",
                       ),
                       const SizedBox(height: 20),
                       _buildInputField(
@@ -188,6 +332,8 @@ class _PersonalInformationState extends State<PersonalInformation> {
                         controller: _cityController,
                         hint: "Enter your city",
                         icon: CupertinoIcons.location,
+                        focusNode: _cityFocus,
+                        fieldKey: "city",
                       ),
                       const SizedBox(height: 20),
                       _buildInputField(
@@ -195,6 +341,8 @@ class _PersonalInformationState extends State<PersonalInformation> {
                         controller: _zipCodeController,
                         hint: "Enter your zip code",
                         icon: CupertinoIcons.location,
+                        focusNode: _zipCodeFocus,
+                        fieldKey: "zip_code",
                       ),
                     ],
                     const SizedBox(height: 20),
@@ -250,139 +398,250 @@ class _PersonalInformationState extends State<PersonalInformation> {
 
   Widget _buildInputField({
     required String label,
+    required String fieldKey,
     required TextEditingController controller,
     required String hint,
     required IconData icon,
-    bool isPassword = false,
+    required FocusNode focusNode,
   }) {
-    return Container(
-      margin: const EdgeInsets.only(bottom: 16),
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: const Color(0xFFF1F4F8), width: 1.5),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: 0.02),
-            blurRadius: 10,
-            offset: const Offset(0, 4),
-          ),
-        ],
-      ),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.center,
-        children: [
-          Container(
-            padding: const EdgeInsets.all(10),
-            decoration: BoxDecoration(
-              color: const Color(0xFF17C6C6).withValues(alpha: 0.08),
-              borderRadius: BorderRadius.circular(12),
+    // 1. Extract the current state for this specific field
+    final String? errorText = formErrors[fieldKey];
+    final bool hasError = errorText != null;
+    final bool isFocused = focusNode.hasFocus;
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        AnimatedContainer(
+          duration: const Duration(milliseconds: 250),
+          curve: Curves.easeInOut,
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(20),
+            // BORDER LOGIC: Error > Focused > Neutral
+            border: Border.all(
+              color: hasError
+                  ? Colors.redAccent.withValues(alpha: 0.6)
+                  : (isFocused
+                        ? const Color(0xFF17C6C6)
+                        : const Color(0xFFF1F4F8)),
+              width: 1.6,
             ),
-            child: Icon(icon, size: 18, color: const Color(0xFF17C6C6)),
+            boxShadow: [
+              BoxShadow(
+                color: hasError
+                    ? Colors.redAccent.withValues(alpha: 0.05)
+                    : (isFocused
+                          ? const Color(0xFF17C6C6).withValues(alpha: 0.08)
+                          : Colors.black.withValues(alpha: 0.02)),
+                blurRadius: 12,
+                offset: const Offset(0, 4),
+              ),
+            ],
           ),
-          const SizedBox(width: 16),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Text(
-                  label.toUpperCase(),
-                  style: const TextStyle(
-                    color: Color(0xFF9E9E9E),
-                    fontWeight: FontWeight.w800,
-                    fontSize: 9,
-                    letterSpacing: 1.2,
-                  ),
+          child: Row(
+            children: [
+              // Icon Container reacts to state
+              AnimatedContainer(
+                duration: const Duration(milliseconds: 250),
+                padding: const EdgeInsets.all(10),
+                decoration: BoxDecoration(
+                  color: hasError
+                      ? Colors.redAccent.withValues(alpha: 0.08)
+                      : const Color(0xFF17C6C6).withValues(alpha: 0.08),
+                  borderRadius: BorderRadius.circular(12),
                 ),
-                const SizedBox(height: 2),
-                TextField(
-                  controller: controller,
-                  obscureText: isPassword,
-                  cursorColor: Colors.black,
-                  style: const TextStyle(
-                    fontWeight: FontWeight.w500,
-                    color: Colors.black,
-                    fontSize: 17,
-                  ),
-                  decoration: InputDecoration(
-                    hintText: hint,
-                    hintStyle: TextStyle(
-                      color: Colors.grey.shade300,
-                      fontSize: 14,
-                      fontWeight: FontWeight.w500,
+                child: Icon(
+                  icon,
+                  size: 18,
+                  color: hasError ? Colors.redAccent : const Color(0xFF17C6C6),
+                ),
+              ),
+              const SizedBox(width: 16),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Text(
+                      label.toUpperCase(),
+                      style: TextStyle(
+                        color: hasError
+                            ? Colors.redAccent
+                            : const Color(0xFF9E9E9E),
+                        fontWeight: FontWeight.w800,
+                        fontSize: 9,
+                        letterSpacing: 1.2,
+                      ),
                     ),
-                    isDense: true,
-                    contentPadding: const EdgeInsets.symmetric(vertical: 4),
-                    border: InputBorder.none,
-                    enabledBorder: InputBorder.none,
-                    focusedBorder: InputBorder.none,
-                  ),
+                    const SizedBox(height: 2),
+                    TextField(
+                      focusNode: focusNode,
+                      controller: controller,
+                      onChanged: (val) {
+                        if (formErrors[fieldKey] != null) {
+                          setState(() => formErrors[fieldKey] = null);
+                        }
+                        setState(() {});
+                      },
+                      style: const TextStyle(
+                        fontWeight: FontWeight.w500,
+                        color: Colors.black,
+                        fontSize: 17,
+                      ),
+                      onTapOutside: (event) {
+                        FocusScope.of(context).unfocus();
+                      },
+                      decoration: InputDecoration(
+                        hintText: hint,
+                        hintStyle: TextStyle(
+                          color: Colors.grey.shade300,
+                          fontSize: 14,
+                          fontWeight: FontWeight.w500,
+                        ),
+                        isDense: true,
+                        contentPadding: const EdgeInsets.symmetric(vertical: 4),
+                        border: InputBorder.none,
+                      ),
+                    ),
+                  ],
                 ),
-              ],
+              ),
+            ],
+          ),
+        ),
+
+        // ERROR MESSAGE: Animated Slide-in
+        AnimatedSize(
+          duration: const Duration(milliseconds: 200),
+          child: SizedBox(
+            height: hasError ? null : 0,
+            child: Padding(
+              padding: const EdgeInsets.only(left: 16, top: 8),
+              child: Text(
+                errorText ?? "",
+                style: const TextStyle(
+                  color: Colors.redAccent,
+                  fontSize: 12,
+                  fontWeight: FontWeight.w600,
+                  height: 1.2,
+                ),
+              ),
             ),
           ),
-        ],
-      ),
+        ),
+      ],
     );
   }
 
   Widget _buildDropdownField({
     required String label,
+    required String fieldKey,
     required String? value,
     required List<String> items,
     required IconData icon,
     required Function(String?) onChanged,
   }) {
-    bool hasValue = value != null && value.isNotEmpty && items.contains(value);
-    return Container(
-      margin: const EdgeInsets.only(bottom: 16),
-      padding: EdgeInsets.symmetric(vertical: 10),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: const Color(0xFFF1F4F8), width: 1.5),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: 0.02),
-            blurRadius: 10,
-            offset: const Offset(0, 4),
-          ),
-        ],
-      ),
-      child: DropdownButtonHideUnderline(
-        child: ButtonTheme(
-          alignedDropdown: true,
-          child: DropdownButton<String>(
-            value: hasValue ? value : null,
-            isExpanded: true,
-            dropdownColor: Colors.white,
+    final String? errorText = formErrors[fieldKey];
+    final bool hasError = errorText != null;
+    final bool hasValue =
+        value != null && value.isNotEmpty && items.contains(value);
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        AnimatedContainer(
+          duration: const Duration(milliseconds: 250),
+          padding: const EdgeInsets.only(left: 16, right: 16, top: 10, bottom: 10),
+          decoration: BoxDecoration(
+            color: Colors.white,
             borderRadius: BorderRadius.circular(20),
-            icon: const SizedBox.shrink(),
-            hint: _buildDropdownContent(label, value, icon, isHint: true),
-            selectedItemBuilder: (BuildContext context) {
-              return items.map<Widget>((String item) {
-                return _buildDropdownContent(label, item, icon, isHint: false);
-              }).toList();
-            },
-            items: items.map((String item) {
-              return DropdownMenuItem(
-                value: item,
-                child: Text(
-                  item,
-                  style: const TextStyle(
-                    fontWeight: FontWeight.w500,
-                    color: Colors.black,
-                    fontSize: 16,
+            border: Border.all(
+              color: hasError
+                  ? Colors.redAccent.withValues(alpha: 0.6)
+                  : const Color(0xFFF1F4F8),
+              width: 1.6,
+            ),
+            boxShadow: [
+              BoxShadow(
+                color: hasError
+                    ? Colors.redAccent.withValues(alpha: 0.05)
+                    : Colors.black.withValues(alpha: 0.02),
+                blurRadius: 12,
+                offset: const Offset(0, 4),
+              ),
+            ],
+          ),
+          child: DropdownButtonHideUnderline(
+            child: DropdownButton<String>(
+              value: hasValue ? value : null,
+              isExpanded: true,
+              dropdownColor: Colors.white,
+              borderRadius: BorderRadius.circular(20),
+              icon: const SizedBox.shrink(),
+              hint: _buildDropdownContent(
+                label,
+                value,
+                icon,
+                isHint: true,
+                hasError: hasError,
+              ),
+              selectedItemBuilder: (context) {
+                return items.map((item) {
+                  return _buildDropdownContent(
+                    label,
+                    item,
+                    icon,
+                    isHint: false,
+                    hasError: hasError,
+                  );
+                }).toList();
+              },
+              items: items.map((String item) {
+                return DropdownMenuItem(
+                  value: item,
+                  child: Text(
+                    item,
+                    style: const TextStyle(
+                      fontWeight: FontWeight.w500,
+                      color: Colors.black,
+                      fontSize: 16,
+                    ),
                   ),
-                ),
-              );
-            }).toList(),
-            onChanged: onChanged,
+                );
+              }).toList(),
+              onChanged: (val) {
+                if (formErrors[fieldKey] != null) {
+                  setState(() => formErrors[fieldKey] = null);
+                }
+                onChanged(val);
+              },
+            ),
           ),
         ),
-      ),
+
+        // Error Message Section
+        AnimatedSize(
+          duration: const Duration(milliseconds: 200),
+          child: SizedBox(
+            height: hasError ? null : 0,
+            child: Padding(
+              padding: const EdgeInsets.only(left: 16, top: 8),
+              child: Text(
+                errorText ?? "",
+                style: const TextStyle(
+                  color: Colors.redAccent,
+                  fontSize: 12,
+                  fontWeight: FontWeight.w600,
+                  height: 1.2,
+                ),
+              ),
+            ),
+          ),
+        ),
+        const SizedBox(height: 16),
+      ],
     );
   }
 
@@ -391,16 +650,24 @@ class _PersonalInformationState extends State<PersonalInformation> {
     String? value,
     IconData icon, {
     required bool isHint,
+    required bool hasError,
   }) {
     return Row(
       children: [
-        Container(
+        AnimatedContainer(
+          duration: const Duration(milliseconds: 250),
           padding: const EdgeInsets.all(10),
           decoration: BoxDecoration(
-            color: const Color(0xFF17C6C6).withValues(alpha: 0.08),
+            color: hasError
+                ? Colors.redAccent.withValues(alpha: 0.08)
+                : const Color(0xFF17C6C6).withValues(alpha: 0.08),
             borderRadius: BorderRadius.circular(10),
           ),
-          child: Icon(icon, size: 18, color: const Color(0xFF17C6C6)),
+          child: Icon(
+            icon,
+            size: 18,
+            color: hasError ? Colors.redAccent : const Color(0xFF17C6C6),
+          ),
         ),
         const SizedBox(width: 16),
         Expanded(
@@ -410,8 +677,8 @@ class _PersonalInformationState extends State<PersonalInformation> {
             children: [
               Text(
                 label.toUpperCase(),
-                style: const TextStyle(
-                  color: Color(0xFF9E9E9E),
+                style: TextStyle(
+                  color: hasError ? Colors.redAccent : const Color(0xFF9E9E9E),
                   fontWeight: FontWeight.w800,
                   fontSize: 9,
                   letterSpacing: 1.2,
@@ -428,12 +695,11 @@ class _PersonalInformationState extends State<PersonalInformation> {
             ],
           ),
         ),
-        const Icon(
+        Icon(
           CupertinoIcons.chevron_down,
           size: 14,
-          color: AnansiColors.darkBlue,
+          color: hasError ? Colors.redAccent : AnansiColors.darkBlue,
         ),
-        const SizedBox(width: 16),
       ],
     );
   }

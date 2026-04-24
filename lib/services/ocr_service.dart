@@ -70,7 +70,7 @@ class OcrService {
         ),
       });
       final response = await _secureClient.post(
-        '/customer/upload-selfie/$id',
+        '/customer/$id/selfie-image',
         data: formData,
         options: Options(headers: {'Content-Type': 'multipart/form-data'}),
       );

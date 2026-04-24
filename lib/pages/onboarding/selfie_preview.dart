@@ -2,7 +2,6 @@ import 'dart:io';
 import 'package:app_anansi_mobile/pages/onboarding/personal_information.dart';
 import 'package:app_anansi_mobile/services/error_service.dart';
 import 'package:app_anansi_mobile/services/ocr_service.dart';
-import 'package:app_anansi_mobile/services/onboarding_service.dart';
 import 'package:app_anansi_mobile/state/auth_provider.dart';
 import 'package:app_anansi_mobile/theme/app_theme.dart';
 import 'package:flutter/cupertino.dart';
@@ -26,8 +25,10 @@ class _SelfiePreviewState extends State<SelfiePreview> {
       _isLoading = true;
     });
     try {
-      final (response, errors) = await OcrService().uploadSingleFile(
+      final authProvider = Provider.of<AuthProvider>(context, listen: false);
+      final (response, errors) = await OcrService().uploadSelfie(
         file: widget.imageFile,
+        id: authProvider.user?['id'] ?? "",
       );
       if (errors != null) {
         ErrorService.showActionableError(
@@ -36,31 +37,13 @@ class _SelfiePreviewState extends State<SelfiePreview> {
           message: errors[1],
         );
       } else if (response != null) {
-        final String url = response.data['data']['url'] ?? "";
-        await updateCustomerSelfie(url);
+        Navigator.push(
+          context,
+          MaterialPageRoute(builder: (context) => const PersonalInformation()),
+        );
       }
     } finally {
       if (mounted) setState(() => _isLoading = false);
-    }
-  }
-
-  Future<void> updateCustomerSelfie(String url) async {
-    final authProvider = Provider.of<AuthProvider>(context, listen: false);
-    final (response, errors) = await OnboardingService().updateSelfie(
-      id: authProvider.user?['id'] ?? "",
-      url: url,
-    );
-    if (errors != null) {
-      ErrorService.showActionableError(
-        context,
-        title: errors[0],
-        message: errors[1],
-      );
-    } else if (response != null) {
-      Navigator.push(
-        context,
-        MaterialPageRoute(builder: (context) => const PersonalInformation()),
-      );
     }
   }
 

@@ -1,4 +1,5 @@
 import 'package:app_anansi_mobile/pages/onboarding/introduce_id_front.dart';
+import 'package:app_anansi_mobile/pages/onboarding/personal_information.dart';
 import 'package:app_anansi_mobile/services/error_service.dart';
 import 'package:app_anansi_mobile/services/onboarding_service.dart';
 import 'package:app_anansi_mobile/state/auth_provider.dart';
@@ -47,7 +48,7 @@ class _IdTypeState extends State<IdType> {
         HapticFeedback.lightImpact();
         Navigator.push(
           context,
-          MaterialPageRoute(builder: (context) => const IntroduceFrontOfId()),
+          MaterialPageRoute(builder: (context) => const PersonalInformation()),
         );
       }
     } finally {
