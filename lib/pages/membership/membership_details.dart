@@ -341,16 +341,13 @@ class _MembershipDetailsState extends State<MembershipDetails> {
   }
 
   Widget _buildPersistentFooter() {
-    // If not valid, onPressed is null, which automatically disables the button
     final VoidCallback? action = isPhoneValid
         ? () {
             Navigator.push(
               context,
               MaterialPageRoute(
-                builder: (context) => RegisterInvest(
-                  // Pass the actual controller text instead of a hardcoded string
-                  mobileNumber: _mobileController.text.trim(),
-                ),
+                builder: (context) =>
+                    RegisterInvest(mobileNumber: _mobileController.text.trim()),
               ),
             );
           }
