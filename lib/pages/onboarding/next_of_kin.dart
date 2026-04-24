@@ -1,7 +1,12 @@
 import 'package:app_anansi_mobile/pages/onboarding/terms_conditions.dart';
+import 'package:app_anansi_mobile/services/error_service.dart';
+import 'package:app_anansi_mobile/services/onboarding_service.dart';
+import 'package:app_anansi_mobile/state/auth_provider.dart';
 import 'package:app_anansi_mobile/theme/app_theme.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:provider/provider.dart';
 
 class NextOfKin extends StatefulWidget {
   const NextOfKin({super.key});
@@ -17,7 +22,18 @@ class _NextOfKinState extends State<NextOfKin> {
   final TextEditingController _phoneNumberController = TextEditingController();
   final TextEditingController _locationController = TextEditingController();
 
-  bool isLoading = false;
+  bool _isLoading = false;
+  final FocusNode _nameFocus = FocusNode();
+  final FocusNode _relationshipFocus = FocusNode();
+  final FocusNode _phoneFocus = FocusNode();
+  final FocusNode _locationFocus = FocusNode();
+  Map<String, String?> formErrors = {
+    'name': null,
+    'dob': null,
+    'relationship': null,
+    'phone': null,
+    'location': null,
+  };
 
   String formatDate(DateTime dateTime) {
     return "${dateTime.year}-${dateTime.month.toString().padLeft(2, '0')}-${dateTime.day.toString().padLeft(2, '0')}";
@@ -43,10 +59,115 @@ class _NextOfKinState extends State<NextOfKin> {
   }
 
   Future<void> submitKin() async {
-    Navigator.push(
-      context,
-      MaterialPageRoute(builder: (context) => const TermsConditions()),
-    );
+    setState(() {
+      _isLoading = true;
+    });
+    try {
+      final authProvider = Provider.of<AuthProvider>(context, listen: false);
+      final (response, errors) = await OnboardingService().addKin(
+        id: authProvider.user?['id'] ?? "",
+        fullName: _fullNameController.text.trim(),
+        birthDate: _dobController.text.trim(),
+        relationship: _relationshipController.text.trim(),
+        phone: _phoneNumberController.text.trim(),
+        location: _locationController.text.trim(),
+      );
+      if (errors != null) {
+        ErrorService.showActionableError(
+          context,
+          title: errors[0],
+          message: errors[1],
+        );
+      } else if (response != null) {
+        HapticFeedback.lightImpact();
+        Navigator.push(
+          context,
+          MaterialPageRoute(builder: (context) => const TermsConditions()),
+        );
+      }
+    } finally {
+      if (mounted) setState(() => _isLoading = false);
+    }
+  }
+
+  void _validateField(String key, String value) {
+    String? error;
+    switch (key) {
+      case 'name':
+        if (value.trim().isEmpty) {
+          error = "Full name is required";
+        } else if (value.trim().split(' ').length < 2) {
+          error = "Please enter at least two names";
+        }
+        break;
+
+      case 'dob':
+        if (value.trim().isEmpty) error = "Date of birth is required";
+        break;
+
+      case 'relationship':
+        if (value.trim().isEmpty) error = "Relationship is required";
+        break;
+
+      case 'phone':
+        if (value.trim().isEmpty) {
+          error = "Phone number is required";
+        } else if (value.trim().length < 9) {
+          error = "Enter a valid phone number";
+        }
+        break;
+
+      case 'location':
+        if (value.trim().isEmpty) error = "Location/Address is required";
+        break;
+    }
+    setState(() {
+      formErrors[key] = error;
+    });
+  }
+
+  @override
+  void initState() {
+    super.initState();
+
+    _nameFocus.addListener(() {
+      if (!_nameFocus.hasFocus) {
+        _validateField('name', _fullNameController.text);
+      }
+    });
+
+    _relationshipFocus.addListener(() {
+      if (!_relationshipFocus.hasFocus) {
+        _validateField('relationship', _relationshipController.text);
+      }
+    });
+
+    _phoneFocus.addListener(() {
+      if (!_phoneFocus.hasFocus) {
+        _validateField('phone', _phoneNumberController.text);
+      }
+    });
+
+    _locationFocus.addListener(() {
+      if (!_locationFocus.hasFocus) {
+        _validateField('location', _locationController.text);
+      }
+    });
+  }
+
+  bool get isNextOfKinValid {
+    final bool nameReady = _fullNameController.text.trim().length >= 3;
+    final bool dobReady = _dobController.text.trim().isNotEmpty;
+    final bool relationshipReady = _relationshipController.text
+        .trim()
+        .isNotEmpty;
+    final bool phoneReady = _phoneNumberController.text.trim().length >= 9;
+    final bool locationReady = _locationController.text.trim().isNotEmpty;
+    return nameReady &&
+        dobReady &&
+        relationshipReady &&
+        phoneReady &&
+        locationReady;
   }
 
   @override
@@ -72,6 +193,9 @@ class _NextOfKinState extends State<NextOfKin> {
                       controller: _fullNameController,
                       hint: "Enter kin's legal name",
                       icon: CupertinoIcons.person_solid,
+                      focusNode: _nameFocus,
+                      fieldKey: "name",
+                      keyboardType: TextInputType.text,
                     ),
                     const SizedBox(height: 16),
                     _buildInputField(
@@ -79,6 +203,9 @@ class _NextOfKinState extends State<NextOfKin> {
                       controller: _relationshipController,
                       hint: "e.g. Spouse, Sibling, Parent",
                       icon: CupertinoIcons.group_solid,
+                      focusNode: _relationshipFocus,
+                      fieldKey: "relationship",
+                      keyboardType: TextInputType.text,
                     ),
 
                     const SizedBox(height: 32),
@@ -89,7 +216,9 @@ class _NextOfKinState extends State<NextOfKin> {
                       controller: _phoneNumberController,
                       hint: "e.g 0712345678",
                       icon: CupertinoIcons.phone_fill,
-                      isPhone: true,
+                      focusNode: _phoneFocus,
+                      fieldKey: "phone",
+                      keyboardType: TextInputType.phone,
                     ),
                     const SizedBox(height: 16),
                     _buildInputField(
@@ -97,6 +226,9 @@ class _NextOfKinState extends State<NextOfKin> {
                       controller: _locationController,
                       hint: "City or Residential Area",
                       icon: CupertinoIcons.location_solid,
+                      focusNode: _locationFocus,
+                      fieldKey: "location",
+                      keyboardType: TextInputType.text,
                     ),
                     const SizedBox(height: 16),
                     _buildDateSelector(),
@@ -148,82 +280,142 @@ class _NextOfKinState extends State<NextOfKin> {
 
   Widget _buildInputField({
     required String label,
+    required String fieldKey,
     required TextEditingController controller,
     required String hint,
     required IconData icon,
-    bool isPhone = false,
+    required FocusNode focusNode,
+    required TextInputType keyboardType,
   }) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: const Color(0xFFF1F4F8), width: 1.5),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: 0.02),
-            blurRadius: 10,
-            offset: const Offset(0, 4),
-          ),
-        ],
-      ),
-      child: Row(
-        children: [
-          Container(
-            padding: const EdgeInsets.all(10),
-            decoration: BoxDecoration(
-              color: const Color(0xFF17C6C6).withValues(alpha: 0.08),
-              borderRadius: BorderRadius.circular(12),
+    // 1. Extract the current state for this specific field
+    final String? errorText = formErrors[fieldKey];
+    final bool hasError = errorText != null;
+    final bool isFocused = focusNode.hasFocus;
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        AnimatedContainer(
+          duration: const Duration(milliseconds: 250),
+          curve: Curves.easeInOut,
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(20),
+            // BORDER LOGIC: Error > Focused > Neutral
+            border: Border.all(
+              color: hasError
+                  ? Colors.redAccent.withValues(alpha: 0.6)
+                  : (isFocused
+                        ? const Color(0xFF17C6C6)
+                        : const Color(0xFFF1F4F8)),
+              width: 1.6,
             ),
-            child: Icon(icon, size: 18, color: const Color(0xFF17C6C6)),
+            boxShadow: [
+              BoxShadow(
+                color: hasError
+                    ? Colors.redAccent.withValues(alpha: 0.05)
+                    : (isFocused
+                          ? const Color(0xFF17C6C6).withValues(alpha: 0.08)
+                          : Colors.black.withValues(alpha: 0.02)),
+                blurRadius: 12,
+                offset: const Offset(0, 4),
+              ),
+            ],
           ),
-          const SizedBox(width: 16),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Text(
-                  label.toUpperCase(),
-                  style: const TextStyle(
-                    color: Color(0xFF9E9E9E),
-                    fontWeight: FontWeight.w800,
-                    fontSize: 9,
-                    letterSpacing: 1.2,
-                  ),
+          child: Row(
+            children: [
+              // Icon Container reacts to state
+              AnimatedContainer(
+                duration: const Duration(milliseconds: 250),
+                padding: const EdgeInsets.all(10),
+                decoration: BoxDecoration(
+                  color: hasError
+                      ? Colors.redAccent.withValues(alpha: 0.08)
+                      : const Color(0xFF17C6C6).withValues(alpha: 0.08),
+                  borderRadius: BorderRadius.circular(12),
                 ),
-                const SizedBox(height: 2),
-                TextField(
-                  controller: controller,
-                  keyboardType: isPhone
-                      ? TextInputType.phone
-                      : TextInputType.text,
-                  style: const TextStyle(
-                    fontWeight: FontWeight.w500,
-                    color: Colors.black,
-                    fontSize: 17,
-                  ),
-                  decoration: InputDecoration(
-                    prefixStyle: const TextStyle(
-                      color: Color(0xFF17C6C6),
-                      fontWeight: FontWeight.w900,
-                    ),
-                    hintText: hint,
-                    hintStyle: TextStyle(
-                      color: Colors.grey.shade300,
-                      fontSize: 14,
-                      fontWeight: FontWeight.w500,
-                    ),
-                    isDense: true,
-                    contentPadding: const EdgeInsets.symmetric(vertical: 4),
-                    border: InputBorder.none,
-                  ),
+                child: Icon(
+                  icon,
+                  size: 18,
+                  color: hasError ? Colors.redAccent : const Color(0xFF17C6C6),
                 ),
-              ],
+              ),
+              const SizedBox(width: 16),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Text(
+                      label.toUpperCase(),
+                      style: TextStyle(
+                        color: hasError
+                            ? Colors.redAccent
+                            : const Color(0xFF9E9E9E),
+                        fontWeight: FontWeight.w800,
+                        fontSize: 9,
+                        letterSpacing: 1.2,
+                      ),
+                    ),
+                    const SizedBox(height: 2),
+                    TextField(
+                      focusNode: focusNode,
+                      controller: controller,
+                      keyboardType: keyboardType,
+                      onChanged: (val) {
+                        if (formErrors[fieldKey] != null) {
+                          setState(() => formErrors[fieldKey] = null);
+                        }
+                        setState(() {});
+                      },
+                      style: const TextStyle(
+                        fontWeight: FontWeight.w500,
+                        color: Colors.black,
+                        fontSize: 17,
+                      ),
+                      onTapOutside: (event) {
+                        FocusScope.of(context).unfocus();
+                      },
+                      decoration: InputDecoration(
+                        hintText: hint,
+                        hintStyle: TextStyle(
+                          color: Colors.grey.shade300,
+                          fontSize: 14,
+                          fontWeight: FontWeight.w500,
+                        ),
+                        isDense: true,
+                        contentPadding: const EdgeInsets.symmetric(vertical: 4),
+                        border: InputBorder.none,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+        ),
+
+        // ERROR MESSAGE: Animated Slide-in
+        AnimatedSize(
+          duration: const Duration(milliseconds: 200),
+          child: SizedBox(
+            height: hasError ? null : 0,
+            child: Padding(
+              padding: const EdgeInsets.only(left: 16, top: 8),
+              child: Text(
+                errorText ?? "",
+                style: const TextStyle(
+                  color: Colors.redAccent,
+                  fontSize: 12,
+                  fontWeight: FontWeight.w600,
+                  height: 1.2,
+                ),
+              ),
             ),
           ),
-        ],
-      ),
+        ),
+      ],
     );
   }
 
@@ -231,7 +423,7 @@ class _NextOfKinState extends State<NextOfKin> {
     return GestureDetector(
       onTap: () => _selectDate(context),
       child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
         decoration: BoxDecoration(
           color: Colors.white,
           borderRadius: BorderRadius.circular(20),
@@ -287,27 +479,43 @@ class _NextOfKinState extends State<NextOfKin> {
   }
 
   Widget _buildActionDock() {
+    final VoidCallback? action = _isLoading
+        ? () {}
+        : (isNextOfKinValid ? submitKin : null);
+
     return Container(
       padding: const EdgeInsets.fromLTRB(24, 16, 24, 12),
-      decoration: BoxDecoration(color: Colors.white),
+      decoration: const BoxDecoration(
+        color: Colors.white,
+        border: Border(top: BorderSide(color: Color(0xFFF1F4F8), width: 1)),
+      ),
       child: ElevatedButton(
-        onPressed: isLoading ? null : submitKin,
+        onPressed: action,
         style: ElevatedButton.styleFrom(
           backgroundColor: AnansiColors.darkBlue,
+          foregroundColor: Colors.white,
+          disabledBackgroundColor: Colors.grey.shade200,
+          disabledForegroundColor: Colors.grey.shade500,
           minimumSize: const Size(double.infinity, 64),
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(20),
           ),
           elevation: 0,
         ),
-        child: isLoading
-            ? const CupertinoActivityIndicator(color: Colors.white)
-            : const Text(
+        child: _isLoading
+            ? const SizedBox(
+                height: 24,
+                width: 24,
+                child: CupertinoActivityIndicator(color: Colors.white),
+              )
+            : Text(
                 "FINALIZE REGISTRATION",
                 style: TextStyle(
                   fontWeight: FontWeight.w900,
                   letterSpacing: 1.1,
-                  color: Colors.white,
+                  color: isNextOfKinValid || _isLoading
+                      ? Colors.white
+                      : Colors.grey.shade500,
                 ),
               ),
       ),

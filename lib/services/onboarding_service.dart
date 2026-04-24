@@ -185,6 +185,108 @@ class OnboardingService {
     }
   }
 
+  Future<(Response?, List<String>?)> updateFinancials({
+    required String id,
+    required String countryOfResidence,
+    required String employmentType,
+    required String kra,
+    required String jobTitle,
+    required String income,
+  }) async {
+    try {
+      final response = await _secureClient.patch(
+        '/customer/$id',
+        data: {
+          "onboarding_stage": "nextOfKin",
+          "country_of_residence": countryOfResidence,
+          "employment_type": employmentType,
+          "kraPin": kra,
+          "occupation": jobTitle,
+          "income_range": income,
+        },
+      );
+      return (response, null);
+    } on DioException catch (e) {
+      final apiException = ApiException();
+      final errorMessages = apiException.getExceptionMessage(e);
+      return (null, errorMessages);
+    } catch (e) {
+      return (null, ["Authentication Error!", "An unknown error occurred."]);
+    }
+  }
+
+  Future<(Response?, List<String>?)> addKin({
+    required String id,
+    required String fullName,
+    required String birthDate,
+    required String relationship,
+    required String phone,
+    required String location,
+  }) async {
+    try {
+      final response = await _secureClient.post(
+        '/customer/$id/next-of-kin',
+        data: {
+          "name": fullName,
+          "dateOfBirth": birthDate,
+          "relationship": relationship,
+          "phoneNumber": phone,
+          "location": location,
+        },
+      );
+      return (response, null);
+    } on DioException catch (e) {
+      final apiException = ApiException();
+      final errorMessages = apiException.getExceptionMessage(e);
+      return (null, errorMessages);
+    } catch (e) {
+      return (null, ["Authentication Error!", "An unknown error occurred."]);
+    }
+  }
+
+  String _clean(dynamic value) {
+    if (value == null) return "";
+    final String str = value.toString().trim();
+    return (str.isEmpty || str.toLowerCase().startsWith('select')) ? "" : str;
+  }
+
+  Future<(Response?, List<String>?)> createAddress({
+    required String id,
+    String? physicalAddress,
+    String? county,
+    String? subcounty,
+    String? postalAddress,
+    String? city,
+    String? state,
+    String? street,
+    String? zipcode,
+  }) async {
+    try {
+      final response = await _secureClient.post(
+        '/address',
+        data: {
+          "postal_address": _clean(postalAddress),
+          "physical_address": _clean(physicalAddress),
+          "city": _clean(city),
+          "state": _clean(state),
+          "land_mark": "",
+          "street": _clean(street),
+          "zip_code": _clean(zipcode),
+          "customer_id": id,
+          "county": _clean(county),
+          "subcounty": _clean(subcounty),
+        },
+      );
+      return (response, null);
+    } on DioException catch (e) {
+      final apiException = ApiException();
+      final errorMessages = apiException.getExceptionMessage(e);
+      return (null, errorMessages);
+    } catch (e) {
+      return (null, ["Authentication Error!", "An unknown error occurred."]);
+    }
+  }
+
   Future<(Response?, List<String>?)> getCustomer({required String id}) async {
     try {
       final response = await _secureClient.get('/customer/$id');

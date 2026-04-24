@@ -1,9 +1,13 @@
 import 'package:app_anansi_mobile/pages/onboarding/income.dart';
 import 'package:app_anansi_mobile/services/error_service.dart';
 import 'package:app_anansi_mobile/services/onboarding_service.dart';
+import 'package:app_anansi_mobile/shimmers/onboarding/verify_email_shimmer.dart';
+import 'package:app_anansi_mobile/state/auth_provider.dart';
 import 'package:app_anansi_mobile/theme/app_theme.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:provider/provider.dart';
 
 class PersonalInformation extends StatefulWidget {
   const PersonalInformation({super.key});
@@ -42,6 +46,7 @@ class _PersonalInformationState extends State<PersonalInformation> {
   final FocusNode _cityFocus = FocusNode();
 
   bool _isLoading = false;
+  bool _loading = false;
   List<String> _counties = [];
   List<String> _subCounties = [];
   List<String> _states = [];
@@ -99,6 +104,31 @@ class _PersonalInformationState extends State<PersonalInformation> {
     setState(() {
       formErrors[key] = error;
     });
+  }
+
+  bool get isFormValid {
+    // 1. Check Kenya Requirements
+    if (selectedCountry == 'Kenya') {
+      return _physicalAddressController.text.trim().isNotEmpty &&
+          (selectedCounty != null &&
+              !selectedCounty!.toLowerCase().contains('select')) &&
+          (selectedSubCounty != null &&
+              !selectedSubCounty!.toLowerCase().contains('select'));
+    }
+
+    // 2. Check US Requirements
+    if (selectedCountry == 'United States') {
+      return _addressOneController.text.trim().isNotEmpty &&
+          _addressTwoController.text.trim().isNotEmpty &&
+          _cityController.text.trim().isNotEmpty &&
+          _zipCodeController.text.trim().isNotEmpty &&
+          (selectedState != null &&
+              selectedState!.isNotEmpty &&
+              !selectedState!.toLowerCase().contains('select'));
+    }
+
+    // 3. Fallback (Button remains disabled if no country matches)
+    return false;
   }
 
   @override
@@ -198,7 +228,7 @@ class _PersonalInformationState extends State<PersonalInformation> {
     setState(() {
       selectedCounty = value;
       final selected = _allCounties.firstWhere((c) => c['county'] == value);
-      _subCounties = selected['subCounties'] ?? [];
+      _subCounties = List<String>.from(selected['sub_counties'] ?? []);
       selectedSubCounty = _subCounties.isNotEmpty
           ? _subCounties.first
           : 'Select subcounty';
@@ -226,17 +256,44 @@ class _PersonalInformationState extends State<PersonalInformation> {
   }
 
   Future<void> createAddress() async {
-    Navigator.push(
-      context,
-      MaterialPageRoute(builder: (context) => const IncomeInformation()),
-    );
+    setState(() {
+      _loading = true;
+    });
+    final authProvider = Provider.of<AuthProvider>(context, listen: false);
+    try {
+      final (response, errors) = await OnboardingService().createAddress(
+        id: authProvider.user?['id'] ?? "",
+        county: selectedCounty?.trim() ?? "",
+        subcounty: selectedSubCounty?.trim() ?? "",
+        physicalAddress: _physicalAddressController.text.trim(),
+        zipcode: _zipCodeController.text.trim(),
+        city: _cityController.text.trim(),
+        state: selectedState?.trim() ?? "",
+      );
+      if (errors != null) {
+        ErrorService.showActionableError(
+          context,
+          title: errors[0],
+          message: errors[1],
+        );
+      } else if (response != null) {
+        HapticFeedback.lightImpact();
+        Navigator.push(
+          context,
+          MaterialPageRoute(builder: (context) => const IncomeInformation()),
+        );
+      }
+    } finally {
+      if (mounted) setState(() => _loading = false);
+    }
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.white,
-      body: SafeArea(
+      body: _isLoading ? VerifyEmailShimmer() :
+      SafeArea(
         child: Column(
           children: [
             Expanded(
@@ -553,7 +610,12 @@ class _PersonalInformationState extends State<PersonalInformation> {
       children: [
         AnimatedContainer(
           duration: const Duration(milliseconds: 250),
-          padding: const EdgeInsets.only(left: 16, right: 16, top: 10, bottom: 10),
+          padding: const EdgeInsets.only(
+            left: 16,
+            right: 16,
+            top: 10,
+            bottom: 10,
+          ),
           decoration: BoxDecoration(
             color: Colors.white,
             borderRadius: BorderRadius.circular(20),
@@ -705,30 +767,48 @@ class _PersonalInformationState extends State<PersonalInformation> {
   }
 
   Widget _buildActionDock() {
-    return Container(
-      padding: const EdgeInsets.fromLTRB(24, 16, 24, 12),
-      decoration: BoxDecoration(color: Colors.white),
-      child: ElevatedButton(
-        onPressed: _isLoading ? null : createAddress,
-        style: ElevatedButton.styleFrom(
-          backgroundColor: AnansiColors.darkBlue,
-          minimumSize: const Size(double.infinity, 64),
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(20),
-          ),
-          elevation: 0,
+  // 1. If loading, we provide an empty function () {} 
+  // This keeps the button "active" (blue) but non-functional
+  final VoidCallback? action = _loading 
+      ? () {} 
+      : (isFormValid ? createAddress : null);
+
+  return Container(
+    padding: const EdgeInsets.fromLTRB(24, 16, 24, 12),
+    decoration: const BoxDecoration(
+      color: Colors.white,
+      border: Border(top: BorderSide(color: Color(0xFFF1F4F8), width: 1)),
+    ),
+    child: ElevatedButton(
+      onPressed: action,
+      style: ElevatedButton.styleFrom(
+        backgroundColor: AnansiColors.darkBlue,
+        foregroundColor: Colors.white,
+        // The background when the form is invalid (not loading)
+        disabledBackgroundColor: Colors.grey.shade200,
+        disabledForegroundColor: Colors.grey.shade500,
+        minimumSize: const Size(double.infinity, 64),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(20),
         ),
-        child: _isLoading
-            ? const CupertinoActivityIndicator(color: Colors.white)
-            : const Text(
-                "SAVE AND CONTINUE",
-                style: TextStyle(
-                  fontWeight: FontWeight.w900,
-                  letterSpacing: 1.1,
-                  color: Colors.white,
-                ),
-              ),
+        elevation: 0,
       ),
-    );
-  }
+      child: _loading
+          ? const SizedBox(
+              height: 24, // Increased slightly for visibility
+              width: 24,
+              child: CupertinoActivityIndicator(color: Colors.white),
+            )
+          : Text(
+              "SAVE AND CONTINUE",
+              style: TextStyle(
+                fontWeight: FontWeight.w900,
+                letterSpacing: 1.1,
+                // Text stays white if valid OR loading
+                color: isFormValid || _loading ? Colors.white : Colors.grey.shade500,
+              ),
+            ),
+    ),
+  );
+}
 }
