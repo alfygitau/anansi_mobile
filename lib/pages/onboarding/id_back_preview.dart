@@ -21,16 +21,36 @@ class IdBackPreview extends StatelessWidget {
                 padding: const EdgeInsets.symmetric(horizontal: 24),
                 child: Column(
                   children: [
-                    const SizedBox(height: 10),
-                    _buildBrandHeader(context),
-                    SizedBox(height: 20),
+                    Align(
+                      alignment: Alignment.centerLeft,
+                      child: const Text(
+                        "Verify Identity",
+                        style: TextStyle(
+                          fontSize: 24,
+                          fontWeight: FontWeight.w900,
+                          color: AnansiColors.darkBlue,
+                          letterSpacing: -1.5,
+                        ),
+                      ),
+                    ),
                     _buildStepHeader(),
-                    const SizedBox(height: 22),
+                    const SizedBox(height: 16),
                     _buildImagePreview(),
                     const SizedBox(height: 22),
+                    Align(
+                      alignment: Alignment.centerLeft,
+                      child: Text(
+                        "DOCUMENT INTEGRITY CHECK",
+                        style: TextStyle(
+                          fontSize: 10,
+                          fontWeight: FontWeight.w900,
+                          letterSpacing: 1.5,
+                          color: Colors.grey.shade400,
+                        ),
+                      ),
+                    ),
+                    SizedBox(height: 8),
                     _buildChecklist(),
-                    const SizedBox(height: 22),
-                    _buildSecurityAssurance(),
                     const SizedBox(height: 32),
                   ],
                 ),
@@ -43,93 +63,6 @@ class IdBackPreview extends StatelessWidget {
     );
   }
 
-  Widget _buildSecurityAssurance() {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: [
-        const Icon(
-          CupertinoIcons.lock_shield,
-          size: 14,
-          color: Color(0xFF17C6C6),
-        ),
-        const SizedBox(width: 8),
-        Text(
-          "SECURED BY ANANSI PROTOCOLS",
-          style: TextStyle(
-            fontSize: 10,
-            fontWeight: FontWeight.w900,
-            color: Colors.grey.shade400,
-            letterSpacing: 1,
-          ),
-        ),
-      ],
-    );
-  }
-
-  Widget _buildBrandHeader(BuildContext context) {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-      children: [
-        Row(
-          children: [
-            Container(
-              width: 44,
-              height: 44,
-              decoration: BoxDecoration(
-                color: AnansiColors.darkBlue,
-                borderRadius: BorderRadius.circular(12),
-              ),
-              child: const Center(
-                child: Text(
-                  "A",
-                  style: TextStyle(
-                    color: Color(0xFF17C6C6),
-                    fontSize: 22,
-                    fontWeight: FontWeight.w900,
-                  ),
-                ),
-              ),
-            ),
-            const SizedBox(width: 12),
-            const Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  "ONBOARDING",
-                  style: TextStyle(
-                    fontWeight: FontWeight.w900,
-                    fontSize: 13,
-                    letterSpacing: 1.5,
-                    color: AnansiColors.darkBlue,
-                  ),
-                ),
-                Text(
-                  "ID or Passport Details",
-                  style: TextStyle(fontSize: 14, color: Colors.grey),
-                ),
-              ],
-            ),
-          ],
-        ),
-        GestureDetector(
-          onTap: () => Navigator.pop(context),
-          child: Container(
-            padding: const EdgeInsets.all(8),
-            decoration: BoxDecoration(
-              color: Colors.grey.shade100,
-              shape: BoxShape.circle,
-            ),
-            child: const Icon(
-              CupertinoIcons.xmark,
-              size: 18,
-              color: AnansiColors.darkBlue,
-            ),
-          ),
-        ),
-      ],
-    );
-  }
-
   Widget _buildStepHeader() {
     return Column(
       mainAxisAlignment: MainAxisAlignment.start,
@@ -138,13 +71,11 @@ class IdBackPreview extends StatelessWidget {
         const Text(
           "Confirm Legibility",
           style: TextStyle(
-            color: AnansiColors.darkBlue,
-            fontSize: 24,
-            fontWeight: FontWeight.w900,
+            fontSize: 20,
+            fontWeight: FontWeight.w500,
             letterSpacing: -0.5,
           ),
         ),
-        const SizedBox(height: 8),
         Text(
           "The back of your ID contains critical security markers and barcodes. Please ensure these are not blurry or obscured.",
           style: TextStyle(
@@ -174,7 +105,7 @@ class IdBackPreview extends StatelessWidget {
       child: ClipRRect(
         borderRadius: BorderRadius.circular(26),
         child: AspectRatio(
-          aspectRatio: 1.98,
+          aspectRatio: 1.6,
           child: Image.file(imageFile, fit: BoxFit.cover),
         ),
       ),
@@ -183,7 +114,7 @@ class IdBackPreview extends StatelessWidget {
 
   Widget _buildChecklist() {
     return Container(
-      padding: const EdgeInsets.all(24),
+      padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: const Color(0xFFF9FAFB),
         borderRadius: BorderRadius.circular(
@@ -194,16 +125,6 @@ class IdBackPreview extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(
-            "DOCUMENT INTEGRITY CHECK",
-            style: TextStyle(
-              fontSize: 10,
-              fontWeight: FontWeight.w900,
-              letterSpacing: 1.5,
-              color: Colors.grey.shade400,
-            ),
-          ),
-          const SizedBox(height: 24),
           _buildDetailedCheckItem(
             title: "Data Readability",
             subtitle: "Barcode and MRZ zones are sharp and machine-readable.",
@@ -290,7 +211,7 @@ class IdBackPreview extends StatelessWidget {
 
   Widget _buildActionButtons(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.fromLTRB(24, 16, 24, 12),
+      padding: const EdgeInsets.fromLTRB(24, 10, 24, 0),
       decoration: BoxDecoration(
         color: Colors.white,
         boxShadow: [
@@ -325,30 +246,25 @@ class IdBackPreview extends StatelessWidget {
             ),
           ),
           const SizedBox(height: 12),
-          OutlinedButton(
-            onPressed: () => Navigator.pop(context),
-            style: OutlinedButton.styleFrom(
-              // ADD THIS LINE
-              padding: const EdgeInsets.symmetric(vertical: 20),
-
-              side: BorderSide(color: Colors.grey.shade200, width: 1.5),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(18),
-              ),
-              foregroundColor: Colors.grey.shade600,
-              backgroundColor: Colors.white,
-            ),
-            child: const Row(
+          GestureDetector(
+            onTap: () => Navigator.pop(context),
+            behavior: HitTestBehavior.opaque,
+            child: Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                Icon(CupertinoIcons.refresh, size: 16),
-                SizedBox(width: 10),
+                Icon(
+                  CupertinoIcons.refresh,
+                  size: 14,
+                  color: Colors.grey.shade400,
+                ),
+                const SizedBox(width: 8),
                 Text(
                   "RETAKE DOCUMENT SCAN",
                   style: TextStyle(
+                    color: Colors.grey.shade500,
                     fontWeight: FontWeight.w900,
-                    fontSize: 12,
-                    letterSpacing: 1.1,
+                    fontSize: 11,
+                    letterSpacing: 1.2,
                   ),
                 ),
               ],

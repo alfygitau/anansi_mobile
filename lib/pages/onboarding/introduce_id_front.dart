@@ -127,7 +127,7 @@ class _IntroduceFrontOfIdState extends State<IntroduceFrontOfId> {
 
   Widget _buildIdFramePreview() {
     return Container(
-      height: 200,
+      height: 150,
       width: double.infinity,
       decoration: BoxDecoration(
         color: Colors.grey.shade50,
@@ -138,8 +138,8 @@ class _IntroduceFrontOfIdState extends State<IntroduceFrontOfId> {
         alignment: Alignment.center,
         children: [
           Container(
-            height: 150,
-            width: 150,
+            height: 120,
+            width: 120,
             decoration: BoxDecoration(
               color: const Color(0xFF17C6C6).withValues(alpha: 0.05),
               shape: BoxShape.circle,

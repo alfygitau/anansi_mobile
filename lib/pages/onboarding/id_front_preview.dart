@@ -22,16 +22,33 @@ class IdFrontPreview extends StatelessWidget {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    const SizedBox(height: 10),
-                    _buildBrandHeader(context),
-                    const SizedBox(height: 20),
+                    Align(
+                      alignment: Alignment.centerLeft,
+                      child: const Text(
+                        "Verify Identity",
+                        style: TextStyle(
+                          fontSize: 24,
+                          fontWeight: FontWeight.w900,
+                          color: AnansiColors.darkBlue,
+                          letterSpacing: -1.5,
+                        ),
+                      ),
+                    ),
                     _buildStepHeader(),
-                    const SizedBox(height: 22),
+                    const SizedBox(height: 10),
                     _buildImagePreview(),
                     const SizedBox(height: 22),
+                    Text(
+                      "IMAGE QUALITY REPORT",
+                      style: TextStyle(
+                        fontSize: 10,
+                        fontWeight: FontWeight.w900,
+                        letterSpacing: 1.5,
+                        color: Colors.grey.shade400,
+                      ),
+                    ),
+                    SizedBox(height: 8),
                     _buildChecklist(),
-                    const SizedBox(height: 24),
-                    _buildSecurityAssurance(),
                     const SizedBox(height: 32),
                   ],
                 ),
@@ -44,87 +61,20 @@ class IdFrontPreview extends StatelessWidget {
     );
   }
 
-  Widget _buildBrandHeader(BuildContext context) {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-      children: [
-        // Brand Mark
-        Row(
-          children: [
-            Container(
-              width: 44,
-              height: 44,
-              decoration: BoxDecoration(
-                color: AnansiColors.darkBlue,
-                borderRadius: BorderRadius.circular(12),
-              ),
-              child: const Center(
-                child: Text(
-                  "A",
-                  style: TextStyle(
-                    color: Color(0xFF17C6C6),
-                    fontSize: 22,
-                    fontWeight: FontWeight.w900,
-                  ),
-                ),
-              ),
-            ),
-            const SizedBox(width: 12),
-            const Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  "ONBOARDING",
-                  style: TextStyle(
-                    fontWeight: FontWeight.w900,
-                    fontSize: 13,
-                    letterSpacing: 1.5,
-                    color: AnansiColors.darkBlue,
-                  ),
-                ),
-                Text(
-                  "ID or Passport Details",
-                  style: TextStyle(fontSize: 14, color: Colors.grey),
-                ),
-              ],
-            ),
-          ],
-        ),
-        GestureDetector(
-          onTap: () => Navigator.pop(context),
-          child: Container(
-            padding: const EdgeInsets.all(8),
-            decoration: BoxDecoration(
-              color: Colors.grey.shade100,
-              shape: BoxShape.circle,
-            ),
-            child: const Icon(
-              CupertinoIcons.xmark,
-              size: 18,
-              color: AnansiColors.darkBlue,
-            ),
-          ),
-        ),
-      ],
-    );
-  }
-
   Widget _buildStepHeader() {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         const Text(
-          "Preview ID Document",
+          "Confirm ID Capture",
           style: TextStyle(
-            color: AnansiColors.darkBlue,
-            fontSize: 24,
-            fontWeight: FontWeight.w900,
+            fontSize: 20,
+            fontWeight: FontWeight.w500,
             letterSpacing: -0.5,
           ),
         ),
-        const SizedBox(height: 12),
         Text(
-          "Verification requires high-fidelity data extraction. Please ensure your portrait and all textual identifiers are clearly legible within the captured frame.",
+          "Please confirm that you can read every detail on the ID clearly, including your name and ID number.",
           style: TextStyle(
             color: Colors.grey.shade500,
             fontSize: 15,
@@ -140,20 +90,47 @@ class IdFrontPreview extends StatelessWidget {
       width: double.infinity,
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(28),
-        border: Border.all(color: Colors.grey.shade100, width: 2),
+        border: Border.all(color: const Color(0xFFF1F5F9), width: 2),
         boxShadow: [
           BoxShadow(
-            color: AnansiColors.darkBlue.withValues(alpha: 0.08),
-            blurRadius: 40,
-            offset: const Offset(0, 20),
+            color: AnansiColors.darkBlue.withValues(alpha: 0.12),
+            blurRadius: 30,
+            offset: const Offset(0, 15),
           ),
         ],
       ),
       child: ClipRRect(
         borderRadius: BorderRadius.circular(26),
-        child: AspectRatio(
-          aspectRatio: 1.98,
-          child: Image.file(imageFile, fit: BoxFit.cover),
+        child: Stack(
+          alignment: Alignment.center,
+          children: [
+            AspectRatio(
+              aspectRatio: 1.6,
+              child: Image.file(
+                imageFile,
+                fit: BoxFit.cover,
+                errorBuilder: (context, error, stackTrace) => Container(
+                  color: Colors.grey.shade50,
+                  child: const Icon(CupertinoIcons.photo, color: Colors.grey),
+                ),
+              ),
+            ),
+            Positioned.fill(
+              child: Container(
+                decoration: BoxDecoration(
+                  gradient: LinearGradient(
+                    begin: Alignment.topCenter,
+                    end: Alignment.bottomCenter,
+                    colors: [
+                      Colors.black.withValues(alpha: 0.05),
+                      Colors.transparent,
+                      Colors.black.withValues(alpha: 0.05),
+                    ],
+                  ),
+                ),
+              ),
+            ),
+          ],
         ),
       ),
     );
@@ -161,7 +138,7 @@ class IdFrontPreview extends StatelessWidget {
 
   Widget _buildChecklist() {
     return Container(
-      padding: const EdgeInsets.all(24),
+      padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: const Color(0xFFF9FAFB),
         borderRadius: BorderRadius.circular(28),
@@ -170,16 +147,6 @@ class IdFrontPreview extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(
-            "IMAGE QUALITY REPORT",
-            style: TextStyle(
-              fontSize: 10,
-              fontWeight: FontWeight.w900,
-              letterSpacing: 1.5,
-              color: Colors.grey.shade400,
-            ),
-          ),
-          const SizedBox(height: 24),
           _buildDetailedCheckItem(
             title: "Facial Recognition",
             subtitle:
@@ -265,32 +232,9 @@ class IdFrontPreview extends StatelessWidget {
     );
   }
 
-  Widget _buildSecurityAssurance() {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: [
-        const Icon(
-          CupertinoIcons.lock_shield,
-          size: 14,
-          color: Color(0xFF17C6C6),
-        ),
-        const SizedBox(width: 8),
-        Text(
-          "SECURED BY ANANSI PROTOCOLS",
-          style: TextStyle(
-            fontSize: 10,
-            fontWeight: FontWeight.w900,
-            color: Colors.grey.shade400,
-            letterSpacing: 1,
-          ),
-        ),
-      ],
-    );
-  }
-
   Widget _buildActionButtons(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.fromLTRB(24, 16, 24, 12),
+      padding: const EdgeInsets.fromLTRB(24, 10, 24, 0),
       decoration: BoxDecoration(
         color: Colors.white,
         border: Border(top: BorderSide(color: Colors.grey.shade100)),
@@ -325,30 +269,25 @@ class IdFrontPreview extends StatelessWidget {
             ),
           ),
           const SizedBox(height: 16),
-          OutlinedButton(
-            onPressed: () => Navigator.pop(context),
-            style: OutlinedButton.styleFrom(
-              // ADD THIS LINE
-              padding: const EdgeInsets.symmetric(vertical: 20),
-
-              side: BorderSide(color: Colors.grey.shade200, width: 1.5),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(18),
-              ),
-              foregroundColor: Colors.grey.shade600,
-              backgroundColor: Colors.white,
-            ),
-            child: const Row(
+          GestureDetector(
+            onTap: () => Navigator.pop(context),
+            behavior: HitTestBehavior.opaque,
+            child: Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                Icon(CupertinoIcons.refresh, size: 16),
-                SizedBox(width: 10),
+                Icon(
+                  CupertinoIcons.refresh,
+                  size: 14,
+                  color: Colors.grey.shade400,
+                ),
+                const SizedBox(width: 8),
                 Text(
                   "RETAKE DOCUMENT SCAN",
                   style: TextStyle(
+                    color: Colors.grey.shade500,
                     fontWeight: FontWeight.w900,
-                    fontSize: 12,
-                    letterSpacing: 1.1,
+                    fontSize: 11,
+                    letterSpacing: 1.2,
                   ),
                 ),
               ],
