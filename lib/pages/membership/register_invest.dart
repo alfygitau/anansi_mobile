@@ -1,3 +1,4 @@
+import 'package:app_anansi_mobile/pages/membership/review_membership.dart';
 import 'package:app_anansi_mobile/pages/membership/shares_savings.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -27,7 +28,16 @@ class _RegisterInvestState extends State<RegisterInvest> {
   Future<void> _toRegisterOnly(BuildContext context) async {
     await Future.delayed(const Duration(seconds: 2));
     if (context.mounted) {
-      // Navigation logic here
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) => ReviewMembership(
+            phoneNumber: widget.mobileNumber,
+            savingsAmount: 0,
+            sharesAmount: 0,
+          ),
+        ),
+      );
     }
   }
 
@@ -271,7 +281,7 @@ class _RegisterInvestState extends State<RegisterInvest> {
   Widget _buildCustomDivider() {
     return Divider(
       height: 1,
-      indent: 80, // Aligns after the icon for a cleaner look
+      indent: 80,
       endIndent: 20,
       color: const Color(0xFFF1F4F8),
     );
@@ -279,7 +289,7 @@ class _RegisterInvestState extends State<RegisterInvest> {
 
   Widget _buildPersistentFooter(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.fromLTRB(24, 16, 24, 40),
+      padding: const EdgeInsets.fromLTRB(24, 16, 24, 30),
       decoration: const BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.only(
