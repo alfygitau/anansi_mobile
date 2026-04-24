@@ -68,7 +68,6 @@ class _IdTypeState extends State<IdType> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    const SizedBox(height: 10),
                     const Text(
                       "Verify Identity",
                       style: TextStyle(
@@ -78,7 +77,6 @@ class _IdTypeState extends State<IdType> {
                         letterSpacing: -1.5,
                       ),
                     ),
-                    const SizedBox(height: 10),
                     _buildHeader(),
                     const SizedBox(height: 20),
                     _buildSectionLabel("CITIZENSHIP"),

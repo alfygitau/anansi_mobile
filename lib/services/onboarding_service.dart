@@ -166,6 +166,25 @@ class OnboardingService {
     }
   }
 
+  Future<(Response?, List<String>?)> updateSelfie({
+    required String id,
+    required String url,
+  }) async {
+    try {
+      final response = await _secureClient.patch(
+        '/customer/$id',
+        data: {'selfie_image': url, 'onboarding_stage': "personal-information"},
+      );
+      return (response, null);
+    } on DioException catch (e) {
+      final apiException = ApiException();
+      final errorMessages = apiException.getExceptionMessage(e);
+      return (null, errorMessages);
+    } catch (e) {
+      return (null, ["Authentication Error!", "An unknown error occurred."]);
+    }
+  }
+
   Future<(Response?, List<String>?)> getCustomer({required String id}) async {
     try {
       final response = await _secureClient.get('/customer/$id');

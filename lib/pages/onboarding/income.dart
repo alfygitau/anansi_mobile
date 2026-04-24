@@ -42,12 +42,8 @@ class _IncomeInformationState extends State<IncomeInformation> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    const SizedBox(height: 10),
-                    _buildBrandHeader(),
-                    const SizedBox(height: 16),
                     _buildStepHeader(),
                     const SizedBox(height: 22),
-
                     _buildSectionLabel("EMPLOYMENT STATUS"),
                     const SizedBox(height: 16),
                     _buildDropdownField(
@@ -95,70 +91,6 @@ class _IncomeInformationState extends State<IncomeInformation> {
           ],
         ),
       ),
-    );
-  }
-
-  Widget _buildBrandHeader() {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-      children: [
-        Row(
-          children: [
-            Container(
-              width: 44,
-              height: 44,
-              decoration: BoxDecoration(
-                color: AnansiColors.darkBlue,
-                borderRadius: BorderRadius.circular(12),
-              ),
-              child: const Center(
-                child: Text(
-                  "A",
-                  style: TextStyle(
-                    color: Color(0xFF17C6C6),
-                    fontSize: 22,
-                    fontWeight: FontWeight.w900,
-                  ),
-                ),
-              ),
-            ),
-            const SizedBox(width: 12),
-            const Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  "ONBOARDING",
-                  style: TextStyle(
-                    fontWeight: FontWeight.w900,
-                    fontSize: 13,
-                    letterSpacing: 1.5,
-                    color: AnansiColors.darkBlue,
-                  ),
-                ),
-                Text(
-                  "Financial Profile",
-                  style: TextStyle(fontSize: 14, color: Colors.grey),
-                ),
-              ],
-            ),
-          ],
-        ),
-        GestureDetector(
-          onTap: () => Navigator.pop(context),
-          child: Container(
-            padding: const EdgeInsets.all(8),
-            decoration: BoxDecoration(
-              color: Colors.grey.shade100,
-              shape: BoxShape.circle,
-            ),
-            child: const Icon(
-              CupertinoIcons.xmark,
-              size: 18,
-              color: AnansiColors.darkBlue,
-            ),
-          ),
-        ),
-      ],
     );
   }
 
@@ -211,7 +143,7 @@ class _IncomeInformationState extends State<IncomeInformation> {
         border: Border.all(color: const Color(0xFFF1F4F8), width: 1.5),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withValues(alpha:0.02),
+            color: Colors.black.withValues(alpha: 0.02),
             blurRadius: 10,
             offset: const Offset(0, 4),
           ),
@@ -223,7 +155,7 @@ class _IncomeInformationState extends State<IncomeInformation> {
           Container(
             padding: const EdgeInsets.all(10),
             decoration: BoxDecoration(
-              color: const Color(0xFF17C6C6).withValues(alpha:0.08),
+              color: const Color(0xFF17C6C6).withValues(alpha: 0.08),
               borderRadius: BorderRadius.circular(12),
             ),
             child: Icon(icon, size: 18, color: const Color(0xFF17C6C6)),
@@ -291,7 +223,7 @@ class _IncomeInformationState extends State<IncomeInformation> {
         border: Border.all(color: const Color(0xFFF1F4F8), width: 1.5),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withValues(alpha:0.02),
+            color: Colors.black.withValues(alpha: 0.02),
             blurRadius: 10,
             offset: const Offset(0, 4),
           ),
@@ -343,7 +275,7 @@ class _IncomeInformationState extends State<IncomeInformation> {
         Container(
           padding: const EdgeInsets.all(10),
           decoration: BoxDecoration(
-            color: const Color(0xFF17C6C6).withValues(alpha:0.08),
+            color: const Color(0xFF17C6C6).withValues(alpha: 0.08),
             borderRadius: BorderRadius.circular(10),
           ),
           child: Icon(icon, size: 18, color: const Color(0xFF17C6C6)),

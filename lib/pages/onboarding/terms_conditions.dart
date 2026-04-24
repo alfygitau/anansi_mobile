@@ -42,7 +42,6 @@ class _TermsConditionsState extends State<TermsConditions> {
       body: SafeArea(
         child: Column(
           children: [
-            _buildBrandHeader(),
             Expanded(
               child: Stack(
                 children: [
@@ -110,67 +109,6 @@ class _TermsConditionsState extends State<TermsConditions> {
             _buildActionDock(),
           ],
         ),
-      ),
-    );
-  }
-
-  Widget _buildBrandHeader() {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 10),
-      decoration: BoxDecoration(color: Colors.white),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          Row(
-            children: [
-              Container(
-                width: 40,
-                height: 40,
-                decoration: BoxDecoration(
-                  color: AnansiColors.darkBlue,
-                  borderRadius: BorderRadius.circular(10),
-                ),
-                child: const Center(
-                  child: Text(
-                    "A",
-                    style: TextStyle(
-                      color: Color(0xFF17C6C6),
-                      fontSize: 20,
-                      fontWeight: FontWeight.w900,
-                    ),
-                  ),
-                ),
-              ),
-              const SizedBox(width: 12),
-              const Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    "AGREEMENT",
-                    style: TextStyle(
-                      fontWeight: FontWeight.w900,
-                      fontSize: 13,
-                      letterSpacing: 1.5,
-                      color: AnansiColors.darkBlue,
-                    ),
-                  ),
-                  Text(
-                    "Terms & Conditions",
-                    style: TextStyle(fontSize: 14, color: Colors.grey),
-                  ),
-                ],
-              ),
-            ],
-          ),
-          IconButton(
-            onPressed: () => Navigator.pop(context),
-            icon: const Icon(
-              CupertinoIcons.xmark_circle_fill,
-              color: Color(0xFFE0E0E0),
-              size: 28,
-            ),
-          ),
-        ],
       ),
     );
   }

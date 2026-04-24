@@ -1,14 +1,68 @@
 import 'dart:io';
-
 import 'package:app_anansi_mobile/pages/onboarding/personal_information.dart';
+import 'package:app_anansi_mobile/services/error_service.dart';
+import 'package:app_anansi_mobile/services/ocr_service.dart';
+import 'package:app_anansi_mobile/services/onboarding_service.dart';
+import 'package:app_anansi_mobile/state/auth_provider.dart';
 import 'package:app_anansi_mobile/theme/app_theme.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
-class SelfiePreview extends StatelessWidget {
+class SelfiePreview extends StatefulWidget {
   final File imageFile;
 
   const SelfiePreview({super.key, required this.imageFile});
+
+  @override
+  State<SelfiePreview> createState() => _SelfiePreviewState();
+}
+
+class _SelfiePreviewState extends State<SelfiePreview> {
+  bool _isLoading = false;
+
+  void uploadFile() async {
+    setState(() {
+      _isLoading = true;
+    });
+    try {
+      final (response, errors) = await OcrService().uploadSingleFile(
+        file: widget.imageFile,
+      );
+      if (errors != null) {
+        ErrorService.showActionableError(
+          context,
+          title: errors[0],
+          message: errors[1],
+        );
+      } else if (response != null) {
+        final String url = response.data['data']['url'] ?? "";
+        await updateCustomerSelfie(url);
+      }
+    } finally {
+      if (mounted) setState(() => _isLoading = false);
+    }
+  }
+
+  Future<void> updateCustomerSelfie(String url) async {
+    final authProvider = Provider.of<AuthProvider>(context, listen: false);
+    final (response, errors) = await OnboardingService().updateSelfie(
+      id: authProvider.user?['id'] ?? "",
+      url: url,
+    );
+    if (errors != null) {
+      ErrorService.showActionableError(
+        context,
+        title: errors[0],
+        message: errors[1],
+      );
+    } else if (response != null) {
+      Navigator.push(
+        context,
+        MaterialPageRoute(builder: (context) => const PersonalInformation()),
+      );
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -23,8 +77,6 @@ class SelfiePreview extends StatelessWidget {
                 child: Column(
                   children: [
                     const SizedBox(height: 10),
-                    _buildBrandHeader(context),
-                    const SizedBox(height: 10),
                     _buildStepHeader(),
                     const SizedBox(height: 22),
                     _buildBiometricPreview(),
@@ -38,70 +90,6 @@ class SelfiePreview extends StatelessWidget {
           ],
         ),
       ),
-    );
-  }
-
-  Widget _buildBrandHeader(BuildContext context) {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-      children: [
-        Row(
-          children: [
-            Container(
-              width: 44,
-              height: 44,
-              decoration: BoxDecoration(
-                color: AnansiColors.darkBlue,
-                borderRadius: BorderRadius.circular(12),
-              ),
-              child: const Center(
-                child: Text(
-                  "A",
-                  style: TextStyle(
-                    color: Color(0xFF17C6C6),
-                    fontSize: 22,
-                    fontWeight: FontWeight.w900,
-                  ),
-                ),
-              ),
-            ),
-            const SizedBox(width: 12),
-            const Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  "CAMERA SCAN",
-                  style: TextStyle(
-                    fontWeight: FontWeight.w900,
-                    fontSize: 13,
-                    letterSpacing: 1.5,
-                    color: AnansiColors.darkBlue,
-                  ),
-                ),
-                Text(
-                  "Quality Check",
-                  style: TextStyle(fontSize: 14, color: Colors.grey),
-                ),
-              ],
-            ),
-          ],
-        ),
-        GestureDetector(
-          onTap: () => Navigator.pop(context),
-          child: Container(
-            padding: const EdgeInsets.all(8),
-            decoration: BoxDecoration(
-              color: Colors.grey.shade50,
-              shape: BoxShape.circle,
-            ),
-            child: const Icon(
-              CupertinoIcons.xmark,
-              size: 18,
-              color: AnansiColors.darkBlue,
-            ),
-          ),
-        ),
-      ],
     );
   }
 
@@ -162,7 +150,7 @@ class SelfiePreview extends StatelessWidget {
           ),
           child: ClipRRect(
             borderRadius: BorderRadius.circular(110),
-            child: Image.file(imageFile, fit: BoxFit.cover),
+            child: Image.file(widget.imageFile, fit: BoxFit.cover),
           ),
         ),
         const Positioned(
@@ -282,20 +270,13 @@ class SelfiePreview extends StatelessWidget {
 
   Widget _buildActionDock(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.fromLTRB(24, 16, 24, 12),
+      padding: const EdgeInsets.fromLTRB(24, 10, 24, 0),
       decoration: BoxDecoration(color: Colors.white),
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
           ElevatedButton(
-            onPressed: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => const PersonalInformation(),
-                ),
-              );
-            },
+            onPressed: _isLoading ? () {} : uploadFile,
             style: ElevatedButton.styleFrom(
               backgroundColor: AnansiColors.darkBlue,
               minimumSize: const Size(double.infinity, 64),
@@ -304,34 +285,32 @@ class SelfiePreview extends StatelessWidget {
               ),
               elevation: 0,
             ),
-            child: const Text(
-              "SUBMIT IMAGE",
-              style: TextStyle(
-                fontWeight: FontWeight.w900,
-                letterSpacing: 1.2,
-                color: Colors.white,
-              ),
-            ),
+            child: _isLoading
+                ? const SizedBox(
+                    height: 20,
+                    width: 20,
+                    child: CupertinoActivityIndicator(color: Colors.white),
+                  )
+                : const Text(
+                    "SUBMIT IMAGE",
+                    style: TextStyle(
+                      fontWeight: FontWeight.w900,
+                      letterSpacing: 1.2,
+                      color: Colors.white,
+                    ),
+                  ),
           ),
           const SizedBox(height: 12),
-          OutlinedButton(
-            onPressed: () => Navigator.pop(context),
-            style: OutlinedButton.styleFrom(
-              padding: const EdgeInsets.symmetric(vertical: 20),
-              side: BorderSide(color: Colors.grey.shade200, width: 1.5),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(20),
-              ),
-            ),
-            child: const Center(
-              child: Text(
-                "RETAKE SELFIE",
-                style: TextStyle(
-                  color: Colors.grey,
-                  fontWeight: FontWeight.w900,
-                  fontSize: 12,
-                  letterSpacing: 1.1,
-                ),
+          GestureDetector(
+            onTap: () => Navigator.pop(context),
+            behavior: HitTestBehavior.opaque,
+            child: Text(
+              "RETAKE SELFIE",
+              style: TextStyle(
+                color: Colors.grey,
+                fontWeight: FontWeight.w900,
+                fontSize: 12,
+                letterSpacing: 1.1,
               ),
             ),
           ),
