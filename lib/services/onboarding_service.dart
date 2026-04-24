@@ -31,4 +31,53 @@ class OnboardingService {
       return (null, ["Authentication Error!", "An unknown error occurred."]);
     }
   }
+
+  Future<(Response?, List<String>?)> resendEmailOtp({
+    required String userId,
+  }) async {
+    try {
+      final response = await _secureClient.post(
+        '/otp',
+        data: {"userId": userId, "isEmail": true},
+      );
+      return (response, null);
+    } on DioException catch (e) {
+      final apiException = ApiException();
+      final errorMessages = apiException.getExceptionMessage(e);
+      return (null, errorMessages);
+    } catch (e) {
+      return (null, ["Authentication Error!", "An unknown error occurred."]);
+    }
+  }
+
+  Future<(Response?, List<String>?)> sendMobileOtp({
+    required String userId,
+  }) async {
+    try {
+      final response = await _secureClient.post(
+        '/otp',
+        data: {"userId": userId, "isEmail": false},
+      );
+      return (response, null);
+    } on DioException catch (e) {
+      final apiException = ApiException();
+      final errorMessages = apiException.getExceptionMessage(e);
+      return (null, errorMessages);
+    } catch (e) {
+      return (null, ["Authentication Error!", "An unknown error occurred."]);
+    }
+  }
+
+  Future<(Response?, List<String>?)> getCustomer({required String id}) async {
+    try {
+      final response = await _secureClient.get('/customer/$id');
+      return (response, null);
+    } on DioException catch (e) {
+      final apiException = ApiException();
+      final errorMessages = apiException.getExceptionMessage(e);
+      return (null, errorMessages);
+    } catch (e) {
+      return (null, ["Authentication Error!", "An unknown error occurred."]);
+    }
+  }
 }
