@@ -293,7 +293,7 @@ class _IdDetailsState extends State<IdDetails> {
     final authProvider = context.watch<AuthProvider>();
     final kycData = authProvider.kycDetails;
     return Container(
-      padding: const EdgeInsets.fromLTRB(24, 16, 24, 12),
+      padding: const EdgeInsets.fromLTRB(24, 10, 24, 5),
       decoration: BoxDecoration(color: Colors.white),
       child: Column(
         mainAxisSize: MainAxisSize.min,
@@ -339,20 +339,13 @@ class _IdDetailsState extends State<IdDetails> {
               ),
             ),
           ] else ...[
-            ElevatedButton(
-              onPressed: () => {
+            GestureDetector(
+              onTap: () {
                 // Navigator.push(
                 //   context,
-                //   MaterialPageRoute(builder: (_) => const IdManualFill()),
-                // ),
+                //   MaterialPageRoute(builder: (_) => const IntroduceFrontOfId()),
+                // );
               },
-              style: ElevatedButton.styleFrom(
-                backgroundColor: AnansiColors.darkBlue,
-                minimumSize: const Size(double.infinity, 64),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(20),
-                ),
-              ),
               child: const Text(
                 "COMPLETE MANUALLY",
                 style: TextStyle(
