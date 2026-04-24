@@ -4,6 +4,7 @@ import 'package:app_anansi_mobile/pages/onboarding/verify_email.dart';
 import 'package:app_anansi_mobile/services/auth_service.dart';
 import 'package:app_anansi_mobile/services/error_service.dart';
 import 'package:app_anansi_mobile/services/onboarding_service.dart';
+import 'package:app_anansi_mobile/services/secure_storage_service.dart';
 import 'package:app_anansi_mobile/state/auth_provider.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/gestures.dart';
@@ -240,6 +241,12 @@ class _RegisterState extends State<Register> {
       final authProvider = Provider.of<AuthProvider>(context, listen: false);
       final responseInfo = response.data['data'];
       authProvider.setUser(responseInfo['user'] ?? {});
+      final tokens = responseInfo['tokens'];
+        print(tokens);
+        await SecureStorageService().write(
+          "accessToken",
+          tokens['access_token'],
+        );
       Navigator.push(
         context,
         MaterialPageRoute(builder: (context) => const VerifyEmail()),
@@ -276,7 +283,7 @@ class _RegisterState extends State<Register> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              SizedBox(height: 10,),
+              SizedBox(height: 10),
               const Text(
                 "Create & Verify Profile",
                 style: TextStyle(

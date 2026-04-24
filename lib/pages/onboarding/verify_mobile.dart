@@ -1,9 +1,16 @@
 import 'dart:async';
 import 'package:app_anansi_mobile/pages/onboarding/account_success.dart';
+import 'package:app_anansi_mobile/pages/onboarding/change_mobile.dart';
+import 'package:app_anansi_mobile/services/error_service.dart';
+import 'package:app_anansi_mobile/services/onboarding_service.dart';
+import 'package:app_anansi_mobile/shimmers/onboarding/verify_email_shimmer.dart';
+import 'package:app_anansi_mobile/state/auth_provider.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:app_anansi_mobile/theme/app_theme.dart';
 import 'package:app_anansi_mobile/components/otp_boxes.dart';
+import 'package:flutter/services.dart';
+import 'package:provider/provider.dart';
 
 class VerifyMobile extends StatefulWidget {
   final String phoneNumber;
@@ -18,12 +25,26 @@ class _VerifyMobileState extends State<VerifyMobile> {
   final _focus = FocusNode();
   Timer? _timer;
   int _secondsRemaining = 59;
+  bool _loading = false;
+  String _mobile = "";
+  String? _errorText;
+  bool _isLoading = false;
 
   @override
   void initState() {
     super.initState();
     _startTimer();
+    _getCustomer();
+
+    _controller.addListener(() {
+      if (_errorText != null) {
+        setState(() => _errorText = null);
+      }
+      setState(() {});
+    });
   }
+
+  bool get _isOtpReady => _controller.text.length == 6 && !_isLoading;
 
   void _startTimer() {
     _secondsRemaining = 59;
@@ -41,6 +62,77 @@ class _VerifyMobileState extends State<VerifyMobile> {
     });
   }
 
+  void _getCustomer() async {
+    setState(() {
+      _loading = true;
+    });
+    try {
+      final authProvider = Provider.of<AuthProvider>(context, listen: false);
+      final (response, errors) = await OnboardingService().getCustomer(
+        id: authProvider.user?['id'] ?? "",
+      );
+      if (errors != null) {
+        ErrorService.showActionableError(
+          context,
+          title: errors[0],
+          message: errors[1],
+        );
+      } else if (response != null) {
+        setState(() {
+          _mobile = response.data['data']['mobileno'] ?? "";
+        });
+      }
+    } finally {
+      if (mounted) setState(() => _loading = false);
+    }
+  }
+
+  void _verifyMobile() async {
+    if (!_isOtpReady) return;
+
+    setState(() {
+      _isLoading = true;
+      _errorText = null;
+    });
+    try {
+      final authProvider = Provider.of<AuthProvider>(context, listen: false);
+      final (response, error) = await OnboardingService().verifyMobileNumber(
+        otp: _controller.text.trim(),
+        mobile: authProvider.user?['mobileno'],
+      );
+      if (error != null) {
+        ErrorService.showActionableError(
+          context,
+          title: error[0],
+          message: error[1],
+        );
+      } else if (response != null) {
+        _updateVerification();
+      }
+    } finally {
+      if (mounted) setState(() => _isLoading = false);
+    }
+  }
+
+  void _updateVerification() async {
+    final authProvider = Provider.of<AuthProvider>(context, listen: false);
+    final (response, errors) = await OnboardingService()
+        .updateCustomerVerification(id: authProvider.user?['id'] ?? "");
+    if (errors != null) {
+      ErrorService.showActionableError(
+        context,
+        title: errors[0],
+        message: errors[1],
+      );
+    } else if (response != null) {
+      HapticFeedback.lightImpact();
+      Navigator.push(
+        context,
+        MaterialPageRoute(builder: (context) => const AccountSuccess()),
+      );
+    }
+  }
+
   @override
   void dispose() {
     _timer?.cancel();
@@ -51,52 +143,54 @@ class _VerifyMobileState extends State<VerifyMobile> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: Colors.white,
-      body: SafeArea(
-        child: Column(
-          children: [
-            Expanded(
-              child: SingleChildScrollView(
-                physics: const BouncingScrollPhysics(),
-                padding: const EdgeInsets.symmetric(horizontal: 24),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    const SizedBox(height: 20),
-                    _buildIconHeader(),
-                    const SizedBox(height: 10),
-                    const Text(
-                      "Verify your phone",
-                      style: TextStyle(
-                        color: AnansiColors.darkBlue,
-                        fontSize: 24,
-                        fontWeight: FontWeight.w900,
-                        letterSpacing: -1.0,
+    return _loading
+        ? VerifyEmailShimmer()
+        : Scaffold(
+            backgroundColor: Colors.white,
+            body: SafeArea(
+              child: Column(
+                children: [
+                  Expanded(
+                    child: SingleChildScrollView(
+                      physics: const BouncingScrollPhysics(),
+                      padding: const EdgeInsets.symmetric(horizontal: 24),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          const SizedBox(height: 20),
+                          _buildIconHeader(),
+                          const SizedBox(height: 10),
+                          const Text(
+                            "Verify your phone",
+                            style: TextStyle(
+                              color: AnansiColors.darkBlue,
+                              fontSize: 24,
+                              fontWeight: FontWeight.w900,
+                              letterSpacing: -1.0,
+                            ),
+                          ),
+                          const SizedBox(height: 5),
+                          _buildMobileDescription(),
+                          const SizedBox(height: 40),
+                          OtpBoxes(
+                            controller: _controller,
+                            focusNode: _focus,
+                            onCompleted: (_) => () {},
+                          ),
+                          const SizedBox(height: 20),
+                          _buildResendLogic(),
+                          const SizedBox(height: 20),
+                          _buildInstitutionalDisclaimer(),
+                          const SizedBox(height: 32),
+                        ],
                       ),
                     ),
-                    const SizedBox(height: 5),
-                    _buildMobileDescription(),
-                    const SizedBox(height: 40),
-                    OtpBoxes(
-                      controller: _controller,
-                      focusNode: _focus,
-                      onCompleted: (_) => () {},
-                    ),
-                    const SizedBox(height: 20),
-                    _buildResendLogic(),
-                    const SizedBox(height: 20),
-                    _buildInstitutionalDisclaimer(),
-                    const SizedBox(height: 32),
-                  ],
-                ),
+                  ),
+                  _buildFixedBottomAction(),
+                ],
               ),
             ),
-            _buildFixedBottomAction(),
-          ],
-        ),
-      ),
-    );
+          );
   }
 
   Widget _buildIconHeader() {
@@ -121,7 +215,7 @@ class _VerifyMobileState extends State<VerifyMobile> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          "We've sent a 6-digit verification code to the mobile number ${widget.phoneNumber}. Please check your messages.",
+          "We've sent a 6-digit verification code to the mobile number ${_mobile.isNotEmpty ? _mobile : "0700 000 000"}. Please check your messages.",
           style: TextStyle(
             color: Colors.blueGrey.shade400,
             fontSize: 15,
@@ -132,7 +226,12 @@ class _VerifyMobileState extends State<VerifyMobile> {
         const SizedBox(height: 10),
         GestureDetector(
           onTap: () {
-            Navigator.pop(context); // Go back to change number
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => const ChangePhoneNumber(),
+              ),
+            );
           },
           child: Row(
             mainAxisSize: MainAxisSize.min,
@@ -188,7 +287,6 @@ class _VerifyMobileState extends State<VerifyMobile> {
                     color: Color(0xFF17C6C6),
                     fontWeight: FontWeight.w800,
                     fontSize: 13,
-                    decoration: TextDecoration.underline,
                   ),
                 ),
               ),
@@ -215,7 +313,7 @@ class _VerifyMobileState extends State<VerifyMobile> {
                 color: AnansiColors.darkBlue,
               ),
               SizedBox(width: 10),
-              const Text(
+              Text(
                 "SECURITY NOTICE",
                 style: TextStyle(
                   fontSize: 10,
@@ -242,36 +340,50 @@ class _VerifyMobileState extends State<VerifyMobile> {
   }
 
   Widget _buildFixedBottomAction() {
+    final bool active = _isOtpReady;
+
     return Container(
       padding: const EdgeInsets.fromLTRB(24, 10, 24, 20),
       decoration: const BoxDecoration(color: Colors.white),
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
+          if (_errorText != null) ...[
+            Text(
+              _errorText!,
+              style: const TextStyle(
+                color: Colors.redAccent,
+                fontSize: 12,
+                fontWeight: FontWeight.w600,
+              ),
+            ),
+            const SizedBox(height: 12),
+          ],
           ElevatedButton(
-            onPressed: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(builder: (context) => const AccountSuccess()),
-              );
-            },
+            onPressed: active ? _verifyMobile : null,
             style: ElevatedButton.styleFrom(
               backgroundColor: AnansiColors.darkBlue,
+              disabledBackgroundColor: _isLoading
+                  ? AnansiColors.darkBlue
+                  : Colors.grey.shade200,
               foregroundColor: Colors.white,
+              disabledForegroundColor: Colors.white,
               minimumSize: const Size(double.infinity, 64),
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(20),
               ),
               elevation: 0,
             ),
-            child: const Text(
-              "VERIFY MOBILE NUMBER",
-              style: TextStyle(
-                fontWeight: FontWeight.w900,
-                letterSpacing: 1.5,
-                fontSize: 14,
-              ),
-            ),
+            child: _isLoading
+                ? const CupertinoActivityIndicator(color: Colors.white)
+                : const Text(
+                    "VERIFY MOBILE NUMBER",
+                    style: TextStyle(
+                      fontWeight: FontWeight.w900,
+                      letterSpacing: 1.5,
+                      fontSize: 14,
+                    ),
+                  ),
           ),
           const SizedBox(height: 16),
           Row(

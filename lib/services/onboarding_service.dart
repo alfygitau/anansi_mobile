@@ -68,6 +68,47 @@ class OnboardingService {
     }
   }
 
+  Future<(Response?, List<String>?)> verifyMobileNumber({
+    required String otp,
+    required String mobile,
+  }) async {
+    try {
+      final response = await _secureClient.post(
+        '/otp/verify-otp',
+        data: {"otp": otp, "isEmail": false, "phoneNumber": mobile},
+      );
+      return (response, null);
+    } on DioException catch (e) {
+      final apiException = ApiException();
+      final errorMessages = apiException.getExceptionMessage(e);
+      return (null, errorMessages);
+    } catch (e) {
+      return (null, ["Authentication Error!", "An unknown error occurred."]);
+    }
+  }
+
+  Future<(Response?, List<String>?)> updateCustomerVerification({
+    required String id,
+  }) async {
+    try {
+      final response = await _secureClient.patch(
+        '/customer/$id',
+        data: {
+          "phoneVerified": true,
+          "emailVerified": true,
+          "onboarding_stage": "account-success",
+        },
+      );
+      return (response, null);
+    } on DioException catch (e) {
+      final apiException = ApiException();
+      final errorMessages = apiException.getExceptionMessage(e);
+      return (null, errorMessages);
+    } catch (e) {
+      return (null, ["Authentication Error!", "An unknown error occurred."]);
+    }
+  }
+
   Future<(Response?, List<String>?)> getCustomer({required String id}) async {
     try {
       final response = await _secureClient.get('/customer/$id');

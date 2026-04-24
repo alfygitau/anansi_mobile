@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'package:app_anansi_mobile/pages/onboarding/change_email.dart';
 import 'package:app_anansi_mobile/pages/onboarding/verify_mobile.dart';
 import 'package:app_anansi_mobile/services/error_service.dart';
 import 'package:app_anansi_mobile/services/onboarding_service.dart';
@@ -242,7 +243,10 @@ class _VerifyEmailState extends State<VerifyEmail> {
         const SizedBox(height: 10),
         GestureDetector(
           onTap: () {
-            // Edit Logic
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (context) => const ChangeEmail()),
+            );
           },
           child: Row(
             mainAxisSize: MainAxisSize.min,
@@ -298,7 +302,6 @@ class _VerifyEmailState extends State<VerifyEmail> {
                     color: Color(0xFF17C6C6),
                     fontWeight: FontWeight.w800,
                     fontSize: 13,
-                    decoration: TextDecoration.underline,
                   ),
                 ),
               ),
@@ -371,13 +374,11 @@ class _VerifyEmailState extends State<VerifyEmail> {
             const SizedBox(height: 12),
           ],
           ElevatedButton(
-            onPressed: active ? _handleSubmit : null,
+            onPressed: _isLoading ? () {} : (active ? _handleSubmit : null),
             style: ElevatedButton.styleFrom(
               backgroundColor: AnansiColors.darkBlue,
               foregroundColor: Colors.white,
-              // This is the color used when onPressed is null
               disabledBackgroundColor: Colors.grey.shade200,
-              // This is the text color when disabled
               disabledForegroundColor: Colors.grey.shade500,
               minimumSize: const Size(double.infinity, 64),
               shape: RoundedRectangleBorder(
