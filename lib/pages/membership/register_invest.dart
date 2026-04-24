@@ -2,17 +2,23 @@ import 'package:app_anansi_mobile/pages/membership/shares_savings.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
-class RegisterInvest extends StatelessWidget {
+class RegisterInvest extends StatefulWidget {
   final String mobileNumber;
   const RegisterInvest({super.key, required this.mobileNumber});
 
+  @override
+  State<RegisterInvest> createState() => _RegisterInvestState();
+}
+
+class _RegisterInvestState extends State<RegisterInvest> {
   Future<void> _toBuyShares(BuildContext context) async {
     await Future.delayed(const Duration(seconds: 2));
     if (context.mounted) {
       Navigator.push(
         context,
         MaterialPageRoute(
-          builder: (context) => const SharesSavings(mobileNumber: "0768400400"),
+          builder: (context) =>
+              SharesSavings(mobileNumber: widget.mobileNumber),
         ),
       );
     }
