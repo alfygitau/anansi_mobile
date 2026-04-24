@@ -1,13 +1,49 @@
 import 'dart:io';
 import 'package:app_anansi_mobile/pages/onboarding/id_details.dart';
+import 'package:app_anansi_mobile/services/error_service.dart';
+import 'package:app_anansi_mobile/services/ocr_service.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:app_anansi_mobile/theme/app_theme.dart';
+import 'package:flutter/services.dart';
 
-class IdBackPreview extends StatelessWidget {
+class IdBackPreview extends StatefulWidget {
   final File imageFile;
 
   const IdBackPreview({super.key, required this.imageFile});
+
+  @override
+  State<IdBackPreview> createState() => _IdBackPreviewState();
+}
+
+class _IdBackPreviewState extends State<IdBackPreview> {
+  bool _isLoading = false;
+
+  void _extractIdDetails() async {
+    setState(() {
+      _isLoading = true;
+    });
+    try {
+      final (response, errors) = await OcrService().extractBackIdDetails(
+        image: widget.imageFile,
+      );
+      if (errors != null) {
+        ErrorService.showActionableError(
+          context,
+          title: errors[0],
+          message: errors[1],
+        );
+      } else if (response != null) {
+        HapticFeedback.lightImpact();
+        Navigator.push(
+          context,
+          MaterialPageRoute(builder: (context) => const IdDetails()),
+        );
+      }
+    } finally {
+      if (mounted) setState(() => _isLoading = false);
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -106,7 +142,7 @@ class IdBackPreview extends StatelessWidget {
         borderRadius: BorderRadius.circular(26),
         child: AspectRatio(
           aspectRatio: 1.6,
-          child: Image.file(imageFile, fit: BoxFit.cover),
+          child: Image.file(widget.imageFile, fit: BoxFit.cover),
         ),
       ),
     );
@@ -225,12 +261,7 @@ class IdBackPreview extends StatelessWidget {
       child: Column(
         children: [
           ElevatedButton(
-            onPressed: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(builder: (context) => const IdDetails()),
-              );
-            },
+            onPressed: _isLoading ? () {} : _extractIdDetails,
             style: ElevatedButton.styleFrom(
               backgroundColor: AnansiColors.darkBlue,
               foregroundColor: Colors.white,
@@ -240,10 +271,19 @@ class IdBackPreview extends StatelessWidget {
               ),
               elevation: 0,
             ),
-            child: const Text(
-              "SUBMIT BACK SIDE",
-              style: TextStyle(fontWeight: FontWeight.w900, letterSpacing: 1.2),
-            ),
+            child: _isLoading
+                ? const SizedBox(
+                    height: 20,
+                    width: 20,
+                    child: CupertinoActivityIndicator(color: Colors.white),
+                  )
+                : const Text(
+                    "SUBMIT BACK SIDE",
+                    style: TextStyle(
+                      fontWeight: FontWeight.w900,
+                      letterSpacing: 1.2,
+                    ),
+                  ),
           ),
           const SizedBox(height: 12),
           GestureDetector(

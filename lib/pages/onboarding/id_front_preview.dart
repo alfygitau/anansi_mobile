@@ -1,13 +1,53 @@
 import 'dart:io';
 import 'package:app_anansi_mobile/pages/onboarding/introduce_id_back.dart';
+import 'package:app_anansi_mobile/services/error_service.dart';
+import 'package:app_anansi_mobile/services/ocr_service.dart';
+import 'package:app_anansi_mobile/state/auth_provider.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:app_anansi_mobile/theme/app_theme.dart';
+import 'package:flutter/services.dart';
+import 'package:provider/provider.dart';
 
-class IdFrontPreview extends StatelessWidget {
+class IdFrontPreview extends StatefulWidget {
   final File imageFile;
 
   const IdFrontPreview({super.key, required this.imageFile});
+
+  @override
+  State<IdFrontPreview> createState() => _IdFrontPreviewState();
+}
+
+class _IdFrontPreviewState extends State<IdFrontPreview> {
+  bool _isLoading = false;
+
+  void _extractIdDetails() async {
+    setState(() {
+      _isLoading = true;
+    });
+    try {
+      final (response, errors) = await OcrService().extractFrontIdDetails(
+        image: widget.imageFile,
+      );
+      if (errors != null) {
+        ErrorService.showActionableError(
+          context,
+          title: errors[0],
+          message: errors[1],
+        );
+      } else if (response != null) {
+        HapticFeedback.lightImpact();
+        final authProvider = Provider.of<AuthProvider>(context, listen: false);
+        authProvider.setKyc(response.data['data'] ?? {});
+        Navigator.push(
+          context,
+          MaterialPageRoute(builder: (context) => const IntroduceBackOfId()),
+        );
+      }
+    } finally {
+      if (mounted) setState(() => _isLoading = false);
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -107,7 +147,7 @@ class IdFrontPreview extends StatelessWidget {
             AspectRatio(
               aspectRatio: 1.6,
               child: Image.file(
-                imageFile,
+                widget.imageFile,
                 fit: BoxFit.cover,
                 errorBuilder: (context, error, stackTrace) => Container(
                   color: Colors.grey.shade50,
@@ -224,11 +264,7 @@ class IdFrontPreview extends StatelessWidget {
   Widget _buildDivider() {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 16),
-      child: Divider(
-        color: Colors.grey.shade100,
-        height: 1,
-        indent: 48, // Keeps the vertical line of icons clean
-      ),
+      child: Divider(color: Colors.grey.shade100, height: 1, indent: 48),
     );
   }
 
@@ -243,30 +279,32 @@ class IdFrontPreview extends StatelessWidget {
         mainAxisSize: MainAxisSize.min,
         children: [
           ElevatedButton(
-            onPressed: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => const IntroduceBackOfId(),
-                ),
-              );
-            },
+            // FIX: Dummy function () {} keeps button enabled/blue while loading
+            onPressed: _isLoading ? () {} : _extractIdDetails,
             style: ElevatedButton.styleFrom(
               backgroundColor: AnansiColors.darkBlue,
+              disabledBackgroundColor:
+                  Colors.grey.shade200, // For the "inactive" state
               minimumSize: const Size(double.infinity, 64),
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(20),
               ),
               elevation: 0,
             ),
-            child: const Text(
-              "SUBMIT FRONT SIDE",
-              style: TextStyle(
-                fontWeight: FontWeight.w900,
-                letterSpacing: 1.2,
-                color: Colors.white,
-              ),
-            ),
+            child: _isLoading
+                ? const SizedBox(
+                    height: 20,
+                    width: 20,
+                    child: CupertinoActivityIndicator(color: Colors.white),
+                  )
+                : const Text(
+                    "SUBMIT FRONT SIDE",
+                    style: TextStyle(
+                      fontWeight: FontWeight.w900,
+                      letterSpacing: 1.2,
+                      color: Colors.white,
+                    ),
+                  ),
           ),
           const SizedBox(height: 16),
           GestureDetector(

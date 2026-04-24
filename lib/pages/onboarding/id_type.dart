@@ -127,7 +127,7 @@ class _IdTypeState extends State<IdType> {
             letterSpacing: -0.5,
           ),
         ),
-        const SizedBox(height: 12),
+        const SizedBox(height: 5),
         Text(
           "To provide you with secure access to our financial suite, please specify your country of citizenship and select a preferred government-issued document. This information allows our systems to cross-reference global compliance standards and ensure your identity is protected against unauthorized access.",
           style: TextStyle(
