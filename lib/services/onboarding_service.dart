@@ -197,4 +197,30 @@ class OnboardingService {
       return (null, ["Authentication Error!", "An unknown error occurred."]);
     }
   }
+
+  Future<(Response?, List<String>?)> getCounties() async {
+    try {
+      final response = await _secureClient.get('/county');
+      return (response, null);
+    } on DioException catch (e) {
+      final apiException = ApiException();
+      final errorMessages = apiException.getExceptionMessage(e);
+      return (null, errorMessages);
+    } catch (e) {
+      return (null, ["Authentication Error!", "An unknown error occurred."]);
+    }
+  }
+
+  Future<(Response?, List<String>?)> getStates() async {
+    try {
+      final response = await _secureClient.get('/us-states');
+      return (response, null);
+    } on DioException catch (e) {
+      final apiException = ApiException();
+      final errorMessages = apiException.getExceptionMessage(e);
+      return (null, errorMessages);
+    } catch (e) {
+      return (null, ["Authentication Error!", "An unknown error occurred."]);
+    }
+  }
 }

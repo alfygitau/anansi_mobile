@@ -1,4 +1,6 @@
 import 'package:app_anansi_mobile/pages/onboarding/income.dart';
+import 'package:app_anansi_mobile/services/error_service.dart';
+import 'package:app_anansi_mobile/services/onboarding_service.dart';
 import 'package:app_anansi_mobile/theme/app_theme.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -21,12 +23,14 @@ class _PersonalInformationState extends State<PersonalInformation> {
   final TextEditingController _addressOneController = TextEditingController();
   final TextEditingController _addressTwoController = TextEditingController();
   final TextEditingController _cityController = TextEditingController();
+  final TextEditingController _zipCodeController = TextEditingController();
 
   bool _isLoading = false;
-  List<Map<String, dynamic>> _counties = [];
-  List<String> _filteredCounties = [];
+  List<String> _counties = [];
   List<String> _subCounties = [];
-  List<String> _filteredStates = [];
+  List<String> _states = [];
+  List<Map<String, dynamic>> _allCounties = [];
+  List<Map<String, dynamic>> _allStates = [];
 
   @override
   void initState() {
@@ -35,17 +39,62 @@ class _PersonalInformationState extends State<PersonalInformation> {
     fetchStates();
   }
 
-  Future<void> fetchCounties() async {}
+  Future<void> fetchCounties() async {
+    setState(() {
+      _isLoading = true;
+    });
+    try {
+      final (response, errors) = await OnboardingService().getCounties();
+      if (errors != null) {
+        ErrorService.showActionableError(
+          context,
+          title: errors[0],
+          message: errors[1],
+        );
+      } else if (response != null) {
+        final myCounties = List<Map<String, dynamic>>.from(
+          response.data['data'] ?? [],
+        );
+        setState(() {
+          _allCounties = myCounties;
+          _counties = myCounties
+              .where((county) => county['county'] != null)
+              .map((county) => county['county'].toString())
+              .toList();
+        });
+      }
+    } finally {
+      if (mounted) setState(() => _isLoading = false);
+    }
+  }
 
-  Future<void> fetchStates() async {}
+  Future<void> fetchStates() async {
+    final (response, errors) = await OnboardingService().getStates();
+    if (errors != null) {
+      ErrorService.showActionableError(
+        context,
+        title: errors[0],
+        message: errors[1],
+      );
+    } else if (response != null) {
+      final myStates = List<Map<String, dynamic>>.from(
+        response.data['data'] ?? [],
+      );
+      setState(() {
+        _allStates = myStates;
+        _states = myStates
+            .where((state) => state['name'] != null)
+            .map<String>((state) => state['name'].toString())
+            .toList();
+      });
+    }
+  }
 
   void _changeCounty(String? value) {
     if (value == null) return;
     setState(() {
       selectedCounty = value;
-      Map<String, dynamic> selected = _counties.firstWhere(
-        (c) => c['county'] == value,
-      );
+      final selected = _allCounties.firstWhere((c) => c['county'] == value);
       _subCounties = selected['subCounties'] ?? [];
       selectedSubCounty = _subCounties.isNotEmpty
           ? _subCounties.first
@@ -94,7 +143,7 @@ class _PersonalInformationState extends State<PersonalInformation> {
                       _buildDropdownField(
                         label: "County",
                         value: selectedCounty,
-                        items: _filteredCounties,
+                        items: _counties,
                         icon: CupertinoIcons.map_pin_ellipse,
                         onChanged: _changeCounty,
                       ),
@@ -132,7 +181,7 @@ class _PersonalInformationState extends State<PersonalInformation> {
                       _buildDropdownField(
                         label: "State",
                         value: selectedState,
-                        items: _filteredStates,
+                        items: _states,
                         icon: CupertinoIcons.map,
                         onChanged: (val) => setState(() => selectedState = val),
                       ),
@@ -141,6 +190,13 @@ class _PersonalInformationState extends State<PersonalInformation> {
                         label: "City",
                         controller: _cityController,
                         hint: "Enter your city",
+                        icon: CupertinoIcons.location,
+                      ),
+                      const SizedBox(height: 20),
+                      _buildInputField(
+                        label: "Zip Code",
+                        controller: _zipCodeController,
+                        hint: "Enter your zip code",
                         icon: CupertinoIcons.location,
                       ),
                     ],
