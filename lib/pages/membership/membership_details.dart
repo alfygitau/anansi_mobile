@@ -38,6 +38,19 @@ class _MembershipDetailsState extends State<MembershipDetails> {
     });
   }
 
+  bool get isPhoneValid {
+    // 1. Remove all spaces, dashes, and the + sign for testing
+    final cleanPhone = _mobileController.text.trim().replaceAll(
+      RegExp(r'[\s\-\+]'),
+      '',
+    );
+
+    // 2. Kenyan RegEx: Starts with 07, 01, 2547, or 2541 followed by 8 digits
+    final RegExp kenyanRegex = RegExp(r'^(?:254|0)(7|1)[0-9]{8}$');
+
+    return kenyanRegex.hasMatch(cleanPhone);
+  }
+
   @override
   void initState() {
     super.initState();
@@ -328,6 +341,21 @@ class _MembershipDetailsState extends State<MembershipDetails> {
   }
 
   Widget _buildPersistentFooter() {
+    // If not valid, onPressed is null, which automatically disables the button
+    final VoidCallback? action = isPhoneValid
+        ? () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => RegisterInvest(
+                  // Pass the actual controller text instead of a hardcoded string
+                  mobileNumber: _mobileController.text.trim(),
+                ),
+              ),
+            );
+          }
+        : null;
+
     return Container(
       padding: const EdgeInsets.fromLTRB(24, 20, 15, 30),
       color: Colors.white,
@@ -335,28 +363,23 @@ class _MembershipDetailsState extends State<MembershipDetails> {
         width: double.infinity,
         height: 60,
         child: ElevatedButton(
-          onPressed: () {
-            Navigator.push(
-              context,
-              MaterialPageRoute(
-                builder: (context) =>
-                    const RegisterInvest(mobileNumber: "0755300300"),
-              ),
-            );
-          },
+          onPressed: action,
           style: ElevatedButton.styleFrom(
             backgroundColor: const Color(0xFF0A2351),
+            // Background color when the button is disabled
+            disabledBackgroundColor: Colors.grey.shade200,
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(18),
             ),
             elevation: 0,
           ),
-          child: const Text(
+          child: Text(
             "Continue",
             style: TextStyle(
               fontWeight: FontWeight.w900,
-              color: Colors.white,
               fontSize: 16,
+              // Change text color based on validity
+              color: isPhoneValid ? Colors.white : Colors.grey.shade500,
             ),
           ),
         ),
