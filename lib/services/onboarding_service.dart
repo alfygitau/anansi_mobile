@@ -1,4 +1,5 @@
 import 'package:app_anansi_mobile/helpers/errors.dart';
+import 'package:app_anansi_mobile/helpers/iso_date.dart';
 import 'package:app_anansi_mobile/sdk/client.dart';
 import 'package:dio/dio.dart';
 
@@ -109,11 +110,43 @@ class OnboardingService {
     }
   }
 
+  Future<(Response?, List<String>?)> updateIdentity({
+    required String id,
+    required String firstName,
+    required String middleName,
+    required String lastName,
+    required String idNumber,
+    required String gender,
+    required String birthDate,
+  }) async {
+    try {
+      final response = await _secureClient.patch(
+        '/customer/$id',
+        data: {
+          'firstname': firstName,
+          if (middleName.length > 1) 'middlename': middleName,
+          'lastname': lastName,
+          'identification': idNumber,
+          'gender': gender,
+          if (birthDate.isNotEmpty) 'dob': convertToISODate(birthDate),
+          'onboarding_stage': "facial-identity",
+        },
+      );
+      return (response, null);
+    } on DioException catch (e) {
+      final apiException = ApiException();
+      final errorMessages = apiException.getExceptionMessage(e);
+      return (null, errorMessages);
+    } catch (e) {
+      return (null, ["Authentication Error!", "An unknown error occurred."]);
+    }
+  }
+
   Future<(Response?, List<String>?)> updateIdType({
     required String id,
     required String idType,
     required String citizenship,
-    }) async {
+  }) async {
     try {
       final response = await _secureClient.patch(
         '/customer/$id',

@@ -1,10 +1,13 @@
 import 'dart:io';
 import 'package:app_anansi_mobile/pages/onboarding/introduce_id_front.dart';
 import 'package:app_anansi_mobile/pages/onboarding/introduce_selfie.dart';
+import 'package:app_anansi_mobile/services/error_service.dart';
+import 'package:app_anansi_mobile/services/onboarding_service.dart';
 import 'package:app_anansi_mobile/state/auth_provider.dart';
 import 'package:app_anansi_mobile/theme/app_theme.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 
 class IdDetails extends StatefulWidget {
@@ -17,6 +20,7 @@ class IdDetails extends StatefulWidget {
 }
 
 class _IdDetailsState extends State<IdDetails> {
+  bool _isLoading = false;
   bool hasValidNames(Map<String, dynamic>? kycDetails) {
     if (kycDetails == null) return false;
     final String fullName = kycDetails['fullNames'] ?? '';
@@ -48,11 +52,54 @@ class _IdDetailsState extends State<IdDetails> {
     'Date of Birth': CupertinoIcons.calendar,
   };
 
-  void _onContinue() {
-    Navigator.push(
-      context,
-      CupertinoPageRoute(builder: (context) => const IntroduceSelfie()),
-    );
+  void _onContinue() async {
+    setState(() {
+      _isLoading = true;
+    });
+    final authProvider = Provider.of<AuthProvider>(context, listen: false);
+    final kycData = authProvider.kycDetails;
+
+    final String idNumber = kycData?['idNumber'] ?? '';
+    final String dob = kycData?['dateOfBirth'] ?? '';
+    final String gender = kycData?['sex'] ?? '';
+
+    final String fullName = kycData?['fullNames'] ?? '';
+    final List<String> nameParts = fullName.trim().isEmpty
+        ? []
+        : fullName.trim().split(RegExp(r'\s+'));
+
+    final String firstName = nameParts.isNotEmpty ? nameParts.first : '';
+    final String lastName = nameParts.length > 1 ? nameParts.last : '';
+
+    final String middleName = nameParts.length > 2
+        ? nameParts.sublist(1, nameParts.length - 1).join(' ')
+        : '';
+    try {
+      final (response, errors) = await OnboardingService().updateIdentity(
+        id: authProvider.user?['id'] ?? "",
+        firstName: firstName,
+        middleName: middleName,
+        lastName: lastName,
+        idNumber: idNumber,
+        gender: gender,
+        birthDate: dob,
+      );
+      if (errors != null) {
+        ErrorService.showActionableError(
+          context,
+          title: errors[0],
+          message: errors[1],
+        );
+      } else if (response != null) {
+        HapticFeedback.lightImpact();
+        Navigator.push(
+          context,
+          CupertinoPageRoute(builder: (context) => const IntroduceSelfie()),
+        );
+      }
+    } finally {
+      if (mounted) setState(() => _isLoading = false);
+    }
   }
 
   @override
@@ -179,11 +226,7 @@ class _IdDetailsState extends State<IdDetails> {
             ),
             child: ClipRRect(
               borderRadius: BorderRadius.circular(18),
-              child: Image.file(
-                url,
-                fit: BoxFit.cover,
-                width: double.infinity,
-              ),
+              child: Image.file(url, fit: BoxFit.cover, width: double.infinity),
             ),
           ),
           const SizedBox(height: 10),
@@ -256,8 +299,6 @@ class _IdDetailsState extends State<IdDetails> {
               ),
             ),
             const SizedBox(width: 16),
-
-            // Label
             Expanded(
               flex: 4,
               child: Text(
@@ -269,8 +310,6 @@ class _IdDetailsState extends State<IdDetails> {
                 ),
               ),
             ),
-
-            // Value
             Expanded(
               flex: 6,
               child: Text(
@@ -300,23 +339,30 @@ class _IdDetailsState extends State<IdDetails> {
         children: [
           if (hasAllRequiredFields(kycData)) ...[
             ElevatedButton(
-              onPressed: _onContinue,
+              onPressed: _isLoading ? () {} : _onContinue,
               style: ElevatedButton.styleFrom(
                 backgroundColor: AnansiColors.darkBlue,
+                disabledBackgroundColor: Colors.grey.shade200,
                 minimumSize: const Size(double.infinity, 64),
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(20),
                 ),
                 elevation: 0,
               ),
-              child: const Text(
-                "YES, DATA IS ACCURATE",
-                style: TextStyle(
-                  fontWeight: FontWeight.w900,
-                  letterSpacing: 1.1,
-                  color: Colors.white,
-                ),
-              ),
+              child: _isLoading
+                  ? const SizedBox(
+                      height: 20,
+                      width: 20,
+                      child: CupertinoActivityIndicator(color: Colors.white),
+                    )
+                  : const Text(
+                      "YES, DATA IS ACCURATE",
+                      style: TextStyle(
+                        fontWeight: FontWeight.w900,
+                        letterSpacing: 1.1,
+                        color: Colors.white,
+                      ),
+                    ),
             ),
             const SizedBox(height: 12),
             GestureDetector(

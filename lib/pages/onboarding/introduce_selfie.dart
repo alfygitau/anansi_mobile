@@ -56,9 +56,16 @@ class _IntroduceSelfieState extends State<IntroduceSelfie> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
+                    const Text(
+                      "Verify Identity",
+                      style: TextStyle(
+                        fontSize: 24,
+                        fontWeight: FontWeight.w900,
+                        color: AnansiColors.darkBlue,
+                        letterSpacing: -1.5,
+                      ),
+                    ),
                     const SizedBox(height: 10),
-                    _buildBrandHeader(context),
-                    const SizedBox(height: 20),
                     _buildStepHeader(),
                     const SizedBox(height: 10),
                     _buildLivenessIllustration(),
@@ -91,70 +98,6 @@ class _IntroduceSelfieState extends State<IntroduceSelfie> {
           ],
         ),
       ),
-    );
-  }
-
-  Widget _buildBrandHeader(BuildContext context) {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-      children: [
-        Row(
-          children: [
-            Container(
-              width: 44,
-              height: 44,
-              decoration: BoxDecoration(
-                color: AnansiColors.darkBlue,
-                borderRadius: BorderRadius.circular(12),
-              ),
-              child: const Center(
-                child: Text(
-                  "A",
-                  style: TextStyle(
-                    color: Color(0xFF17C6C6),
-                    fontSize: 22,
-                    fontWeight: FontWeight.w900,
-                  ),
-                ),
-              ),
-            ),
-            const SizedBox(width: 12),
-            const Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  "ONBOARDING",
-                  style: TextStyle(
-                    fontWeight: FontWeight.w900,
-                    fontSize: 13,
-                    letterSpacing: 1.5,
-                    color: AnansiColors.darkBlue,
-                  ),
-                ),
-                Text(
-                  "Selfie Capture",
-                  style: TextStyle(fontSize: 14, color: Colors.grey),
-                ),
-              ],
-            ),
-          ],
-        ),
-        GestureDetector(
-          onTap: () => Navigator.pop(context),
-          child: Container(
-            padding: const EdgeInsets.all(8),
-            decoration: BoxDecoration(
-              color: Colors.grey.shade100,
-              shape: BoxShape.circle,
-            ),
-            child: const Icon(
-              CupertinoIcons.xmark,
-              size: 18,
-              color: AnansiColors.darkBlue,
-            ),
-          ),
-        ),
-      ],
     );
   }
 
@@ -368,7 +311,7 @@ class _IntroduceSelfieState extends State<IntroduceSelfie> {
 
   Widget _buildActionDock(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.fromLTRB(24, 16, 24, 12),
+      padding: const EdgeInsets.fromLTRB(24, 10, 24, 0),
       decoration: BoxDecoration(color: Colors.white),
       child: ElevatedButton(
         onPressed: () {
