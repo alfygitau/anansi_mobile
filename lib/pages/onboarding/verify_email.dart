@@ -1,9 +1,14 @@
 import 'dart:async';
 import 'package:app_anansi_mobile/pages/onboarding/verify_mobile.dart';
+import 'package:app_anansi_mobile/services/error_service.dart';
+import 'package:app_anansi_mobile/services/recovery_service.dart';
+import 'package:app_anansi_mobile/state/auth_provider.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:app_anansi_mobile/theme/app_theme.dart';
 import 'package:app_anansi_mobile/components/otp_boxes.dart';
+import 'package:flutter/services.dart';
+import 'package:provider/provider.dart';
 
 class VerifyEmail extends StatefulWidget {
   const VerifyEmail({super.key});
@@ -17,6 +22,10 @@ class _VerifyEmailState extends State<VerifyEmail> {
   final _focus = FocusNode();
   Timer? _timer;
   int _secondsRemaining = 59;
+  bool _isLoading = false;
+  String? _errorText;
+
+  bool get _isOtpReady => _controller.text.length == 6 && !_isLoading;
 
   @override
   void initState() {
@@ -38,6 +47,37 @@ class _VerifyEmailState extends State<VerifyEmail> {
         });
       }
     });
+  }
+
+  void _handleSubmit() async {
+    if (!_isOtpReady) return;
+
+    setState(() {
+      _isLoading = true;
+      _errorText = null;
+    });
+    final authProvider = Provider.of<AuthProvider>(context, listen: false);
+    try {
+      final (response, errors) = await RecoveryService().verifyEmailAddress(
+        otp: _controller.text.trim(),
+        email: authProvider.user?['email'] ?? "",
+      );
+      if (errors != null) {
+        ErrorService.showActionableError(
+          context,
+          title: errors[0],
+          message: errors[1],
+        );
+      } else if (response != null) {
+        HapticFeedback.lightImpact();
+        Navigator.push(
+          context,
+          MaterialPageRoute(builder: (context) => const VerifyMobile()),
+        );
+      }
+    } finally {
+      if (mounted) setState(() => _isLoading = false);
+    }
   }
 
   @override
@@ -241,36 +281,49 @@ class _VerifyEmailState extends State<VerifyEmail> {
   }
 
   Widget _buildFixedBottomAction() {
+    final bool active = _isOtpReady;
     return Container(
       padding: const EdgeInsets.fromLTRB(24, 10, 24, 10),
       decoration: BoxDecoration(color: Colors.white),
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
+          if (_errorText != null) ...[
+            Text(
+              _errorText!,
+              style: const TextStyle(
+                color: Colors.redAccent,
+                fontSize: 12,
+                fontWeight: FontWeight.w600,
+              ),
+            ),
+            const SizedBox(height: 12),
+          ],
           ElevatedButton(
-            onPressed: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(builder: (context) => const VerifyMobile()),
-              );
-            },
+            onPressed: active ? _handleSubmit : null,
             style: ElevatedButton.styleFrom(
               backgroundColor: AnansiColors.darkBlue,
               foregroundColor: Colors.white,
+              // This is the color used when onPressed is null
+              disabledBackgroundColor: Colors.grey.shade200,
+              // This is the text color when disabled
+              disabledForegroundColor: Colors.grey.shade500,
               minimumSize: const Size(double.infinity, 64),
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(20),
               ),
               elevation: 0,
             ),
-            child: const Text(
-              "VERIFY EMAIL ADDRESS",
-              style: TextStyle(
-                fontWeight: FontWeight.w900,
-                letterSpacing: 1.5,
-                fontSize: 14,
-              ),
-            ),
+            child: _isLoading
+                ? const CupertinoActivityIndicator(color: Colors.white)
+                : const Text(
+                    "VERIFY EMAIL ADDRESS",
+                    style: TextStyle(
+                      fontWeight: FontWeight.w900,
+                      letterSpacing: 1.5,
+                      fontSize: 14,
+                    ),
+                  ),
           ),
           const SizedBox(height: 16),
           Row(

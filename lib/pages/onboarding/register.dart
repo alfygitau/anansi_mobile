@@ -276,9 +276,17 @@ class _RegisterState extends State<Register> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
+              SizedBox(height: 10,),
+              const Text(
+                "Create & Verify Profile",
+                style: TextStyle(
+                  fontSize: 24,
+                  fontWeight: FontWeight.w900,
+                  color: AnansiColors.darkBlue,
+                  letterSpacing: -1.5,
+                ),
+              ),
               const SizedBox(height: 10),
-              _buildBrandIdentity(),
-              const SizedBox(height: 20),
               Text(
                 "Create your Anansi profile today to manage your assets and track your financial progress.",
                 style: TextStyle(
@@ -356,70 +364,6 @@ class _RegisterState extends State<Register> {
     );
   }
 
-  Widget _buildBrandIdentity() {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-      children: [
-        Row(
-          children: [
-            Container(
-              width: 44,
-              height: 44,
-              decoration: BoxDecoration(
-                color: AnansiColors.darkBlue,
-                borderRadius: BorderRadius.circular(12),
-              ),
-              child: const Center(
-                child: Text(
-                  "A",
-                  style: TextStyle(
-                    color: Color(0xFF17C6C6),
-                    fontSize: 22,
-                    fontWeight: FontWeight.w900,
-                  ),
-                ),
-              ),
-            ),
-            const SizedBox(width: 12),
-            const Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  "ONBOARDING",
-                  style: TextStyle(
-                    fontWeight: FontWeight.w900,
-                    fontSize: 13,
-                    letterSpacing: 1.5,
-                    color: AnansiColors.darkBlue,
-                  ),
-                ),
-                Text(
-                  "Contact Details",
-                  style: TextStyle(fontSize: 14, color: Colors.grey),
-                ),
-              ],
-            ),
-          ],
-        ),
-        GestureDetector(
-          onTap: () => Navigator.pop(context),
-          child: Container(
-            padding: const EdgeInsets.all(8),
-            decoration: BoxDecoration(
-              color: Colors.grey.shade100,
-              shape: BoxShape.circle,
-            ),
-            child: const Icon(
-              CupertinoIcons.xmark,
-              size: 18,
-              color: AnansiColors.darkBlue,
-            ),
-          ),
-        ),
-      ],
-    );
-  }
-
   Widget _buildSectionLabel(String label) {
     return Text(
       label,
@@ -453,7 +397,7 @@ class _RegisterState extends State<Register> {
         AnimatedContainer(
           duration: const Duration(milliseconds: 250),
           curve: Curves.easeInOut,
-          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
           decoration: BoxDecoration(
             color: Colors.white,
             borderRadius: BorderRadius.circular(20),
@@ -747,10 +691,7 @@ class _RegisterState extends State<Register> {
               child: Checkbox(
                 value: _isChecked,
                 activeColor: AnansiColors.darkBlue,
-                side: BorderSide(
-                  color: Colors.grey.shade300,
-                  width: 1.5,
-                ), // Thicker border for premium look
+                side: BorderSide(color: Colors.grey.shade300, width: 1.5),
                 materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
                 visualDensity: VisualDensity.compact,
                 shape: RoundedRectangleBorder(
@@ -762,12 +703,11 @@ class _RegisterState extends State<Register> {
           ),
           const SizedBox(width: 12),
           Expanded(
-            child: RichText(
-              text: TextSpan(
+            child: Text.rich(
+              TextSpan(
                 style: TextStyle(
                   color: Colors.blueGrey.shade400,
                   fontSize: 12,
-                  fontFamily: 'Inter',
                   height: 1.4,
                 ),
                 children: [
@@ -832,8 +772,8 @@ class _RegisterState extends State<Register> {
           context,
           MaterialPageRoute(builder: (context) => const Login()),
         ),
-        child: RichText(
-          text: TextSpan(
+        child: Text.rich(
+          TextSpan(
             style: const TextStyle(color: Colors.grey, fontSize: 14),
             children: [
               const TextSpan(text: "Already a member? "),

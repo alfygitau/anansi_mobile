@@ -1,7 +1,7 @@
 import 'package:app_anansi_mobile/pages/auth/otp_access.dart';
 import 'package:app_anansi_mobile/pages/forget-password/otp_type.dart';
 import 'package:app_anansi_mobile/pages/homepage/homepage.dart';
-import 'package:app_anansi_mobile/pages/onboarding/register.dart';
+import 'package:app_anansi_mobile/pages/onboarding/introduction.dart';
 import 'package:app_anansi_mobile/services/auth_service.dart';
 import 'package:app_anansi_mobile/services/error_service.dart';
 import 'package:app_anansi_mobile/services/secure_storage_service.dart';
@@ -329,7 +329,7 @@ class _LoginState extends State<Login> {
           onPressed: () {
             Navigator.push(
               context,
-              MaterialPageRoute(builder: (context) => const Register()),
+              MaterialPageRoute(builder: (context) => const Introduction()),
             );
           },
           child: const Text(
