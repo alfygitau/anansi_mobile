@@ -16,6 +16,27 @@ class _MembershipDetailsState extends State<MembershipDetails> {
   final TextEditingController _amountController = TextEditingController(
     text: "1,000.00",
   );
+  final FocusNode _phoneFocus = FocusNode();
+  final FocusNode _feeFocus = FocusNode();
+  Map<String, String?> formErrors = {'phone': null};
+
+  void _validateField(String key, String value) {
+    String? error;
+    switch (key) {
+      case 'phone':
+        final String phone = value.trim();
+        final RegExp kenyanRegex = RegExp(r'^(?:\+254|254|0)(7|1)[0-9]{8}$');
+        if (phone.isEmpty) {
+          error = "Phone number is required";
+        } else if (!kenyanRegex.hasMatch(phone.replaceAll(' ', ''))) {
+          error = "Enter a valid Kenyan number (e.g. 0712345678)";
+        }
+        break;
+    }
+    setState(() {
+      formErrors[key] = error;
+    });
+  }
 
   @override
   void initState() {
@@ -24,6 +45,12 @@ class _MembershipDetailsState extends State<MembershipDetails> {
     final mobile = authProvider.user?['mobileno'] ?? "";
     setState(() {
       _mobileController.text = mobile;
+    });
+
+    _phoneFocus.addListener(() {
+      if (!_phoneFocus.hasFocus) {
+        _validateField('phone', _mobileController.text);
+      }
     });
   }
 
@@ -60,7 +87,10 @@ class _MembershipDetailsState extends State<MembershipDetails> {
                   controller: _amountController,
                   hint: "1,000.00",
                   icon: CupertinoIcons.money_dollar_circle,
-                  readOnly: true,
+                  readonly: true,
+                  focusNode: _feeFocus,
+                  fieldKey: "membership",
+                  keyboardType: TextInputType.number,
                 ),
 
                 const SizedBox(height: 24),
@@ -70,7 +100,10 @@ class _MembershipDetailsState extends State<MembershipDetails> {
                   controller: _mobileController,
                   hint: "07XXXXXXXX",
                   icon: CupertinoIcons.phone_fill,
-                  isPhone: true,
+                  focusNode: _phoneFocus,
+                  fieldKey: "phone",
+                  keyboardType: TextInputType.phone,
+                  readonly: false,
                 ),
 
                 const SizedBox(height: 32),
@@ -296,7 +329,7 @@ class _MembershipDetailsState extends State<MembershipDetails> {
 
   Widget _buildPersistentFooter() {
     return Container(
-      padding: const EdgeInsets.fromLTRB(24, 20, 24, 40),
+      padding: const EdgeInsets.fromLTRB(24, 20, 15, 30),
       color: Colors.white,
       child: SizedBox(
         width: double.infinity,
@@ -333,68 +366,144 @@ class _MembershipDetailsState extends State<MembershipDetails> {
 
   Widget _buildInputField({
     required String label,
+    required String fieldKey,
     required TextEditingController controller,
     required String hint,
     required IconData icon,
-    bool isPhone = false,
-    bool readOnly = false,
+    required FocusNode focusNode,
+    required TextInputType keyboardType,
+    required bool readonly,
   }) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: const Color(0xFFF1F4F8), width: 1.5),
-      ),
-      child: Row(
-        children: [
-          Container(
-            padding: const EdgeInsets.all(10),
-            decoration: BoxDecoration(
-              color: const Color(0xFF17C6C6).withValues(alpha: 0.08),
-              borderRadius: BorderRadius.circular(12),
+    // 1. Extract the current state for this specific field
+    final String? errorText = formErrors[fieldKey];
+    final bool hasError = errorText != null;
+    final bool isFocused = focusNode.hasFocus;
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        AnimatedContainer(
+          duration: const Duration(milliseconds: 250),
+          curve: Curves.easeInOut,
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(20),
+            // BORDER LOGIC: Error > Focused > Neutral
+            border: Border.all(
+              color: hasError
+                  ? Colors.redAccent.withValues(alpha: 0.6)
+                  : (isFocused
+                        ? const Color(0xFF17C6C6)
+                        : const Color(0xFFF1F4F8)),
+              width: 1.6,
             ),
-            child: Icon(icon, size: 18, color: const Color(0xFF17C6C6)),
+            boxShadow: [
+              BoxShadow(
+                color: hasError
+                    ? Colors.redAccent.withValues(alpha: 0.05)
+                    : (isFocused
+                          ? const Color(0xFF17C6C6).withValues(alpha: 0.08)
+                          : Colors.black.withValues(alpha: 0.02)),
+                blurRadius: 12,
+                offset: const Offset(0, 4),
+              ),
+            ],
           ),
-          const SizedBox(width: 16),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Text(
-                  label.toUpperCase(),
-                  style: const TextStyle(
-                    color: Color(0xFF9E9E9E),
-                    fontWeight: FontWeight.w800,
-                    fontSize: 9,
-                    letterSpacing: 1.2,
-                  ),
+          child: Row(
+            children: [
+              // Icon Container reacts to state
+              AnimatedContainer(
+                duration: const Duration(milliseconds: 250),
+                padding: const EdgeInsets.all(10),
+                decoration: BoxDecoration(
+                  color: hasError
+                      ? Colors.redAccent.withValues(alpha: 0.08)
+                      : const Color(0xFF17C6C6).withValues(alpha: 0.08),
+                  borderRadius: BorderRadius.circular(12),
                 ),
-                const SizedBox(height: 2),
-                TextField(
-                  controller: controller,
-                  readOnly: readOnly,
-                  keyboardType: isPhone
-                      ? TextInputType.phone
-                      : TextInputType.text,
-                  style: const TextStyle(
-                    fontWeight: FontWeight.w700,
-                    color: Color(0xFF0A2351),
-                    fontSize: 17,
-                  ),
-                  decoration: InputDecoration(
-                    hintText: hint,
-                    isDense: true,
-                    border: InputBorder.none,
-                    contentPadding: const EdgeInsets.symmetric(vertical: 4),
-                  ),
+                child: Icon(
+                  icon,
+                  size: 18,
+                  color: hasError ? Colors.redAccent : const Color(0xFF17C6C6),
                 ),
-              ],
+              ),
+              const SizedBox(width: 16),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Text(
+                      label.toUpperCase(),
+                      style: TextStyle(
+                        color: hasError
+                            ? Colors.redAccent
+                            : const Color(0xFF9E9E9E),
+                        fontWeight: FontWeight.w800,
+                        fontSize: 9,
+                        letterSpacing: 1.2,
+                      ),
+                    ),
+                    const SizedBox(height: 2),
+                    TextField(
+                      focusNode: focusNode,
+                      controller: controller,
+                      keyboardType: keyboardType,
+                      readOnly: readonly,
+                      onChanged: (val) {
+                        if (formErrors[fieldKey] != null) {
+                          setState(() => formErrors[fieldKey] = null);
+                        }
+                        setState(() {});
+                      },
+                      style: const TextStyle(
+                        fontWeight: FontWeight.w500,
+                        color: Colors.black,
+                        fontSize: 17,
+                      ),
+                      onTapOutside: (event) {
+                        FocusScope.of(context).unfocus();
+                      },
+                      decoration: InputDecoration(
+                        hintText: hint,
+                        hintStyle: TextStyle(
+                          color: Colors.grey.shade300,
+                          fontSize: 14,
+                          fontWeight: FontWeight.w500,
+                        ),
+                        isDense: true,
+                        contentPadding: const EdgeInsets.symmetric(vertical: 4),
+                        border: InputBorder.none,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+        ),
+
+        // ERROR MESSAGE: Animated Slide-in
+        AnimatedSize(
+          duration: const Duration(milliseconds: 200),
+          child: SizedBox(
+            height: hasError ? null : 0,
+            child: Padding(
+              padding: const EdgeInsets.only(left: 16, top: 8),
+              child: Text(
+                errorText ?? "",
+                style: const TextStyle(
+                  color: Colors.redAccent,
+                  fontSize: 12,
+                  fontWeight: FontWeight.w600,
+                  height: 1.2,
+                ),
+              ),
             ),
           ),
-        ],
-      ),
+        ),
+      ],
     );
   }
 }
