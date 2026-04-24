@@ -56,24 +56,33 @@ class _IntroduceFrontOfIdState extends State<IntroduceFrontOfId> {
                 child: Column(
                   children: [
                     const SizedBox(height: 10),
-                    _buildBrandIdentity(),
-                    const SizedBox(height: 20),
                     Align(
                       alignment: Alignment.centerLeft,
                       child: const Text(
-                        "Verify Your Identification",
-                        textAlign: TextAlign.start,
+                        "Verify Identity",
                         style: TextStyle(
-                          color: AnansiColors.darkBlue,
                           fontSize: 24,
                           fontWeight: FontWeight.w900,
+                          color: AnansiColors.darkBlue,
+                          letterSpacing: -1.5,
+                        ),
+                      ),
+                    ),
+                    Align(
+                      alignment: Alignment.centerLeft,
+                      child: const Text(
+                        "Upload Your Identification",
+                        textAlign: TextAlign.start,
+                        style: TextStyle(
+                          fontSize: 20,
+                          fontWeight: FontWeight.w500,
                           letterSpacing: -0.5,
                         ),
                       ),
                     ),
                     const SizedBox(height: 5),
                     Text(
-                      "Position the front side of your National ID or Passport within the frame. Ensure the details are sharp and legible.",
+                      "The automated scan captures your document's security features to instantly authenticate your account and activate full banking privileges.",
                       textAlign: TextAlign.start,
                       style: TextStyle(
                         color: Colors.grey.shade500,
@@ -81,7 +90,7 @@ class _IntroduceFrontOfIdState extends State<IntroduceFrontOfId> {
                         height: 1.5,
                       ),
                     ),
-                    const SizedBox(height: 25),
+                    const SizedBox(height: 15),
                     _buildIdFramePreview(),
                     const SizedBox(height: 25),
                     _buildRequirementItem(
@@ -113,70 +122,6 @@ class _IntroduceFrontOfIdState extends State<IntroduceFrontOfId> {
           ],
         ),
       ),
-    );
-  }
-
-  Widget _buildBrandIdentity() {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-      children: [
-        Row(
-          children: [
-            Container(
-              width: 44,
-              height: 44,
-              decoration: BoxDecoration(
-                color: AnansiColors.darkBlue,
-                borderRadius: BorderRadius.circular(12),
-              ),
-              child: const Center(
-                child: Text(
-                  "A",
-                  style: TextStyle(
-                    color: Color(0xFF17C6C6),
-                    fontSize: 22,
-                    fontWeight: FontWeight.w900,
-                  ),
-                ),
-              ),
-            ),
-            const SizedBox(width: 12),
-            const Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  "ONBOARDING",
-                  style: TextStyle(
-                    fontWeight: FontWeight.w900,
-                    fontSize: 13,
-                    letterSpacing: 1.5,
-                    color: AnansiColors.darkBlue,
-                  ),
-                ),
-                Text(
-                  "ID or Passport Details",
-                  style: TextStyle(fontSize: 14, color: Colors.grey),
-                ),
-              ],
-            ),
-          ],
-        ),
-        GestureDetector(
-          onTap: () => Navigator.pop(context),
-          child: Container(
-            padding: const EdgeInsets.all(8),
-            decoration: BoxDecoration(
-              color: Colors.grey.shade100,
-              shape: BoxShape.circle,
-            ),
-            child: const Icon(
-              CupertinoIcons.xmark,
-              size: 18,
-              color: AnansiColors.darkBlue,
-            ),
-          ),
-        ),
-      ],
     );
   }
 
@@ -330,7 +275,7 @@ class _IntroduceFrontOfIdState extends State<IntroduceFrontOfId> {
 
   Widget _buildCaptureButton(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.fromLTRB(24, 16, 24, 10),
+      padding: const EdgeInsets.fromLTRB(24, 16, 24, 0),
       decoration: BoxDecoration(color: Colors.white),
       child: ElevatedButton(
         onPressed: () async {

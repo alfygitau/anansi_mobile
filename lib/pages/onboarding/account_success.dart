@@ -264,7 +264,7 @@ class _AccountSuccessState extends State<AccountSuccess> {
       width: double.infinity,
       height: 64,
       child: ElevatedButton(
-        onPressed: _isLoading ? null : _handleStart,
+        onPressed: _isLoading ? () {} : _handleStart,
         style: ElevatedButton.styleFrom(
           backgroundColor: AnansiColors.darkBlue,
           foregroundColor: Colors.white,

@@ -1,7 +1,12 @@
 import 'package:app_anansi_mobile/pages/onboarding/introduce_id_front.dart';
+import 'package:app_anansi_mobile/services/error_service.dart';
+import 'package:app_anansi_mobile/services/onboarding_service.dart';
+import 'package:app_anansi_mobile/state/auth_provider.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:app_anansi_mobile/theme/app_theme.dart';
+import 'package:flutter/services.dart';
+import 'package:provider/provider.dart';
 
 class IdType extends StatefulWidget {
   const IdType({super.key});
@@ -11,14 +16,43 @@ class IdType extends StatefulWidget {
 }
 
 class _IdTypeState extends State<IdType> {
-  String? selectedCountry = "Kenya";
+  String? selectedCountry;
   String? selectedIdType;
+  bool _isLoading = false;
+
+  bool get _isFormValid {
+    return selectedCountry != null &&
+        selectedCountry!.isNotEmpty &&
+        selectedIdType != null;
+  }
 
   Future<void> _updateCustomer() async {
-    Navigator.push(
-      context,
-      MaterialPageRoute(builder: (context) => const IntroduceFrontOfId()),
-    );
+    setState(() {
+      _isLoading = true;
+    });
+    final authProvider = Provider.of<AuthProvider>(context, listen: false);
+    try {
+      final (response, errors) = await OnboardingService().updateIdType(
+        id: authProvider.user?['id'] ?? "",
+        idType: selectedIdType ?? "",
+        citizenship: selectedCountry ?? "",
+      );
+      if (errors != null) {
+        ErrorService.showActionableError(
+          context,
+          title: errors[0],
+          message: errors[1],
+        );
+      } else if (response != null) {
+        HapticFeedback.lightImpact();
+        Navigator.push(
+          context,
+          MaterialPageRoute(builder: (context) => const IntroduceFrontOfId()),
+        );
+      }
+    } finally {
+      if (mounted) setState(() => _isLoading = false);
+    }
   }
 
   @override
@@ -35,8 +69,16 @@ class _IdTypeState extends State<IdType> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     const SizedBox(height: 10),
-                    _buildBrandIdentity(),
-                    const SizedBox(height: 20),
+                    const Text(
+                      "Verify Identity",
+                      style: TextStyle(
+                        fontSize: 24,
+                        fontWeight: FontWeight.w900,
+                        color: AnansiColors.darkBlue,
+                        letterSpacing: -1.5,
+                      ),
+                    ),
+                    const SizedBox(height: 10),
                     _buildHeader(),
                     const SizedBox(height: 20),
                     _buildSectionLabel("CITIZENSHIP"),
@@ -77,11 +119,11 @@ class _IdTypeState extends State<IdType> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         const Text(
-          "Identity Details",
+          "Type of Identification",
           style: TextStyle(
-            color: AnansiColors.darkBlue,
-            fontSize: 28,
-            fontWeight: FontWeight.w900,
+            color: Colors.black,
+            fontSize: 20,
+            fontWeight: FontWeight.w500,
             letterSpacing: -0.5,
           ),
         ),
@@ -295,92 +337,37 @@ class _IdTypeState extends State<IdType> {
   Widget _buildContinueButton() {
     return Container(
       padding: const EdgeInsets.fromLTRB(24, 16, 24, 10),
-      decoration: BoxDecoration(color: Colors.white),
+      decoration: const BoxDecoration(color: Colors.white),
       child: ElevatedButton(
-        onPressed: _updateCustomer,
+        // LOGIC:
+        // 1. If loading -> stay enabled but do nothing () {}
+        // 2. If valid -> allow _updateCustomer
+        // 3. Otherwise -> disable (null)
+        onPressed: _isLoading ? () {} : (_isFormValid ? _updateCustomer : null),
         style: ElevatedButton.styleFrom(
           backgroundColor: AnansiColors.darkBlue,
+          disabledBackgroundColor: Colors.grey.shade200,
           minimumSize: const Size(double.infinity, 64),
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(18),
           ),
-          elevation: 0,
+          elevation: (_isFormValid && !_isLoading) ? 4 : 0,
         ),
-        child: const Text(
-          "CONTINUE",
-          style: TextStyle(
-            fontWeight: FontWeight.w900,
-            letterSpacing: 1.2,
-            color: Colors.white,
-          ),
-        ),
+        child: _isLoading
+            ? const SizedBox(
+                height: 20,
+                width: 20,
+                child: CupertinoActivityIndicator(color: Colors.white),
+              )
+            : Text(
+                "CONTINUE",
+                style: TextStyle(
+                  fontWeight: FontWeight.w900,
+                  letterSpacing: 1.2,
+                  color: _isFormValid ? Colors.white : Colors.grey.shade500,
+                ),
+              ),
       ),
-    );
-  }
-
-  Widget _buildBrandIdentity() {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-      children: [
-        Row(
-          children: [
-            Container(
-              width: 44,
-              height: 44,
-              decoration: BoxDecoration(
-                color: AnansiColors.darkBlue,
-                borderRadius: BorderRadius.circular(12),
-              ),
-              child: const Center(
-                child: Text(
-                  "A",
-                  style: TextStyle(
-                    color: Color(0xFF17C6C6),
-                    fontSize: 22,
-                    fontWeight: FontWeight.w900,
-                  ),
-                ),
-              ),
-            ),
-            const SizedBox(width: 12),
-            const Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  "ONBOARDING",
-                  style: TextStyle(
-                    fontWeight: FontWeight.w900,
-                    fontSize: 13,
-                    letterSpacing: 1.5,
-                    color: AnansiColors.darkBlue,
-                  ),
-                ),
-                Text(
-                  "Type of identification",
-                  style: TextStyle(fontSize: 14, color: Colors.grey),
-                ),
-              ],
-            ),
-          ],
-        ),
-
-        // Close/Retake Action
-        GestureDetector(
-          onTap: () => Navigator.pop(context),
-          child: Container(
-            padding: const EdgeInsets.all(8),
-            decoration: BoxDecoration(
-              color: Colors.grey.shade100,
-              shape: BoxShape.circle,
-            ),
-            child: const Icon(
-              CupertinoIcons.xmark,
-              size: 18,
-              color: AnansiColors.darkBlue,
-            ),
-          ),
-        ),
-      ],
     );
   }
 }
