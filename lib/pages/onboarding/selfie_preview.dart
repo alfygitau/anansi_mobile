@@ -76,7 +76,6 @@ class _SelfiePreviewState extends State<SelfiePreview> {
                 padding: const EdgeInsets.symmetric(horizontal: 24),
                 child: Column(
                   children: [
-                    const SizedBox(height: 10),
                     _buildStepHeader(),
                     const SizedBox(height: 22),
                     _buildBiometricPreview(),

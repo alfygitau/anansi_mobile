@@ -69,7 +69,7 @@ class _IntroductionState extends State<Introduction> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     const Text(
-                      "Onboarding Steps",
+                      "Onboarding",
                       style: TextStyle(
                         fontSize: 26,
                         fontWeight: FontWeight.w900,

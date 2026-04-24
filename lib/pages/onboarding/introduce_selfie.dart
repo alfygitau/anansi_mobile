@@ -65,7 +65,7 @@ class _IntroduceSelfieState extends State<IntroduceSelfie> {
                         letterSpacing: -1.5,
                       ),
                     ),
-                    const SizedBox(height: 10),
+                    const SizedBox(height: 5),
                     _buildStepHeader(),
                     const SizedBox(height: 10),
                     _buildLivenessIllustration(),
@@ -108,13 +108,11 @@ class _IntroduceSelfieState extends State<IntroduceSelfie> {
         const Text(
           "Face Verification",
           style: TextStyle(
-            color: AnansiColors.darkBlue,
-            fontSize: 28,
-            fontWeight: FontWeight.w900,
+            fontSize: 20,
+            fontWeight: FontWeight.w500,
             letterSpacing: -0.5,
           ),
         ),
-        const SizedBox(height: 2),
         Text(
           "To secure your account, we need to perform a quick liveness check. This ensures that you are a real person and matches you to your identification.",
           style: TextStyle(
