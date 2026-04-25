@@ -12,13 +12,19 @@ class SharesSavings extends StatefulWidget {
 }
 
 class SharesSavingsState extends State<SharesSavings> {
-  final TextEditingController _sharesController = TextEditingController(
-    text: "0.00",
-  );
+  final TextEditingController _sharesController = TextEditingController();
   final TextEditingController _savingsController = TextEditingController();
-  final TextEditingController _amountController = TextEditingController();
   final TextEditingController _mobileController = TextEditingController();
   final double sharePrice = 1000.0;
+  final FocusNode _savingsFocus = FocusNode();
+  final FocusNode _sharesFocus = FocusNode();
+  final FocusNode _mobileFocus = FocusNode();
+  double _totalCost = 0.0;
+  Map<String, String?> formErrors = {
+    'savings': null,
+    'shares': null,
+    'mobile': null,
+  };
 
   Future<void> _toTransactionPage() async {
     await Future.delayed(const Duration(seconds: 2));
@@ -26,13 +32,130 @@ class SharesSavingsState extends State<SharesSavings> {
       Navigator.of(context).pushReplacement(
         MaterialPageRoute(
           builder: (context) => ReviewMembership(
-            sharesAmount: 3000,
-            savingsAmount: 2000,
-            phoneNumber: "0769800600",
+            sharesAmount: double.parse(_sharesController.text.trim()),
+            savingsAmount: double.parse(_savingsController.text.trim()),
+            phoneNumber: _mobileController.text.trim(),
           ),
         ),
       );
     }
+  }
+
+  void _calculateTotal() {
+    final String text = _sharesController.text.replaceAll(',', '');
+    if (text.isEmpty) {
+      setState(() => _totalCost = 0.0);
+      return;
+    }
+
+    final double? shares = double.tryParse(text);
+    if (shares != null) {
+      setState(() {
+        _totalCost = shares / sharePrice;
+      });
+    }
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    _sharesController.addListener(_calculateTotal);
+    setState(() {
+      _mobileController.text = widget.mobileNumber;
+    });
+
+    _sharesFocus.addListener(() {
+      if (!_sharesFocus.hasFocus) {
+        _validateField('shares', _sharesController.text);
+      }
+    });
+
+    _savingsFocus.addListener(() {
+      if (!_savingsFocus.hasFocus) {
+        _validateField('savings', _savingsController.text);
+      }
+    });
+
+    _mobileFocus.addListener(() {
+      if (!_mobileFocus.hasFocus) {
+        _validateField('mobile', _mobileController.text);
+      }
+    });
+  }
+
+  void _validateField(String key, String value) {
+    String? error;
+    final trimmedValue = value.trim();
+
+    switch (key) {
+      case 'shares':
+        if (trimmedValue.isEmpty) {
+          error = "Shares amount is required";
+        } else {
+          final amount = double.tryParse(trimmedValue.replaceAll(',', ''));
+          if (amount == null) {
+            error = "Enter a valid number";
+          }
+        }
+        break;
+
+      case 'savings':
+        if (trimmedValue.isEmpty) {
+          error = "Savings target is required";
+        } else if (double.tryParse(trimmedValue.replaceAll(',', '')) == null) {
+          error = "Enter a valid amount";
+        }
+        break;
+
+      case 'mobile':
+        final RegExp kenyanRegex = RegExp(r'^(?:\+254|254|0)(7|1)[0-9]{8}$');
+        if (trimmedValue.isEmpty) {
+          error = "Mobile number is required";
+        } else if (!kenyanRegex.hasMatch(trimmedValue.replaceAll(' ', ''))) {
+          error = "Enter a valid Kenyan number (07... or 01...)";
+        }
+        break;
+    }
+
+    setState(() {
+      formErrors[key] = error;
+    });
+  }
+
+  bool get isInvestmentFormValid {
+    // 1. Shares: Must be at least the minimum share price
+    final double? shareAmount = double.tryParse(
+      _sharesController.text.replaceAll(',', ''),
+    );
+    final bool sharesReady = shareAmount != null;
+
+    // 2. Savings: Must not be empty and must be a valid number
+    final double? savingsAmount = double.tryParse(
+      _savingsController.text.replaceAll(',', ''),
+    );
+    final bool savingsReady = savingsAmount != null && savingsAmount > 0;
+
+    // 3. Mobile: Must match the Kenyan RegEx pattern
+    final String cleanPhone = _mobileController.text.trim().replaceAll(
+      RegExp(r'[\s\-\+]'),
+      '',
+    );
+    final bool mobileReady = RegExp(
+      r'^(?:254|0)(7|1)[0-9]{8}$',
+    ).hasMatch(cleanPhone);
+
+    return sharesReady && savingsReady && mobileReady;
+  }
+
+  @override
+  void dispose() {
+    _sharesFocus.dispose();
+    _savingsFocus.dispose();
+    _mobileFocus.dispose();
+    _sharesController.dispose();
+    _savingsController.dispose();
+    _mobileController.dispose();
+    super.dispose();
   }
 
   @override
@@ -70,6 +193,9 @@ class SharesSavingsState extends State<SharesSavings> {
                         controller: _savingsController,
                         hint: "e.g 5000",
                         icon: Icons.account_balance_wallet_rounded,
+                        focusNode: _savingsFocus,
+                        fieldKey: "savings",
+                        keyboardType: TextInputType.number,
                       ),
                       const Padding(
                         padding: EdgeInsets.symmetric(vertical: 12),
@@ -80,9 +206,12 @@ class SharesSavingsState extends State<SharesSavings> {
                       ),
                       _buildInputField(
                         label: "Buy Shares",
-                        controller: _amountController,
+                        controller: _sharesController,
                         hint: "e.g 5000",
                         icon: Icons.insights_rounded,
+                        focusNode: _sharesFocus,
+                        fieldKey: "shares",
+                        keyboardType: TextInputType.number,
                       ),
                       buildSharePreview(),
                     ],
@@ -108,7 +237,9 @@ class SharesSavingsState extends State<SharesSavings> {
                         controller: _mobileController,
                         hint: "07XX XXX XXX",
                         icon: Icons.phone_android_rounded,
-                        isPhone: true,
+                        focusNode: _mobileFocus,
+                        fieldKey: "mobile",
+                        keyboardType: TextInputType.phone,
                       ),
                       const SizedBox(height: 12),
                       buildRememberMeToggle(),
@@ -150,7 +281,7 @@ class SharesSavingsState extends State<SharesSavings> {
           ),
           const SizedBox(width: 6),
           Text(
-            "Equivalent to ${_sharesController.text} Shares",
+            "Equivalent to $_totalCost Shares",
             style: const TextStyle(
               fontSize: 12,
               fontWeight: FontWeight.w700,
@@ -164,78 +295,142 @@ class SharesSavingsState extends State<SharesSavings> {
 
   Widget _buildInputField({
     required String label,
+    required String fieldKey,
     required TextEditingController controller,
     required String hint,
     required IconData icon,
-    bool isPhone = false,
+    required FocusNode focusNode,
+    required TextInputType keyboardType,
   }) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: const Color(0xFFF1F4F8), width: 1.5),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: 0.02),
-            blurRadius: 10,
-            offset: const Offset(0, 4),
-          ),
-        ],
-      ),
-      child: Row(
-        children: [
-          Container(
-            padding: const EdgeInsets.all(10),
-            decoration: BoxDecoration(
-              color: const Color(0xFF17C6C6).withValues(alpha: 0.08),
-              borderRadius: BorderRadius.circular(12),
+    // 1. Extract the current state for this specific field
+    final String? errorText = formErrors[fieldKey];
+    final bool hasError = errorText != null;
+    final bool isFocused = focusNode.hasFocus;
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        AnimatedContainer(
+          duration: const Duration(milliseconds: 250),
+          curve: Curves.easeInOut,
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(20),
+            // BORDER LOGIC: Error > Focused > Neutral
+            border: Border.all(
+              color: hasError
+                  ? Colors.redAccent.withValues(alpha: 0.6)
+                  : (isFocused
+                        ? const Color(0xFF17C6C6)
+                        : const Color(0xFFF1F4F8)),
+              width: 1.6,
             ),
-            child: Icon(icon, size: 18, color: const Color(0xFF17C6C6)),
+            boxShadow: [
+              BoxShadow(
+                color: hasError
+                    ? Colors.redAccent.withValues(alpha: 0.05)
+                    : (isFocused
+                          ? const Color(0xFF17C6C6).withValues(alpha: 0.08)
+                          : Colors.black.withValues(alpha: 0.02)),
+                blurRadius: 12,
+                offset: const Offset(0, 4),
+              ),
+            ],
           ),
-          const SizedBox(width: 16),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Text(
-                  label.toUpperCase(),
-                  style: const TextStyle(
-                    color: Color(0xFF9E9E9E),
-                    fontWeight: FontWeight.w800,
-                    fontSize: 9,
-                    letterSpacing: 1.2,
-                  ),
+          child: Row(
+            children: [
+              // Icon Container reacts to state
+              AnimatedContainer(
+                duration: const Duration(milliseconds: 250),
+                padding: const EdgeInsets.all(10),
+                decoration: BoxDecoration(
+                  color: hasError
+                      ? Colors.redAccent.withValues(alpha: 0.08)
+                      : const Color(0xFF17C6C6).withValues(alpha: 0.08),
+                  borderRadius: BorderRadius.circular(12),
                 ),
-                const SizedBox(height: 2),
-                TextField(
-                  controller: controller,
-                  keyboardType: isPhone
-                      ? TextInputType.phone
-                      : TextInputType.number,
-                  style: const TextStyle(
-                    fontWeight: FontWeight.w500,
-                    color: Colors.black,
-                    fontSize: 17,
-                  ),
-                  decoration: InputDecoration(
-                    hintText: hint,
-                    hintStyle: TextStyle(
-                      color: Colors.grey.shade300,
-                      fontSize: 14,
-                      fontWeight: FontWeight.w500,
+                child: Icon(
+                  icon,
+                  size: 18,
+                  color: hasError ? Colors.redAccent : const Color(0xFF17C6C6),
+                ),
+              ),
+              const SizedBox(width: 16),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Text(
+                      label.toUpperCase(),
+                      style: TextStyle(
+                        color: hasError
+                            ? Colors.redAccent
+                            : const Color(0xFF9E9E9E),
+                        fontWeight: FontWeight.w800,
+                        fontSize: 9,
+                        letterSpacing: 1.2,
+                      ),
                     ),
-                    isDense: true,
-                    contentPadding: const EdgeInsets.symmetric(vertical: 4),
-                    border: InputBorder.none,
-                  ),
+                    const SizedBox(height: 2),
+                    TextField(
+                      focusNode: focusNode,
+                      controller: controller,
+                      keyboardType: keyboardType,
+                      onChanged: (val) {
+                        if (formErrors[fieldKey] != null) {
+                          setState(() => formErrors[fieldKey] = null);
+                        }
+                        setState(() {});
+                      },
+                      style: const TextStyle(
+                        fontWeight: FontWeight.w500,
+                        color: Colors.black,
+                        fontSize: 17,
+                      ),
+                      onTapOutside: (event) {
+                        FocusScope.of(context).unfocus();
+                      },
+                      decoration: InputDecoration(
+                        hintText: hint,
+                        hintStyle: TextStyle(
+                          color: Colors.grey.shade300,
+                          fontSize: 14,
+                          fontWeight: FontWeight.w500,
+                        ),
+                        isDense: true,
+                        contentPadding: const EdgeInsets.symmetric(vertical: 4),
+                        border: InputBorder.none,
+                      ),
+                    ),
+                  ],
                 ),
-              ],
+              ),
+            ],
+          ),
+        ),
+
+        // ERROR MESSAGE: Animated Slide-in
+        AnimatedSize(
+          duration: const Duration(milliseconds: 200),
+          child: SizedBox(
+            height: hasError ? null : 0,
+            child: Padding(
+              padding: const EdgeInsets.only(left: 16, top: 8),
+              child: Text(
+                errorText ?? "",
+                style: const TextStyle(
+                  color: Colors.redAccent,
+                  fontSize: 12,
+                  fontWeight: FontWeight.w600,
+                  height: 1.2,
+                ),
+              ),
             ),
           ),
-        ],
-      ),
+        ),
+      ],
     );
   }
 
@@ -380,6 +575,10 @@ class SharesSavingsState extends State<SharesSavings> {
   }
 
   Widget _buildPersistentFooter() {
+    final VoidCallback? action = (isInvestmentFormValid
+        ? _toTransactionPage
+        : null);
+
     return Container(
       padding: const EdgeInsets.fromLTRB(24, 20, 24, 40),
       decoration: const BoxDecoration(
@@ -388,25 +587,38 @@ class SharesSavingsState extends State<SharesSavings> {
           topLeft: Radius.circular(30),
           topRight: Radius.circular(30),
         ),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black12,
+            blurRadius: 10,
+            offset: Offset(0, -2),
+          ),
+        ],
       ),
       child: SizedBox(
         width: double.infinity,
         height: 60,
         child: ElevatedButton(
-          onPressed: _toTransactionPage,
+          onPressed: action,
           style: ElevatedButton.styleFrom(
             backgroundColor: const Color(0xFF0A2351),
+            foregroundColor: Colors.white,
+            // Color when isInvestmentFormValid is false
+            disabledBackgroundColor: Colors.grey.shade200,
+            disabledForegroundColor: Colors.grey.shade500,
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(18),
             ),
             elevation: 0,
           ),
-          child: const Text(
+          child: Text(
             "Review and Pay",
             style: TextStyle(
               fontWeight: FontWeight.w900,
-              color: Colors.white,
               fontSize: 16,
+              color: isInvestmentFormValid
+                  ? Colors.white
+                  : Colors.grey.shade500,
             ),
           ),
         ),

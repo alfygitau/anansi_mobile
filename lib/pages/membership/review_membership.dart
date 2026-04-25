@@ -1,6 +1,12 @@
+import 'dart:math';
 import 'package:app_anansi_mobile/pages/membership/await_stk_membership.dart';
+import 'package:app_anansi_mobile/services/error_service.dart';
+import 'package:app_anansi_mobile/services/membership_service.dart';
+import 'package:app_anansi_mobile/state/auth_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
+import 'package:flutter/services.dart';
+import 'package:provider/provider.dart';
 
 class ReviewMembership extends StatefulWidget {
   final double savingsAmount;
@@ -21,6 +27,51 @@ class ReviewMembership extends StatefulWidget {
 
 class _ReviewMembershipState extends State<ReviewMembership> {
   final double sharePrice = 1000.0;
+  bool _isLoading = false;
+
+  String generateAlphaNumericId([int length = 8]) {
+    const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+    final random = Random.secure();
+
+    return Iterable.generate(
+      length,
+      (_) => chars[random.nextInt(chars.length)],
+    ).join();
+  }
+
+  void _payMembership() async {
+    setState(() {
+      _isLoading = true;
+    });
+    final authProvider = Provider.of<AuthProvider>(context, listen: false);
+    try {
+      final (response, errors) = await MembershipService().payMembership(
+        reference: generateAlphaNumericId(),
+        id: authProvider.user?['id'] ?? "",
+        shares: widget.sharesAmount,
+        savings: widget.savingsAmount,
+        mobile: widget.phoneNumber,
+      );
+      if (errors != null) {
+        ErrorService.showActionableError(
+          context,
+          title: errors[0],
+          message: errors[1],
+        );
+      } else if (response != null) {
+        HapticFeedback.lightImpact();
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) =>
+                const AwaitStkMembership(reference: "ANANSI-REG-772"),
+          ),
+        );
+      }
+    } finally {
+      if (mounted) setState(() => _isLoading = false);
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -72,7 +123,7 @@ class _ReviewMembershipState extends State<ReviewMembership> {
           ],
         ),
       ),
-      bottomSheet: _buildActionFooter(totalPayable),
+      bottomSheet: _buildActionFooter(),
     );
   }
 
@@ -335,7 +386,7 @@ class _ReviewMembershipState extends State<ReviewMembership> {
     child: Divider(color: Color(0xFFF1F4F8), thickness: 1.5),
   );
 
-  Widget _buildActionFooter(double total) {
+  Widget _buildActionFooter() {
     return Container(
       padding: const EdgeInsets.fromLTRB(20, 16, 20, 32),
       decoration: const BoxDecoration(
@@ -344,15 +395,16 @@ class _ReviewMembershipState extends State<ReviewMembership> {
           topLeft: Radius.circular(30),
           topRight: Radius.circular(30),
         ),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black12,
+            blurRadius: 10,
+            offset: Offset(0, -4),
+          ),
+        ],
       ),
       child: ElevatedButton(
-        onPressed: () => Navigator.push(
-          context,
-          MaterialPageRoute(
-            builder: (context) =>
-                const AwaitStkMembership(reference: "ANANSI-REG-772"),
-          ),
-        ),
+        onPressed: _isLoading ? () {} : _payMembership,
         style: ElevatedButton.styleFrom(
           backgroundColor: const Color(0xFF0A2351),
           minimumSize: const Size(double.infinity, 60),
@@ -360,15 +412,23 @@ class _ReviewMembershipState extends State<ReviewMembership> {
             borderRadius: BorderRadius.circular(20),
           ),
           elevation: 0,
+          splashFactory: _isLoading ? NoSplash.splashFactory : null,
         ),
-        child: const Text(
-          "Confirm & Authorize",
-          style: TextStyle(
-            color: Colors.white,
-            fontWeight: FontWeight.w900,
-            fontSize: 16,
-          ),
-        ),
+        child: _isLoading
+            ? const SizedBox(
+                height: 24,
+                width: 24,
+                child: CupertinoActivityIndicator(color: Colors.white),
+              )
+            : const Text(
+                "Confirm & Authorize",
+                style: TextStyle(
+                  color: Colors.white,
+                  fontWeight: FontWeight.w900,
+                  fontSize: 16,
+                  letterSpacing: 0.5,
+                ),
+              ),
       ),
     );
   }

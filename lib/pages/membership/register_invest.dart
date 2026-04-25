@@ -13,7 +13,6 @@ class RegisterInvest extends StatefulWidget {
 
 class _RegisterInvestState extends State<RegisterInvest> {
   Future<void> _toBuyShares(BuildContext context) async {
-    await Future.delayed(const Duration(seconds: 2));
     if (context.mounted) {
       Navigator.push(
         context,
@@ -26,7 +25,6 @@ class _RegisterInvestState extends State<RegisterInvest> {
   }
 
   Future<void> _toRegisterOnly(BuildContext context) async {
-    await Future.delayed(const Duration(seconds: 2));
     if (context.mounted) {
       Navigator.push(
         context,
