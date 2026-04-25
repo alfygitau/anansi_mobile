@@ -1,6 +1,7 @@
 import 'package:app_anansi_mobile/pages/auth/otp_access.dart';
 import 'package:app_anansi_mobile/pages/forget-password/otp_type.dart';
 import 'package:app_anansi_mobile/pages/homepage/homepage.dart';
+import 'package:app_anansi_mobile/pages/membership/intro_membership.dart';
 import 'package:app_anansi_mobile/pages/onboarding/introduction.dart';
 import 'package:app_anansi_mobile/services/auth_service.dart';
 import 'package:app_anansi_mobile/services/error_service.dart';
@@ -112,19 +113,51 @@ class _LoginState extends State<Login> {
       await SecureStorageService().write("user", user);
     }
     if (tokens == null) {
-      Navigator.pushAndRemoveUntil(
-        context,
-        MaterialPageRoute(builder: (context) => const OtpAccess()),
-        (route) => false,
-      );
+      _rootNavigate(context, const OtpAccess());
     } else {
       await SecureStorageService().write("accessToken", tokens['access_token']);
-      Navigator.pushAndRemoveUntil(
-        context,
-        MaterialPageRoute(builder: (context) => const Homepage()),
-        (route) => false,
-      );
+      navigateBasedOnStatus(context, user);
     }
+  }
+
+  void navigateBasedOnStatus(BuildContext context, Map<String, dynamic> user) {
+    final String status = user['status']?.toString().toLowerCase() ?? '';
+    final String stage =
+        user['onboardingStage']?.toString().toLowerCase() ?? '';
+    final bool isTempPass = user['temporary_password'] ?? false;
+    final bool isMember = user['member'] ?? false;
+    if (status == 'active' && isTempPass) {
+      // _rootNavigate(context, const CreateUsername());
+      return;
+    }
+    if (!isMember && status == "incomplete" && stage != 'completed') {
+      // _replaceNavigate(context, const OnboardingScreen());
+      return;
+    }
+    if (!isMember && !isTempPass) {
+      _rootNavigate(context, const IntroMember());
+      return;
+    }
+    if (stage == 'completed' && status == 'pending') {
+      // _replaceNavigate(context, const PendingAccount());
+      return;
+    }
+    _replaceNavigate(context, const Homepage());
+  }
+
+  void _rootNavigate(BuildContext context, Widget page) {
+    Navigator.pushAndRemoveUntil(
+      context,
+      MaterialPageRoute(builder: (context) => page),
+      (_) => false,
+    );
+  }
+
+  void _replaceNavigate(BuildContext context, Widget page) {
+    Navigator.pushReplacement(
+      context,
+      MaterialPageRoute(builder: (context) => page),
+    );
   }
 
   @override
