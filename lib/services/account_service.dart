@@ -97,7 +97,10 @@ class AccountService {
     required String id,
   }) async {
     try {
-      final response = await _secureClient.post('/accounts/products/$id');
+      final response = await _secureClient.post(
+        '/account/mandatory/member-registration',
+        data: {"customer_id": id},
+      );
       return (response, null);
     } on DioException catch (e) {
       final apiException = ApiException();

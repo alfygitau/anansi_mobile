@@ -1,5 +1,6 @@
 import 'package:app_anansi_mobile/helpers/format_amount.dart';
 import 'package:app_anansi_mobile/pages/help&support/help_support.dart';
+import 'package:app_anansi_mobile/pages/loans/loan_details.dart';
 import 'package:app_anansi_mobile/theme/app_theme.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -110,6 +111,12 @@ class _MyLoansState extends State<MyLoans> {
                   status: loan['status'],
                   statusColor: loan['color'],
                   maturityDate: loan['maturity'],
+                  onTap: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (context) => LoanDetails()),
+                    );
+                  },
                 );
               }, childCount: loanData.length),
             ),
@@ -227,6 +234,7 @@ class _MyLoansState extends State<MyLoans> {
     required String status,
     required Color statusColor,
     required String maturityDate,
+    required VoidCallback onTap,
   }) {
     return Container(
       margin: const EdgeInsets.only(bottom: 16),
@@ -241,121 +249,139 @@ class _MyLoansState extends State<MyLoans> {
           ),
         ],
       ),
-      child: Column(
-        children: [
-          // 1. Header Section
-          Padding(
-            padding: const EdgeInsets.fromLTRB(24, 20, 24, 14),
-            child: Row(
-              children: [
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        title,
-                        style: const TextStyle(
-                          fontWeight: FontWeight.w900,
-                          fontSize: 16,
-                          color: AnansiColors.darkBlue,
-                          letterSpacing: -0.4,
-                        ),
-                      ),
-                      _buildLoanIdTag(id),
-                    ],
-                  ),
-                ),
-                _buildMaturityBadge(maturityDate),
-              ],
-            ),
-          ),
-
-          // 2. The Main Stats Box
-          Container(
-            margin: const EdgeInsets.symmetric(horizontal: 16),
-            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 18),
-            decoration: BoxDecoration(
-              color: const Color(0xFFF8FAFC),
-              borderRadius: BorderRadius.circular(20),
-            ),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                _buildLoanStat("Principal", amount),
-                Container(
-                  width: 1,
-                  height: 30,
-                  color: Colors.grey.withValues(alpha: 0.15),
-                ),
-                _buildLoanStat("Current Balance", balance, isHighlight: true),
-              ],
-            ),
-          ),
-
-          // 3. NEW REFINED STATUS FOOTER
-          Padding(
-            padding: const EdgeInsets.fromLTRB(24, 16, 24, 20),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                // Status Chip
-                Container(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 12,
-                    vertical: 6,
-                  ),
-                  decoration: BoxDecoration(
-                    color: statusColor.withValues(alpha: 0.1),
-                    borderRadius: BorderRadius.circular(100),
-                  ),
-                  child: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Container(
-                        width: 6,
-                        height: 6,
-                        decoration: BoxDecoration(
-                          color: statusColor,
-                          shape: BoxShape.circle,
-                        ),
-                      ),
-                      const SizedBox(width: 8),
-                      Text(
-                        status.toUpperCase(),
-                        style: TextStyle(
-                          color: statusColor,
-                          fontSize: 10,
-                          fontWeight: FontWeight.w900,
-                          letterSpacing: 0.5,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-
-                // Simple "Manage" or "Details" Text
-                const Row(
+      child: Material(
+        color: Colors.transparent,
+        child: InkWell(
+          onTap: onTap,
+          borderRadius: BorderRadius.circular(30), // Match the container
+          splashColor: const Color(
+            0xFF17C6C6,
+          ).withValues(alpha: 0.05), // Anansi Teal subtle splash
+          highlightColor: Colors.transparent,
+          child: Column(
+            children: [
+              // 1. Header Section
+              Padding(
+                padding: const EdgeInsets.fromLTRB(24, 20, 24, 14),
+                child: Row(
                   children: [
-                    Text(
-                      "View Details",
-                      style: TextStyle(
-                        color: AnansiColors.darkBlue,
-                        fontSize: 11,
-                        fontWeight: FontWeight.w700,
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            title,
+                            style: const TextStyle(
+                              fontWeight: FontWeight.w900,
+                              fontSize: 16,
+                              color: AnansiColors.darkBlue,
+                              letterSpacing: -0.4,
+                            ),
+                          ),
+                          _buildLoanIdTag(id),
+                        ],
                       ),
                     ),
-                    SizedBox(width: 4),
-                    Icon(
-                      CupertinoIcons.chevron_right,
-                      size: 12,
-                      color: AnansiColors.darkBlue,
+                    _buildMaturityBadge(maturityDate),
+                  ],
+                ),
+              ),
+
+              // 2. The Main Stats Box
+              Container(
+                margin: const EdgeInsets.symmetric(horizontal: 16),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 20,
+                  vertical: 18,
+                ),
+                decoration: BoxDecoration(
+                  color: const Color(0xFFF8FAFC),
+                  borderRadius: BorderRadius.circular(20),
+                ),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    _buildLoanStat("Principal", amount),
+                    Container(
+                      width: 1,
+                      height: 30,
+                      color: Colors.grey.withValues(alpha: 0.15),
+                    ),
+                    _buildLoanStat(
+                      "Current Balance",
+                      balance,
+                      isHighlight: true,
                     ),
                   ],
                 ),
-              ],
-            ),
+              ),
+
+              // 3. NEW REFINED STATUS FOOTER
+              Padding(
+                padding: const EdgeInsets.fromLTRB(24, 16, 24, 20),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    // Status Chip
+                    Container(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 12,
+                        vertical: 6,
+                      ),
+                      decoration: BoxDecoration(
+                        color: statusColor.withValues(alpha: 0.1),
+                        borderRadius: BorderRadius.circular(100),
+                      ),
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Container(
+                            width: 6,
+                            height: 6,
+                            decoration: BoxDecoration(
+                              color: statusColor,
+                              shape: BoxShape.circle,
+                            ),
+                          ),
+                          const SizedBox(width: 8),
+                          Text(
+                            status.toUpperCase(),
+                            style: TextStyle(
+                              color: statusColor,
+                              fontSize: 10,
+                              fontWeight: FontWeight.w900,
+                              letterSpacing: 0.5,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+
+                    // Simple "Manage" or "Details" Text
+                    const Row(
+                      children: [
+                        Text(
+                          "View Details",
+                          style: TextStyle(
+                            color: AnansiColors.darkBlue,
+                            fontSize: 11,
+                            fontWeight: FontWeight.w700,
+                          ),
+                        ),
+                        SizedBox(width: 4),
+                        Icon(
+                          CupertinoIcons.chevron_right,
+                          size: 12,
+                          color: AnansiColors.darkBlue,
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
+              ),
+            ],
           ),
-        ],
+        ),
       ),
     );
   }

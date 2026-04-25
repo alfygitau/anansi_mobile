@@ -1,3 +1,4 @@
+// ignore_for_file: use_build_context_synchronously
 import 'package:app_anansi_mobile/pages/auth/otp_access.dart';
 import 'package:app_anansi_mobile/pages/forget-password/otp_type.dart';
 import 'package:app_anansi_mobile/pages/homepage/homepage.dart';
