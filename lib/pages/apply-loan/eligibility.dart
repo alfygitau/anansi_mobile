@@ -1,3 +1,4 @@
+import 'package:app_anansi_mobile/pages/apply-loan/add_loan_details.dart';
 import 'package:app_anansi_mobile/pages/help&support/help_support.dart';
 import 'package:app_anansi_mobile/theme/app_theme.dart';
 import 'package:flutter/cupertino.dart';
@@ -53,7 +54,7 @@ class _LoanEligibilityState extends State<LoanEligibility> {
                   title: "Existing Obligations",
                   desc: "Must not have an active loan of the same type.",
                   status: "1 Active Loan Found",
-                  isMet: false,
+                  isMet: true,
                   isWarning: true,
                 ),
                 _buildSaccoCheck(
@@ -70,7 +71,7 @@ class _LoanEligibilityState extends State<LoanEligibility> {
           ),
         ],
       ),
-      bottomSheet: _buildEligibilityActionDock(isQualified: false),
+      bottomSheet: _buildEligibilityActionDock(isQualified: true),
     );
   }
 
@@ -98,7 +99,7 @@ class _LoanEligibilityState extends State<LoanEligibility> {
         mainAxisSize: MainAxisSize.min,
         children: [
           const Text(
-            "Loan Details",
+            "Loan Application",
             style: TextStyle(
               color: AnansiColors.darkBlue,
               fontWeight: FontWeight.w900,
@@ -111,7 +112,7 @@ class _LoanEligibilityState extends State<LoanEligibility> {
             mainAxisSize: MainAxisSize.min,
             children: [
               Text(
-                "EMERGENCY FUND LOAN",
+                "LOAN ELIGIBILITY",
                 style: TextStyle(
                   color: Colors.grey.shade500,
                   fontSize: 7,
@@ -369,13 +370,20 @@ class _LoanEligibilityState extends State<LoanEligibility> {
 
   Widget _buildEligibilityActionDock({required bool isQualified}) {
     return Container(
-      padding: const EdgeInsets.fromLTRB(24, 20, 24, 40),
+      padding: const EdgeInsets.fromLTRB(24, 20, 24, 30),
       decoration: const BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.vertical(top: Radius.circular(35)),
       ),
       child: ElevatedButton(
-        onPressed: isQualified ? () {} : null, // Disabled if not qualified
+        onPressed: isQualified
+            ? () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => AddLoanDetails()),
+                );
+              }
+            : null, // Disabled if not qualified
         style: ElevatedButton.styleFrom(
           backgroundColor: isQualified
               ? const Color(0xFF0A2351)
