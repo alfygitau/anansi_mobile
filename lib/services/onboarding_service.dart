@@ -185,6 +185,24 @@ class OnboardingService {
     }
   }
 
+  Future<(Response?, List<String>?)> updateCustomerStatuses({
+    required String id,
+  }) async {
+    try {
+      final response = await _secureClient.patch(
+        '/customer/$id',
+        data: {"onboarding_stage": "completed", "status": "Active"},
+      );
+      return (response, null);
+    } on DioException catch (e) {
+      final apiException = ApiException();
+      final errorMessages = apiException.getExceptionMessage(e);
+      return (null, errorMessages);
+    } catch (e) {
+      return (null, ["Authentication Error!", "An unknown error occurred."]);
+    }
+  }
+
   Future<(Response?, List<String>?)> updateFinancials({
     required String id,
     required String countryOfResidence,

@@ -93,6 +93,19 @@ class AccountService {
     }
   }
 
+  Future<(Response?, List<String>?)> createProducts() async {
+    try {
+      final response = await _secureClient.post('/accounts/products');
+      return (response, null);
+    } on DioException catch (e) {
+      final apiException = ApiException();
+      final errorMessages = apiException.getExceptionMessage(e);
+      return (null, errorMessages);
+    } catch (e) {
+      return (null, ["Authentication Error!", "An unknown error occurred."]);
+    }
+  }
+
   Future<(Response?, List<String>?)> quickInvest({
     required String savingsAmount,
     required String reference,

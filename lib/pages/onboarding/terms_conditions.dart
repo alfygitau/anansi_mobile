@@ -1,7 +1,13 @@
 import 'package:app_anansi_mobile/pages/membership/intro_membership.dart';
+import 'package:app_anansi_mobile/services/account_service.dart';
+import 'package:app_anansi_mobile/services/error_service.dart';
+import 'package:app_anansi_mobile/services/onboarding_service.dart';
+import 'package:app_anansi_mobile/state/auth_provider.dart';
 import 'package:app_anansi_mobile/theme/app_theme.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:provider/provider.dart';
 
 class TermsConditions extends StatefulWidget {
   const TermsConditions({super.key});
@@ -14,6 +20,42 @@ class _TermsConditionsState extends State<TermsConditions> {
   final ScrollController _scrollController = ScrollController();
   bool _hasScrolledToBottom = false;
   bool _isLoading = false;
+
+  void _updateCustomer() async {
+    setState(() {
+      _isLoading = true;
+    });
+    final authProvider = Provider.of<AuthProvider>(context, listen: false);
+    try {
+      final (response, errors) = await OnboardingService()
+          .updateCustomerStatuses(id: authProvider.user?['id'] ?? "");
+      if (errors != null) {
+        ErrorService.showActionableError(
+          context,
+          title: errors[0],
+          message: errors[1],
+        );
+      } else if (response != null) {
+        _createProducts();
+      }
+    } finally {
+      if (mounted) setState(() => _isLoading = false);
+    }
+  }
+
+  void _createProducts() async {
+    final (response, errors) = await AccountService().createProducts();
+    if (errors != null) {
+      ErrorService.showActionableError(
+        context,
+        title: errors[0],
+        message: errors[1],
+      );
+    } else if (response != null) {
+      HapticFeedback.lightImpact();
+      showSuccessSheet(context);
+    }
+  }
 
   @override
   void initState() {
@@ -252,8 +294,12 @@ class _TermsConditionsState extends State<TermsConditions> {
   }
 
   Widget _buildActionDock() {
+    final VoidCallback? action = _isLoading
+        ? () {}
+        : (_hasScrolledToBottom ? _updateCustomer : null);
+
     return Container(
-      padding: const EdgeInsets.fromLTRB(24, 10, 24, 10),
+      padding: const EdgeInsets.fromLTRB(24, 10, 24, 30),
       decoration: BoxDecoration(
         color: Colors.white,
         boxShadow: [
@@ -267,7 +313,7 @@ class _TermsConditionsState extends State<TermsConditions> {
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          if (!_hasScrolledToBottom)
+          if (!_hasScrolledToBottom && !_isLoading)
             Padding(
               padding: const EdgeInsets.only(bottom: 12),
               child: Text(
@@ -276,26 +322,29 @@ class _TermsConditionsState extends State<TermsConditions> {
                   color: Colors.grey.shade400,
                   fontSize: 11,
                   fontWeight: FontWeight.bold,
+                  letterSpacing: 0.5,
                 ),
               ),
             ),
           ElevatedButton(
-            onPressed: (_hasScrolledToBottom && !_isLoading)
-                ? () {
-                    showSuccessSheet(context);
-                  }
-                : null,
+            onPressed: action,
             style: ElevatedButton.styleFrom(
               backgroundColor: AnansiColors.darkBlue,
+              foregroundColor: Colors.white,
               disabledBackgroundColor: Colors.grey.shade200,
               minimumSize: const Size(double.infinity, 64),
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(20),
               ),
               elevation: 0,
+              splashFactory: _isLoading ? NoSplash.splashFactory : null,
             ),
             child: _isLoading
-                ? const CupertinoActivityIndicator(color: Colors.white)
+                ? const SizedBox(
+                    height: 24,
+                    width: 24,
+                    child: CupertinoActivityIndicator(color: Colors.white),
+                  )
                 : Text(
                     "ACCEPT & FINISH",
                     style: TextStyle(
