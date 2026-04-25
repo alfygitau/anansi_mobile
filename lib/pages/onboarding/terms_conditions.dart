@@ -22,9 +22,6 @@ class _TermsConditionsState extends State<TermsConditions> {
   bool _isLoading = false;
 
   void _updateCustomer() async {
-    setState(() {
-      _isLoading = true;
-    });
     final authProvider = Provider.of<AuthProvider>(context, listen: false);
     try {
       final (response, errors) = await OnboardingService()
@@ -36,24 +33,32 @@ class _TermsConditionsState extends State<TermsConditions> {
           message: errors[1],
         );
       } else if (response != null) {
-        _createProducts();
+        HapticFeedback.lightImpact();
+        showSuccessSheet(context);
       }
-    } finally {
-      if (mounted) setState(() => _isLoading = false);
-    }
+    } finally {}
   }
 
   void _createProducts() async {
-    final (response, errors) = await AccountService().createProducts();
-    if (errors != null) {
-      ErrorService.showActionableError(
-        context,
-        title: errors[0],
-        message: errors[1],
+    setState(() {
+      _isLoading = true;
+    });
+    final authProvider = Provider.of<AuthProvider>(context, listen: false);
+    try {
+      final (response, errors) = await AccountService().createProducts(
+        id: authProvider.user?['id'] ?? "",
       );
-    } else if (response != null) {
-      HapticFeedback.lightImpact();
-      showSuccessSheet(context);
+      if (errors != null) {
+        ErrorService.showActionableError(
+          context,
+          title: errors[0],
+          message: errors[1],
+        );
+      } else if (response != null) {
+        _updateCustomer();
+      }
+    } finally {
+      if (mounted) setState(() => _isLoading = false);
     }
   }
 
@@ -296,7 +301,7 @@ class _TermsConditionsState extends State<TermsConditions> {
   Widget _buildActionDock() {
     final VoidCallback? action = _isLoading
         ? () {}
-        : (_hasScrolledToBottom ? _updateCustomer : null);
+        : (_hasScrolledToBottom ? _createProducts : null);
 
     return Container(
       padding: const EdgeInsets.fromLTRB(24, 10, 24, 30),

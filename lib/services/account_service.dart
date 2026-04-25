@@ -93,9 +93,11 @@ class AccountService {
     }
   }
 
-  Future<(Response?, List<String>?)> createProducts() async {
+  Future<(Response?, List<String>?)> createProducts({
+    required String id,
+  }) async {
     try {
-      final response = await _secureClient.post('/accounts/products');
+      final response = await _secureClient.post('/accounts/products/$id');
       return (response, null);
     } on DioException catch (e) {
       final apiException = ApiException();
