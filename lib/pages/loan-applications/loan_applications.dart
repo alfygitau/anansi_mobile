@@ -1,5 +1,6 @@
 import 'package:app_anansi_mobile/helpers/format_amount.dart';
 import 'package:app_anansi_mobile/helpers/format_time.dart';
+import 'package:app_anansi_mobile/pages/apply-loan/eligibility.dart';
 import 'package:app_anansi_mobile/pages/help&support/help_support.dart';
 import 'package:app_anansi_mobile/pages/loan-applications/loan_application.dart';
 import 'package:app_anansi_mobile/theme/app_theme.dart';
@@ -74,7 +75,12 @@ class _LoanApplicationsState extends State<LoanApplications> {
     },
   ];
 
-  void _handleNewApplication(BuildContext context) {}
+  void _handleNewApplication(BuildContext context) {
+    Navigator.push(
+      context,
+      MaterialPageRoute(builder: (context) => LoanEligibility()),
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
