@@ -1,6 +1,7 @@
 import 'dart:io';
 import 'package:app_anansi_mobile/pages/onboarding/id_details.dart';
-import 'package:app_anansi_mobile/services/error_service.dart';
+import 'package:app_anansi_mobile/pages/onboarding/introduce_id_back.dart';
+import 'package:app_anansi_mobile/pages/onboarding/manual_entry.dart';
 import 'package:app_anansi_mobile/services/ocr_service.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -33,11 +34,7 @@ class _IdBackPreviewState extends State<IdBackPreview> {
         image: widget.imageFile,
       );
       if (errors != null) {
-        ErrorService.showActionableError(
-          context,
-          title: errors[0],
-          message: errors[1],
-        );
+        showScanFailureSheet(context);
       } else if (response != null) {
         HapticFeedback.lightImpact();
         Navigator.push(
@@ -163,9 +160,7 @@ class _IdBackPreviewState extends State<IdBackPreview> {
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: const Color(0xFFF9FAFB),
-        borderRadius: BorderRadius.circular(
-          28,
-        ), // Smoother rounding for premium feel
+        borderRadius: BorderRadius.circular(28),
         border: Border.all(color: const Color(0xFFE5E7EB), width: 1.5),
       ),
       child: Column(
@@ -247,11 +242,160 @@ class _IdBackPreviewState extends State<IdBackPreview> {
   Widget _buildDivider() {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 16),
-      child: Divider(
-        color: Colors.grey.shade100,
-        height: 1,
-        indent: 48, // Aligns with the start of the text, leaving icons clear
+      child: Divider(color: Colors.grey.shade100, height: 1, indent: 48),
+    );
+  }
+
+  void showScanFailureSheet(BuildContext context) {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (context) => Container(
+        padding: const EdgeInsets.fromLTRB(24, 20, 24, 40),
+        decoration: const BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.vertical(top: Radius.circular(32)),
+        ),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Container(
+              width: 40,
+              height: 4,
+              margin: const EdgeInsets.only(bottom: 24),
+              decoration: BoxDecoration(
+                color: Colors.grey.shade200,
+                borderRadius: BorderRadius.circular(10),
+              ),
+            ),
+            Container(
+              width: 80,
+              height: 80,
+              decoration: BoxDecoration(
+                color: const Color(0xFFFFE5E5),
+                shape: BoxShape.circle,
+              ),
+              child: const Center(
+                child: Icon(
+                  CupertinoIcons.viewfinder_circle_fill,
+                  color: Color(0xFFD32F2F),
+                  size: 44,
+                ),
+              ),
+            ),
+            const SizedBox(height: 24),
+            const Text(
+              "Couldn't read your ID",
+              style: TextStyle(
+                fontSize: 22,
+                fontWeight: FontWeight.w900,
+                color: Color(0xFF1A1A1A),
+              ),
+            ),
+            const SizedBox(height: 12),
+            Text(
+              "We had trouble capturing the details from the front of your ID card. Ensure there is enough light and no glare on the surface.",
+              textAlign: TextAlign.center,
+              style: TextStyle(
+                fontSize: 15,
+                height: 1.5,
+                color: Colors.grey.shade600,
+              ),
+            ),
+            const SizedBox(height: 32),
+            Container(
+              padding: const EdgeInsets.all(16),
+              decoration: BoxDecoration(
+                color: const Color(0xFFFFF9F9),
+                borderRadius: BorderRadius.circular(16),
+                border: Border.all(color: const Color(0xFFFFE5E5)),
+              ),
+              child: Column(
+                children: [
+                  _buildTipRow(
+                    CupertinoIcons.lightbulb,
+                    "Avoid direct overhead lighting/glare",
+                  ),
+                  const Divider(height: 20, color: Color(0xFFFFE5E5)),
+                  _buildTipRow(
+                    CupertinoIcons.square_stack_3d_up,
+                    "Place ID on a dark, flat surface",
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(height: 32),
+            ElevatedButton(
+              onPressed: () {
+                Navigator.pop(context);
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) =>
+                        IntroduceBackOfId(frontFile: widget.frontFile),
+                  ),
+                );
+              },
+              style: ElevatedButton.styleFrom(
+                backgroundColor: AnansiColors.darkBlue,
+                minimumSize: const Size(double.infinity, 64),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(20),
+                ),
+                elevation: 0,
+              ),
+              child: const Text(
+                "RETRY SCANNING",
+                style: TextStyle(
+                  fontWeight: FontWeight.w900,
+                  color: Colors.white,
+                ),
+              ),
+            ),
+            const SizedBox(height: 12),
+            TextButton(
+              onPressed: () {
+                Navigator.pop(context);
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => const ManualEntry()),
+                );
+              },
+              style: TextButton.styleFrom(
+                minimumSize: const Size(double.infinity, 50),
+              ),
+              child: const Text(
+                "Enter Details Manually",
+                style: TextStyle(
+                  color: Color(0xFF1A1A1A),
+                  fontWeight: FontWeight.w700,
+                  fontSize: 15,
+                ),
+              ),
+            ),
+          ],
+        ),
       ),
+    );
+  }
+
+  Widget _buildTipRow(IconData icon, String text) {
+    return Row(
+      children: [
+        Icon(icon, size: 18, color: const Color(0xFFD32F2F)),
+        const SizedBox(width: 12),
+        Expanded(
+          child: Text(
+            text,
+            style: const TextStyle(
+              fontSize: 13,
+              fontWeight: FontWeight.w600,
+              color: Color(0xFF444444),
+            ),
+          ),
+        ),
+      ],
     );
   }
 
