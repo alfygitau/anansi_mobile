@@ -49,7 +49,7 @@ class _AddStatementsState extends State<AddStatements> {
           _buildAppBar(context),
           SliverToBoxAdapter(
             child: Padding(
-              padding: const EdgeInsets.all(20.0),
+              padding: const EdgeInsets.fromLTRB(20.0, 10, 20, 20),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
@@ -287,7 +287,9 @@ class _AddStatementsState extends State<AddStatements> {
               borderRadius: BorderRadius.circular(16),
             ),
           ),
-          onPressed: () {},
+          onPressed: () {
+
+          },
           child: const Text(
             "Continue Application",
             style: TextStyle(
