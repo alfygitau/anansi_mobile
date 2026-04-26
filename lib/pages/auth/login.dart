@@ -220,7 +220,7 @@ class _LoginState extends State<Login> {
                     ),
                     const SizedBox(height: 24),
                     _buildPasswordField(
-                      label: "Confirm Password",
+                      label: "Enter Password",
                       controller: _passwordController,
                       hint: "Enter your security key",
                       icon: CupertinoIcons.lock_shield_fill,

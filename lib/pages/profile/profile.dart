@@ -1,5 +1,6 @@
 import 'package:app_anansi_mobile/pages/profile/edit_address.dart';
 import 'package:app_anansi_mobile/pages/profile/edit_financial_details.dart';
+import 'package:app_anansi_mobile/pages/profile/edit_kin.dart';
 import 'package:app_anansi_mobile/pages/profile/edit_personal_information.dart';
 import 'package:app_anansi_mobile/pages/profile/edit_profile_image.dart';
 import 'package:app_anansi_mobile/services/error_service.dart';
@@ -592,7 +593,15 @@ class _ProfileState extends State<Profile> {
         _InfoCardTemplate(
           title: "Next of Kin",
           icon: CupertinoIcons.person,
-          onEdit: () {},
+          onEdit: () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) =>
+                    EditNextOfKin(nextOfKin: nextOfKin),
+              ),
+            );
+          },
           child: Column(
             children: [
               _DataField(
