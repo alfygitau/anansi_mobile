@@ -1,5 +1,6 @@
 import 'package:app_anansi_mobile/helpers/format_amount.dart';
 import 'package:app_anansi_mobile/pages/help&support/help_support.dart';
+import 'package:app_anansi_mobile/pages/loan_products/loan_products.dart';
 import 'package:app_anansi_mobile/pages/loans/loan_details.dart';
 import 'package:app_anansi_mobile/theme/app_theme.dart';
 import 'package:flutter/cupertino.dart';
@@ -623,6 +624,9 @@ class _MyLoansState extends State<MyLoans> {
   }
 
   void _handleNewApplication(BuildContext context) {
-    // Logic to open Application page
+    Navigator.push(
+      context,
+      MaterialPageRoute(builder: (context) => LoanProducts()),
+    );
   }
 }

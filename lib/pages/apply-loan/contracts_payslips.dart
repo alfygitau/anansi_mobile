@@ -1,4 +1,4 @@
-import 'package:app_anansi_mobile/pages/apply-loan/contracts_payslips.dart';
+import 'package:app_anansi_mobile/pages/apply-loan/collaterals.dart';
 import 'package:app_anansi_mobile/pages/help&support/help_support.dart';
 import 'package:app_anansi_mobile/theme/app_theme.dart';
 import 'package:file_picker/file_picker.dart';
@@ -19,14 +19,14 @@ class StatementFile {
   });
 }
 
-class AddStatements extends StatefulWidget {
-  const AddStatements({super.key});
+class ContractsPayslips extends StatefulWidget {
+  const ContractsPayslips({super.key});
 
   @override
-  State<AddStatements> createState() => _AddStatementsState();
+  State<ContractsPayslips> createState() => _ContractsPayslipsState();
 }
 
-class _AddStatementsState extends State<AddStatements> {
+class _ContractsPayslipsState extends State<ContractsPayslips> {
   final List<StatementFile> _uploadedFiles = [];
 
   Future<void> _handlePickAndUpload(String type, Color color) async {
@@ -55,7 +55,7 @@ class _AddStatementsState extends State<AddStatements> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   const Text(
-                    "Financial Statements",
+                    "Contracts and Payslips",
                     style: TextStyle(
                       fontSize: 22,
                       fontWeight: FontWeight.w900,
@@ -65,7 +65,7 @@ class _AddStatementsState extends State<AddStatements> {
                   ),
                   const SizedBox(height: 8),
                   Text(
-                    "Upload your last 6 months' statements. These are used strictly for limit verification.",
+                    "Upload your latest payslips and employment contract to verify your income stability. This documentation is essential for securing lower interest rates and unlocking higher, long-term loan limits tailored to your career profile.",
                     style: TextStyle(
                       color: Colors.grey[600],
                       fontSize: 14,
@@ -76,20 +76,17 @@ class _AddStatementsState extends State<AddStatements> {
 
                   // Upload Buttons
                   _buildUploadTrigger(
-                    label: "M-Pesa Statement",
+                    label: "Employment Contracts",
                     color: Colors.green.shade700,
                     icon: Icons.phone_android_rounded,
                   ),
                   const SizedBox(height: 16),
                   _buildUploadTrigger(
-                    label: "Bank Statement",
+                    label: "Payslips",
                     color: AnansiColors.darkBlue,
                     icon: Icons.account_balance_rounded,
                   ),
-
                   const SizedBox(height: 40),
-
-                  // List of uploaded files
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
@@ -291,9 +288,7 @@ class _AddStatementsState extends State<AddStatements> {
           onPressed: () {
             Navigator.push(
               context,
-              MaterialPageRoute(
-                builder: (context) => const ContractsPayslips(),
-              ),
+              MaterialPageRoute(builder: (context) => const Collaterals()),
             );
           },
           child: const Text(
