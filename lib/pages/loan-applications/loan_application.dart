@@ -1,3 +1,4 @@
+import 'package:app_anansi_mobile/helpers/format_amount.dart';
 import 'package:app_anansi_mobile/pages/help&support/help_support.dart';
 import 'package:app_anansi_mobile/theme/app_theme.dart';
 import 'package:flutter/cupertino.dart';
@@ -30,7 +31,7 @@ class _LoanApplicationState extends State<LoanApplication> {
           SliverToBoxAdapter(
             child: Padding(
               padding: const EdgeInsets.fromLTRB(24, 32, 24, 8),
-              child: _sectionTitle("Requirements Checklist"),
+              child: _sectionTitle("Application Checklist"),
             ),
           ),
           _buildRequirementsList(),
@@ -104,7 +105,7 @@ class _LoanApplicationState extends State<LoanApplication> {
                   ),
                   const SizedBox(height: 32),
                   Text(
-                    "POTENTIAL LOAN AMOUNT",
+                    "LOAN AMOUNT",
                     style: TextStyle(
                       color: Colors.white.withValues(alpha: 0.5),
                       fontSize: 10,
@@ -113,8 +114,8 @@ class _LoanApplicationState extends State<LoanApplication> {
                     ),
                   ),
                   const SizedBox(height: 6),
-                  const Text(
-                    "KES 45,000.00",
+                   Text(
+                    formatAmount(45000),
                     style: TextStyle(
                       color: Colors.white,
                       fontSize: 36,
@@ -363,6 +364,13 @@ class _LoanApplicationState extends State<LoanApplication> {
         'status': 'Cleared',
         'isDone': true,
         'icon': CupertinoIcons.gauge,
+      },
+      {
+        'title': 'Loan Details',
+        'subtitle': 'Loan amount and loan period',
+        'status': 'Cleared',
+        'isDone': true,
+        'icon': CupertinoIcons.doc,
       },
       {
         'title': 'Bank Statements',

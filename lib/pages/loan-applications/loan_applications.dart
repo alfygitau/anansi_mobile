@@ -91,7 +91,7 @@ class _LoanApplicationsState extends State<LoanApplications> {
           _buildAppBar(),
           SliverToBoxAdapter(child: _buildApplicationSummary()),
           SliverToBoxAdapter(child: _buildApplyLoanAction(context)),
-          SliverToBoxAdapter(child: _buildSectionHeader("History")),
+          SliverToBoxAdapter(child: _buildSectionHeader("Application History")),
           // 3. Application Action
           SliverPadding(
             padding: const EdgeInsets.symmetric(horizontal: 20),

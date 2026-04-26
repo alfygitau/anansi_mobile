@@ -4,8 +4,10 @@ import 'package:app_anansi_mobile/pages/buy-shares/shares_amount.dart';
 import 'package:app_anansi_mobile/pages/deposit-savings/deposit_amount.dart';
 import 'package:app_anansi_mobile/pages/guarantorship/guarantorship.dart';
 import 'package:app_anansi_mobile/pages/invest/invest_amount.dart';
+import 'package:app_anansi_mobile/pages/loan-applications/loan_application.dart';
 import 'package:app_anansi_mobile/pages/loan-applications/loan_applications.dart';
 import 'package:app_anansi_mobile/pages/loan_products/loan_products.dart';
+import 'package:app_anansi_mobile/pages/loans/loan_details.dart';
 import 'package:app_anansi_mobile/pages/loans/loans.dart';
 import 'package:app_anansi_mobile/pages/notifications/notifications.dart';
 import 'package:app_anansi_mobile/pages/profile/profile.dart';
@@ -39,7 +41,7 @@ class _HomepageState extends State<Homepage> {
   Map<String, dynamic> sharesAccount = {};
   Map<String, dynamic> savingsAccount = {};
 
-  void fetchCustomerDetails() async {
+  Future<void> fetchCustomerDetails() async {
     _isLoading = true;
     try {
       final (response, errors) = await AccountService().customerDetails();
@@ -74,7 +76,7 @@ class _HomepageState extends State<Homepage> {
     }
   }
 
-  void fetchSharesDetails() async {
+  Future<void> fetchSharesDetails() async {
     _loading = true;
     try {
       final authProvider = Provider.of<AuthProvider>(context, listen: false);
@@ -95,6 +97,11 @@ class _HomepageState extends State<Homepage> {
     } finally {
       if (mounted) setState(() => _loading = false);
     }
+  }
+
+  Future<void> _handleRefresh() async {
+    await fetchCustomerDetails();
+    await fetchSharesDetails();
   }
 
   @override
@@ -120,6 +127,11 @@ class _HomepageState extends State<Homepage> {
         physics: const BouncingScrollPhysics(),
         slivers: [
           _buildDashboardAppBar(context),
+          CupertinoSliverRefreshControl(
+            onRefresh: () async {
+              _handleRefresh();
+            },
+          ),
           SliverPadding(
             padding: const EdgeInsets.fromLTRB(20, 5, 20, 10),
             sliver: SliverToBoxAdapter(
@@ -333,6 +345,14 @@ class _HomepageState extends State<Homepage> {
                     date: "Applied Today, 10:45 AM",
                     amount: "KES 50,000.00",
                     status: "UNDER REVIEW",
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => LoanApplication(),
+                        ),
+                      );
+                    },
                   ),
                   const SizedBox(height: 12),
                   _buildApplicationItem(
@@ -341,6 +361,14 @@ class _HomepageState extends State<Homepage> {
                     date: "Applied 15 Mar 2026",
                     amount: "KES 320,000.00",
                     status: "DOCUMENTS PENDING",
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => LoanApplication(),
+                        ),
+                      );
+                    },
                   ),
                 ],
               ),
@@ -365,6 +393,12 @@ class _HomepageState extends State<Homepage> {
                     status: "Active",
                     statusColor: const Color(0xFF17C6C6),
                     maturityDate: "19th/09/2026",
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(builder: (context) => LoanDetails()),
+                      );
+                    },
                   ),
                   const SizedBox(height: 10),
                   _buildLoanItem(
@@ -375,6 +409,12 @@ class _HomepageState extends State<Homepage> {
                     status: "Near Completion",
                     statusColor: Colors.green.shade400,
                     maturityDate: "20th/01/2027",
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(builder: (context) => LoanDetails()),
+                      );
+                    },
                   ),
                 ],
               ),
@@ -972,135 +1012,154 @@ class _HomepageState extends State<Homepage> {
     required String status,
     required Color statusColor,
     required String maturityDate,
+    required VoidCallback onTap,
   }) {
-    return Container(
-      margin: const EdgeInsets.only(bottom: 16),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(30),
-        boxShadow: [
-          BoxShadow(
-            color: AnansiColors.darkBlue.withValues(alpha: 0.04),
-            blurRadius: 24,
-            offset: const Offset(0, 12),
+    return Material(
+      color: Colors.transparent,
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(30), // Match the container
+        splashColor: const Color(
+          0xFF17C6C6,
+        ).withValues(alpha: 0.05), // Anansi Teal subtle splash
+        highlightColor: Colors.transparent,
+        child: Container(
+          margin: const EdgeInsets.only(bottom: 16),
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(30),
+            boxShadow: [
+              BoxShadow(
+                color: AnansiColors.darkBlue.withValues(alpha: 0.04),
+                blurRadius: 24,
+                offset: const Offset(0, 12),
+              ),
+            ],
           ),
-        ],
-      ),
-      child: Column(
-        children: [
-          // 1. Header Section
-          Padding(
-            padding: const EdgeInsets.fromLTRB(24, 20, 24, 14),
-            child: Row(
-              children: [
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        title,
-                        style: const TextStyle(
-                          fontWeight: FontWeight.w900,
-                          fontSize: 16,
-                          color: AnansiColors.darkBlue,
-                          letterSpacing: -0.4,
-                        ),
-                      ),
-                      _buildLoanIdTag(id),
-                    ],
-                  ),
-                ),
-                _buildMaturityBadge(maturityDate),
-              ],
-            ),
-          ),
-
-          // 2. The Main Stats Box
-          Container(
-            margin: const EdgeInsets.symmetric(horizontal: 16),
-            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 18),
-            decoration: BoxDecoration(
-              color: const Color(0xFFF8FAFC),
-              borderRadius: BorderRadius.circular(20),
-            ),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                _buildLoanStat("Principal", amount),
-                Container(
-                  width: 1,
-                  height: 30,
-                  color: Colors.grey.withValues(alpha: 0.15),
-                ),
-                _buildLoanStat("Current Balance", balance, isHighlight: true),
-              ],
-            ),
-          ),
-
-          // 3. NEW REFINED STATUS FOOTER
-          Padding(
-            padding: const EdgeInsets.fromLTRB(24, 16, 24, 20),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                // Status Chip
-                Container(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 12,
-                    vertical: 6,
-                  ),
-                  decoration: BoxDecoration(
-                    color: statusColor.withValues(alpha: 0.1),
-                    borderRadius: BorderRadius.circular(100),
-                  ),
-                  child: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Container(
-                        width: 6,
-                        height: 6,
-                        decoration: BoxDecoration(
-                          color: statusColor,
-                          shape: BoxShape.circle,
-                        ),
-                      ),
-                      const SizedBox(width: 8),
-                      Text(
-                        status.toUpperCase(),
-                        style: TextStyle(
-                          color: statusColor,
-                          fontSize: 10,
-                          fontWeight: FontWeight.w900,
-                          letterSpacing: 0.5,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-
-                // Simple "Manage" or "Details" Text
-                const Row(
+          child: Column(
+            children: [
+              // 1. Header Section
+              Padding(
+                padding: const EdgeInsets.fromLTRB(24, 20, 24, 14),
+                child: Row(
                   children: [
-                    Text(
-                      "View Details",
-                      style: TextStyle(
-                        color: AnansiColors.darkBlue,
-                        fontSize: 11,
-                        fontWeight: FontWeight.w700,
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            title,
+                            style: const TextStyle(
+                              fontWeight: FontWeight.w900,
+                              fontSize: 16,
+                              color: AnansiColors.darkBlue,
+                              letterSpacing: -0.4,
+                            ),
+                          ),
+                          _buildLoanIdTag(id),
+                        ],
                       ),
                     ),
-                    SizedBox(width: 4),
-                    Icon(
-                      CupertinoIcons.chevron_right,
-                      size: 12,
-                      color: AnansiColors.darkBlue,
+                    _buildMaturityBadge(maturityDate),
+                  ],
+                ),
+              ),
+
+              // 2. The Main Stats Box
+              Container(
+                margin: const EdgeInsets.symmetric(horizontal: 16),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 20,
+                  vertical: 18,
+                ),
+                decoration: BoxDecoration(
+                  color: const Color(0xFFF8FAFC),
+                  borderRadius: BorderRadius.circular(20),
+                ),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    _buildLoanStat("Principal", amount),
+                    Container(
+                      width: 1,
+                      height: 30,
+                      color: Colors.grey.withValues(alpha: 0.15),
+                    ),
+                    _buildLoanStat(
+                      "Current Balance",
+                      balance,
+                      isHighlight: true,
                     ),
                   ],
                 ),
-              ],
-            ),
+              ),
+
+              // 3. NEW REFINED STATUS FOOTER
+              Padding(
+                padding: const EdgeInsets.fromLTRB(24, 16, 24, 20),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    // Status Chip
+                    Container(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 12,
+                        vertical: 6,
+                      ),
+                      decoration: BoxDecoration(
+                        color: statusColor.withValues(alpha: 0.1),
+                        borderRadius: BorderRadius.circular(100),
+                      ),
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Container(
+                            width: 6,
+                            height: 6,
+                            decoration: BoxDecoration(
+                              color: statusColor,
+                              shape: BoxShape.circle,
+                            ),
+                          ),
+                          const SizedBox(width: 8),
+                          Text(
+                            status.toUpperCase(),
+                            style: TextStyle(
+                              color: statusColor,
+                              fontSize: 10,
+                              fontWeight: FontWeight.w900,
+                              letterSpacing: 0.5,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+
+                    // Simple "Manage" or "Details" Text
+                    const Row(
+                      children: [
+                        Text(
+                          "View Details",
+                          style: TextStyle(
+                            color: AnansiColors.darkBlue,
+                            fontSize: 11,
+                            fontWeight: FontWeight.w700,
+                          ),
+                        ),
+                        SizedBox(width: 4),
+                        Icon(
+                          CupertinoIcons.chevron_right,
+                          size: 12,
+                          color: AnansiColors.darkBlue,
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
+              ),
+            ],
           ),
-        ],
+        ),
       ),
     );
   }
@@ -1189,68 +1248,86 @@ class _HomepageState extends State<Homepage> {
     required String date,
     required String amount,
     required String status,
+    required VoidCallback onTap,
   }) {
-    return Container(
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: Colors.grey.shade100),
-      ),
-      child: Row(
-        children: [
-          const Icon(
-            Icons.hourglass_empty_rounded,
-            color: Colors.amber,
-            size: 20,
+    return Material(
+      color: Colors.transparent,
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(30), // Match the container
+        splashColor: const Color(
+          0xFF17C6C6,
+        ).withValues(alpha: 0.05), // Anansi Teal subtle splash
+        highlightColor: Colors.transparent,
+        child: Container(
+          padding: const EdgeInsets.all(16),
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(20),
+            border: Border.all(color: Colors.grey.shade100),
           ),
-          const SizedBox(width: 12),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  reference,
-                  style: TextStyle(color: Colors.grey.shade400, fontSize: 11),
-                ),
-                Text(
-                  title,
-                  style: const TextStyle(
-                    fontWeight: FontWeight.w700,
-                    fontSize: 13,
-                    color: AnansiColors.darkBlue,
-                  ),
-                ),
-                Text(
-                  date,
-                  style: TextStyle(color: Colors.grey.shade400, fontSize: 11),
-                ),
-              ],
-            ),
-          ),
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.end,
+          child: Row(
             children: [
-              Text(
-                amount,
-                style: GoogleFonts.robotoMono(
-                  fontWeight: FontWeight.w800,
-                  fontSize: 13,
-                  color: AnansiColors.darkBlue,
-                  letterSpacing: -1,
+              const Icon(
+                Icons.hourglass_empty_rounded,
+                color: Colors.amber,
+                size: 20,
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      reference,
+                      style: TextStyle(
+                        color: Colors.grey.shade400,
+                        fontSize: 11,
+                      ),
+                    ),
+                    Text(
+                      title,
+                      style: const TextStyle(
+                        fontWeight: FontWeight.w700,
+                        fontSize: 13,
+                        color: AnansiColors.darkBlue,
+                      ),
+                    ),
+                    Text(
+                      date,
+                      style: TextStyle(
+                        color: Colors.grey.shade400,
+                        fontSize: 11,
+                      ),
+                    ),
+                  ],
                 ),
               ),
-              Text(
-                status,
-                style: const TextStyle(
-                  color: Colors.amber,
-                  fontSize: 9,
-                  fontWeight: FontWeight.bold,
-                ),
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.end,
+                children: [
+                  Text(
+                    amount,
+                    style: GoogleFonts.robotoMono(
+                      fontWeight: FontWeight.w800,
+                      fontSize: 13,
+                      color: AnansiColors.darkBlue,
+                      letterSpacing: -1,
+                    ),
+                  ),
+                  Text(
+                    status,
+                    style: const TextStyle(
+                      color: Colors.amber,
+                      fontSize: 9,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ],
               ),
             ],
           ),
-        ],
+        ),
       ),
     );
   }
