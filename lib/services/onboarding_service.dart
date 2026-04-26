@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:app_anansi_mobile/helpers/errors.dart';
 import 'package:app_anansi_mobile/helpers/iso_date.dart';
 import 'package:app_anansi_mobile/sdk/client.dart';
@@ -182,6 +184,40 @@ class OnboardingService {
       return (null, errorMessages);
     } catch (e) {
       return (null, ["Authentication Error!", "An unknown error occurred."]);
+    }
+  }
+
+  Future<(Response?, List<String>?)> updateIdImages({
+    required String id,
+    required File frontImage,
+    required File backImage,
+  }) async {
+    try {
+      final formData = FormData.fromMap({
+        'id_front_image': await MultipartFile.fromFile(
+          frontImage.path,
+          filename: 'id_front_${DateTime.now().millisecondsSinceEpoch}.jpg',
+        ),
+        'id_back_image': await MultipartFile.fromFile(
+          backImage.path,
+          filename: 'id_back_${DateTime.now().millisecondsSinceEpoch}.jpg',
+        ),
+        'onboarding_stage': "id-verification",
+      });
+      final response = await _secureClient.patch(
+        '/customer/$id/id-images',
+        data: formData,
+      );
+      return (response, null);
+    } on DioException catch (e) {
+      final apiException = ApiException();
+      final errorMessages = apiException.getExceptionMessage(e);
+      return (null, errorMessages);
+    } catch (e) {
+      return (
+        null,
+        ["File Upload Error!", "Could not send ID images to the server."],
+      );
     }
   }
 

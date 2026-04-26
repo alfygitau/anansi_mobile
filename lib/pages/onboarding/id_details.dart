@@ -91,14 +91,32 @@ class _IdDetailsState extends State<IdDetails> {
           message: errors[1],
         );
       } else if (response != null) {
-        HapticFeedback.lightImpact();
-        Navigator.push(
-          context,
-          CupertinoPageRoute(builder: (context) => const IntroduceSelfie()),
-        );
+        await _updateCustomer();
       }
     } finally {
       if (mounted) setState(() => _isLoading = false);
+    }
+  }
+
+  Future<void> _updateCustomer() async {
+    final authProvider = Provider.of<AuthProvider>(context, listen: false);
+    final (response, errors) = await OnboardingService().updateIdImages(
+      id: authProvider.user?['id'] ?? "",
+      frontImage: widget.frontFile,
+      backImage: widget.backFile,
+    );
+    if (errors != null) {
+      ErrorService.showActionableError(
+        context,
+        title: errors[0],
+        message: errors[1],
+      );
+    } else if (response != null) {
+      HapticFeedback.lightImpact();
+      Navigator.push(
+        context,
+        CupertinoPageRoute(builder: (context) => const IntroduceSelfie()),
+      );
     }
   }
 
