@@ -224,6 +224,7 @@ class _LoginState extends State<Login> {
                       icon: CupertinoIcons.lock_shield_fill,
                       fieldKey: "password",
                       focusNode: _passFocus,
+                      keyboardType: TextInputType.text,
                     ),
                     Align(
                       alignment: Alignment.centerRight,
@@ -386,128 +387,129 @@ class _LoginState extends State<Login> {
     required IconData icon,
     required FocusNode focusNode,
   }) {
-    // 1. Extract the current state for this specific field
     final String? errorText = formErrors[fieldKey];
     final bool hasError = errorText != null;
     final bool isFocused = focusNode.hasFocus;
-
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        AnimatedContainer(
-          duration: const Duration(milliseconds: 250),
-          curve: Curves.easeInOut,
-          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-          decoration: BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.circular(20),
-            // BORDER LOGIC: Error > Focused > Neutral
-            border: Border.all(
-              color: hasError
-                  ? Colors.redAccent.withValues(alpha: 0.6)
-                  : (isFocused
-                        ? const Color(0xFF17C6C6)
-                        : const Color(0xFFF1F4F8)),
-              width: 1.6,
-            ),
-            boxShadow: [
-              BoxShadow(
-                color: hasError
-                    ? Colors.redAccent.withValues(alpha: 0.05)
-                    : (isFocused
-                          ? const Color(0xFF17C6C6).withValues(alpha: 0.08)
-                          : Colors.black.withValues(alpha: 0.02)),
-                blurRadius: 12,
-                offset: const Offset(0, 4),
-              ),
-            ],
-          ),
+        Padding(
+          padding: const EdgeInsets.only(left: 8, bottom: 4),
           child: Row(
             children: [
-              // Icon Container reacts to state
-              AnimatedContainer(
-                duration: const Duration(milliseconds: 250),
-                padding: const EdgeInsets.all(10),
-                decoration: BoxDecoration(
+              Text(
+                label.toUpperCase(),
+                style: TextStyle(
                   color: hasError
-                      ? Colors.redAccent.withValues(alpha: 0.08)
-                      : const Color(0xFF17C6C6).withValues(alpha: 0.08),
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                child: Icon(
-                  icon,
-                  size: 18,
-                  color: hasError ? Colors.redAccent : const Color(0xFF17C6C6),
+                      ? Colors.redAccent
+                      : AnansiColors.darkBlue.withValues(alpha: 0.6),
+                  fontWeight: FontWeight.w900,
+                  fontSize: 11,
+                  letterSpacing: 1.2,
                 ),
               ),
-              const SizedBox(width: 16),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Text(
-                      label.toUpperCase(),
-                      style: TextStyle(
-                        color: hasError
-                            ? Colors.redAccent
-                            : const Color(0xFF9E9E9E),
-                        fontWeight: FontWeight.w800,
-                        fontSize: 9,
-                        letterSpacing: 1.2,
-                      ),
-                    ),
-                    const SizedBox(height: 2),
-                    TextField(
-                      focusNode: focusNode,
-                      controller: controller,
-                      onChanged: (val) {
-                        if (formErrors[fieldKey] != null) {
-                          setState(() => formErrors[fieldKey] = null);
-                        }
-                        setState(() {});
-                      },
-                      style: const TextStyle(
-                        fontWeight: FontWeight.w500,
-                        color: Colors.black,
-                        fontSize: 17,
-                      ),
-                      onTapOutside: (event) {
-                        FocusScope.of(context).unfocus();
-                      },
-                      decoration: InputDecoration(
-                        hintText: hint,
-                        hintStyle: TextStyle(
-                          color: Colors.grey.shade300,
-                          fontSize: 14,
-                          fontWeight: FontWeight.w500,
-                        ),
-                        isDense: true,
-                        contentPadding: const EdgeInsets.symmetric(vertical: 4),
-                        border: InputBorder.none,
-                      ),
-                    ),
-                  ],
+              if (hasError) ...[
+                const SizedBox(width: 8),
+                const Icon(
+                  CupertinoIcons.exclamationmark_circle,
+                  size: 12,
+                  color: Colors.redAccent,
                 ),
-              ),
+              ],
             ],
           ),
         ),
-
-        // ERROR MESSAGE: Animated Slide-in
+        AnimatedContainer(
+          duration: const Duration(milliseconds: 250),
+          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 4),
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(22),
+            border: Border.all(
+              color: hasError
+                  ? Colors.redAccent.withValues(alpha: 0.4)
+                  : (isFocused ? Color(0xFFE2E8F0) : const Color(0xFFE2E8F0)),
+              width: 1.8,
+            ),
+          ),
+          child: Row(
+            children: [
+              AnimatedContainer(
+                duration: const Duration(milliseconds: 250),
+                width: 44,
+                height: 44,
+                decoration: BoxDecoration(
+                  color: isFocused
+                      ? AnansiColors.darkBlue
+                      : const Color(0xFFF8FAFC),
+                  borderRadius: BorderRadius.circular(16),
+                ),
+                child: Icon(
+                  icon,
+                  size: 20,
+                  color: isFocused
+                      ? Colors.white
+                      : AnansiColors.darkBlue.withValues(alpha: 0.4),
+                ),
+              ),
+              Container(
+                height: 24,
+                width: 1.5,
+                margin: const EdgeInsets.symmetric(horizontal: 16),
+                color: const Color(0xFFE2E8F0),
+              ),
+              Expanded(
+                child: TextField(
+                  focusNode: focusNode,
+                  controller: controller,
+                  style: const TextStyle(
+                    fontSize: 17,
+                    fontWeight: FontWeight.w500,
+                    letterSpacing: 0.2,
+                  ),
+                  cursorColor: AnansiColors.darkBlue,
+                  decoration: InputDecoration(
+                    hintText: hint,
+                    hintStyle: TextStyle(
+                      color: Colors.blueGrey.shade200,
+                      fontSize: 15,
+                      fontWeight: FontWeight.w500,
+                    ),
+                    border: InputBorder.none,
+                    contentPadding: const EdgeInsets.symmetric(vertical: 16),
+                  ),
+                  onChanged: (val) {
+                    if (formErrors[fieldKey] != null) {
+                      setState(() => formErrors[fieldKey] = null);
+                    }
+                    setState(() {});
+                  },
+                  onTapOutside: (event) {
+                    FocusScope.of(context).unfocus();
+                  },
+                ),
+              ),
+              if (controller.text.isNotEmpty && !hasError)
+                const Icon(
+                  CupertinoIcons.checkmark_circle_fill,
+                  color: Colors.teal,
+                  size: 18,
+                ),
+            ],
+          ),
+        ),
         AnimatedSize(
           duration: const Duration(milliseconds: 200),
           child: SizedBox(
             height: hasError ? null : 0,
             child: Padding(
-              padding: const EdgeInsets.only(left: 16, top: 8),
+              padding: const EdgeInsets.only(left: 8, top: 8),
               child: Text(
                 errorText ?? "",
                 style: const TextStyle(
                   color: Colors.redAccent,
                   fontSize: 12,
                   fontWeight: FontWeight.w600,
-                  height: 1.2,
                 ),
               ),
             ),
@@ -524,6 +526,7 @@ class _LoginState extends State<Login> {
     required String hint,
     required IconData icon,
     required FocusNode focusNode,
+    required TextInputType keyboardType,
   }) {
     final String? errorText = formErrors[fieldKey];
     final bool hasError = errorText != null;
@@ -532,138 +535,144 @@ class _LoginState extends State<Login> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        AnimatedContainer(
-          duration: const Duration(milliseconds: 250),
-          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-          decoration: BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.circular(20),
-            // BORDER LOGIC
-            border: Border.all(
-              color: hasError
-                  ? Colors.redAccent.withValues(alpha: 0.6)
-                  : (isFocused
-                        ? const Color(0xFF17C6C6)
-                        : const Color(0xFFF1F4F8)),
-              width: 1.6,
-            ),
-            boxShadow: [
-              BoxShadow(
-                color: hasError
-                    ? Colors.redAccent.withValues(alpha: 0.05)
-                    : (isFocused
-                          ? const Color(0xFF17C6C6).withValues(alpha: 0.08)
-                          : Colors.black.withValues(alpha: 0.02)),
-                blurRadius: 12,
-                offset: const Offset(0, 4),
+        // 1. External Label
+        Padding(
+          padding: const EdgeInsets.only(left: 8, bottom: 4),
+          child: Row(
+            children: [
+              Text(
+                label.toUpperCase(),
+                style: TextStyle(
+                  color: hasError
+                      ? Colors.redAccent
+                      : AnansiColors.darkBlue.withValues(alpha: 0.6),
+                  fontWeight: FontWeight.w900,
+                  fontSize: 11,
+                  letterSpacing: 1.2,
+                ),
               ),
+              if (hasError) ...[
+                const SizedBox(width: 8),
+                const Icon(
+                  CupertinoIcons.exclamationmark_circle,
+                  size: 12,
+                  color: Colors.redAccent,
+                ),
+              ],
             ],
           ),
+        ),
+
+        // 2. Main Input Container
+        AnimatedContainer(
+          duration: const Duration(milliseconds: 250),
+          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 4),
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(22),
+            border: Border.all(
+              color: hasError
+                  ? Colors.redAccent.withValues(alpha: 0.4)
+                  : const Color(0xFFE2E8F0),
+              width: 1.8,
+            ),
+          ),
           child: Row(
-            crossAxisAlignment: CrossAxisAlignment.center,
             children: [
-              // 1. Animated Icon Container
+              // Icon Anchor
               AnimatedContainer(
                 duration: const Duration(milliseconds: 250),
-                padding: const EdgeInsets.all(10),
+                width: 44,
+                height: 44,
                 decoration: BoxDecoration(
-                  color: hasError
-                      ? Colors.redAccent.withValues(alpha: 0.08)
-                      : const Color(0xFF17C6C6).withValues(alpha: 0.08),
-                  borderRadius: BorderRadius.circular(12),
+                  color: isFocused
+                      ? AnansiColors.darkBlue
+                      : const Color(0xFFF8FAFC),
+                  borderRadius: BorderRadius.circular(16),
                 ),
                 child: Icon(
                   icon,
-                  size: 18,
-                  color: hasError ? Colors.redAccent : const Color(0xFF17C6C6),
+                  size: 20,
+                  color: isFocused
+                      ? Colors.white
+                      : AnansiColors.darkBlue.withValues(alpha: 0.4),
                 ),
               ),
-              const SizedBox(width: 16),
 
-              // 2. Input Content
+              // Vertical Separator
+              Container(
+                height: 24,
+                width: 1.5,
+                margin: const EdgeInsets.symmetric(horizontal: 16),
+                color: const Color(0xFFE2E8F0),
+              ),
+
+              // Password Field Area
               Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Text(
-                      label.toUpperCase(),
-                      style: TextStyle(
-                        color: hasError
-                            ? Colors.redAccent
-                            : const Color(0xFF9E9E9E),
-                        fontWeight: FontWeight.w800,
-                        fontSize: 9,
-                        letterSpacing: 1.2,
-                      ),
+                child: TextField(
+                  focusNode: focusNode,
+                  controller: controller,
+                  obscureText: _isPasswordVisible,
+                  obscuringCharacter: '●',
+                  keyboardType: keyboardType,
+                  style: const TextStyle(
+                    fontSize: 17,
+                    fontWeight: FontWeight.w500,
+                    letterSpacing: 0.2,
+                  ),
+                  cursorColor: AnansiColors.darkBlue,
+                  decoration: InputDecoration(
+                    hintText: hint,
+                    hintStyle: TextStyle(
+                      color: Colors.blueGrey.shade200,
+                      fontSize: 15,
+                      fontWeight: FontWeight.w500,
                     ),
-                    const SizedBox(height: 2),
-                    TextField(
-                      focusNode: focusNode,
-                      controller: controller,
-                      obscureText: !_isPasswordVisible,
-                      onChanged: (val) {
-                        if (formErrors[fieldKey] != null) {
-                          setState(() => formErrors[fieldKey] = null);
-                        }
-                        setState(() {});
-                      },
-                      style: const TextStyle(
-                        fontWeight: FontWeight.w500,
-                        color: Colors.black,
-                        fontSize: 17,
-                      ),
-                      onTapOutside: (event) {
-                        FocusScope.of(context).unfocus();
-                      },
-                      decoration: InputDecoration(
-                        hintText: hint,
-                        hintStyle: TextStyle(
-                          color: Colors.grey.shade300,
-                          fontSize: 14,
-                          fontWeight: FontWeight.w500,
-                        ),
-                        isDense: true,
-                        suffixIconConstraints: const BoxConstraints(
-                          minWidth: 30,
-                          minHeight: 30,
-                        ),
-                        contentPadding: const EdgeInsets.symmetric(vertical: 4),
-                        border: InputBorder.none,
-                        suffixIcon: GestureDetector(
-                          onTap: () => setState(
-                            () => _isPasswordVisible = !_isPasswordVisible,
-                          ),
-                          child: Icon(
-                            _isPasswordVisible
-                                ? CupertinoIcons.eye_slash_fill
-                                : CupertinoIcons.eye_fill,
-                            size: 18,
-                            color: hasError
-                                ? Colors.redAccent.withValues(alpha: 0.5)
-                                : Colors.grey.shade400,
-                          ),
-                        ),
-                      ),
-                    ),
-                  ],
+                    border: InputBorder.none,
+                    contentPadding: const EdgeInsets.symmetric(vertical: 16),
+                  ),
+                  onChanged: (val) {
+                    if (formErrors[fieldKey] != null) {
+                      setState(() => formErrors[fieldKey] = null);
+                    }
+                    setState(() {});
+                  },
+                  onTapOutside: (event) => FocusScope.of(context).unfocus(),
+                ),
+              ),
+
+              // Show/Hide Toggle Button
+              IconButton(
+                onPressed: () {
+                  setState(() => _isPasswordVisible = !_isPasswordVisible);
+                },
+                icon: Icon(
+                  _isPasswordVisible
+                      ? CupertinoIcons.eye_slash
+                      : CupertinoIcons.eye,
+                  color: isFocused
+                      ? AnansiColors.darkBlue
+                      : Colors.blueGrey.shade200,
+                  size: 20,
                 ),
               ),
             ],
           ),
         ),
+
+        // 3. Error Area
         AnimatedSize(
           duration: const Duration(milliseconds: 200),
           child: SizedBox(
             height: hasError ? null : 0,
             child: Padding(
-              padding: const EdgeInsets.only(left: 16, top: 8),
+              padding: const EdgeInsets.only(left: 8, top: 8),
               child: Text(
                 errorText ?? "",
                 style: const TextStyle(
                   color: Colors.redAccent,
-                  fontSize: 11,
-                  fontWeight: FontWeight.w700,
+                  fontSize: 12,
+                  fontWeight: FontWeight.w600,
                 ),
               ),
             ),

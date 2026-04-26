@@ -200,7 +200,7 @@ class _AddLoanDetailsState extends State<AddLoanDetails> {
               color: hasError
                   ? Colors.redAccent.withValues(alpha: 0.6)
                   : (isFocused
-                        ? const Color(0xFF17C6C6)
+                        ? const Color(0xFFF1F4F8)
                         : const Color(0xFFF1F4F8)),
               width: 1.6,
             ),
@@ -225,13 +225,13 @@ class _AddLoanDetailsState extends State<AddLoanDetails> {
                 decoration: BoxDecoration(
                   color: hasError
                       ? Colors.redAccent.withValues(alpha: 0.08)
-                      : const Color(0xFF17C6C6).withValues(alpha: 0.08),
+                      : AnansiColors.darkBlue.withValues(alpha: 0.08),
                   borderRadius: BorderRadius.circular(12),
                 ),
                 child: Icon(
                   icon,
                   size: 18,
-                  color: hasError ? Colors.redAccent : const Color(0xFF17C6C6),
+                  color: hasError ? Colors.redAccent : AnansiColors.darkBlue,
                 ),
               ),
               const SizedBox(width: 16),
@@ -493,7 +493,7 @@ class _AddLoanDetailsState extends State<AddLoanDetails> {
             activeTrackColor: const Color(0xFF0A2351),
             inactiveTrackColor: const Color(0xFFF1F4F8),
             thumbColor: const Color(0xFF17C6C6),
-            overlayColor: const Color(0xFF17C6C6).withOpacity(0.2),
+            overlayColor: const Color(0xFF17C6C6).withValues(alpha: 0.2),
           ),
           child: Slider(
             value: _selectedTenure,
@@ -548,9 +548,11 @@ class _AddLoanDetailsState extends State<AddLoanDetails> {
     return Container(
       padding: const EdgeInsets.fromLTRB(24, 10, 24, 10),
       decoration: BoxDecoration(
-        color: const Color(0xFF17C6C6).withOpacity(0.05),
+        color: const Color(0xFF17C6C6).withValues(alpha: 0.05),
         borderRadius: BorderRadius.circular(24),
-        border: Border.all(color: const Color(0xFF17C6C6).withOpacity(0.2)),
+        border: Border.all(
+          color: const Color(0xFF17C6C6).withValues(alpha: 0.2),
+        ),
       ),
       child: Column(
         children: [

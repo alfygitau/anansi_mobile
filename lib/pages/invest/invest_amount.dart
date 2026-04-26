@@ -1,9 +1,9 @@
 import 'package:app_anansi_mobile/pages/help&support/help_support.dart';
 import 'package:app_anansi_mobile/pages/invest/review_invest_details.dart';
 import 'package:app_anansi_mobile/state/auth_provider.dart';
+import 'package:app_anansi_mobile/theme/app_theme.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
-import 'package:app_anansi_mobile/theme/app_theme.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 
@@ -238,16 +238,7 @@ class InvestAmountState extends State<InvestAmount> {
                       ],
                     ),
                   ),
-
                   const SizedBox(height: 28),
-                  _buildPremiumDisclaimer(
-                    title: "Transaction Limits",
-                    message:
-                        "Your current daily deposit limit is KES 300,000.00.",
-                    icon: CupertinoIcons.shield_lefthalf_fill,
-                    baseColor: const Color(0xFF17C6C6),
-                  ),
-                  const SizedBox(height: 12),
                   _buildPremiumDisclaimer(
                     title: "Security Protocol",
                     message:
@@ -421,129 +412,130 @@ class InvestAmountState extends State<InvestAmount> {
     required FocusNode focusNode,
     required TextInputType keyboardType,
   }) {
-    // 1. Extract the current state for this specific field
     final String? errorText = formErrors[fieldKey];
     final bool hasError = errorText != null;
     final bool isFocused = focusNode.hasFocus;
-
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        AnimatedContainer(
-          duration: const Duration(milliseconds: 250),
-          curve: Curves.easeInOut,
-          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-          decoration: BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.circular(20),
-            // BORDER LOGIC: Error > Focused > Neutral
-            border: Border.all(
-              color: hasError
-                  ? Colors.redAccent.withValues(alpha: 0.6)
-                  : (isFocused
-                        ? const Color(0xFF17C6C6)
-                        : const Color(0xFFF1F4F8)),
-              width: 1.6,
-            ),
-            boxShadow: [
-              BoxShadow(
-                color: hasError
-                    ? Colors.redAccent.withValues(alpha: 0.05)
-                    : (isFocused
-                          ? const Color(0xFF17C6C6).withValues(alpha: 0.08)
-                          : Colors.black.withValues(alpha: 0.02)),
-                blurRadius: 12,
-                offset: const Offset(0, 4),
-              ),
-            ],
-          ),
+        Padding(
+          padding: const EdgeInsets.only(left: 8, bottom: 4),
           child: Row(
             children: [
-              // Icon Container reacts to state
-              AnimatedContainer(
-                duration: const Duration(milliseconds: 250),
-                padding: const EdgeInsets.all(10),
-                decoration: BoxDecoration(
+              Text(
+                label.toUpperCase(),
+                style: TextStyle(
                   color: hasError
-                      ? Colors.redAccent.withValues(alpha: 0.08)
-                      : const Color(0xFF17C6C6).withValues(alpha: 0.08),
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                child: Icon(
-                  icon,
-                  size: 18,
-                  color: hasError ? Colors.redAccent : const Color(0xFF17C6C6),
+                      ? Colors.redAccent
+                      : AnansiColors.darkBlue.withValues(alpha: 0.6),
+                  fontWeight: FontWeight.w900,
+                  fontSize: 11,
+                  letterSpacing: 1.2,
                 ),
               ),
-              const SizedBox(width: 16),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Text(
-                      label.toUpperCase(),
-                      style: TextStyle(
-                        color: hasError
-                            ? Colors.redAccent
-                            : const Color(0xFF9E9E9E),
-                        fontWeight: FontWeight.w800,
-                        fontSize: 9,
-                        letterSpacing: 1.2,
-                      ),
-                    ),
-                    const SizedBox(height: 2),
-                    TextField(
-                      focusNode: focusNode,
-                      controller: controller,
-                      keyboardType: keyboardType,
-                      onChanged: (val) {
-                        if (formErrors[fieldKey] != null) {
-                          setState(() => formErrors[fieldKey] = null);
-                        }
-                        setState(() {});
-                      },
-                      style: const TextStyle(
-                        fontWeight: FontWeight.w500,
-                        color: Colors.black,
-                        fontSize: 17,
-                      ),
-                      onTapOutside: (event) {
-                        FocusScope.of(context).unfocus();
-                      },
-                      decoration: InputDecoration(
-                        hintText: hint,
-                        hintStyle: TextStyle(
-                          color: Colors.grey.shade300,
-                          fontSize: 14,
-                          fontWeight: FontWeight.w500,
-                        ),
-                        isDense: true,
-                        contentPadding: const EdgeInsets.symmetric(vertical: 4),
-                        border: InputBorder.none,
-                      ),
-                    ),
-                  ],
+              if (hasError) ...[
+                const SizedBox(width: 8),
+                const Icon(
+                  CupertinoIcons.exclamationmark_circle,
+                  size: 12,
+                  color: Colors.redAccent,
                 ),
-              ),
+              ],
             ],
           ),
         ),
-
-        // ERROR MESSAGE: Animated Slide-in
+        AnimatedContainer(
+          duration: const Duration(milliseconds: 250),
+          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 4),
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(22),
+            border: Border.all(
+              color: hasError
+                  ? Colors.redAccent.withValues(alpha: 0.4)
+                  : (isFocused ? Color(0xFFE2E8F0) : const Color(0xFFE2E8F0)),
+              width: 1.8,
+            ),
+          ),
+          child: Row(
+            children: [
+              AnimatedContainer(
+                duration: const Duration(milliseconds: 250),
+                width: 44,
+                height: 44,
+                decoration: BoxDecoration(
+                  color: isFocused
+                      ? AnansiColors.darkBlue
+                      : const Color(0xFFF8FAFC),
+                  borderRadius: BorderRadius.circular(16),
+                ),
+                child: Icon(
+                  icon,
+                  size: 20,
+                  color: isFocused
+                      ? Colors.white
+                      : AnansiColors.darkBlue.withValues(alpha: 0.4),
+                ),
+              ),
+              Container(
+                height: 24,
+                width: 1.5,
+                margin: const EdgeInsets.symmetric(horizontal: 16),
+                color: const Color(0xFFE2E8F0),
+              ),
+              Expanded(
+                child: TextField(
+                  focusNode: focusNode,
+                  controller: controller,
+                  keyboardType: keyboardType,
+                  style: const TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.w500,
+                    letterSpacing: 0.2,
+                  ),
+                  cursorColor: AnansiColors.darkBlue,
+                  decoration: InputDecoration(
+                    hintText: hint,
+                    hintStyle: TextStyle(
+                      color: Colors.blueGrey.shade200,
+                      fontSize: 15,
+                      fontWeight: FontWeight.w500,
+                    ),
+                    border: InputBorder.none,
+                    contentPadding: const EdgeInsets.symmetric(vertical: 16),
+                  ),
+                  onChanged: (val) {
+                    if (formErrors[fieldKey] != null) {
+                      setState(() => formErrors[fieldKey] = null);
+                    }
+                    setState(() {});
+                  },
+                  onTapOutside: (event) {
+                    FocusScope.of(context).unfocus();
+                  },
+                ),
+              ),
+              if (controller.text.isNotEmpty && !hasError)
+                const Icon(
+                  CupertinoIcons.checkmark_circle_fill,
+                  color: Colors.teal,
+                  size: 18,
+                ),
+            ],
+          ),
+        ),
         AnimatedSize(
           duration: const Duration(milliseconds: 200),
           child: SizedBox(
             height: hasError ? null : 0,
             child: Padding(
-              padding: const EdgeInsets.only(left: 16, top: 8),
+              padding: const EdgeInsets.only(left: 8, top: 8),
               child: Text(
                 errorText ?? "",
                 style: const TextStyle(
                   color: Colors.redAccent,
                   fontSize: 12,
                   fontWeight: FontWeight.w600,
-                  height: 1.2,
                 ),
               ),
             ),

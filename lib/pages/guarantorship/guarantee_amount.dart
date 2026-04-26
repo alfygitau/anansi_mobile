@@ -16,6 +16,7 @@ class _GuaranteeAmountState extends State<GuaranteeAmount> {
   final TextEditingController _amountController = TextEditingController();
   bool _hasAgreed = false;
   double _maxLimit = 150000.00;
+  Map<String, String?> formErrors = {'amount': null, 'phone': null};
 
   @override
   Widget build(BuildContext context) {
@@ -40,6 +41,9 @@ class _GuaranteeAmountState extends State<GuaranteeAmount> {
                         controller: _amountController,
                         hint: "Enter amount in KES",
                         icon: CupertinoIcons.money_dollar_circle,
+                        fieldKey: "amount",
+                        focusNode: FocusNode(),
+                        keyboardType: TextInputType.number
                       ),
 
                       const SizedBox(height: 12),
@@ -156,78 +160,143 @@ class _GuaranteeAmountState extends State<GuaranteeAmount> {
   // --- YOUR INPUT FIELD DESIGN ---
   Widget _buildInputField({
     required String label,
+    required String fieldKey,
     required TextEditingController controller,
     required String hint,
     required IconData icon,
-    bool isPhone = false,
+    required FocusNode focusNode,
+    required TextInputType keyboardType,
   }) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(24),
-        border: Border.all(color: const Color(0xFFF1F4F8), width: 1.5),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: 0.02),
-            blurRadius: 10,
-            offset: const Offset(0, 4),
-          ),
-        ],
-      ),
-      child: Row(
-        children: [
-          Container(
-            padding: const EdgeInsets.all(10),
-            decoration: BoxDecoration(
-              color: AnansiColors.accentCyan.withValues(alpha: 0.08),
-              borderRadius: BorderRadius.circular(12),
-            ),
-            child: Icon(icon, size: 18, color: AnansiColors.accentCyan),
-          ),
-          const SizedBox(width: 16),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Text(
-                  label.toUpperCase(),
-                  style: const TextStyle(
-                    color: Color(0xFF9E9E9E),
-                    fontWeight: FontWeight.w800,
-                    fontSize: 9,
-                    letterSpacing: 1.2,
-                  ),
+    final String? errorText = formErrors[fieldKey];
+    final bool hasError = errorText != null;
+    final bool isFocused = focusNode.hasFocus;
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Padding(
+          padding: const EdgeInsets.only(left: 8, bottom: 4),
+          child: Row(
+            children: [
+              Text(
+                label.toUpperCase(),
+                style: TextStyle(
+                  color: hasError
+                      ? Colors.redAccent
+                      : AnansiColors.darkBlue.withValues(alpha: 0.6),
+                  fontWeight: FontWeight.w900,
+                  fontSize: 11,
+                  letterSpacing: 1.2,
                 ),
-                const SizedBox(height: 2),
-                TextField(
+              ),
+              if (hasError) ...[
+                const SizedBox(width: 8),
+                const Icon(
+                  CupertinoIcons.exclamationmark_circle,
+                  size: 12,
+                  color: Colors.redAccent,
+                ),
+              ],
+            ],
+          ),
+        ),
+        AnimatedContainer(
+          duration: const Duration(milliseconds: 250),
+          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 4),
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(22),
+            border: Border.all(
+              color: hasError
+                  ? Colors.redAccent.withValues(alpha: 0.4)
+                  : (isFocused ? Color(0xFFE2E8F0) : const Color(0xFFE2E8F0)),
+              width: 1.8,
+            ),
+          ),
+          child: Row(
+            children: [
+              AnimatedContainer(
+                duration: const Duration(milliseconds: 250),
+                width: 44,
+                height: 44,
+                decoration: BoxDecoration(
+                  color: isFocused
+                      ? AnansiColors.darkBlue
+                      : const Color(0xFFF8FAFC),
+                  borderRadius: BorderRadius.circular(16),
+                ),
+                child: Icon(
+                  icon,
+                  size: 20,
+                  color: isFocused
+                      ? Colors.white
+                      : AnansiColors.darkBlue.withValues(alpha: 0.4),
+                ),
+              ),
+              Container(
+                height: 24,
+                width: 1.5,
+                margin: const EdgeInsets.symmetric(horizontal: 16),
+                color: const Color(0xFFE2E8F0),
+              ),
+              Expanded(
+                child: TextField(
+                  focusNode: focusNode,
                   controller: controller,
-                  keyboardType: isPhone
-                      ? TextInputType.phone
-                      : TextInputType.number,
-                  onChanged: (v) => setState(() {}),
+                  keyboardType: keyboardType,
                   style: const TextStyle(
-                    fontWeight: FontWeight.bold,
-                    color: AnansiColors.darkBlue,
-                    fontSize: 17,
+                    fontSize: 16,
+                    fontWeight: FontWeight.w500,
+                    letterSpacing: 0.2,
                   ),
+                  cursorColor: AnansiColors.darkBlue,
                   decoration: InputDecoration(
                     hintText: hint,
                     hintStyle: TextStyle(
-                      color: Colors.grey.shade300,
-                      fontSize: 14,
+                      color: Colors.blueGrey.shade200,
+                      fontSize: 15,
+                      fontWeight: FontWeight.w500,
                     ),
-                    isDense: true,
-                    contentPadding: const EdgeInsets.symmetric(vertical: 4),
                     border: InputBorder.none,
+                    contentPadding: const EdgeInsets.symmetric(vertical: 16),
                   ),
+                  onChanged: (val) {
+                    if (formErrors[fieldKey] != null) {
+                      setState(() => formErrors[fieldKey] = null);
+                    }
+                    setState(() {});
+                  },
+                  onTapOutside: (event) {
+                    FocusScope.of(context).unfocus();
+                  },
                 ),
-              ],
+              ),
+              if (controller.text.isNotEmpty && !hasError)
+                const Icon(
+                  CupertinoIcons.checkmark_circle_fill,
+                  color: Colors.teal,
+                  size: 18,
+                ),
+            ],
+          ),
+        ),
+        AnimatedSize(
+          duration: const Duration(milliseconds: 200),
+          child: SizedBox(
+            height: hasError ? null : 0,
+            child: Padding(
+              padding: const EdgeInsets.only(left: 8, top: 8),
+              child: Text(
+                errorText ?? "",
+                style: const TextStyle(
+                  color: Colors.redAccent,
+                  fontSize: 12,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
             ),
           ),
-        ],
-      ),
+        ),
+      ],
     );
   }
 

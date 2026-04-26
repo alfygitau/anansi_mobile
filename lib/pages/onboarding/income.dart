@@ -256,129 +256,130 @@ class _IncomeInformationState extends State<IncomeInformation> {
     required FocusNode focusNode,
     required TextInputType keyboardType,
   }) {
-    // 1. Extract the current state for this specific field
     final String? errorText = formErrors[fieldKey];
     final bool hasError = errorText != null;
     final bool isFocused = focusNode.hasFocus;
-
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        AnimatedContainer(
-          duration: const Duration(milliseconds: 250),
-          curve: Curves.easeInOut,
-          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-          decoration: BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.circular(20),
-            // BORDER LOGIC: Error > Focused > Neutral
-            border: Border.all(
-              color: hasError
-                  ? Colors.redAccent.withValues(alpha: 0.6)
-                  : (isFocused
-                        ? const Color(0xFF17C6C6)
-                        : const Color(0xFFF1F4F8)),
-              width: 1.6,
-            ),
-            boxShadow: [
-              BoxShadow(
-                color: hasError
-                    ? Colors.redAccent.withValues(alpha: 0.05)
-                    : (isFocused
-                          ? const Color(0xFF17C6C6).withValues(alpha: 0.08)
-                          : Colors.black.withValues(alpha: 0.02)),
-                blurRadius: 12,
-                offset: const Offset(0, 4),
-              ),
-            ],
-          ),
+        Padding(
+          padding: const EdgeInsets.only(left: 8, bottom: 4),
           child: Row(
             children: [
-              // Icon Container reacts to state
-              AnimatedContainer(
-                duration: const Duration(milliseconds: 250),
-                padding: const EdgeInsets.all(10),
-                decoration: BoxDecoration(
+              Text(
+                label.toUpperCase(),
+                style: TextStyle(
                   color: hasError
-                      ? Colors.redAccent.withValues(alpha: 0.08)
-                      : const Color(0xFF17C6C6).withValues(alpha: 0.08),
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                child: Icon(
-                  icon,
-                  size: 18,
-                  color: hasError ? Colors.redAccent : const Color(0xFF17C6C6),
+                      ? Colors.redAccent
+                      : AnansiColors.darkBlue.withValues(alpha: 0.6),
+                  fontWeight: FontWeight.w900,
+                  fontSize: 11,
+                  letterSpacing: 1.2,
                 ),
               ),
-              const SizedBox(width: 16),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Text(
-                      label.toUpperCase(),
-                      style: TextStyle(
-                        color: hasError
-                            ? Colors.redAccent
-                            : const Color(0xFF9E9E9E),
-                        fontWeight: FontWeight.w800,
-                        fontSize: 9,
-                        letterSpacing: 1.2,
-                      ),
-                    ),
-                    const SizedBox(height: 2),
-                    TextField(
-                      focusNode: focusNode,
-                      controller: controller,
-                      keyboardType: keyboardType,
-                      onChanged: (val) {
-                        if (formErrors[fieldKey] != null) {
-                          setState(() => formErrors[fieldKey] = null);
-                        }
-                        setState(() {});
-                      },
-                      style: const TextStyle(
-                        fontWeight: FontWeight.w500,
-                        color: Colors.black,
-                        fontSize: 17,
-                      ),
-                      onTapOutside: (event) {
-                        FocusScope.of(context).unfocus();
-                      },
-                      decoration: InputDecoration(
-                        hintText: hint,
-                        hintStyle: TextStyle(
-                          color: Colors.grey.shade300,
-                          fontSize: 14,
-                          fontWeight: FontWeight.w500,
-                        ),
-                        isDense: true,
-                        contentPadding: const EdgeInsets.symmetric(vertical: 4),
-                        border: InputBorder.none,
-                      ),
-                    ),
-                  ],
+              if (hasError) ...[
+                const SizedBox(width: 8),
+                const Icon(
+                  CupertinoIcons.exclamationmark_circle,
+                  size: 12,
+                  color: Colors.redAccent,
                 ),
-              ),
+              ],
             ],
           ),
         ),
-
-        // ERROR MESSAGE: Animated Slide-in
+        AnimatedContainer(
+          duration: const Duration(milliseconds: 250),
+          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 4),
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(22),
+            border: Border.all(
+              color: hasError
+                  ? Colors.redAccent.withValues(alpha: 0.4)
+                  : (isFocused ? Color(0xFFE2E8F0) : const Color(0xFFE2E8F0)),
+              width: 1.8,
+            ),
+          ),
+          child: Row(
+            children: [
+              AnimatedContainer(
+                duration: const Duration(milliseconds: 250),
+                width: 44,
+                height: 44,
+                decoration: BoxDecoration(
+                  color: isFocused
+                      ? AnansiColors.darkBlue
+                      : const Color(0xFFF8FAFC),
+                  borderRadius: BorderRadius.circular(16),
+                ),
+                child: Icon(
+                  icon,
+                  size: 20,
+                  color: isFocused
+                      ? Colors.white
+                      : AnansiColors.darkBlue.withValues(alpha: 0.4),
+                ),
+              ),
+              Container(
+                height: 24,
+                width: 1.5,
+                margin: const EdgeInsets.symmetric(horizontal: 16),
+                color: const Color(0xFFE2E8F0),
+              ),
+              Expanded(
+                child: TextField(
+                  focusNode: focusNode,
+                  controller: controller,
+                  keyboardType: keyboardType,
+                  style: const TextStyle(
+                    fontSize: 17,
+                    fontWeight: FontWeight.w500,
+                    letterSpacing: 0.2,
+                  ),
+                  cursorColor: AnansiColors.darkBlue,
+                  decoration: InputDecoration(
+                    hintText: hint,
+                    hintStyle: TextStyle(
+                      color: Colors.blueGrey.shade200,
+                      fontSize: 15,
+                      fontWeight: FontWeight.w500,
+                    ),
+                    border: InputBorder.none,
+                    contentPadding: const EdgeInsets.symmetric(vertical: 16),
+                  ),
+                  onChanged: (val) {
+                    if (formErrors[fieldKey] != null) {
+                      setState(() => formErrors[fieldKey] = null);
+                    }
+                    setState(() {});
+                  },
+                  onTapOutside: (event) {
+                    FocusScope.of(context).unfocus();
+                  },
+                ),
+              ),
+              if (controller.text.isNotEmpty && !hasError)
+                const Icon(
+                  CupertinoIcons.checkmark_circle_fill,
+                  color: Colors.teal,
+                  size: 18,
+                ),
+            ],
+          ),
+        ),
         AnimatedSize(
           duration: const Duration(milliseconds: 200),
           child: SizedBox(
             height: hasError ? null : 0,
             child: Padding(
-              padding: const EdgeInsets.only(left: 16, top: 8),
+              padding: const EdgeInsets.only(left: 8, top: 8),
               child: Text(
                 errorText ?? "",
                 style: const TextStyle(
                   color: Colors.redAccent,
                   fontSize: 12,
                   fontWeight: FontWeight.w600,
-                  height: 1.2,
                 ),
               ),
             ),
@@ -396,104 +397,117 @@ class _IncomeInformationState extends State<IncomeInformation> {
     required Function(String?) onChanged,
   }) {
     bool hasValue = value != null && value.isNotEmpty && items.contains(value);
-    return Container(
-      margin: const EdgeInsets.only(bottom: 16),
-      padding: EdgeInsets.symmetric(vertical: 10),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: const Color(0xFFF1F4F8), width: 1.5),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: 0.02),
-            blurRadius: 10,
-            offset: const Offset(0, 4),
-          ),
-        ],
-      ),
-      child: DropdownButtonHideUnderline(
-        child: ButtonTheme(
-          alignedDropdown: true,
-          child: DropdownButton<String>(
-            value: hasValue ? value : null,
-            isExpanded: true,
-            dropdownColor: Colors.white,
-            borderRadius: BorderRadius.circular(20),
-            icon: const SizedBox.shrink(),
-            hint: _buildDropdownContent(label, value, icon, isHint: true),
-            selectedItemBuilder: (BuildContext context) {
-              return items.map<Widget>((String item) {
-                return _buildDropdownContent(label, item, icon, isHint: false);
-              }).toList();
-            },
-            items: items.map((String item) {
-              return DropdownMenuItem(
-                value: item,
-                child: Text(
-                  item,
-                  style: const TextStyle(
-                    fontWeight: FontWeight.w500,
-                    color: Colors.black,
-                    fontSize: 16,
-                  ),
-                ),
-              );
-            }).toList(),
-            onChanged: onChanged,
-          ),
-        ),
-      ),
-    );
-  }
 
-  Widget _buildDropdownContent(
-    String label,
-    String? value,
-    IconData icon, {
-    required bool isHint,
-  }) {
-    return Row(
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Container(
-          padding: const EdgeInsets.all(10),
-          decoration: BoxDecoration(
-            color: const Color(0xFF17C6C6).withValues(alpha: 0.08),
-            borderRadius: BorderRadius.circular(10),
+        Padding(
+          padding: const EdgeInsets.only(left: 8, bottom: 4),
+          child: Text(
+            label.toUpperCase(),
+            style: TextStyle(
+              color: AnansiColors.darkBlue.withValues(alpha: 0.6),
+              fontWeight: FontWeight.w900,
+              fontSize: 11,
+              letterSpacing: 1.2,
+            ),
           ),
-          child: Icon(icon, size: 18, color: const Color(0xFF17C6C6)),
         ),
-        const SizedBox(width: 16),
-        Expanded(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Text(
-                label.toUpperCase(),
-                style: const TextStyle(
-                  color: Color(0xFF9E9E9E),
-                  fontWeight: FontWeight.w800,
-                  fontSize: 9,
-                  letterSpacing: 1.2,
-                ),
-              ),
-              Text(
-                isHint ? "Select $label" : value!,
-                style: TextStyle(
-                  fontWeight: FontWeight.w500,
-                  color: isHint ? Colors.grey.shade300 : Colors.black,
-                  fontSize: 16,
-                ),
+        Container(
+          height: 64, // Fixed height to match text inputs perfectly
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(22),
+            border: Border.all(color: const Color(0xFFE2E8F0), width: 1.8),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withValues(alpha: 0.03),
+                blurRadius: 10,
+                offset: const Offset(0, 4),
               ),
             ],
           ),
+          child: DropdownButtonHideUnderline(
+            child: ButtonTheme(
+              alignedDropdown:
+                  true, // This aligns the menu width with the button width
+              child: DropdownButton<String>(
+                value: hasValue ? value : null,
+                isExpanded: true, // Forces the content to span the Row
+                dropdownColor: Colors.white,
+                borderRadius: BorderRadius.circular(22),
+                icon: const Padding(
+                  padding: EdgeInsets.only(right: 14),
+                  child: Icon(
+                    CupertinoIcons.chevron_down,
+                    size: 14,
+                    color: Color(0xFF94A3B8),
+                  ),
+                ),
+                // We use the hint/selectedItem to build your custom Row inside the button
+                hint: _buildDropdownRow(icon, "Select $label", isHint: true),
+                selectedItemBuilder: (context) {
+                  return items.map((String item) {
+                    return _buildDropdownRow(icon, item, isHint: false);
+                  }).toList();
+                },
+                items: items.map((String item) {
+                  return DropdownMenuItem(
+                    value: item,
+                    child: Text(
+                      item,
+                      style: const TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.w500,
+                      ),
+                    ),
+                  );
+                }).toList(),
+                onChanged: onChanged,
+              ),
+            ),
+          ),
         ),
-        const Icon(
-          CupertinoIcons.chevron_down,
-          size: 14,
-          color: AnansiColors.darkBlue,
+      ],
+    );
+  }
+
+  // Helper to keep the Icon Anchor and Separator consistent
+  Widget _buildDropdownRow(IconData icon, String text, {required bool isHint}) {
+    return Row(
+      children: [
+        // Icon Anchor
+        Container(
+          width: 44,
+          height: 44,
+          decoration: BoxDecoration(
+            color: const Color(0xFFF8FAFC),
+            borderRadius: BorderRadius.circular(16),
+          ),
+          child: Icon(
+            icon,
+            size: 20,
+            color: AnansiColors.darkBlue.withValues(alpha: 0.4),
+          ),
         ),
-        const SizedBox(width: 16),
+        // Vertical Separator
+        Container(
+          height: 24,
+          width: 1.5,
+          margin: const EdgeInsets.symmetric(horizontal: 16),
+          color: const Color(0xFFE2E8F0),
+        ),
+        Expanded(
+          child: Text(
+            text,
+            style: TextStyle(
+              fontSize: 16,
+              fontWeight: FontWeight.w500,
+              color: isHint ? Colors.blueGrey.shade200 : Colors.black,
+              letterSpacing: 0.2,
+            ),
+          ),
+        ),
       ],
     );
   }

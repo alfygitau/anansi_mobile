@@ -159,104 +159,117 @@ class _IdTypeState extends State<IdType> {
     required Function(String?) onChanged,
   }) {
     bool hasValue = value != null && value.isNotEmpty && items.contains(value);
-    return Container(
-      margin: const EdgeInsets.only(bottom: 16),
-      padding: EdgeInsets.symmetric(vertical: 10),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: const Color(0xFFF1F4F8), width: 1.5),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: 0.02),
-            blurRadius: 10,
-            offset: const Offset(0, 4),
-          ),
-        ],
-      ),
-      child: DropdownButtonHideUnderline(
-        child: ButtonTheme(
-          alignedDropdown: true,
-          child: DropdownButton<String>(
-            value: hasValue ? value : null,
-            isExpanded: true,
-            dropdownColor: Colors.white,
-            borderRadius: BorderRadius.circular(20),
-            icon: const SizedBox.shrink(),
-            hint: _buildDropdownContent(label, value, icon, isHint: true),
-            selectedItemBuilder: (BuildContext context) {
-              return items.map<Widget>((String item) {
-                return _buildDropdownContent(label, item, icon, isHint: false);
-              }).toList();
-            },
-            items: items.map((String item) {
-              return DropdownMenuItem(
-                value: item,
-                child: Text(
-                  item,
-                  style: const TextStyle(
-                    fontWeight: FontWeight.w500,
-                    color: Colors.black,
-                    fontSize: 16,
-                  ),
-                ),
-              );
-            }).toList(),
-            onChanged: onChanged,
-          ),
-        ),
-      ),
-    );
-  }
 
-  Widget _buildDropdownContent(
-    String label,
-    String? value,
-    IconData icon, {
-    required bool isHint,
-  }) {
-    return Row(
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Container(
-          padding: const EdgeInsets.all(10),
-          decoration: BoxDecoration(
-            color: const Color(0xFF17C6C6).withValues(alpha: 0.08),
-            borderRadius: BorderRadius.circular(10),
+        Padding(
+          padding: const EdgeInsets.only(left: 8, bottom: 4),
+          child: Text(
+            label.toUpperCase(),
+            style: TextStyle(
+              color: AnansiColors.darkBlue.withValues(alpha: 0.6),
+              fontWeight: FontWeight.w900,
+              fontSize: 11,
+              letterSpacing: 1.2,
+            ),
           ),
-          child: Icon(icon, size: 18, color: const Color(0xFF17C6C6)),
         ),
-        const SizedBox(width: 16),
-        Expanded(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Text(
-                label.toUpperCase(),
-                style: const TextStyle(
-                  color: Color(0xFF9E9E9E),
-                  fontWeight: FontWeight.w800,
-                  fontSize: 9,
-                  letterSpacing: 1.2,
-                ),
-              ),
-              Text(
-                isHint ? "Select $label" : value!,
-                style: TextStyle(
-                  fontWeight: FontWeight.w500,
-                  color: isHint ? Colors.grey.shade300 : Colors.black,
-                  fontSize: 17,
-                ),
+        Container(
+          height: 64, // Fixed height to match text inputs perfectly
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(22),
+            border: Border.all(color: const Color(0xFFE2E8F0), width: 1.8),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withValues(alpha: 0.03),
+                blurRadius: 10,
+                offset: const Offset(0, 4),
               ),
             ],
           ),
+          child: DropdownButtonHideUnderline(
+            child: ButtonTheme(
+              alignedDropdown:
+                  true, // This aligns the menu width with the button width
+              child: DropdownButton<String>(
+                value: hasValue ? value : null,
+                isExpanded: true, // Forces the content to span the Row
+                dropdownColor: Colors.white,
+                borderRadius: BorderRadius.circular(22),
+                icon: const Padding(
+                  padding: EdgeInsets.only(right: 14),
+                  child: Icon(
+                    CupertinoIcons.chevron_down,
+                    size: 14,
+                    color: Color(0xFF94A3B8),
+                  ),
+                ),
+                // We use the hint/selectedItem to build your custom Row inside the button
+                hint: _buildDropdownRow(icon, "Select $label", isHint: true),
+                selectedItemBuilder: (context) {
+                  return items.map((String item) {
+                    return _buildDropdownRow(icon, item, isHint: false);
+                  }).toList();
+                },
+                items: items.map((String item) {
+                  return DropdownMenuItem(
+                    value: item,
+                    child: Text(
+                      item,
+                      style: const TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.w500,
+                      ),
+                    ),
+                  );
+                }).toList(),
+                onChanged: onChanged,
+              ),
+            ),
+          ),
         ),
-        const Icon(
-          CupertinoIcons.chevron_down,
-          size: 14,
-          color: AnansiColors.darkBlue,
+      ],
+    );
+  }
+
+  // Helper to keep the Icon Anchor and Separator consistent
+  Widget _buildDropdownRow(IconData icon, String text, {required bool isHint}) {
+    return Row(
+      children: [
+        // Icon Anchor
+        Container(
+          width: 44,
+          height: 44,
+          decoration: BoxDecoration(
+            color: const Color(0xFFF8FAFC),
+            borderRadius: BorderRadius.circular(16),
+          ),
+          child: Icon(
+            icon,
+            size: 20,
+            color: AnansiColors.darkBlue.withValues(alpha: 0.4),
+          ),
         ),
-        const SizedBox(width: 16), // Padding on the far right
+        // Vertical Separator
+        Container(
+          height: 24,
+          width: 1.5,
+          margin: const EdgeInsets.symmetric(horizontal: 16),
+          color: const Color(0xFFE2E8F0),
+        ),
+        Expanded(
+          child: Text(
+            text,
+            style: TextStyle(
+              fontSize: 16,
+              fontWeight: FontWeight.w500,
+              color: isHint ? Colors.blueGrey.shade200 : Colors.black,
+              letterSpacing: 0.2,
+            ),
+          ),
+        ),
       ],
     );
   }

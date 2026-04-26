@@ -1,5 +1,6 @@
 import 'package:app_anansi_mobile/services/error_service.dart';
 import 'package:app_anansi_mobile/services/recovery_service.dart';
+import 'package:app_anansi_mobile/theme/app_theme.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -400,7 +401,7 @@ class _ResetPasswordState extends State<ResetPassword> {
               color: hasError
                   ? Colors.redAccent.withValues(alpha: 0.6)
                   : (isFocused
-                        ? const Color(0xFF17C6C6)
+                        ? const Color(0xFFF1F4F8)
                         : const Color(0xFFF1F4F8)),
               width: 1.6,
             ),
@@ -424,13 +425,13 @@ class _ResetPasswordState extends State<ResetPassword> {
                 decoration: BoxDecoration(
                   color: hasError
                       ? Colors.redAccent.withValues(alpha: 0.08)
-                      : const Color(0xFF17C6C6).withValues(alpha: 0.08),
+                      : AnansiColors.darkBlue.withValues(alpha: 0.08),
                   borderRadius: BorderRadius.circular(12),
                 ),
                 child: Icon(
                   icon,
                   size: 18,
-                  color: hasError ? Colors.redAccent : const Color(0xFF17C6C6),
+                  color: hasError ? Colors.redAccent : AnansiColors.darkBlue,
                 ),
               ),
               const SizedBox(width: 16),

@@ -175,7 +175,7 @@ class _ChangePhoneNumberState extends State<ChangePhoneNumber> {
               color: hasError
                   ? Colors.redAccent
                   : (isFocused
-                        ? const Color(0xFF17C6C6)
+                        ? const Color(0xFFF1F4F8)
                         : const Color(0xFFF1F4F8)),
               width: 1.6,
             ),
@@ -196,13 +196,13 @@ class _ChangePhoneNumberState extends State<ChangePhoneNumber> {
                 decoration: BoxDecoration(
                   color: hasError
                       ? Colors.redAccent.withValues(alpha: 0.08)
-                      : const Color(0xFF17C6C6).withValues(alpha: 0.08),
+                      : AnansiColors.darkBlue.withValues(alpha: 0.08),
                   borderRadius: BorderRadius.circular(12),
                 ),
                 child: Icon(
                   icon,
                   size: 18,
-                  color: hasError ? Colors.redAccent : const Color(0xFF17C6C6),
+                  color: hasError ? Colors.redAccent : AnansiColors.darkBlue,
                 ),
               ),
               const SizedBox(width: 16),

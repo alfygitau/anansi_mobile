@@ -13,7 +13,7 @@ class EditFinancialsPage extends StatefulWidget {
 class _EditFinancialsPageState extends State<EditFinancialsPage> {
   late TextEditingController _jobTitleController;
   late TextEditingController _kraPinController;
-
+  Map<String, String?> formErrors = {'email': null, 'password': null};
   String? _selectedIncome;
   String? _selectedJobType;
 
@@ -62,6 +62,8 @@ class _EditFinancialsPageState extends State<EditFinancialsPage> {
                   controller: _jobTitleController,
                   hint: "e.g. Senior Accountant",
                   icon: CupertinoIcons.briefcase,
+                  fieldKey: "jobTitle",
+                  focusNode: FocusNode(),
                 ),
                 const SizedBox(height: 16),
                 _buildDropdownField(
@@ -79,6 +81,8 @@ class _EditFinancialsPageState extends State<EditFinancialsPage> {
                   controller: _kraPinController,
                   hint: "A00XXXXXXXXZ",
                   icon: CupertinoIcons.doc_text,
+                  fieldKey: "kra",
+                  focusNode: FocusNode()
                 ),
                 const SizedBox(height: 16),
                 _buildDropdownField(
@@ -210,7 +214,7 @@ class _EditFinancialsPageState extends State<EditFinancialsPage> {
             color: Color(0xFF17C6C6),
             size: 20,
           ),
-           SizedBox(width: 12),
+          SizedBox(width: 12),
           Expanded(
             child: Text(
               "Your financial data is encrypted and used only for credit scoring and Sacco compliance.",
@@ -255,91 +259,141 @@ class _EditFinancialsPageState extends State<EditFinancialsPage> {
   // Include the _buildInputField and _buildDropdownField methods here as previously defined
   Widget _buildInputField({
     required String label,
+    required String fieldKey,
     required TextEditingController controller,
     required String hint,
     required IconData icon,
-    bool isPhone = false,
-    bool readOnly = false, // Add this
-    VoidCallback? onTap, // Add this
+    required FocusNode focusNode,
   }) {
-    return GestureDetector(
-      onTap: onTap, // Allows the whole container to be tappable
-      child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-        decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(20),
-          border: Border.all(color: const Color(0xFFF1F4F8), width: 1.5),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withValues(alpha: 0.02),
-              blurRadius: 10,
-              offset: const Offset(0, 4),
-            ),
-          ],
-        ),
-        child: Row(
-          children: [
-            Container(
-              padding: const EdgeInsets.all(10),
-              decoration: BoxDecoration(
-                color: const Color(0xFF17C6C6).withValues(alpha: 0.08),
-                borderRadius: BorderRadius.circular(12),
+    final String? errorText = formErrors[fieldKey];
+    final bool hasError = errorText != null;
+    final bool isFocused = focusNode.hasFocus;
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Padding(
+          padding: const EdgeInsets.only(left: 8, bottom: 4),
+          child: Row(
+            children: [
+              Text(
+                label.toUpperCase(),
+                style: TextStyle(
+                  color: hasError
+                      ? Colors.redAccent
+                      : AnansiColors.darkBlue.withValues(alpha: 0.6),
+                  fontWeight: FontWeight.w900,
+                  fontSize: 11,
+                  letterSpacing: 1.2,
+                ),
               ),
-              child: Icon(icon, size: 18, color: const Color(0xFF17C6C6)),
+              if (hasError) ...[
+                const SizedBox(width: 8),
+                const Icon(
+                  CupertinoIcons.exclamationmark_circle,
+                  size: 12,
+                  color: Colors.redAccent,
+                ),
+              ],
+            ],
+          ),
+        ),
+        AnimatedContainer(
+          duration: const Duration(milliseconds: 250),
+          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 4),
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(22),
+            border: Border.all(
+              color: hasError
+                  ? Colors.redAccent.withValues(alpha: 0.4)
+                  : (isFocused ? Color(0xFFE2E8F0) : const Color(0xFFE2E8F0)),
+              width: 1.8,
             ),
-            const SizedBox(width: 16),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Text(
-                    label.toUpperCase(),
-                    style: const TextStyle(
-                      color: Color(0xFF9E9E9E),
-                      fontWeight: FontWeight.w800,
-                      fontSize: 9,
-                      letterSpacing: 1.2,
-                    ),
+          ),
+          child: Row(
+            children: [
+              AnimatedContainer(
+                duration: const Duration(milliseconds: 250),
+                width: 44,
+                height: 44,
+                decoration: BoxDecoration(
+                  color: isFocused
+                      ? AnansiColors.darkBlue
+                      : const Color(0xFFF8FAFC),
+                  borderRadius: BorderRadius.circular(16),
+                ),
+                child: Icon(
+                  icon,
+                  size: 20,
+                  color: isFocused
+                      ? Colors.white
+                      : AnansiColors.darkBlue.withValues(alpha: 0.4),
+                ),
+              ),
+              Container(
+                height: 24,
+                width: 1.5,
+                margin: const EdgeInsets.symmetric(horizontal: 16),
+                color: const Color(0xFFE2E8F0),
+              ),
+              Expanded(
+                child: TextField(
+                  focusNode: focusNode,
+                  controller: controller,
+                  style: const TextStyle(
+                    fontSize: 17,
+                    fontWeight: FontWeight.w500,
+                    letterSpacing: 0.2,
                   ),
-                  const SizedBox(height: 2),
-                  TextField(
-                    controller: controller,
-                    readOnly: readOnly, // Set this
-                    enabled: !readOnly, // And this
-                    keyboardType: isPhone
-                        ? TextInputType.phone
-                        : TextInputType.text,
-                    style: const TextStyle(
+                  cursorColor: AnansiColors.darkBlue,
+                  decoration: InputDecoration(
+                    hintText: hint,
+                    hintStyle: TextStyle(
+                      color: Colors.blueGrey.shade200,
+                      fontSize: 15,
                       fontWeight: FontWeight.w500,
-                      color: Colors.black,
-                      fontSize: 17,
                     ),
-                    decoration: InputDecoration(
-                      hintText: hint,
-                      hintStyle: TextStyle(
-                        color: Colors.grey.shade300,
-                        fontSize: 14,
-                        fontWeight: FontWeight.w500,
-                      ),
-                      isDense: true,
-                      contentPadding: const EdgeInsets.symmetric(vertical: 4),
-                      border: InputBorder.none,
-                    ),
+                    border: InputBorder.none,
+                    contentPadding: const EdgeInsets.symmetric(vertical: 16),
                   ),
-                ],
+                  onChanged: (val) {
+                    if (formErrors[fieldKey] != null) {
+                      setState(() => formErrors[fieldKey] = null);
+                    }
+                    setState(() {});
+                  },
+                  onTapOutside: (event) {
+                    FocusScope.of(context).unfocus();
+                  },
+                ),
+              ),
+              if (controller.text.isNotEmpty && !hasError)
+                const Icon(
+                  CupertinoIcons.checkmark_circle_fill,
+                  color: Colors.teal,
+                  size: 18,
+                ),
+            ],
+          ),
+        ),
+        AnimatedSize(
+          duration: const Duration(milliseconds: 200),
+          child: SizedBox(
+            height: hasError ? null : 0,
+            child: Padding(
+              padding: const EdgeInsets.only(left: 8, top: 8),
+              child: Text(
+                errorText ?? "",
+                style: const TextStyle(
+                  color: Colors.redAccent,
+                  fontSize: 12,
+                  fontWeight: FontWeight.w600,
+                ),
               ),
             ),
-            if (readOnly) // Show a small chevron for selection fields
-              Icon(
-                CupertinoIcons.chevron_right,
-                size: 14,
-                color: Colors.grey.shade300,
-              ),
-          ],
+          ),
         ),
-      ),
+      ],
     );
   }
 
