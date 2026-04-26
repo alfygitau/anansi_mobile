@@ -220,7 +220,7 @@ class _LoginState extends State<Login> {
                     _buildPasswordField(
                       label: "Confirm Password",
                       controller: _passwordController,
-                      hint: "Repeat your security key",
+                      hint: "Enter your security key",
                       icon: CupertinoIcons.lock_shield_fill,
                       fieldKey: "password",
                       focusNode: _passFocus,
