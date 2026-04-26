@@ -77,7 +77,7 @@ class _MembershipDetailsState extends State<MembershipDetails> {
         slivers: [
           _buildAppBar(),
           SliverPadding(
-            padding: const EdgeInsets.fromLTRB(20, 10, 20, 120),
+            padding: const EdgeInsets.fromLTRB(20, 10, 20, 30),
             sliver: SliverList(
               delegate: SliverChildListDelegate([
                 Text(
@@ -127,7 +127,7 @@ class _MembershipDetailsState extends State<MembershipDetails> {
           ),
         ],
       ),
-      bottomSheet: _buildPersistentFooter(),
+      bottomNavigationBar: _buildPersistentFooter(),
     );
   }
 

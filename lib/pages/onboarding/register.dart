@@ -468,8 +468,7 @@ class _RegisterState extends State<Register> {
                   keyboardType: keyboardType,
                   style: const TextStyle(
                     fontSize: 16,
-                    fontWeight: FontWeight.w700,
-                    color: AnansiColors.darkBlue,
+                    fontWeight: FontWeight.w500,
                     letterSpacing: 0.2,
                   ),
                   cursorColor: AnansiColors.darkBlue,
@@ -653,7 +652,9 @@ class _RegisterState extends State<Register> {
                   setState(() => _isPasswordVisible = !_isPasswordVisible);
                 },
                 icon: Icon(
-                  _isPasswordVisible ? CupertinoIcons.eye_slash : CupertinoIcons.eye,
+                  _isPasswordVisible
+                      ? CupertinoIcons.eye_slash
+                      : CupertinoIcons.eye,
                   color: isFocused
                       ? AnansiColors.darkBlue
                       : Colors.blueGrey.shade200,
