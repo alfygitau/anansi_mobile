@@ -1,9 +1,11 @@
 // ignore_for_file: use_build_context_synchronously
 import 'package:app_anansi_mobile/pages/auth/otp_access.dart';
+import 'package:app_anansi_mobile/pages/continue-onboarding/continue_onboarding.dart';
 import 'package:app_anansi_mobile/pages/forget-password/otp_type.dart';
 import 'package:app_anansi_mobile/pages/homepage/homepage.dart';
 import 'package:app_anansi_mobile/pages/membership/intro_membership.dart';
 import 'package:app_anansi_mobile/pages/onboarding/introduction.dart';
+import 'package:app_anansi_mobile/pages/pending-account/pending_account.dart';
 import 'package:app_anansi_mobile/services/auth_service.dart';
 import 'package:app_anansi_mobile/services/error_service.dart';
 import 'package:app_anansi_mobile/services/secure_storage_service.dart';
@@ -132,7 +134,7 @@ class _LoginState extends State<Login> {
       return;
     }
     if (!isMember && status == "incomplete" && stage != 'completed') {
-      // _replaceNavigate(context, const OnboardingScreen());
+      _replaceNavigate(context, const ContinueOnboarding());
       return;
     }
     if (!isMember && !isTempPass) {
@@ -140,7 +142,7 @@ class _LoginState extends State<Login> {
       return;
     }
     if (stage == 'completed' && status == 'pending') {
-      // _replaceNavigate(context, const PendingAccount());
+      _replaceNavigate(context, const PendingAccount());
       return;
     }
     _replaceNavigate(context, const Homepage());
