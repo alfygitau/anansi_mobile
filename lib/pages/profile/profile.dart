@@ -20,7 +20,7 @@ class Profile extends StatefulWidget {
 }
 
 class _ProfileState extends State<Profile> {
-  Map<String, dynamic> profileInformation = {};
+  Map<String, dynamic>? profileInformation;
   bool _isLoading = false;
   final Map<String, dynamic> staticCustomer = {
     "id": "user_88291",
@@ -106,6 +106,8 @@ class _ProfileState extends State<Profile> {
           SliverToBoxAdapter(
             child: _isLoading
                 ? buildProfileSkeleton()
+                : profileInformation == null
+                ? _buildProfileEmptyState()
                 : Padding(
                     padding: const EdgeInsets.fromLTRB(20.0, 10, 20, 10),
                     child: Column(
@@ -123,6 +125,96 @@ class _ProfileState extends State<Profile> {
                   ),
           ),
         ],
+      ),
+    );
+  }
+
+  Widget _buildProfileEmptyState() {
+    return Container(
+      // Calculate height to fill the screen minus the estimated AppBar height
+      height: MediaQuery.of(context).size.height * 0.8,
+      alignment: Alignment.center,
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 40),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            // 1. Icon Container
+            Container(
+              width: 100,
+              height: 100,
+              decoration: BoxDecoration(
+                color: AnansiColors.darkBlue.withValues(alpha: 0.05),
+                shape: BoxShape.circle,
+              ),
+              child: const Icon(
+                CupertinoIcons.person_crop_circle_badge_exclam,
+                size: 48,
+                color: AnansiColors.darkBlue,
+              ),
+            ),
+            const SizedBox(height: 32),
+
+            // 2. Text Content
+            const Text(
+              "Complete Your Profile",
+              textAlign: TextAlign.center,
+              style: TextStyle(
+                fontSize: 24,
+                fontWeight: FontWeight.w900,
+                color: AnansiColors.darkBlue,
+                letterSpacing: -0.5,
+              ),
+            ),
+            const SizedBox(height: 12),
+            Text(
+              "We couldn't find your account details. Set up your profile to start managing your KES savings and Sacco benefits.",
+              textAlign: TextAlign.center,
+              style: TextStyle(
+                fontSize: 15,
+                height: 1.5,
+                color: Colors.blueGrey.shade400,
+              ),
+            ),
+
+            const SizedBox(height: 40),
+
+            // 3. CTA Button
+            SizedBox(
+              width: double.infinity,
+              height: 56,
+              child: ElevatedButton(
+                onPressed: () {
+                  // Navigate to onboarding
+                },
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: AnansiColors.darkBlue,
+                  foregroundColor: Colors.white,
+                  elevation: 0,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(18),
+                  ),
+                ),
+                child: const Text(
+                  "Get Started",
+                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.w700),
+                ),
+              ),
+            ),
+            const SizedBox(height: 16),
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: Text(
+                "Go Back",
+                style: TextStyle(
+                  color: Colors.blueGrey.shade300,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -244,9 +336,9 @@ class _ProfileState extends State<Profile> {
 
   Widget _buildTopIdentitySection() {
     // 1. Logic to combine names cleanly
-    String firstName = profileInformation['firstname'] ?? "";
-    String middleName = profileInformation['middlename'] ?? "";
-    String lastName = profileInformation['lastname'] ?? "";
+    String firstName = profileInformation?['firstname'] ?? "";
+    String middleName = profileInformation?['middlename'] ?? "";
+    String lastName = profileInformation?['lastname'] ?? "";
     String fullName = [
       firstName,
       middleName,
@@ -326,7 +418,7 @@ class _ProfileState extends State<Profile> {
           ),
           const SizedBox(height: 4),
           Text(
-            profileInformation['email'] ?? "",
+            profileInformation?['email'] ?? "",
             style: TextStyle(
               color: Colors.white.withValues(alpha: 0.6),
               fontSize: 12,
@@ -341,7 +433,7 @@ class _ProfileState extends State<Profile> {
               borderRadius: BorderRadius.circular(100),
             ),
             child: Text(
-              "ID: ${profileInformation['public_id']}",
+              "ID: ${profileInformation?['public_id']}",
               style: TextStyle(
                 color: Colors.white,
                 fontSize: 10,
@@ -365,7 +457,7 @@ class _ProfileState extends State<Profile> {
           context,
           MaterialPageRoute(
             builder: (context) =>
-                EditPersonalInformation(customer: profileInformation),
+                EditPersonalInformation(customer: profileInformation ?? {}),
           ),
         );
       },
@@ -375,31 +467,31 @@ class _ProfileState extends State<Profile> {
         children: [
           _DataField(
             label: "First Name",
-            value: profileInformation['firstname'] ?? "N/A",
+            value: profileInformation?['firstname'] ?? "N/A",
           ),
           _DataField(
             label: "Last Name",
-            value: profileInformation['lastname'] ?? "N/A",
+            value: profileInformation?['lastname'] ?? "N/A",
           ),
           _DataField(
             label: "Phone Number",
-            value: profileInformation['mobileno'] ?? "N/A",
+            value: profileInformation?['mobileno'] ?? "N/A",
           ),
           _DataField(
             label: "Date of Birth",
-            value: profileInformation['dob'] ?? "N/A",
+            value: profileInformation?['dob'] ?? "N/A",
           ),
           _DataField(
             label: "Gender",
-            value: profileInformation['gender'] ?? "N/A",
+            value: profileInformation?['gender'] ?? "N/A",
           ),
           _DataField(
             label: "ID Type",
-            value: profileInformation['identification_type'] ?? "N/A",
+            value: profileInformation?['identification_type'] ?? "N/A",
           ),
           _DataField(
             label: "ID Number",
-            value: profileInformation['identification'] ?? "N/A",
+            value: profileInformation?['identification'] ?? "N/A",
           ),
         ],
       ),
@@ -408,9 +500,11 @@ class _ProfileState extends State<Profile> {
 
   // --- 3. GRID SECTIONS (Residential, Financial, Kin) ---
   Widget _buildGridSections() {
-    final Map<String, dynamic> address = profileInformation['addresses'][0];
+    final Map<String, dynamic> address =
+        (profileInformation?['addresses'] as List?)?.firstOrNull ?? {};
+
     final Map<String, dynamic> nextOfKin =
-        profileInformation['nextOfKins'][0] ?? {};
+        (profileInformation?['nextOfKins'] as List?)?.firstOrNull ?? {};
     return Column(
       children: [
         _InfoCardTemplate(
@@ -421,7 +515,7 @@ class _ProfileState extends State<Profile> {
               context,
               MaterialPageRoute(
                 builder: (context) =>
-                    EditAddressPage(customer: profileInformation),
+                    EditAddressPage(customer: profileInformation ?? {}),
               ),
             );
           },
@@ -429,7 +523,7 @@ class _ProfileState extends State<Profile> {
             children: [
               _DataField(
                 label: "Country",
-                value: profileInformation['country_of_residence'] ?? "N/A",
+                value: profileInformation?['country_of_residence'] ?? "N/A",
                 isFullWidth: true,
               ),
               const SizedBox(height: 12),
@@ -462,7 +556,7 @@ class _ProfileState extends State<Profile> {
               context,
               MaterialPageRoute(
                 builder: (context) =>
-                    EditFinancialsPage(customer: profileInformation),
+                    EditFinancialsPage(customer: profileInformation ?? {}),
               ),
             );
           },
@@ -470,25 +564,25 @@ class _ProfileState extends State<Profile> {
             children: [
               _DataField(
                 label: "Job Title",
-                value: profileInformation['occupation'] ?? "N/A",
+                value: profileInformation?['occupation'] ?? "N/A",
                 isFullWidth: true,
               ),
               const SizedBox(height: 16),
               _DataField(
                 label: "Income Range",
-                value: profileInformation['income_range'] ?? "N/A",
+                value: profileInformation?['income_range'] ?? "N/A",
                 isFullWidth: true,
               ),
               const SizedBox(height: 16),
               _DataField(
                 label: "KRA Pin",
-                value: profileInformation['kraPin'] ?? "N/A",
+                value: profileInformation?['kraPin'] ?? "N/A",
                 isFullWidth: true,
               ),
               const SizedBox(height: 16),
               _DataField(
                 label: "Job Type",
-                value: profileInformation['employment_type'] ?? "N/A",
+                value: profileInformation?['employment_type'] ?? "N/A",
                 isFullWidth: true,
               ),
             ],
