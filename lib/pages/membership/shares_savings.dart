@@ -27,7 +27,6 @@ class SharesSavingsState extends State<SharesSavings> {
   };
 
   Future<void> _toTransactionPage() async {
-    await Future.delayed(const Duration(seconds: 2));
     if (mounted) {
       Navigator.of(context).pushReplacement(
         MaterialPageRoute(
@@ -301,6 +300,7 @@ class SharesSavingsState extends State<SharesSavings> {
     required IconData icon,
     required FocusNode focusNode,
     required TextInputType keyboardType,
+    bool? readonly,
   }) {
     final String? errorText = formErrors[fieldKey];
     final bool hasError = errorText != null;
@@ -377,11 +377,11 @@ class SharesSavingsState extends State<SharesSavings> {
                 child: TextField(
                   focusNode: focusNode,
                   controller: controller,
+                  readOnly: readonly ?? false,
                   keyboardType: keyboardType,
                   style: const TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.w700,
-                    color: AnansiColors.darkBlue,
+                    fontSize: 17,
+                    fontWeight: FontWeight.w500,
                     letterSpacing: 0.2,
                   ),
                   cursorColor: AnansiColors.darkBlue,
