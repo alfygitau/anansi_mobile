@@ -26,14 +26,13 @@ class _WelcomeState extends State<Welcome> {
                   const SizedBox(height: 40),
                   Row(
                     children: [
-                      // Brand Icon Container
                       Container(
                         width: 42,
                         height: 42,
                         decoration: BoxDecoration(
                           color: const Color(
                             0xFF17C6C6,
-                          ).withValues(alpha: 0.15), // Subtle background
+                          ).withValues(alpha: 0.15),
                           borderRadius: BorderRadius.circular(12),
                           border: Border.all(
                             color: const Color(
