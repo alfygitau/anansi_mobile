@@ -158,7 +158,9 @@ class _AccountDetailsState extends State<AccountDetails> {
             mainAxisSize: MainAxisSize.min,
             children: [
               Text(
-                accountInfo['product']['name']?.toString().toUpperCase() ??
+                (accountInfo as Map?)?['product']?['name']
+                        ?.toString()
+                        .toUpperCase() ??
                     "SAVINGS",
                 style: TextStyle(
                   color: Colors.grey.shade500,

@@ -189,8 +189,9 @@ class InvestAmountState extends State<InvestAmount> {
                           focusNode: _amountFocus,
                           keyboardType: TextInputType.number,
                         ),
+                        SizedBox(height: 8,),
                         const Padding(
-                          padding: EdgeInsets.symmetric(vertical: 12),
+                          padding: EdgeInsets.symmetric(vertical: 0),
                           child: Divider(
                             color: Color(0xFFF1F4F8),
                             thickness: 1.5,
