@@ -415,9 +415,7 @@ class _MyLoansState extends State<MyLoans> {
                 style: GoogleFonts.robotoMono(
                   fontWeight: FontWeight.w900,
                   fontSize: 15,
-                  color: isHighlight
-                      ? const Color(0xFF17C6C6)
-                      : AnansiColors.darkBlue,
+                  color: isHighlight ? AnansiColors.darkBlue : Colors.black,
                   letterSpacing: -0.2,
                 ),
               ),

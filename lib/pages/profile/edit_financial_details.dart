@@ -12,20 +12,10 @@ class EditFinancialsPage extends StatefulWidget {
 
 class _EditFinancialsPageState extends State<EditFinancialsPage> {
   late TextEditingController _jobTitleController;
+  late TextEditingController _incomeController;
   late TextEditingController _kraPinController;
   Map<String, String?> formErrors = {'email': null, 'password': null};
-  String? _selectedIncome;
   String? _selectedJobType;
-
-  // Static options for Sacco compliance
-  final List<String> _incomeRanges = [
-    "Below 50,000",
-    "50,000 - 100,000",
-    "100,000 - 250,000",
-    "250,000 - 500,000",
-    "Above 500,000",
-  ];
-
   final List<String> _jobTypes = [
     "Permanent",
     "Contract",
@@ -40,7 +30,9 @@ class _EditFinancialsPageState extends State<EditFinancialsPage> {
       text: widget.customer['occupation'],
     );
     _kraPinController = TextEditingController(text: widget.customer['kraPin']);
-    _selectedIncome = widget.customer['income_range'];
+    _incomeController = TextEditingController(
+      text: widget.customer['income_range'],
+    );
     _selectedJobType = widget.customer['employment_type'];
   }
 
@@ -85,14 +77,14 @@ class _EditFinancialsPageState extends State<EditFinancialsPage> {
                   focusNode: FocusNode(),
                 ),
                 const SizedBox(height: 16),
-                _buildDropdownField(
+                _buildInputField(
                   label: "Monthly Income (KES)",
-                  value: _selectedIncome,
-                  items: _incomeRanges,
-                  icon: CupertinoIcons.money_dollar_circle,
-                  onChanged: (val) => setState(() => _selectedIncome = val),
+                  controller: _incomeController,
+                  hint: "e.g 200000",
+                  icon: CupertinoIcons.doc_text,
+                  fieldKey: "income",
+                  focusNode: FocusNode(),
                 ),
-
                 const SizedBox(height: 24),
                 _buildComplianceNote(),
               ]),

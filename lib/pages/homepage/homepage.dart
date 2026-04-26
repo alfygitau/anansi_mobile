@@ -681,20 +681,20 @@ class _HomepageState extends State<Homepage> {
             child: InkWell(
               onTap: onTap, // Callback implemented here
               borderRadius: BorderRadius.circular(24),
-              splashColor: const Color(0xFF17C6C6).withValues(alpha: 0.1),
+              splashColor: AnansiColors.darkBlue..withValues(alpha: 0.1),
               child: Center(
                 child: Container(
                   width: width * 0.7,
                   height: width * 0.7,
                   decoration: BoxDecoration(
-                    color: const Color(0xFF17C6C6).withValues(alpha: 0.08),
+                    color: AnansiColors.darkBlue.withValues(alpha: 0.08),
                     shape: BoxShape.circle,
                   ),
                   child: Center(
                     child: Icon(
                       icon,
                       size: width * 0.35,
-                      color: const Color(0xFF17C6C6),
+                      color: AnansiColors.darkBlue,
                     ),
                   ),
                 ),
@@ -1193,8 +1193,8 @@ class _HomepageState extends State<Homepage> {
                   fontWeight: FontWeight.w900,
                   fontSize: 15,
                   color: isHighlight
-                      ? const Color(0xFF17C6C6)
-                      : AnansiColors.darkBlue,
+                      ? AnansiColors.darkBlue
+                      : Colors.black,
                   letterSpacing: -0.2,
                 ),
               ),
