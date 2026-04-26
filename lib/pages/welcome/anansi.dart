@@ -1,5 +1,4 @@
 import 'package:app_anansi_mobile/pages/auth/login.dart';
-import 'package:app_anansi_mobile/pages/membership/intro_membership.dart';
 import 'package:app_anansi_mobile/pages/onboarding/introduction.dart';
 import 'package:app_anansi_mobile/theme/app_theme.dart';
 import 'package:flutter/material.dart';
@@ -103,7 +102,7 @@ class _WelcomeState extends State<Welcome> {
                     text: "Sign In",
                     onPressed: () => Navigator.push(
                       context,
-                      MaterialPageRoute(builder: (context) => const IntroMember()),
+                      MaterialPageRoute(builder: (context) => const Login()),
                     ),
                   ),
                   const SizedBox(height: 16),
