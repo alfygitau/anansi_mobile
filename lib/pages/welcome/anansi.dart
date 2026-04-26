@@ -200,7 +200,7 @@ class _WelcomeState extends State<Welcome> {
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
         Text(
-          "SASRA REGULATED",
+          "SECURED BY ANANSI PROTOCOLS",
           style: TextStyle(
             color: Colors.white.withValues(alpha: 0.5),
             fontSize: 11,
