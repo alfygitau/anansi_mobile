@@ -43,7 +43,7 @@ class _GuaranteeAmountState extends State<GuaranteeAmount> {
                         icon: CupertinoIcons.money_dollar_circle,
                         fieldKey: "amount",
                         focusNode: FocusNode(),
-                        keyboardType: TextInputType.number
+                        keyboardType: TextInputType.number,
                       ),
 
                       const SizedBox(height: 12),
@@ -270,12 +270,6 @@ class _GuaranteeAmountState extends State<GuaranteeAmount> {
                   },
                 ),
               ),
-              if (controller.text.isNotEmpty && !hasError)
-                const Icon(
-                  CupertinoIcons.checkmark_circle_fill,
-                  color: Colors.teal,
-                  size: 18,
-                ),
             ],
           ),
         ),

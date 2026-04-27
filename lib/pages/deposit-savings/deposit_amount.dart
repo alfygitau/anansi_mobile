@@ -413,12 +413,6 @@ class _DepositAmountState extends State<DepositAmount> {
                   },
                 ),
               ),
-              if (controller.text.isNotEmpty && !hasError)
-                const Icon(
-                  CupertinoIcons.checkmark_circle_fill,
-                  color: Colors.teal,
-                  size: 18,
-                ),
             ],
           ),
         ),

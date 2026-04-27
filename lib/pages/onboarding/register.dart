@@ -493,12 +493,6 @@ class _RegisterState extends State<Register> {
                   },
                 ),
               ),
-              if (controller.text.isNotEmpty && !hasError)
-                const Icon(
-                  CupertinoIcons.checkmark_circle_fill,
-                  color: Colors.teal,
-                  size: 18,
-                ),
             ],
           ),
         ),

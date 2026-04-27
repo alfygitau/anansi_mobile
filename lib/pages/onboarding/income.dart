@@ -359,12 +359,6 @@ class _IncomeInformationState extends State<IncomeInformation> {
                   },
                 ),
               ),
-              if (controller.text.isNotEmpty && !hasError)
-                const Icon(
-                  CupertinoIcons.checkmark_circle_fill,
-                  color: Colors.teal,
-                  size: 18,
-                ),
             ],
           ),
         ),

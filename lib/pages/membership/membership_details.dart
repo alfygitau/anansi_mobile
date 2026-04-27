@@ -393,7 +393,7 @@ class _MembershipDetailsState extends State<MembershipDetails> {
     required IconData icon,
     required FocusNode focusNode,
     required TextInputType keyboardType,
-    bool? readonly
+    bool? readonly,
   }) {
     final String? errorText = formErrors[fieldKey];
     final bool hasError = errorText != null;
@@ -499,12 +499,6 @@ class _MembershipDetailsState extends State<MembershipDetails> {
                   },
                 ),
               ),
-              if (controller.text.isNotEmpty && !hasError)
-                const Icon(
-                  CupertinoIcons.checkmark_circle_fill,
-                  color: Colors.teal,
-                  size: 18,
-                ),
             ],
           ),
         ),

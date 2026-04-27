@@ -189,7 +189,7 @@ class InvestAmountState extends State<InvestAmount> {
                           focusNode: _amountFocus,
                           keyboardType: TextInputType.number,
                         ),
-                        SizedBox(height: 8,),
+                        SizedBox(height: 8),
                         const Padding(
                           padding: EdgeInsets.symmetric(vertical: 0),
                           child: Divider(
@@ -516,12 +516,6 @@ class InvestAmountState extends State<InvestAmount> {
                   },
                 ),
               ),
-              if (controller.text.isNotEmpty && !hasError)
-                const Icon(
-                  CupertinoIcons.checkmark_circle_fill,
-                  color: Colors.teal,
-                  size: 18,
-                ),
             ],
           ),
         ),

@@ -263,9 +263,9 @@ class _LoginState extends State<Login> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              const SizedBox(height: 30),
+              const SizedBox(height: 20),
               _buildBrandIdentity(),
-              const SizedBox(height: 28),
+              const SizedBox(height: 25),
               const Text(
                 "Welcome Back",
                 style: TextStyle(
@@ -616,12 +616,6 @@ class _LoginState extends State<Login> {
                   },
                 ),
               ),
-              if (controller.text.isNotEmpty && !hasError)
-                const Icon(
-                  CupertinoIcons.checkmark_circle_fill,
-                  color: Colors.teal,
-                  size: 18,
-                ),
             ],
           ),
         ),
