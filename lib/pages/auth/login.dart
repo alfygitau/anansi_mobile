@@ -216,7 +216,6 @@ class _LoginState extends State<Login> {
           stickyAuth: true,
           biometricOnly: true,
           useErrorDialogs: true,
-          
         ),
         authMessages: const [
           AndroidAuthMessages(

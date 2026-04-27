@@ -14,6 +14,7 @@ import 'package:app_anansi_mobile/pages/profile/profile.dart';
 import 'package:app_anansi_mobile/pages/statements/statements.dart';
 import 'package:app_anansi_mobile/services/account_service.dart';
 import 'package:app_anansi_mobile/services/error_service.dart';
+import 'package:app_anansi_mobile/services/secure_storage_service.dart';
 import 'package:app_anansi_mobile/shimmers/homepage/accounts.dart';
 import 'package:app_anansi_mobile/shimmers/homepage/shares_summary.dart';
 import 'package:app_anansi_mobile/state/auth_provider.dart';
@@ -52,19 +53,17 @@ class _HomepageState extends State<Homepage> {
           message: errors[1],
         );
       } else if (response != null) {
+        final authProvider = Provider.of<AuthProvider>(context, listen: false);
         final responseInfo = response.data['data'];
+        authProvider.setUser(responseInfo);
         setState(() {
           accounts = List<Map<String, dynamic>>.from(
             responseInfo['accounts'] ?? [],
           );
-
-          // 2. Extract Shares Account
           sharesAccount = accounts.firstWhere(
             (acc) => acc['product']?['name'] == "Shares",
-            orElse: () => {}, // Returns empty map if not found
+            orElse: () => {}, 
           );
-
-          // 3. Extract Savings Account
           savingsAccount = accounts.firstWhere(
             (acc) => acc['product']?['name'] == "Savings",
             orElse: () => {},
@@ -79,9 +78,9 @@ class _HomepageState extends State<Homepage> {
   Future<void> fetchSharesDetails() async {
     _loading = true;
     try {
-      final authProvider = Provider.of<AuthProvider>(context, listen: false);
+      final auth = await SecureStorageService().readDecoded("user");
       final (response, errors) = await AccountService().sharesSummary(
-        publicId: authProvider.user?['public_id'],
+        publicId: auth['user']?['public_id'],
       );
       if (errors != null) {
         ErrorService.showActionableError(
