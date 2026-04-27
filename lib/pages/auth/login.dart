@@ -216,6 +216,7 @@ class _LoginState extends State<Login> {
           stickyAuth: true,
           biometricOnly: true,
           useErrorDialogs: true,
+          
         ),
         authMessages: const [
           AndroidAuthMessages(
@@ -226,6 +227,7 @@ class _LoginState extends State<Login> {
         ],
       );
       if (authenticated) {
+        await Future.delayed(Duration.zero);
         _replaceNavigate(context, const Homepage());
       }
     } catch (e) {

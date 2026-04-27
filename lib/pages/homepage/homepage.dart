@@ -111,9 +111,9 @@ class _HomepageState extends State<Homepage> {
 
   @override
   void initState() {
-    fetchCustomerDetails();
-    fetchSharesDetails();
     super.initState();
+    fetchSharesDetails();
+    fetchCustomerDetails();
   }
 
   @override

@@ -21,7 +21,6 @@ class AuthProvider with ChangeNotifier {
 
   // 2. Logout Method
   void logout() {
-    _user = null;
     _kycDetails = null;
     notifyListeners();
   }
