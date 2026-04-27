@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:app_anansi_mobile/helpers/format_amount.dart';
 import 'package:app_anansi_mobile/pages/accounts/account_details.dart';
 import 'package:app_anansi_mobile/pages/buy-shares/shares_amount.dart';
@@ -62,7 +64,7 @@ class _HomepageState extends State<Homepage> {
           );
           sharesAccount = accounts.firstWhere(
             (acc) => acc['product']?['name'] == "Shares",
-            orElse: () => {}, 
+            orElse: () => {},
           );
           savingsAccount = accounts.firstWhere(
             (acc) => acc['product']?['name'] == "Savings",
@@ -75,12 +77,19 @@ class _HomepageState extends State<Homepage> {
     }
   }
 
+  Future<Map<String, dynamic>?> getUser() async {
+    String? userJson = await SecureStorageService().read('user');
+    if (userJson == null) return null;
+    Map<String, dynamic> userMap = jsonDecode(userJson);
+    return userMap;
+  }
+
   Future<void> fetchSharesDetails() async {
     _loading = true;
     try {
-      final auth = await SecureStorageService().readDecoded("user");
+      final user = await getUser();
       final (response, errors) = await AccountService().sharesSummary(
-        publicId: auth['user']?['public_id'],
+        publicId: user?['public_id'] ?? "",
       );
       if (errors != null) {
         ErrorService.showActionableError(
