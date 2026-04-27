@@ -3,6 +3,7 @@ import 'package:app_anansi_mobile/pages/profile/edit_financial_details.dart';
 import 'package:app_anansi_mobile/pages/profile/edit_kin.dart';
 import 'package:app_anansi_mobile/pages/profile/edit_personal_information.dart';
 import 'package:app_anansi_mobile/pages/profile/edit_profile_image.dart';
+import 'package:app_anansi_mobile/pages/settings/settings.dart';
 import 'package:app_anansi_mobile/services/error_service.dart';
 import 'package:app_anansi_mobile/services/profile_service.dart';
 import 'package:app_anansi_mobile/shimmers/profile/shimmer_profile.dart';
@@ -690,9 +691,20 @@ class _ProfileState extends State<Profile> {
       actions: [
         Padding(
           padding: const EdgeInsets.only(right: 16),
-          child: _buildCircleAction(CupertinoIcons.square_arrow_right, () {
-            showLogoutBottomSheet(context);
-          }),
+          child: Row(
+            children: [
+              _buildCircleAction(CupertinoIcons.settings_solid, () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => Settings()),
+                );
+              }),
+              SizedBox(width: 8),
+              _buildCircleAction(CupertinoIcons.square_arrow_right, () {
+                showLogoutBottomSheet(context);
+              }),
+            ],
+          ),
         ),
       ],
     );
