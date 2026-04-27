@@ -31,7 +31,7 @@ class Homepage extends StatefulWidget {
 }
 
 class _HomepageState extends State<Homepage> {
-  final double currentShares = 4.5;
+  double currentShares = 0;
   final double targetShares = 10.0;
   bool _isBalanceVisible = true;
   bool _loading = false;
@@ -92,6 +92,7 @@ class _HomepageState extends State<Homepage> {
       } else if (response != null) {
         setState(() {
           sharesSummary = response.data['data'] ?? {};
+          currentShares = response.data['data']['numberOfShares'] ?? 0;
         });
       }
     } finally {
@@ -960,7 +961,7 @@ class _HomepageState extends State<Homepage> {
                   ],
                 ),
                 Icon(
-                  CupertinoIcons.creditcard,
+                  CupertinoIcons.creditcard_fill,
                   color: isPrimary
                       ? Colors.blue.shade200
                       : Colors.grey.shade300,
@@ -985,8 +986,8 @@ class _HomepageState extends State<Homepage> {
                   constraints: const BoxConstraints(),
                   icon: Icon(
                     _isBalanceVisible
-                        ? Icons.visibility_off_rounded
-                        : Icons.visibility_rounded,
+                        ? CupertinoIcons.eye_slash
+                        : CupertinoIcons.eye,
                   ),
                   color: isPrimary ? Colors.blue.shade200 : Colors.grey,
                   style: IconButton.styleFrom(
@@ -1192,9 +1193,7 @@ class _HomepageState extends State<Homepage> {
                 style: GoogleFonts.robotoMono(
                   fontWeight: FontWeight.w900,
                   fontSize: 15,
-                  color: isHighlight
-                      ? AnansiColors.darkBlue
-                      : Colors.black,
+                  color: isHighlight ? AnansiColors.darkBlue : Colors.black,
                   letterSpacing: -0.2,
                 ),
               ),

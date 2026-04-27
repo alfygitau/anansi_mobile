@@ -14,6 +14,9 @@ import 'package:app_anansi_mobile/theme/app_theme.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:local_auth/local_auth.dart';
+import 'package:local_auth_android/local_auth_android.dart';
+import 'package:local_auth_darwin/types/auth_messages_ios.dart';
 import 'package:provider/provider.dart';
 
 class Login extends StatefulWidget {
@@ -33,6 +36,7 @@ class _LoginState extends State<Login> {
   bool _isPasswordVisible = false;
   String loginType = "Biometric";
   bool _isLoading = false;
+  final LocalAuthentication _auth = LocalAuthentication();
 
   void clearAllErrors() => setState(() => formErrors.updateAll((k, v) => null));
 
@@ -44,6 +48,18 @@ class _LoginState extends State<Login> {
         formErrors[key] = null;
       }
     });
+  }
+
+  Future<bool> checkBiometricSupport() async {
+    final LocalAuthentication auth = LocalAuthentication();
+    try {
+      final bool isDeviceSupported = await auth.isDeviceSupported();
+      final bool canCheckBiometrics = await auth.canCheckBiometrics;
+      final bool hasToken = await hasSavedToken();
+      return isDeviceSupported && canCheckBiometrics && hasToken;
+    } catch (e) {
+      return false;
+    }
   }
 
   bool get _isFormValid {
@@ -163,6 +179,54 @@ class _LoginState extends State<Login> {
     );
   }
 
+  Future<bool> hasSavedToken() async {
+    try {
+      String? token = await SecureStorageService().read('accessToken');
+      return token != null && token.isNotEmpty;
+    } catch (e) {
+      return false;
+    }
+  }
+
+  Future<void> _handleAuthentication(BuildContext context) async {
+    try {
+      bool authenticated = await _auth.authenticate(
+        localizedReason:
+            'Please authenticate to securely access your Anansi account',
+        options: const AuthenticationOptions(
+          stickyAuth: true,
+          biometricOnly: true,
+          useErrorDialogs: true,
+        ),
+        authMessages: const [
+          AndroidAuthMessages(
+            signInTitle: 'Anansi Security',
+            cancelButton: 'Use Password',
+          ),
+          IOSAuthMessages(cancelButton: 'Cancel'),
+        ],
+      );
+      if (authenticated) {
+        _replaceNavigate(context, const Homepage());
+      }
+    } catch (e) {
+      _showErrorSnackBar(
+        context,
+        "Authentication error. Please use your password.",
+      );
+    }
+  }
+
+  void _showErrorSnackBar(BuildContext context, String message) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(message),
+        backgroundColor: Colors.redAccent,
+        behavior: SnackBarBehavior.floating,
+      ),
+    );
+  }
+
   @override
   void dispose() {
     _emailFocus.dispose();
@@ -251,6 +315,8 @@ class _LoginState extends State<Login> {
                     ),
                     const SizedBox(height: 32),
                     _buildLoginButton(),
+                    SizedBox(height: 16),
+                    _buildConditionalBiometricButton(),
                   ],
                 ),
               ),
@@ -261,6 +327,48 @@ class _LoginState extends State<Login> {
               const SizedBox(height: 20),
             ],
           ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildConditionalBiometricButton() {
+    return FutureBuilder<bool>(
+      future: checkBiometricSupport(),
+      builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting ||
+            snapshot.data == false) {
+          return const SizedBox.shrink();
+        }
+        return _buildBiometricTrigger();
+      },
+    );
+  }
+
+  Widget _buildBiometricTrigger() {
+    return GestureDetector(
+      onTap: () {
+        _handleAuthentication(context);
+      },
+      child: Container(
+        width: 56,
+        height: 56,
+        decoration: BoxDecoration(
+          color: Colors.white,
+          shape: BoxShape.circle,
+          border: Border.all(color: const Color(0xFFE2E8F0)),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withValues(alpha: 0.05),
+              blurRadius: 10,
+              offset: const Offset(0, 4),
+            ),
+          ],
+        ),
+        child: const Icon(
+          Icons.fingerprint,
+          size: 28,
+          color: AnansiColors.darkBlue,
         ),
       ),
     );

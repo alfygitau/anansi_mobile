@@ -1,7 +1,9 @@
 import 'dart:async';
 import 'dart:convert';
+import 'package:app_anansi_mobile/pages/continue-onboarding/continue_onboarding.dart';
 import 'package:app_anansi_mobile/pages/homepage/homepage.dart';
 import 'package:app_anansi_mobile/pages/membership/intro_membership.dart';
+import 'package:app_anansi_mobile/pages/pending-account/pending_account.dart';
 import 'package:app_anansi_mobile/services/auth_service.dart';
 import 'package:app_anansi_mobile/services/error_service.dart';
 import 'package:app_anansi_mobile/services/secure_storage_service.dart';
@@ -128,9 +130,11 @@ class _OtpAccessState extends State<OtpAccess> {
       return;
     }
     if (isOnboarded && status == 'pending') {
+      _navigateTo(const PendingAccount());
       return;
     }
     if (!isMember && status == "incomplete" && !isOnboarded) {
+      _navigateTo(const ContinueOnboarding());
       return;
     }
     _navigateTo(const Homepage());

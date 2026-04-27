@@ -616,13 +616,12 @@ class _RegisterState extends State<Register> {
                 child: TextField(
                   focusNode: focusNode,
                   controller: controller,
-                  obscureText: _isPasswordVisible, // The logic for hiding text
-                  obscuringCharacter: '●', // Premium look for password dots
+                  obscureText: _isPasswordVisible,
+                  obscuringCharacter: '●',
                   keyboardType: keyboardType,
                   style: const TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.w700,
-                    color: AnansiColors.darkBlue,
+                    fontSize: 17,
+                    fontWeight: FontWeight.w500,
                     letterSpacing: 0.2,
                   ),
                   cursorColor: AnansiColors.darkBlue,
@@ -645,8 +644,6 @@ class _RegisterState extends State<Register> {
                   onTapOutside: (event) => FocusScope.of(context).unfocus(),
                 ),
               ),
-
-              // Show/Hide Toggle Button
               IconButton(
                 onPressed: () {
                   setState(() => _isPasswordVisible = !_isPasswordVisible);
@@ -664,8 +661,6 @@ class _RegisterState extends State<Register> {
             ],
           ),
         ),
-
-        // 3. Error Area
         AnimatedSize(
           duration: const Duration(milliseconds: 200),
           child: SizedBox(

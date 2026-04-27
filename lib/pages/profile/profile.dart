@@ -5,7 +5,6 @@ import 'package:app_anansi_mobile/pages/profile/edit_personal_information.dart';
 import 'package:app_anansi_mobile/pages/profile/edit_profile_image.dart';
 import 'package:app_anansi_mobile/services/error_service.dart';
 import 'package:app_anansi_mobile/services/profile_service.dart';
-import 'package:app_anansi_mobile/services/secure_storage_service.dart';
 import 'package:app_anansi_mobile/shimmers/profile/shimmer_profile.dart';
 import 'package:app_anansi_mobile/state/auth_provider.dart';
 import 'package:app_anansi_mobile/theme/app_theme.dart';
@@ -85,7 +84,6 @@ class _ProfileState extends State<Profile> {
 
   void _logout() async {
     final authProvider = Provider.of<AuthProvider>(context, listen: false);
-    SecureStorageService().deleteAll();
     authProvider.logout();
     Navigator.pushNamedAndRemoveUntil(context, '/login', (route) => false);
   }
@@ -597,8 +595,7 @@ class _ProfileState extends State<Profile> {
             Navigator.push(
               context,
               MaterialPageRoute(
-                builder: (context) =>
-                    EditNextOfKin(nextOfKin: nextOfKin),
+                builder: (context) => EditNextOfKin(nextOfKin: nextOfKin),
               ),
             );
           },

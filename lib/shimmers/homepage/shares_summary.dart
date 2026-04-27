@@ -27,7 +27,6 @@ Widget buildMembershipProgressShimmer() {
                   ),
                 ),
               ),
-              // The mini circular indicator skeleton
               Container(
                 height: 32,
                 width: 32,

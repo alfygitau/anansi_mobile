@@ -370,8 +370,8 @@ class _AccountDetailsState extends State<AccountDetails> {
                           ),
                           icon: Icon(
                             _balanceVisible
-                                ? CupertinoIcons.eye_slash_fill
-                                : CupertinoIcons.eye_fill,
+                                ? CupertinoIcons.eye_slash
+                                : CupertinoIcons.eye,
                             color: Colors.white38,
                           ),
                         ),

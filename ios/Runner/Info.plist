@@ -79,6 +79,7 @@
 	<string>Explain why you need this if using older file_picker versions</string>
 	<key>NSPhotoLibraryUsageDescription</key>
 	<string>Explain why you need this to pick documents from gallery if needed</string>
-
+	<key>NSFaceIDUsageDescription</key>
+	<string>Anansi Sacco requires Face ID to securely log you into your account.</string>
 </dict>
 </plist>

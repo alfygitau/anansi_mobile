@@ -72,8 +72,7 @@ class _EditAddressPageState extends State<EditAddressPage> {
                   icon: CupertinoIcons.map,
                   onChanged: (val) => setState(() {
                     _selectedCounty = val;
-                    _selectedSubCounty =
-                        null; // Reset sub-county on county change
+                    _selectedSubCounty = null;
                   }),
                 ),
                 SizedBox(height: 16),
@@ -81,7 +80,7 @@ class _EditAddressPageState extends State<EditAddressPage> {
                   label: "Sub County / Town",
                   value: _selectedSubCounty,
                   items: _selectedCounty != null
-                      ? _countyData[_selectedCounty]!
+                      ? (_countyData[_selectedCounty] ?? [])
                       : [],
                   icon: CupertinoIcons.location,
                   onChanged: (val) => setState(() => _selectedSubCounty = val),
