@@ -1,4 +1,6 @@
 // ignore_for_file: use_build_context_synchronously
+import 'dart:io';
+
 import 'package:app_anansi_mobile/pages/auth/otp_access.dart';
 import 'package:app_anansi_mobile/pages/continue-onboarding/continue_onboarding.dart';
 import 'package:app_anansi_mobile/pages/forget-password/otp_type.dart';
@@ -17,6 +19,7 @@ import 'package:flutter/services.dart';
 import 'package:local_auth/local_auth.dart';
 import 'package:local_auth_android/local_auth_android.dart';
 import 'package:local_auth_darwin/types/auth_messages_ios.dart';
+import 'package:lucide_icons_flutter/lucide_icons.dart';
 import 'package:provider/provider.dart';
 
 class Login extends StatefulWidget {
@@ -188,6 +191,20 @@ class _LoginState extends State<Login> {
     }
   }
 
+  Future<IconData> getBiometricIcon() async {
+    final LocalAuthentication auth = LocalAuthentication();
+    List<BiometricType> availableBiometrics = await auth
+        .getAvailableBiometrics();
+    if (availableBiometrics.contains(BiometricType.face)) {
+      return Platform.isIOS
+          ? LucideIcons.scanFace
+          : Icons.face_retouching_natural;
+    } else if (availableBiometrics.contains(BiometricType.fingerprint)) {
+      return Icons.fingerprint;
+    }
+    return Icons.lock_outline;
+  }
+
   Future<void> _handleAuthentication(BuildContext context) async {
     try {
       bool authenticated = await _auth.authenticate(
@@ -248,7 +265,7 @@ class _LoginState extends State<Login> {
             children: [
               const SizedBox(height: 30),
               _buildBrandIdentity(),
-              const SizedBox(height: 38),
+              const SizedBox(height: 28),
               const Text(
                 "Welcome Back",
                 style: TextStyle(
@@ -258,7 +275,7 @@ class _LoginState extends State<Login> {
                   letterSpacing: -1,
                 ),
               ),
-              const SizedBox(height: 8),
+              const SizedBox(height: 2),
               Text(
                 "Please provide your authenticated credentials to access your secure wealth portal. Our multi-layered encryption ensures that your institutional-grade savings and credit assets remain protected within our vault infrastructure.",
                 style: TextStyle(
@@ -313,18 +330,18 @@ class _LoginState extends State<Login> {
                         ),
                       ),
                     ),
-                    const SizedBox(height: 32),
+                    const SizedBox(height: 25),
                     _buildLoginButton(),
-                    SizedBox(height: 16),
+                    SizedBox(height: 20),
                     _buildConditionalBiometricButton(),
                   ],
                 ),
               ),
-              const SizedBox(height: 30),
-              _buildSignUpPrompt(),
-              const SizedBox(height: 10),
-              _buildComplianceFooter(),
               const SizedBox(height: 20),
+              _buildSignUpPrompt(),
+              const SizedBox(height: 5),
+              _buildComplianceFooter(),
+              const SizedBox(height: 10),
             ],
           ),
         ),
@@ -347,12 +364,10 @@ class _LoginState extends State<Login> {
 
   Widget _buildBiometricTrigger() {
     return GestureDetector(
-      onTap: () {
-        _handleAuthentication(context);
-      },
+      onTap: () => _handleAuthentication(context),
       child: Container(
-        width: 56,
-        height: 56,
+        width: 65,
+        height: 65,
         decoration: BoxDecoration(
           color: Colors.white,
           shape: BoxShape.circle,
@@ -365,10 +380,12 @@ class _LoginState extends State<Login> {
             ),
           ],
         ),
-        child: const Icon(
-          Icons.fingerprint,
-          size: 28,
-          color: AnansiColors.darkBlue,
+        child: FutureBuilder<IconData>(
+          future: getBiometricIcon(),
+          builder: (context, snapshot) {
+            IconData displayIcon = snapshot.data ?? Icons.fingerprint;
+            return Icon(displayIcon, size: 28, color: const Color(0xFF042159));
+          },
         ),
       ),
     );
