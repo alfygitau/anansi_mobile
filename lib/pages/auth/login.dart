@@ -1,6 +1,5 @@
 // ignore_for_file: use_build_context_synchronously
 import 'dart:io';
-
 import 'package:app_anansi_mobile/pages/auth/otp_access.dart';
 import 'package:app_anansi_mobile/pages/continue-onboarding/continue_onboarding.dart';
 import 'package:app_anansi_mobile/pages/forget-password/otp_type.dart';
@@ -40,6 +39,7 @@ class _LoginState extends State<Login> {
   String loginType = "Biometric";
   bool _isLoading = false;
   final LocalAuthentication _auth = LocalAuthentication();
+  Future<bool>? _biometricSupportFuture;
 
   void clearAllErrors() => setState(() => formErrors.updateAll((k, v) => null));
 
@@ -107,6 +107,8 @@ class _LoginState extends State<Login> {
   @override
   void initState() {
     super.initState();
+    _biometricSupportFuture = checkBiometricSupport();
+
     _emailFocus.addListener(() {
       if (!_emailFocus.hasFocus) {
         _validateField('email', _emailController.text);
@@ -265,11 +267,11 @@ class _LoginState extends State<Login> {
             children: [
               const SizedBox(height: 20),
               _buildBrandIdentity(),
-              const SizedBox(height: 25),
+              const SizedBox(height: 20),
               const Text(
                 "Welcome Back",
                 style: TextStyle(
-                  fontSize: 32,
+                  fontSize: 28,
                   fontWeight: FontWeight.w800,
                   color: AnansiColors.darkBlue,
                   letterSpacing: -1,
@@ -330,16 +332,15 @@ class _LoginState extends State<Login> {
                         ),
                       ),
                     ),
-                    const SizedBox(height: 25),
+                    const SizedBox(height: 20),
                     _buildLoginButton(),
-                    SizedBox(height: 20),
+                    SizedBox(height: 30),
                     _buildConditionalBiometricButton(),
                   ],
                 ),
               ),
-              const SizedBox(height: 20),
+              const SizedBox(height: 10),
               _buildSignUpPrompt(),
-              const SizedBox(height: 5),
               _buildComplianceFooter(),
               const SizedBox(height: 10),
             ],
@@ -351,7 +352,7 @@ class _LoginState extends State<Login> {
 
   Widget _buildConditionalBiometricButton() {
     return FutureBuilder<bool>(
-      future: checkBiometricSupport(),
+      future: _biometricSupportFuture,
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting ||
             snapshot.data == false) {
