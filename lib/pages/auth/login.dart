@@ -206,7 +206,7 @@ class _LoginState extends State<Login> {
     }
   }
 
-  Future<IconData> getBiometricIcon() async {
+  Future<IconData?> getBiometricIcon() async {
     final LocalAuthentication auth = LocalAuthentication();
     List<BiometricType> availableBiometrics = await auth
         .getAvailableBiometrics();
@@ -217,7 +217,7 @@ class _LoginState extends State<Login> {
     } else if (availableBiometrics.contains(BiometricType.fingerprint)) {
       return Icons.fingerprint;
     }
-    return Icons.lock_outline;
+    return null;
   }
 
   Future<void> _handleAuthentication(BuildContext context) async {
@@ -378,31 +378,35 @@ class _LoginState extends State<Login> {
   }
 
   Widget _buildBiometricTrigger() {
-    return GestureDetector(
-      onTap: () => _handleAuthentication(context),
-      child: Container(
-        width: 65,
-        height: 65,
-        decoration: BoxDecoration(
-          color: Colors.white,
-          shape: BoxShape.circle,
-          border: Border.all(color: const Color(0xFFE2E8F0)),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withValues(alpha: 0.05),
-              blurRadius: 10,
-              offset: const Offset(0, 4),
+    return FutureBuilder<IconData?>(
+      future: getBiometricIcon(),
+      builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting ||
+            snapshot.data == null) {
+          return const SizedBox.shrink();
+        }
+        final IconData displayIcon = snapshot.data!;
+        return GestureDetector(
+          onTap: () => _handleAuthentication(context),
+          child: Container(
+            width: 65,
+            height: 65,
+            decoration: BoxDecoration(
+              color: Colors.white,
+              shape: BoxShape.circle,
+              border: Border.all(color: const Color(0xFFE2E8F0)),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withValues(alpha: 0.05),
+                  blurRadius: 10,
+                  offset: const Offset(0, 4),
+                ),
+              ],
             ),
-          ],
-        ),
-        child: FutureBuilder<IconData>(
-          future: getBiometricIcon(),
-          builder: (context, snapshot) {
-            IconData displayIcon = snapshot.data ?? Icons.fingerprint;
-            return Icon(displayIcon, size: 28, color: const Color(0xFF042159));
-          },
-        ),
-      ),
+            child: Icon(displayIcon, size: 28, color: const Color(0xFF042159)),
+          ),
+        );
+      },
     );
   }
 
