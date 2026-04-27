@@ -1,6 +1,7 @@
-import 'dart:ui';
-
 import 'package:app_anansi_mobile/pages/help&support/help_support.dart';
+import 'package:app_anansi_mobile/pages/loan_products/loan_products.dart';
+import 'package:app_anansi_mobile/pages/loans/loan_transactions.dart';
+import 'package:app_anansi_mobile/pages/statements/statements.dart';
 import 'package:app_anansi_mobile/theme/app_theme.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -22,6 +23,12 @@ class _LoanDetailsState extends State<LoanDetails> {
         slivers: [
           _buildAppBar(),
           SliverToBoxAdapter(child: _buildTopMasterCard()),
+          SliverToBoxAdapter(
+            child: Padding(
+              padding: const EdgeInsets.fromLTRB(20, 10, 20, 10),
+              child: _buildQuickActions(),
+            ),
+          ),
           SliverToBoxAdapter(
             child: Padding(
               padding: const EdgeInsets.fromLTRB(20, 10, 20, 10),
@@ -143,6 +150,98 @@ class _LoanDetailsState extends State<LoanDetails> {
     );
   }
 
+  Widget _buildQuickActions() {
+    return Row(
+      children: [
+        _buildActionItem(
+          label: "Transactions",
+          icon: Icons.sync,
+          backgroundColor: const Color(0xFF17C6C6),
+          contentColor: Colors.white,
+          onTap: () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (context) => LoanTransactions()),
+            );
+          },
+        ),
+        const SizedBox(width: 12),
+        _buildActionItem(
+          label: "Statements",
+          icon: CupertinoIcons.doc_text_fill,
+          backgroundColor: Colors.white,
+          contentColor: AnansiColors.darkBlue,
+          onTap: () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (context) => Statements()),
+            );
+          },
+        ),
+        const SizedBox(width: 12),
+        _buildActionItem(
+          label: "Products",
+          icon: Icons.grid_view_rounded,
+          backgroundColor: Colors.white,
+          contentColor: AnansiColors.darkBlue,
+          onTap: () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (context) => LoanProducts()),
+            );
+          },
+        ),
+      ],
+    );
+  }
+
+  Widget _buildActionItem({
+    required String label,
+    required IconData icon,
+    required Color backgroundColor,
+    required Color contentColor,
+    required VoidCallback onTap,
+  }) {
+    return Expanded(
+      child: GestureDetector(
+        onTap: onTap,
+        child: AnimatedContainer(
+          duration: const Duration(milliseconds: 200),
+          padding: const EdgeInsets.symmetric(vertical: 20),
+          decoration: BoxDecoration(
+            color: backgroundColor,
+            borderRadius: BorderRadius.circular(24),
+            border: backgroundColor == Colors.white
+                ? Border.all(color: Colors.black.withValues(alpha: 0.05))
+                : null,
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withValues(alpha: 0.03),
+                blurRadius: 10,
+                offset: const Offset(0, 5),
+              ),
+            ],
+          ),
+          child: Column(
+            children: [
+              Icon(icon, color: contentColor, size: 24),
+              const SizedBox(height: 8),
+              Text(
+                label.toUpperCase(),
+                style: TextStyle(
+                  color: contentColor,
+                  fontSize: 9,
+                  fontWeight: FontWeight.w900,
+                  letterSpacing: 1,
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
   // --- NEW CONTENT: Health & Progress ---
   Widget _buildTopMasterCard() {
     return Container(
@@ -158,7 +257,7 @@ class _LoanDetailsState extends State<LoanDetails> {
         borderRadius: BorderRadius.circular(35),
         boxShadow: [
           BoxShadow(
-            color: const Color(0xFF0A2351).withOpacity(0.15),
+            color: const Color(0xFF0A2351).withValues(alpha: 0.15),
             blurRadius: 30,
             offset: const Offset(0, 15),
           ),
@@ -183,7 +282,7 @@ class _LoanDetailsState extends State<LoanDetails> {
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                 decoration: BoxDecoration(
-                  color: Colors.white.withOpacity(0.1),
+                  color: Colors.white.withValues(alpha: 0.1),
                   borderRadius: BorderRadius.circular(8),
                 ),
                 child: const Text(
@@ -207,7 +306,7 @@ class _LoanDetailsState extends State<LoanDetails> {
                   Text(
                     "CURRENT BALANCE",
                     style: TextStyle(
-                      color: Colors.white.withOpacity(0.5),
+                      color: Colors.white.withValues(alpha: 0.5),
                       fontSize: 10,
                       fontWeight: FontWeight.w800,
                       letterSpacing: 1.2,
@@ -228,7 +327,7 @@ class _LoanDetailsState extends State<LoanDetails> {
               Container(
                 padding: const EdgeInsets.all(10),
                 decoration: BoxDecoration(
-                  color: Colors.white.withOpacity(0.08),
+                  color: Colors.white.withValues(alpha: 0.08),
                   shape: BoxShape.circle,
                 ),
                 child: const Icon(
@@ -266,7 +365,7 @@ class _LoanDetailsState extends State<LoanDetails> {
             child: LinearProgressIndicator(
               value: 0.65,
               minHeight: 8,
-              backgroundColor: Colors.white.withOpacity(0.1),
+              backgroundColor: Colors.white.withValues(alpha: 0.1),
               valueColor: const AlwaysStoppedAnimation(Color(0xFF17C6C6)),
             ),
           ),
@@ -293,7 +392,7 @@ class _LoanDetailsState extends State<LoanDetails> {
         Text(
           label.toUpperCase(),
           style: TextStyle(
-            color: Colors.white.withOpacity(0.4),
+            color: Colors.white.withValues(alpha: 0.4),
             fontSize: 9,
             fontWeight: FontWeight.w700,
           ),
@@ -318,9 +417,11 @@ class _LoanDetailsState extends State<LoanDetails> {
       child: Container(
         padding: const EdgeInsets.all(24),
         decoration: BoxDecoration(
-          color: const Color(0xFF17C6C6).withOpacity(0.05),
+          color: const Color(0xFF17C6C6).withValues(alpha: 0.05),
           borderRadius: BorderRadius.circular(24),
-          border: Border.all(color: const Color(0xFF17C6C6).withOpacity(0.1)),
+          border: Border.all(
+            color: const Color(0xFF17C6C6).withValues(alpha: 0.1),
+          ),
         ),
         child: Column(
           children: [
@@ -530,7 +631,7 @@ class _LoanDetailsState extends State<LoanDetails> {
         borderRadius: const BorderRadius.vertical(top: Radius.circular(30)),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.05),
+            color: Colors.black.withValues(alpha: 0.05),
             blurRadius: 20,
             offset: const Offset(0, -5),
           ),
