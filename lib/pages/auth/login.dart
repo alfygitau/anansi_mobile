@@ -1,4 +1,5 @@
 // ignore_for_file: use_build_context_synchronously
+import 'dart:convert';
 import 'dart:io';
 import 'package:app_anansi_mobile/pages/auth/otp_access.dart';
 import 'package:app_anansi_mobile/pages/continue-onboarding/continue_onboarding.dart';
@@ -53,13 +54,25 @@ class _LoginState extends State<Login> {
     });
   }
 
+  Future<Map<String, dynamic>?> getUser() async {
+    String? userJson = await SecureStorageService().read('user');
+    if (userJson == null) return null;
+    Map<String, dynamic> userMap = jsonDecode(userJson);
+    return userMap;
+  }
+
   Future<bool> checkBiometricSupport() async {
     final LocalAuthentication auth = LocalAuthentication();
     try {
       final bool isDeviceSupported = await auth.isDeviceSupported();
       final bool canCheckBiometrics = await auth.canCheckBiometrics;
       final bool hasToken = await hasSavedToken();
-      return isDeviceSupported && canCheckBiometrics && hasToken;
+      final user = await getUser();
+      final bool userAvailable = user != null && user.containsKey("id");
+      return isDeviceSupported &&
+          canCheckBiometrics &&
+          hasToken &&
+          userAvailable;
     } catch (e) {
       return false;
     }
