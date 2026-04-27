@@ -92,7 +92,11 @@ class _HomepageState extends State<Homepage> {
       } else if (response != null) {
         setState(() {
           sharesSummary = response.data['data'] ?? {};
-          currentShares = response.data['data']['numberOfShares'] ?? 0;
+          currentShares =
+              double.tryParse(
+                response.data['data']['numberOfShares']?.toString() ?? '0',
+              ) ??
+              0.0;
         });
       }
     } finally {
