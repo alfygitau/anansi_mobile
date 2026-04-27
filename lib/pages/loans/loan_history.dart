@@ -17,7 +17,6 @@ class _LoanHistoryState extends State<LoanHistory> {
       body: CustomScrollView(
         physics: const BouncingScrollPhysics(),
         slivers: [
-          // 1. Sleek Header
           _buildAppBar(),
           SliverToBoxAdapter(
             child: Padding(
@@ -33,7 +32,6 @@ class _LoanHistoryState extends State<LoanHistory> {
               ),
             ),
           ),
-          // 3. Transactions List
           SliverPadding(
             padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
             sliver: SliverList(
