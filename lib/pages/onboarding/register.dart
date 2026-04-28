@@ -241,8 +241,8 @@ class _RegisterState extends State<Register> {
       final authProvider = Provider.of<AuthProvider>(context, listen: false);
       final responseInfo = response.data['data'];
       authProvider.setUser(responseInfo['user'] ?? {});
+      await SecureStorageService().write("user", responseInfo['user'] ?? {});
       final tokens = responseInfo['tokens'];
-      print(tokens);
       await SecureStorageService().write("accessToken", tokens['access_token']);
       Navigator.push(
         context,

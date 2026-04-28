@@ -255,7 +255,7 @@ class _HomepageState extends State<Homepage> {
                     alignment: WrapAlignment.start,
                     children: [
                       _buildQuickAction(
-                        label: "Invest",
+                        label: "Quick\nInvest",
                         icon: Icons.trending_up_rounded,
                         onTap: () => Navigator.push(
                           context,
@@ -265,7 +265,7 @@ class _HomepageState extends State<Homepage> {
                         ),
                       ),
                       _buildQuickAction(
-                        label: "Deposit",
+                        label: "Deposit\nSavings",
                         icon: Icons.account_balance_wallet_rounded,
                         onTap: () => Navigator.push(
                           context,
@@ -276,7 +276,7 @@ class _HomepageState extends State<Homepage> {
                         ),
                       ),
                       _buildQuickAction(
-                        label: "Shares",
+                        label: "Buy\nShares",
                         icon: Icons.pie_chart_rounded,
                         onTap: () => Navigator.push(
                           context,
@@ -287,7 +287,7 @@ class _HomepageState extends State<Homepage> {
                         ),
                       ),
                       _buildQuickAction(
-                        label: "Loans",
+                        label: "All\nLoans",
                         icon: CupertinoIcons.graph_square,
                         onTap: () => Navigator.push(
                           context,
@@ -297,7 +297,7 @@ class _HomepageState extends State<Homepage> {
                         ),
                       ),
                       _buildQuickAction(
-                        label: "Statements",
+                        label: "All\nStatements",
                         icon: Icons.description_rounded,
                         onTap: () => Navigator.push(
                           context,
@@ -307,7 +307,7 @@ class _HomepageState extends State<Homepage> {
                         ),
                       ),
                       _buildQuickAction(
-                        label: "Products",
+                        label: "Explore\nProducts",
                         icon: Icons.grid_view_rounded,
                         onTap: () => Navigator.push(
                           context,
@@ -317,7 +317,7 @@ class _HomepageState extends State<Homepage> {
                         ),
                       ),
                       _buildQuickAction(
-                        label: "Guarantorship",
+                        label: "My\nGuarantorship",
                         icon: Icons.gavel_rounded,
                         onTap: () => Navigator.push(
                           context,
@@ -327,7 +327,7 @@ class _HomepageState extends State<Homepage> {
                         ),
                       ),
                       _buildQuickAction(
-                        label: "Loan Applications",
+                        label: "Loan\nApplications",
                         icon: CupertinoIcons.chart_bar_alt_fill,
                         onTap: () => Navigator.push(
                           context,

@@ -520,8 +520,12 @@ class _AwaitStkSharesState extends State<AwaitStkShares>
               width: double.infinity,
               height: 56,
               child: ElevatedButton(
-                onPressed: () =>
-                    Navigator.popUntil(context, (route) => route.isFirst),
+                onPressed: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (context) => const Homepage()),
+                  );
+                },
                 style: ElevatedButton.styleFrom(
                   backgroundColor: const Color(0xFF074073),
                   shape: RoundedRectangleBorder(
