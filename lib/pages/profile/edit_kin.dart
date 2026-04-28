@@ -1,3 +1,6 @@
+import 'package:app_anansi_mobile/pages/profile/profile.dart';
+import 'package:app_anansi_mobile/services/error_service.dart';
+import 'package:app_anansi_mobile/services/profile_service.dart';
 import 'package:app_anansi_mobile/theme/app_theme.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -17,7 +20,33 @@ class _EditNextOfKinState extends State<EditNextOfKin> {
   late TextEditingController _locationController;
   late TextEditingController _dobController;
   late TextEditingController _relationshipController;
-  Map<String, String?> formErrors = {};
+  bool _isLoading = false;
+  Map<String, String?> formErrors = {
+    "name": null,
+    "mobile": null,
+    "location": null,
+    "relationship": null,
+    "dob": null,
+  };
+
+  final FocusNode _nameFocus = FocusNode();
+  final FocusNode _mobileFocus = FocusNode();
+  final FocusNode _locationFocus = FocusNode();
+  final FocusNode _relationshipFocus = FocusNode();
+  final FocusNode _dobFocus = FocusNode();
+
+  void _validateMobile(String value) {
+    setState(() {
+      final bool phoneValid = RegExp(
+        r'^(?:254|\+254|0)?(7|1)(?:[0-9]){8}$',
+      ).hasMatch(value);
+      if (!phoneValid) {
+        formErrors['mobile'] = "Enter a valid Kenyan number (e.g. 0712...)";
+      } else {
+        formErrors['mobile'] = null;
+      }
+    });
+  }
 
   @override
   void initState() {
@@ -37,6 +66,10 @@ class _EditNextOfKinState extends State<EditNextOfKin> {
     _relationshipController = TextEditingController(
       text: widget.nextOfKin['relationship'] ?? "",
     );
+
+    _mobileFocus.addListener(() {
+      if (!_mobileFocus.hasFocus) _validateMobile(_mobileController.text);
+    });
   }
 
   Future<void> _selectDate() async {
@@ -63,8 +96,34 @@ class _EditNextOfKinState extends State<EditNextOfKin> {
     }
   }
 
-  Future<void> editOfKin()async{
-    
+  Future<void> _editOfKin() async {
+    setState(() {
+      _isLoading = true;
+    });
+    try {
+      final (response, errors) = await ProfileService().updateKin(
+        id: widget.nextOfKin['id'] ?? "",
+        fullName: _nameController.text.trim(),
+        birthDate: _dobController.text.trim(),
+        relationship: _relationshipController.text.trim(),
+        phone: _mobileController.text.trim(),
+        location: _locationController.text.trim(),
+      );
+      if (errors != null) {
+        ErrorService.showActionableError(
+          context,
+          title: errors[0],
+          message: errors[1],
+        );
+      } else if (response != null) {
+        Navigator.push(
+          context,
+          MaterialPageRoute(builder: (context) => Profile()),
+        );
+      }
+    } finally {
+      if (mounted) setState(() => _isLoading = false);
+    }
   }
 
   @override
@@ -87,7 +146,7 @@ class _EditNextOfKinState extends State<EditNextOfKin> {
                   icon: CupertinoIcons.person,
                   fieldKey: "name",
                   keyboardType: TextInputType.name,
-                  focusNode: FocusNode(),
+                  focusNode: _nameFocus,
                 ),
                 const SizedBox(height: 16),
                 _buildInputField(
@@ -97,7 +156,7 @@ class _EditNextOfKinState extends State<EditNextOfKin> {
                   icon: CupertinoIcons.phone,
                   fieldKey: "relationship",
                   keyboardType: TextInputType.phone,
-                  focusNode: FocusNode(),
+                  focusNode: _relationshipFocus,
                 ),
                 const SizedBox(height: 32),
                 _buildSectionTitle("Contact & Verification"),
@@ -108,7 +167,7 @@ class _EditNextOfKinState extends State<EditNextOfKin> {
                   icon: CupertinoIcons.phone,
                   fieldKey: "mobile",
                   keyboardType: TextInputType.phone,
-                  focusNode: FocusNode(),
+                  focusNode: _mobileFocus,
                 ),
                 const SizedBox(height: 16),
                 GestureDetector(
@@ -121,7 +180,7 @@ class _EditNextOfKinState extends State<EditNextOfKin> {
                       icon: CupertinoIcons.calendar,
                       fieldKey: "dob",
                       keyboardType: TextInputType.datetime,
-                      focusNode: FocusNode(),
+                      focusNode: _dobFocus,
                     ),
                   ),
                 ),
@@ -133,7 +192,7 @@ class _EditNextOfKinState extends State<EditNextOfKin> {
                   icon: CupertinoIcons.location,
                   fieldKey: "location",
                   keyboardType: TextInputType.text,
-                  focusNode: FocusNode(),
+                  focusNode: _locationFocus,
                 ),
                 const SizedBox(height: 24),
                 _buildSecurityNote(),
@@ -247,9 +306,7 @@ class _EditNextOfKinState extends State<EditNextOfKin> {
         width: double.infinity,
         height: 58,
         child: ElevatedButton(
-          onPressed: () {
-            /* Update Kin API Logic */
-          },
+          onPressed: _isLoading ? () {} : _editOfKin,
           style: ElevatedButton.styleFrom(
             backgroundColor: const Color(0xFF0A2351),
             shape: RoundedRectangleBorder(
@@ -257,10 +314,15 @@ class _EditNextOfKinState extends State<EditNextOfKin> {
             ),
             elevation: 0,
           ),
-          child: const Text(
-            "Save Details",
-            style: TextStyle(fontWeight: FontWeight.w900, color: Colors.white),
-          ),
+          child: _isLoading
+              ? const CupertinoActivityIndicator(color: Colors.white)
+              : const Text(
+                  "Save Details",
+                  style: TextStyle(
+                    fontWeight: FontWeight.w900,
+                    color: Colors.white,
+                  ),
+                ),
         ),
       ),
     );

@@ -1,3 +1,6 @@
+import 'package:app_anansi_mobile/pages/profile/profile.dart';
+import 'package:app_anansi_mobile/services/error_service.dart';
+import 'package:app_anansi_mobile/services/profile_service.dart';
 import 'package:app_anansi_mobile/theme/app_theme.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -21,7 +24,9 @@ class _EditFinancialsPageState extends State<EditFinancialsPage> {
     "Contract",
     "Self-Employed",
     "Unemployed",
+    "Employed",
   ];
+  bool _isLoading = false;
 
   @override
   void initState() {
@@ -34,6 +39,35 @@ class _EditFinancialsPageState extends State<EditFinancialsPage> {
       text: widget.customer['income_range'],
     );
     _selectedJobType = widget.customer['employment_type'];
+  }
+
+  Future<void> _editFinance() async {
+    setState(() {
+      _isLoading = true;
+    });
+    try {
+      final (response, errors) = await ProfileService().updateFinancials(
+        id: widget.customer['id'] ?? "",
+        employmentType: _selectedJobType ?? "",
+        kra: _kraPinController.text.trim(),
+        jobTitle: _jobTitleController.text.trim(),
+        income: _incomeController.text.trim(),
+      );
+      if (errors != null) {
+        ErrorService.showActionableError(
+          context,
+          title: errors[0],
+          message: errors[1],
+        );
+      } else if (response != null) {
+        Navigator.push(
+          context,
+          MaterialPageRoute(builder: (context) => Profile()),
+        );
+      }
+    } finally {
+      if (mounted) setState(() => _isLoading = false);
+    }
   }
 
   @override
@@ -92,7 +126,7 @@ class _EditFinancialsPageState extends State<EditFinancialsPage> {
           ),
         ],
       ),
-      bottomSheet: _buildPersistentFooter(),
+      bottomNavigationBar: _buildPersistentFooter(),
     );
   }
 
@@ -230,19 +264,22 @@ class _EditFinancialsPageState extends State<EditFinancialsPage> {
         width: double.infinity,
         height: 58,
         child: ElevatedButton(
-          onPressed: () {
-            // Logic to update financials
-          },
+          onPressed: _isLoading ? () {} : _editFinance,
           style: ElevatedButton.styleFrom(
             backgroundColor: const Color(0xFF0A2351),
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(18),
             ),
           ),
-          child: const Text(
-            "Update Records",
-            style: TextStyle(fontWeight: FontWeight.w900, color: Colors.white),
-          ),
+          child: _isLoading
+              ? const CupertinoActivityIndicator(color: Colors.white)
+              : const Text(
+                  "Update Records",
+                  style: TextStyle(
+                    fontWeight: FontWeight.w900,
+                    color: Colors.white,
+                  ),
+                ),
         ),
       ),
     );

@@ -73,7 +73,7 @@ class ProfileService {
   }
 
   Future<(Response?, List<String>?)> updateKin({
-    required String id,
+    required int id,
     required String fullName,
     required String birthDate,
     required String relationship,

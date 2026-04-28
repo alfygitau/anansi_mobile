@@ -1,3 +1,7 @@
+import 'package:app_anansi_mobile/pages/profile/profile.dart';
+import 'package:app_anansi_mobile/services/error_service.dart';
+import 'package:app_anansi_mobile/services/onboarding_service.dart';
+import 'package:app_anansi_mobile/services/profile_service.dart';
 import 'package:app_anansi_mobile/theme/app_theme.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -11,21 +15,16 @@ class EditAddressPage extends StatefulWidget {
 }
 
 class _EditAddressPageState extends State<EditAddressPage> {
-  late TextEditingController _physicalAddressController;
+  TextEditingController _physicalAddressController = TextEditingController();
   Map<String, String?> formErrors = {'email': null, 'password': null};
   String? _selectedCountry;
   String? _selectedCounty;
   String? _selectedSubCounty;
-
-  // Static Data for Anansi Sacco Context
-  final List<String> _countries = ["Kenya", "Uganda", "Tanzania", "Rwanda"];
-
-  final Map<String, List<String>> _countyData = {
-    "Nairobi": ["Westlands", "Dagoretti", "Kibra", "Roysambu", "Kasarani"],
-    "Mombasa": ["Nyali", "Likoni", "Mvita", "Kisauni"],
-    "Nakuru": ["Nakuru East", "Nakuru West", "Naivasha", "Molo"],
-    "Kiambu": ["Thika", "Ruiru", "Limuru", "Kikuyu"],
-  };
+  bool _isLoading = false;
+  List<String> _counties = [];
+  List<String> _subCounties = [];
+  List<Map<String, dynamic>> _allCounties = [];
+  final List<String> _countries = ["Kenya", "United States"];
 
   @override
   void initState() {
@@ -35,10 +34,87 @@ class _EditAddressPageState extends State<EditAddressPage> {
     _selectedCountry = widget.customer['country_of_residence'] ?? "Kenya";
     _selectedCounty = address?['county'];
     _selectedSubCounty = address?['subcounty'];
-
     _physicalAddressController = TextEditingController(
       text: address?['physical_address'] ?? "",
     );
+
+    fetchCounties();
+  }
+
+  Future<void> fetchCounties() async {
+    setState(() {
+      _isLoading = true;
+    });
+    try {
+      final (response, errors) = await OnboardingService().getCounties();
+      if (errors != null) {
+        ErrorService.showActionableError(
+          context,
+          title: errors[0],
+          message: errors[1],
+        );
+      } else if (response != null) {
+        final myCounties = List<Map<String, dynamic>>.from(
+          response.data['data'] ?? [],
+        );
+        final address = widget.customer['addresses']?[0];
+        final selectedData = myCounties.firstWhere(
+          (item) => item['county'] == address['county'],
+          orElse: () => {},
+        );
+        setState(() {
+          _allCounties = myCounties;
+          _counties = myCounties
+              .where((county) => county['county'] != null)
+              .map((county) => county['county'].toString())
+              .toList();
+          _subCounties = List<String>.from(selectedData['sub_counties']);
+        });
+      }
+    } finally {
+      if (mounted) setState(() => _isLoading = false);
+    }
+  }
+
+  Future<void> _editAddress() async {
+    setState(() {
+      _isLoading = true;
+    });
+    try {
+      final address = widget.customer['addresses']?[0];
+      final (response, errors) = await ProfileService().updateAddress(
+        id: address['id'] ?? "",
+        county: _selectedCounty ?? "",
+        subcounty: _selectedSubCounty ?? "",
+        physicalAddress: _physicalAddressController.text.trim(),
+      );
+      if (errors != null) {
+        ErrorService.showActionableError(
+          context,
+          title: errors[0],
+          message: errors[1],
+        );
+      } else if (response != null) {
+        Navigator.push(
+          context,
+          MaterialPageRoute(builder: (context) => Profile()),
+        );
+      }
+    } finally {
+      if (mounted) setState(() => _isLoading = false);
+    }
+  }
+
+  void _changeCounty(String? value) {
+    if (value == null) return;
+    setState(() {
+      _selectedCounty = value;
+      final selected = _allCounties.firstWhere((c) => c['county'] == value);
+      _subCounties = List<String>.from(selected['sub_counties'] ?? []);
+      _selectedSubCounty = _subCounties.isNotEmpty
+          ? _subCounties.first
+          : 'Select subcounty';
+    });
   }
 
   @override
@@ -68,27 +144,20 @@ class _EditAddressPageState extends State<EditAddressPage> {
                 _buildDropdownField(
                   label: "County / City",
                   value: _selectedCounty,
-                  items: _countyData.keys.toList(),
+                  items: _counties,
                   icon: CupertinoIcons.map,
-                  onChanged: (val) => setState(() {
-                    _selectedCounty = val;
-                    _selectedSubCounty = null;
-                  }),
+                  onChanged: _changeCounty,
                 ),
                 SizedBox(height: 16),
                 _buildDropdownField(
                   label: "Sub County / Town",
                   value: _selectedSubCounty,
-                  items: _selectedCounty != null
-                      ? (_countyData[_selectedCounty] ?? [])
-                      : [],
+                  items: _subCounties,
                   icon: CupertinoIcons.location,
                   onChanged: (val) => setState(() => _selectedSubCounty = val),
                 ),
-
                 const SizedBox(height: 32),
                 _buildSectionTitle("Specific Details"),
-
                 _buildInputField(
                   label: "Physical Address",
                   controller: _physicalAddressController,
@@ -98,7 +167,6 @@ class _EditAddressPageState extends State<EditAddressPage> {
                   focusNode: FocusNode(),
                   keyboardType: TextInputType.text,
                 ),
-
                 const SizedBox(height: 24),
                 _buildMapHint(),
               ]),
@@ -106,7 +174,7 @@ class _EditAddressPageState extends State<EditAddressPage> {
           ),
         ],
       ),
-      bottomSheet: _buildPersistentFooter(),
+      bottomNavigationBar: _buildPersistentFooter(),
     );
   }
 
@@ -234,9 +302,7 @@ class _EditAddressPageState extends State<EditAddressPage> {
         width: double.infinity,
         height: 58,
         child: ElevatedButton(
-          onPressed: () {
-            // Save address logic
-          },
+          onPressed: _isLoading ? () {} : _editAddress,
           style: ElevatedButton.styleFrom(
             backgroundColor: const Color(0xFF0A2351),
             shape: RoundedRectangleBorder(
@@ -244,10 +310,15 @@ class _EditAddressPageState extends State<EditAddressPage> {
             ),
             elevation: 0,
           ),
-          child: const Text(
-            "Save Address",
-            style: TextStyle(fontWeight: FontWeight.w900, color: Colors.white),
-          ),
+          child: _isLoading
+              ? const CupertinoActivityIndicator(color: Colors.white)
+              : const Text(
+                  "Save Address",
+                  style: TextStyle(
+                    fontWeight: FontWeight.w900,
+                    color: Colors.white,
+                  ),
+                ),
         ),
       ),
     );
