@@ -1,3 +1,5 @@
+import 'package:app_anansi_mobile/theme/app_theme.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 
@@ -12,7 +14,8 @@ class _KycStatusState extends State<KycStatus> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: Color(0xFFF8FAFC),
+      appBar: _buildAppBar(context),
       body: SafeArea(
         child: SingleChildScrollView(
           physics: const BouncingScrollPhysics(),
@@ -74,7 +77,6 @@ class _KycStatusState extends State<KycStatus> {
                 color: Colors.green,
                 metaData: "Agreed on: 28/04/2026",
               ),
-
               const SizedBox(height: 20),
               _buildInfoFooter(),
             ],
@@ -101,7 +103,7 @@ class _KycStatusState extends State<KycStatus> {
         borderRadius: BorderRadius.circular(24),
         border: Border.all(
           color: isActionable
-              ? color.withOpacity(0.4)
+              ? color.withValues(alpha: 0.4)
               : const Color(0xFFF1F5F9),
           width: 1.5,
         ),
@@ -119,7 +121,7 @@ class _KycStatusState extends State<KycStatus> {
                   Container(
                     padding: const EdgeInsets.all(12),
                     decoration: BoxDecoration(
-                      color: color.withOpacity(0.1),
+                      color: color.withValues(alpha: 0.1),
                       borderRadius: BorderRadius.circular(16),
                     ),
                     child: Icon(icon, color: color, size: 22),
@@ -168,7 +170,7 @@ class _KycStatusState extends State<KycStatus> {
                             statusMessage,
                             style: TextStyle(
                               fontSize: 12,
-                              color: color.withOpacity(0.8),
+                              color: color.withValues(alpha: 0.8),
                               fontWeight: FontWeight.w600,
                             ),
                           ),
@@ -193,11 +195,66 @@ class _KycStatusState extends State<KycStatus> {
     );
   }
 
+  AppBar _buildAppBar(BuildContext context) {
+    return AppBar(
+      // Match your existing background and glassmorphism style
+      backgroundColor: const Color(0xFFF8FAFC).withValues(alpha: 0.95),
+      elevation: 0,
+      centerTitle: true,
+      title: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          const Text(
+            "Settings",
+            style: TextStyle(
+              color: AnansiColors.darkBlue,
+              fontWeight: FontWeight.w900,
+              fontSize: 15,
+            ),
+          ),
+          Text(
+            "VIEW MY SETTINGS",
+            style: TextStyle(
+              color: Colors.grey.shade500,
+              fontSize: 10,
+              fontWeight: FontWeight.w800,
+              letterSpacing: 0.8,
+            ),
+          ),
+        ],
+      ),
+      leading: _buildCircleBackBtn(),
+    );
+  }
+
+  Widget _buildCircleBackBtn() {
+    return Center(
+      child: Container(
+        width: 38,
+        height: 38,
+        decoration: BoxDecoration(
+          color: Color(0xFFF8FAFC),
+          shape: BoxShape.circle,
+          border: Border.all(color: Colors.grey.shade200),
+        ),
+        child: IconButton(
+          padding: EdgeInsets.zero,
+          icon: const Icon(
+            CupertinoIcons.back,
+            size: 18,
+            color: AnansiColors.darkBlue,
+          ),
+          onPressed: () => Navigator.pop(context),
+        ),
+      ),
+    );
+  }
+
   Widget _buildStatusBadge(String status, Color color) {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
       decoration: BoxDecoration(
-        color: color.withOpacity(0.1),
+        color: color.withValues(alpha: 0.1),
         borderRadius: BorderRadius.circular(10),
       ),
       child: Text(

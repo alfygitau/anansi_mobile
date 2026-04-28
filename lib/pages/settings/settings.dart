@@ -1,3 +1,5 @@
+import 'package:app_anansi_mobile/pages/help&support/help_support.dart';
+import 'package:app_anansi_mobile/pages/profile/profile.dart';
 import 'package:app_anansi_mobile/pages/settings/kyc_status.dart';
 import 'package:app_anansi_mobile/theme/app_theme.dart';
 import 'package:flutter/material.dart';
@@ -60,7 +62,12 @@ class _SettingsState extends State<Settings> {
                 icon: CupertinoIcons.person_crop_circle,
                 title: "Edit Profile",
                 subtitle: "Manage your name, email, and phone",
-                onTap: () {},
+                onTap: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (context) => const Profile()),
+                  );
+                },
               ),
               _buildSettingsTile(
                 icon: CupertinoIcons.doc_plaintext,
@@ -69,9 +76,7 @@ class _SettingsState extends State<Settings> {
                 onTap: () {
                   Navigator.push(
                     context,
-                    MaterialPageRoute(
-                      builder: (context) => const KycStatus(),
-                    ),
+                    MaterialPageRoute(builder: (context) => const KycStatus()),
                   );
                 },
               ),
@@ -89,13 +94,27 @@ class _SettingsState extends State<Settings> {
                 icon: CupertinoIcons.question_circle,
                 title: "Help Center",
                 subtitle: "FAQs and support guides",
-                onTap: () {},
+                onTap: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => const HelpSupport(),
+                    ),
+                  );
+                },
               ),
               _buildSettingsTile(
                 icon: CupertinoIcons.chat_bubble_2,
                 title: "Contact Us",
                 subtitle: "Talk to our support team",
-                onTap: () {},
+                onTap: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => const HelpSupport(),
+                    ),
+                  );
+                },
               ),
               _buildSettingsTile(
                 icon: CupertinoIcons.info_circle,
