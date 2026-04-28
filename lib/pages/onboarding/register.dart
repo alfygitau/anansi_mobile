@@ -253,17 +253,18 @@ class _RegisterState extends State<Register> {
 
   @override
   void dispose() {
-    _usernameFocus.dispose();
-    _emailFocus.dispose();
-    _mobileFocus.dispose();
-    _passFocus.dispose();
-    _confirmPassFocus.dispose();
+    _usernameController.dispose();
+    _emailController.dispose();
+    _phoneController.dispose();
+    _passwordController.dispose();
+    _confirmPasswordController.dispose();
 
     _usernameFocus.dispose();
     _emailFocus.dispose();
     _mobileFocus.dispose();
     _passFocus.dispose();
     _confirmPassFocus.dispose();
+
     super.dispose();
   }
 

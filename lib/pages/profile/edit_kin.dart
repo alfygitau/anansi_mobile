@@ -63,7 +63,9 @@ class _EditNextOfKinState extends State<EditNextOfKin> {
     }
   }
 
-  
+  Future<void> editOfKin()async{
+    
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -78,7 +80,6 @@ class _EditNextOfKinState extends State<EditNextOfKin> {
             sliver: SliverList(
               delegate: SliverChildListDelegate([
                 _buildSectionTitle("Personal Details"),
-
                 _buildInputField(
                   label: "Full Name",
                   controller: _nameController,
@@ -89,7 +90,6 @@ class _EditNextOfKinState extends State<EditNextOfKin> {
                   focusNode: FocusNode(),
                 ),
                 const SizedBox(height: 16),
-
                 _buildInputField(
                   label: "Relationship",
                   controller: _relationshipController,
@@ -99,10 +99,8 @@ class _EditNextOfKinState extends State<EditNextOfKin> {
                   keyboardType: TextInputType.phone,
                   focusNode: FocusNode(),
                 ),
-
                 const SizedBox(height: 32),
                 _buildSectionTitle("Contact & Verification"),
-
                 _buildInputField(
                   label: "Mobile Number",
                   controller: _mobileController,
@@ -113,8 +111,6 @@ class _EditNextOfKinState extends State<EditNextOfKin> {
                   focusNode: FocusNode(),
                 ),
                 const SizedBox(height: 16),
-
-                // Date of Birth Field (Tappable)
                 GestureDetector(
                   onTap: _selectDate,
                   child: AbsorbPointer(
@@ -130,7 +126,6 @@ class _EditNextOfKinState extends State<EditNextOfKin> {
                   ),
                 ),
                 const SizedBox(height: 16),
-
                 _buildInputField(
                   label: "Residential Location",
                   controller: _locationController,
@@ -140,7 +135,6 @@ class _EditNextOfKinState extends State<EditNextOfKin> {
                   keyboardType: TextInputType.text,
                   focusNode: FocusNode(),
                 ),
-
                 const SizedBox(height: 24),
                 _buildSecurityNote(),
               ]),
@@ -148,12 +142,11 @@ class _EditNextOfKinState extends State<EditNextOfKin> {
           ),
         ],
       ),
-      bottomSheet: _buildPersistentFooter(),
+      bottomNavigationBar: _buildPersistentFooter(),
     );
   }
 
   // --- UI Components (Adapted to Next of Kin) ---
-
   Widget _buildAppBar() {
     return SliverAppBar(
       pinned: true,
