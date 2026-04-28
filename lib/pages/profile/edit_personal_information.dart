@@ -64,6 +64,7 @@ class _EditPersonalInformationState extends State<EditPersonalInformation> {
                   icon: CupertinoIcons.person,
                   fieldKey: "firstName",
                   focusNode: FocusNode(),
+                  readonly: true
                 ),
                 const SizedBox(height: 16),
                 _buildInputField(
@@ -73,6 +74,7 @@ class _EditPersonalInformationState extends State<EditPersonalInformation> {
                   icon: CupertinoIcons.person_crop_rectangle,
                   fieldKey: "middleName",
                   focusNode: FocusNode(),
+                  readonly: true
                 ),
                 const SizedBox(height: 16),
                 _buildInputField(
@@ -82,6 +84,7 @@ class _EditPersonalInformationState extends State<EditPersonalInformation> {
                   icon: CupertinoIcons.person_2,
                   fieldKey: "lastName",
                   focusNode: FocusNode(),
+                  readonly: true
                 ),
                 const SizedBox(height: 16),
                 _buildInputField(
@@ -91,6 +94,7 @@ class _EditPersonalInformationState extends State<EditPersonalInformation> {
                   icon: CupertinoIcons.doc_plaintext,
                   fieldKey: "idNumber",
                   focusNode: FocusNode(),
+                  readonly: true
                 ),
 
                 const SizedBox(height: 32),
@@ -102,6 +106,7 @@ class _EditPersonalInformationState extends State<EditPersonalInformation> {
                   icon: CupertinoIcons.mail,
                   fieldKey: "email",
                   focusNode: FocusNode(),
+                  readonly: true
                 ),
                 const SizedBox(height: 16),
                 _buildInputField(
@@ -111,6 +116,7 @@ class _EditPersonalInformationState extends State<EditPersonalInformation> {
                   icon: CupertinoIcons.phone,
                   fieldKey: "mobile",
                   focusNode: FocusNode(),
+                  readonly: true
                 ),
                 const SizedBox(height: 16),
 
@@ -146,6 +152,7 @@ class _EditPersonalInformationState extends State<EditPersonalInformation> {
       icon: CupertinoIcons.calendar,
       fieldKey: "dob",
       focusNode: FocusNode(),
+      readonly: true
     );
   }
 
@@ -250,6 +257,7 @@ class _EditPersonalInformationState extends State<EditPersonalInformation> {
     required String hint,
     required IconData icon,
     required FocusNode focusNode,
+    required bool readonly,
   }) {
     final String? errorText = formErrors[fieldKey];
     final bool hasError = errorText != null;
@@ -326,6 +334,7 @@ class _EditPersonalInformationState extends State<EditPersonalInformation> {
                 child: TextField(
                   focusNode: focusNode,
                   controller: controller,
+                  readOnly: readonly,
                   style: const TextStyle(
                     fontSize: 17,
                     fontWeight: FontWeight.w500,

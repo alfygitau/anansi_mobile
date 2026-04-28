@@ -1,5 +1,4 @@
 import 'dart:io';
-
 import 'package:app_anansi_mobile/helpers/errors.dart';
 import 'package:app_anansi_mobile/helpers/iso_date.dart';
 import 'package:app_anansi_mobile/sdk/client.dart';

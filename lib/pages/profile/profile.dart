@@ -23,45 +23,6 @@ class Profile extends StatefulWidget {
 class _ProfileState extends State<Profile> {
   Map<String, dynamic>? profileInformation;
   bool _isLoading = false;
-  final Map<String, dynamic> staticCustomer = {
-    "id": "user_88291",
-    "public_id": "ANS-99201-KE",
-    "firstname": "Alfred",
-    "lastname": "Kariuki Gitau",
-    "email": "alfred@anansi.co.ke",
-    "mobileno": "+254 712 345 678",
-    "dob": "1994-05-12T00:00:00Z",
-    "gender": "Male",
-    "country_of_residence": "Kenya",
-    "identification_type": "National ID",
-    "identification": "32098411",
-    "profile_photo":
-        "https://ui-avatars.com/api/?name=Alfred+Kariuki&background=0A2351&color=fff",
-    "occupation": "Senior Full-Stack Developer",
-    "employment_type": "Permanent / Full-time",
-    "income_range": "200,000 - 400,000",
-    "kraPin": "A001234567Z",
-
-    // Nested Address List (matches your React logic: address?.[0])
-    "addresses": [
-      {
-        "county": "Nairobi",
-        "subcounty": "Westlands",
-        "physical_address": "Delta Towers, 4th Floor",
-        "postal_code": "00100",
-      },
-    ],
-
-    // Nested Next of Kin List (matches your React logic: nextOfKins?.[0])
-    "nextOfKins": [
-      {
-        "name": "Jane Wambui Kariuki",
-        "relationship": "Spouse",
-        "phoneNumber": "+254 722 000 111",
-        "location": "Nairobi, Kilimani",
-      },
-    ],
-  };
 
   void fetchProfileInformation() async {
     _isLoading = true;
@@ -387,7 +348,7 @@ class _ProfileState extends State<Profile> {
                       context,
                       MaterialPageRoute(
                         builder: (context) =>
-                            EditProfilePicturePage(customer: staticCustomer),
+                            EditProfilePicturePage(customer: profileInformation ?? {}),
                       ),
                     );
                   },

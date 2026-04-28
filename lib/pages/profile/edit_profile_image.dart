@@ -1,4 +1,7 @@
 import 'dart:io';
+import 'package:app_anansi_mobile/pages/profile/profile.dart';
+import 'package:app_anansi_mobile/services/error_service.dart';
+import 'package:app_anansi_mobile/services/profile_service.dart';
 import 'package:app_anansi_mobile/theme/app_theme.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -24,14 +27,13 @@ class _EditProfilePicturePageState extends State<EditProfilePicturePage> {
     _profilePhotoUrl = widget.customer['profile_photo'];
   }
 
-  // Logic to open the camera (Requires image_picker package setup)
   Future<void> _takePhoto() async {
     try {
       final XFile? photo = await _picker.pickImage(source: ImageSource.camera);
       if (photo != null) {
         setState(() {
           _image = File(photo.path);
-          _profilePhotoUrl = null; // Clear existing URL if new photo taken
+          _profilePhotoUrl = null;
         });
       }
     } catch (e) {
@@ -39,14 +41,13 @@ class _EditProfilePicturePageState extends State<EditProfilePicturePage> {
     }
   }
 
-  // Logic to open the gallery (Requires image_picker package setup)
   Future<void> _uploadFromGallery() async {
     try {
       final XFile? image = await _picker.pickImage(source: ImageSource.gallery);
       if (image != null) {
         setState(() {
           _image = File(image.path);
-          _profilePhotoUrl = null; // Clear existing URL if new image uploaded
+          _profilePhotoUrl = null;
         });
       }
     } catch (e) {
@@ -54,20 +55,28 @@ class _EditProfilePicturePageState extends State<EditProfilePicturePage> {
     }
   }
 
-  // Simulated upload process
   Future<void> _saveChanges() async {
     if (_image == null) return;
-
     setState(() => _isUploading = true);
-
-    // Simulate API call
-    await Future.delayed(const Duration(seconds: 2));
-
-    setState(() => _isUploading = false);
-
-    // If successful, navigate back
-    if (mounted) {
-      Navigator.pop(context);
+    try {
+      final (response, errors) = await ProfileService().uploadProfilePhoto(
+        file: _image ?? File(""),
+        id: widget.customer['id'] ?? "",
+      );
+      if (errors != null) {
+        ErrorService.showActionableError(
+          context,
+          title: errors[0],
+          message: errors[1],
+        );
+      } else if (response != null) {
+        Navigator.push(
+          context,
+          MaterialPageRoute(builder: (context) => Profile()),
+        );
+      }
+    } finally {
+      setState(() => _isUploading = false);
     }
   }
 

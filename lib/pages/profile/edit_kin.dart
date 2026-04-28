@@ -42,9 +42,7 @@ class _EditNextOfKinState extends State<EditNextOfKin> {
   Future<void> _selectDate() async {
     DateTime? picked = await showDatePicker(
       context: context,
-      initialDate: DateTime.now().subtract(
-        const Duration(days: 6570),
-      ), // Default 18 years ago
+      initialDate: DateTime.now().subtract(const Duration(days: 6570)),
       firstDate: DateTime(1920),
       lastDate: DateTime.now(),
       builder: (context, child) {
@@ -64,6 +62,8 @@ class _EditNextOfKinState extends State<EditNextOfKin> {
       });
     }
   }
+
+  
 
   @override
   Widget build(BuildContext context) {
