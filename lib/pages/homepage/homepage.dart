@@ -24,6 +24,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:app_anansi_mobile/theme/app_theme.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:lucide_icons_flutter/lucide_icons.dart';
 import 'package:provider/provider.dart';
 
 class Homepage extends StatefulWidget {
@@ -973,7 +974,8 @@ class _HomepageState extends State<Homepage> {
                   ],
                 ),
                 Icon(
-                  CupertinoIcons.creditcard_fill,
+                  LucideIcons.wallet,
+                  size: 20,
                   color: isPrimary
                       ? Colors.blue.shade200
                       : Colors.grey.shade300,
@@ -994,6 +996,7 @@ class _HomepageState extends State<Homepage> {
                 ),
                 IconButton(
                   padding: EdgeInsets.zero,
+                  iconSize: 20,
                   constraints: const BoxConstraints(),
                   icon: Icon(
                     _isBalanceVisible
@@ -1003,6 +1006,7 @@ class _HomepageState extends State<Homepage> {
                   color: isPrimary ? Colors.blue.shade200 : Colors.grey,
                   style: IconButton.styleFrom(
                     padding: EdgeInsets.zero,
+                    minimumSize: Size.zero,
                     tapTargetSize: MaterialTapTargetSize.shrinkWrap,
                   ),
                   onPressed: () =>

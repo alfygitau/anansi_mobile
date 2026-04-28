@@ -13,6 +13,7 @@ import 'package:app_anansi_mobile/theme/app_theme.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:lucide_icons_flutter/lucide_icons.dart';
 
 class AccountDetails extends StatefulWidget {
   final String accountId;
@@ -364,6 +365,12 @@ class _AccountDetailsState extends State<AccountDetails> {
                           ),
                         ),
                         IconButton(
+                          iconSize: 18,
+                          style: IconButton.styleFrom(
+                            padding: EdgeInsets.zero,
+                            minimumSize: Size.zero,
+                            tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                          ),
                           onPressed: () => setState(
                             () => _balanceVisible = !_balanceVisible,
                           ),
@@ -422,9 +429,9 @@ class _AccountDetailsState extends State<AccountDetails> {
                         ],
                       ),
                       const Icon(
-                        CupertinoIcons.creditcard_fill,
+                        LucideIcons.wallet,
                         color: Colors.white24,
-                        size: 28,
+                        size: 20,
                       ),
                     ],
                   ),
