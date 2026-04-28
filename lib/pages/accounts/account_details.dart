@@ -356,11 +356,10 @@ class _AccountDetailsState extends State<AccountDetails> {
                             _balanceVisible
                                 ? formatAmount(accountInfo['balance'] ?? 0)
                                 : "KES ••••••••",
-                            style: GoogleFonts.robotoMono(
-                              fontWeight: FontWeight.w900,
+                            style: GoogleFonts.outfit(
+                              fontWeight: FontWeight.w700,
                               fontSize: 24,
                               color: Colors.white,
-                              letterSpacing: -1,
                             ),
                           ),
                         ),
@@ -445,7 +444,6 @@ class _AccountDetailsState extends State<AccountDetails> {
       decoration: BoxDecoration(
         color: AnansiColors.darkBlue,
         borderRadius: BorderRadius.circular(32),
-        // Subtle glow to keep it premium even when empty
         boxShadow: [
           BoxShadow(
             color: AnansiColors.darkBlue.withValues(alpha: 0.2),
@@ -456,7 +454,6 @@ class _AccountDetailsState extends State<AccountDetails> {
       ),
       child: Stack(
         children: [
-          // Background Decorative Graphic (Optional for "Premium" feel)
           Positioned(
             right: -20,
             top: -20,
@@ -481,7 +478,7 @@ class _AccountDetailsState extends State<AccountDetails> {
                           width: 8,
                           height: 8,
                           decoration: BoxDecoration(
-                            color: Colors.white24, // Muted indicator
+                            color: Colors.white24,
                             shape: BoxShape.circle,
                           ),
                         ),
@@ -500,19 +497,14 @@ class _AccountDetailsState extends State<AccountDetails> {
                     const SizedBox(height: 12),
                     Text(
                       formatAmount(0),
-                      style: GoogleFonts.robotoMono(
+                      style: GoogleFonts.outfit(
                         fontWeight: FontWeight.w900,
                         fontSize: 28,
-                        color: Colors.white.withValues(
-                          alpha: 0.5,
-                        ), // Desaturated
-                        letterSpacing: -1,
+                        color: Colors.white.withValues(alpha: 0.5),
                       ),
                     ),
                   ],
                 ),
-
-                // Action Area for Empty State
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
@@ -525,9 +517,7 @@ class _AccountDetailsState extends State<AccountDetails> {
                       ),
                     ),
                     TextButton.icon(
-                      onPressed: () {
-                        // Navigate to Deposit/Top-up
-                      },
+                      onPressed: () {},
                       icon: const Icon(
                         CupertinoIcons.add_circled_solid,
                         size: 18,

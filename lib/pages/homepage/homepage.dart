@@ -986,10 +986,9 @@ class _HomepageState extends State<Homepage> {
               children: [
                 Text(
                   _isBalanceVisible ? formatAmount(balance) : "KES ••••••••",
-                  style: GoogleFonts.robotoMono(
+                  style: GoogleFonts.outfit(
                     fontWeight: FontWeight.bold,
                     fontSize: 24,
-                    letterSpacing: -1,
                     color: isPrimary ? Colors.white : AnansiColors.darkBlue,
                   ),
                 ),
@@ -1202,11 +1201,10 @@ class _HomepageState extends State<Homepage> {
             children: [
               TextSpan(
                 text: value,
-                style: GoogleFonts.robotoMono(
+                style: GoogleFonts.outfit(
                   fontWeight: FontWeight.w900,
                   fontSize: 15,
                   color: isHighlight ? AnansiColors.darkBlue : Colors.black,
-                  letterSpacing: -0.2,
                 ),
               ),
             ],
@@ -1319,11 +1317,10 @@ class _HomepageState extends State<Homepage> {
                 children: [
                   Text(
                     amount,
-                    style: GoogleFonts.robotoMono(
+                    style: GoogleFonts.outfit(
                       fontWeight: FontWeight.w800,
                       fontSize: 13,
                       color: AnansiColors.darkBlue,
-                      letterSpacing: -1,
                     ),
                   ),
                   Text(

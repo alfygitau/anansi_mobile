@@ -412,11 +412,10 @@ class _MyLoansState extends State<MyLoans> {
             children: [
               TextSpan(
                 text: value,
-                style: GoogleFonts.robotoMono(
+                style: GoogleFonts.outfit(
                   fontWeight: FontWeight.w900,
                   fontSize: 15,
                   color: isHighlight ? AnansiColors.darkBlue : Colors.black,
-                  letterSpacing: -0.2,
                 ),
               ),
             ],
