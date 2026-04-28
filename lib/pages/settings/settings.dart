@@ -1,3 +1,4 @@
+import 'package:app_anansi_mobile/pages/settings/kyc_status.dart';
 import 'package:app_anansi_mobile/theme/app_theme.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
@@ -65,7 +66,14 @@ class _SettingsState extends State<Settings> {
                 icon: CupertinoIcons.doc_plaintext,
                 title: "Kyc Documents",
                 subtitle: "Check your verification status",
-                onTap: () {},
+                onTap: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => const KycStatus(),
+                    ),
+                  );
+                },
               ),
             ]),
           ),
@@ -98,28 +106,6 @@ class _SettingsState extends State<Settings> {
               _buildSettingsTile(
                 icon: CupertinoIcons.shield_lefthalf_fill,
                 title: "Privacy Policy",
-                onTap: () {},
-              ),
-            ]),
-          ),
-          SliverToBoxAdapter(
-            child: Padding(
-              padding: const EdgeInsets.fromLTRB(20, 24, 20, 10),
-              child: _buildSectionHeader("Financial Settings"),
-            ),
-          ),
-          SliverList(
-            delegate: SliverChildListDelegate([
-              _buildSettingsTile(
-                icon: CupertinoIcons.money_dollar_circle,
-                title: "Preferred Currency",
-                trailingText: "KES",
-                onTap: () {},
-              ),
-              _buildSettingsTile(
-                icon: CupertinoIcons.doc_text,
-                title: "Statements & Tax",
-                subtitle: "Download your financial history",
                 onTap: () {},
               ),
             ]),
