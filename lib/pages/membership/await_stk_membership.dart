@@ -1,5 +1,6 @@
 import 'package:app_anansi_mobile/helpers/polling.dart';
 import 'package:app_anansi_mobile/pages/homepage/homepage.dart';
+import 'package:app_anansi_mobile/pages/membership/intro_membership.dart';
 import 'package:app_anansi_mobile/services/membership_service.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -611,7 +612,7 @@ class _AwaitStkMembershipState extends State<AwaitStkMembership>
                       onCancel();
                       Navigator.push(
                         context,
-                        MaterialPageRoute(builder: (context) => Homepage()),
+                        MaterialPageRoute(builder: (context) => IntroMember()),
                       );
                     },
                     style: OutlinedButton.styleFrom(
@@ -635,7 +636,7 @@ class _AwaitStkMembershipState extends State<AwaitStkMembership>
                   child: ElevatedButton(
                     onPressed: () {
                       Navigator.pop(context);
-                      onRetry(); // Restarts the logic
+                      onRetry();
                     },
                     style: ElevatedButton.styleFrom(
                       minimumSize: const Size(double.infinity, 56),
