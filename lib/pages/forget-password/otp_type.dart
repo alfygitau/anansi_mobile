@@ -55,10 +55,7 @@ class _OtpTypeState extends State<OtpType> {
                 isSelected: _selectedMethod == "email",
                 onTap: () => setState(() => _selectedMethod = "email"),
               ),
-
               const Spacer(),
-
-              // Helpful Hint
               Container(
                 padding: const EdgeInsets.all(16),
                 decoration: BoxDecoration(
@@ -91,17 +88,22 @@ class _OtpTypeState extends State<OtpType> {
                 width: double.infinity,
                 height: 56,
                 child: ElevatedButton(
-                  onPressed: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) =>
-                            ForgetIdentity(method: _selectedMethod),
-                      ),
-                    );
-                  },
+                  onPressed: _selectedMethod.isEmpty
+                      ? null
+                      : () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) =>
+                                  ForgetIdentity(method: _selectedMethod),
+                            ),
+                          );
+                        },
                   style: ElevatedButton.styleFrom(
                     backgroundColor: AnansiColors.darkBlue,
+                    foregroundColor: Colors.white,
+                    disabledBackgroundColor: Colors.grey.shade300,
+                    disabledForegroundColor: Colors.white,
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(18),
                     ),
@@ -109,11 +111,7 @@ class _OtpTypeState extends State<OtpType> {
                   ),
                   child: const Text(
                     "Continue",
-                    style: TextStyle(
-                      fontWeight: FontWeight.w800,
-                      fontSize: 16,
-                      color: Colors.white,
-                    ),
+                    style: TextStyle(fontWeight: FontWeight.w800, fontSize: 16),
                   ),
                 ),
               ),
