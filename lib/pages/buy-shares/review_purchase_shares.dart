@@ -48,15 +48,18 @@ class _ReviewPurchaseSharesState extends State<ReviewPurchaseShares> {
   }
 
   void buyShares() async {
-    bool isAuthenticated = await BiometricService().authenticateUser();
-    if (!isAuthenticated) {
-      ErrorService.showActionableError(
-        context,
-        title: "Authentication error!",
-        message:
-            "We couldn't verify your identity. Please use your registered fingerprint or Face ID to authorize this share purchase",
-      );
-      return;
+    bool biometricsAvailable = await BiometricService().canUseBiometrics();
+    if (biometricsAvailable) {
+      bool isAuthenticated = await BiometricService().authenticateUser();
+      if (!isAuthenticated) {
+        ErrorService.showActionableError(
+          context,
+          title: "Authentication error!",
+          message:
+              "Kindly use the right biometrics to authenticate the process.",
+        );
+        return;
+      }
     }
     final String ref = generateAlphaNumericId();
     setState(() {
