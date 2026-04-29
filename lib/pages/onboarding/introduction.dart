@@ -50,7 +50,7 @@ class _IntroductionState extends State<Introduction> {
       "processDescription":
           "A one-time registration fee is processed via M-PESA to activate your share capital and voting rights in the SACCO.",
       "resultDescription":
-          "You receive your digital Member Certificate and full access to all savings, loans, and dividend features.",
+          "You receive full digital access to all savings, loans, and dividend features.",
     },
   ];
   @override
