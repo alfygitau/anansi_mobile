@@ -144,4 +144,34 @@ class ErrorService {
       ),
     );
   }
+
+  static void showError(BuildContext context, String message) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Row(
+          children: [
+            const Icon(Icons.error_outline, color: Colors.white, size: 20),
+            const SizedBox(width: 12),
+            Expanded(
+              child: Text(
+                message,
+                style: const TextStyle(
+                  color: Colors.white,
+                  fontSize: 14,
+                  fontWeight: FontWeight.w500,
+                ),
+              ),
+            ),
+          ],
+        ),
+        backgroundColor: const Color(0xFFD63B3B), // Matching your Red
+        behavior: SnackBarBehavior.floating,
+        elevation: 4,
+        margin: const EdgeInsets.all(16), // Gives it the floating look
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+        duration: const Duration(seconds: 4),
+        dismissDirection: DismissDirection.horizontal,
+      ),
+    );
+  }
 }

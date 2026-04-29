@@ -166,7 +166,7 @@ class SharesSavingsState extends State<SharesSavings> {
         slivers: [
           _buildAppBar(),
           SliverPadding(
-            padding: const EdgeInsets.fromLTRB(20, 10, 20, 150),
+            padding: const EdgeInsets.fromLTRB(20, 10, 20, 30),
             sliver: SliverList(
               delegate: SliverChildListDelegate([
                 buildSectionHeader(
@@ -253,7 +253,7 @@ class SharesSavingsState extends State<SharesSavings> {
           ),
         ],
       ),
-      bottomSheet: _buildPersistentFooter(),
+      bottomNavigationBar: _buildPersistentFooter(),
     );
   }
 

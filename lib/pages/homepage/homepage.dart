@@ -1,5 +1,4 @@
 import 'dart:convert';
-
 import 'package:app_anansi_mobile/helpers/format_amount.dart';
 import 'package:app_anansi_mobile/pages/accounts/account_details.dart';
 import 'package:app_anansi_mobile/pages/buy-shares/shares_amount.dart';

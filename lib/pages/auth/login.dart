@@ -1,6 +1,4 @@
 // ignore_for_file: use_build_context_synchronously
-import 'dart:convert';
-import 'dart:io';
 import 'package:app_anansi_mobile/pages/auth/otp_access.dart';
 import 'package:app_anansi_mobile/pages/continue-onboarding/continue_onboarding.dart';
 import 'package:app_anansi_mobile/pages/forget-password/otp_type.dart';
@@ -9,6 +7,7 @@ import 'package:app_anansi_mobile/pages/membership/intro_membership.dart';
 import 'package:app_anansi_mobile/pages/onboarding/introduction.dart';
 import 'package:app_anansi_mobile/pages/pending-account/pending_account.dart';
 import 'package:app_anansi_mobile/services/auth_service.dart';
+import 'package:app_anansi_mobile/services/biometric_service.dart';
 import 'package:app_anansi_mobile/services/error_service.dart';
 import 'package:app_anansi_mobile/services/secure_storage_service.dart';
 import 'package:app_anansi_mobile/state/auth_provider.dart';
@@ -16,10 +15,6 @@ import 'package:app_anansi_mobile/theme/app_theme.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:local_auth/local_auth.dart';
-import 'package:local_auth_android/local_auth_android.dart';
-import 'package:local_auth_darwin/types/auth_messages_ios.dart';
-import 'package:lucide_icons_flutter/lucide_icons.dart';
 import 'package:provider/provider.dart';
 
 class Login extends StatefulWidget {
@@ -39,7 +34,6 @@ class _LoginState extends State<Login> {
   bool _isPasswordVisible = false;
   String loginType = "Biometric";
   bool _isLoading = false;
-  final LocalAuthentication _auth = LocalAuthentication();
   Future<bool>? _biometricSupportFuture;
 
   void clearAllErrors() => setState(() => formErrors.updateAll((k, v) => null));
@@ -52,30 +46,6 @@ class _LoginState extends State<Login> {
         formErrors[key] = null;
       }
     });
-  }
-
-  Future<Map<String, dynamic>?> getUser() async {
-    String? userJson = await SecureStorageService().read('user');
-    if (userJson == null) return null;
-    Map<String, dynamic> userMap = jsonDecode(userJson);
-    return userMap;
-  }
-
-  Future<bool> checkBiometricSupport() async {
-    final LocalAuthentication auth = LocalAuthentication();
-    try {
-      final bool isDeviceSupported = await auth.isDeviceSupported();
-      final bool canCheckBiometrics = await auth.canCheckBiometrics;
-      final bool hasToken = await hasSavedToken();
-      final user = await getUser();
-      final bool userAvailable = user != null && user.containsKey("id");
-      return isDeviceSupported &&
-          canCheckBiometrics &&
-          hasToken &&
-          userAvailable;
-    } catch (e) {
-      return false;
-    }
   }
 
   bool get _isFormValid {
@@ -120,7 +90,7 @@ class _LoginState extends State<Login> {
   @override
   void initState() {
     super.initState();
-    _biometricSupportFuture = checkBiometricSupport();
+    _biometricSupportFuture = BiometricService().canUseBiometrics();
 
     _emailFocus.addListener(() {
       if (!_emailFocus.hasFocus) {
@@ -128,7 +98,6 @@ class _LoginState extends State<Login> {
       }
       setState(() {});
     });
-
     _passFocus.addListener(() {
       if (!_passFocus.hasFocus) {
         _validateField('password', _passwordController.text);
@@ -197,67 +166,22 @@ class _LoginState extends State<Login> {
     );
   }
 
-  Future<bool> hasSavedToken() async {
-    try {
-      String? token = await SecureStorageService().read('accessToken');
-      return token != null && token.isNotEmpty;
-    } catch (e) {
-      return false;
-    }
-  }
-
-  Future<IconData?> getBiometricIcon() async {
-    final LocalAuthentication auth = LocalAuthentication();
-    List<BiometricType> availableBiometrics = await auth
-        .getAvailableBiometrics();
-    if (availableBiometrics.contains(BiometricType.face)) {
-      return Platform.isIOS
-          ? LucideIcons.scanFace
-          : Icons.face_retouching_natural;
-    } else if (availableBiometrics.contains(BiometricType.fingerprint)) {
-      return Icons.fingerprint;
-    }
-    return null;
-  }
-
   Future<void> _handleAuthentication(BuildContext context) async {
-    try {
-      bool authenticated = await _auth.authenticate(
-        localizedReason:
-            'Please authenticate to securely access your Anansi account',
-        options: const AuthenticationOptions(
-          stickyAuth: true,
-          biometricOnly: true,
-          useErrorDialogs: true,
-        ),
-        authMessages: const [
-          AndroidAuthMessages(
-            signInTitle: 'Anansi Security',
-            cancelButton: 'Use Password',
-          ),
-          IOSAuthMessages(cancelButton: 'Cancel'),
-        ],
-      );
-      if (authenticated) {
-        await Future.delayed(Duration.zero);
+    final biometricService = BiometricService();
+    bool canAuth = await biometricService.canUseBiometrics();
+    if (canAuth) {
+      bool success = await biometricService.authenticateUser();
+      if (success) {
         _replaceNavigate(context, const Homepage());
+      } else {
+        ErrorService.showError(
+          context,
+          "Authentication failed. Please use your password to log in.",
+        );
       }
-    } catch (e) {
-      _showErrorSnackBar(
-        context,
-        "Authentication error. Please use your password.",
-      );
+    } else {
+      _replaceNavigate(context, const Login());
     }
-  }
-
-  void _showErrorSnackBar(BuildContext context, String message) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text(message),
-        backgroundColor: Colors.redAccent,
-        behavior: SnackBarBehavior.floating,
-      ),
-    );
   }
 
   @override
@@ -379,7 +303,7 @@ class _LoginState extends State<Login> {
 
   Widget _buildBiometricTrigger() {
     return FutureBuilder<IconData?>(
-      future: getBiometricIcon(),
+      future: BiometricService().getBiometricIcon(),
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting ||
             snapshot.data == null) {

@@ -1,10 +1,11 @@
+// ignore_for_file: use_build_context_synchronously
 import 'dart:math';
-
 import 'package:app_anansi_mobile/helpers/format_amount.dart';
 import 'package:app_anansi_mobile/helpers/format_mobile.dart';
 import 'package:app_anansi_mobile/pages/buy-shares/await_stk_shares.dart';
 import 'package:app_anansi_mobile/pages/help&support/help_support.dart';
 import 'package:app_anansi_mobile/services/account_service.dart';
+import 'package:app_anansi_mobile/services/biometric_service.dart';
 import 'package:app_anansi_mobile/services/error_service.dart';
 import 'package:app_anansi_mobile/theme/app_theme.dart';
 import 'package:flutter/cupertino.dart';
@@ -47,6 +48,16 @@ class _ReviewPurchaseSharesState extends State<ReviewPurchaseShares> {
   }
 
   void buyShares() async {
+    bool isAuthenticated = await BiometricService().authenticateUser();
+    if (!isAuthenticated) {
+      ErrorService.showActionableError(
+        context,
+        title: "Authentication error!",
+        message:
+            "We couldn't verify your identity. Please use your registered fingerprint or Face ID to authorize this share purchase",
+      );
+      return;
+    }
     final String ref = generateAlphaNumericId();
     setState(() {
       _isLoading = true;

@@ -25,6 +25,7 @@ class _EditAddressPageState extends State<EditAddressPage> {
   List<String> _subCounties = [];
   List<Map<String, dynamic>> _allCounties = [];
   final List<String> _countries = ["Kenya", "United States"];
+  final FocusNode _addressFocus = FocusNode();
 
   @override
   void initState() {
@@ -164,7 +165,7 @@ class _EditAddressPageState extends State<EditAddressPage> {
                   hint: "Apartment, Street, or House No.",
                   icon: CupertinoIcons.house_alt,
                   fieldKey: "address",
-                  focusNode: FocusNode(),
+                  focusNode: _addressFocus,
                   keyboardType: TextInputType.text,
                 ),
                 const SizedBox(height: 24),

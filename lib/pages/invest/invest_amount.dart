@@ -264,7 +264,7 @@ class InvestAmountState extends State<InvestAmount> {
     return SliverAppBar(
       pinned: true,
       floating: true,
-      backgroundColor: const Color(0xFFF8FAFC).withOpacity(0.9),
+      backgroundColor: const Color(0xFFF8FAFC).withValues(alpha: 0.9),
       elevation: 0,
       centerTitle: true,
       leadingWidth: 64,
