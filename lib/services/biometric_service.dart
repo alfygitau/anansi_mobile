@@ -11,6 +11,16 @@ class BiometricService {
   final LocalAuthentication _auth = LocalAuthentication();
   final SecureStorageService _storage = SecureStorageService();
 
+  Future<String> getBiometricStatus() async {
+    String? status = await _storage.read("biometric_status");
+    return status ?? "isEnabled";
+  }
+
+  Future<void> setBiometricStatus(bool enable) async {
+    String status = enable ? "isEnabled" : "isDisabled";
+    await _storage.write("biometric_status", status);
+  }
+
   Future<bool> hasSavedToken() async {
     try {
       String? token = await _storage.read('accessToken');
@@ -32,6 +42,7 @@ class BiometricService {
 
   Future<bool> canUseBiometrics() async {
     try {
+      final String isCurrentlyEnabled = await getBiometricStatus();
       final bool isDeviceSupported = await _auth.isDeviceSupported();
       final bool canCheckBiometrics = await _auth.canCheckBiometrics;
       final List<BiometricType> availableBiometrics = await _auth
@@ -44,7 +55,8 @@ class BiometricService {
           canCheckBiometrics &&
           availableBiometrics.isNotEmpty &&
           hasToken &&
-          userAvailable;
+          userAvailable &&
+          isCurrentlyEnabled == "isEnabled";
     } catch (e) {
       debugPrint("Biometric support check failed: $e");
       return false;

@@ -1,6 +1,7 @@
 import 'package:app_anansi_mobile/pages/help&support/help_support.dart';
 import 'package:app_anansi_mobile/pages/profile/profile.dart';
 import 'package:app_anansi_mobile/pages/settings/kyc_status.dart';
+import 'package:app_anansi_mobile/services/biometric_service.dart';
 import 'package:app_anansi_mobile/theme/app_theme.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
@@ -14,6 +15,26 @@ class Settings extends StatefulWidget {
 
 class _SettingsState extends State<Settings> {
   bool _biometricsEnabled = true;
+
+  void _loadBioPreference() async {
+    String status = await BiometricService().getBiometricStatus();
+    if (mounted) {
+      setState(() {
+        _biometricsEnabled = (status == "isEnabled");
+      });
+    }
+  }
+
+  void _toggleBiometrics(bool val) async {
+    setState(() => _biometricsEnabled = val);
+    await BiometricService().setBiometricStatus(val);
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    _loadBioPreference();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -41,11 +62,11 @@ class _SettingsState extends State<Settings> {
                 icon: CupertinoIcons.viewfinder,
                 title: "Enable Biometrics",
                 subtitle: "Face ID or Fingerprint",
-                onTap: () {},
+                onTap: () => _toggleBiometrics(!_biometricsEnabled),
                 toggle: CupertinoSwitch(
                   value: _biometricsEnabled,
                   activeTrackColor: const Color(0xFF042159),
-                  onChanged: (val) => setState(() => _biometricsEnabled = val),
+                  onChanged: (val) => _toggleBiometrics(val),
                 ),
               ),
             ]),
