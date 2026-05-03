@@ -172,7 +172,8 @@ class _LoginState extends State<Login> {
     if (canAuth) {
       bool success = await biometricService.authenticateUser();
       if (success) {
-        _replaceNavigate(context, const Homepage());
+        final user = await BiometricService().getUser();
+        navigateBasedOnStatus(context, user ?? {});
       } else {
         ErrorService.showError(
           context,
