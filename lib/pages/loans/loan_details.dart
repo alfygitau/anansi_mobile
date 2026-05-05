@@ -1,5 +1,5 @@
 import 'package:app_anansi_mobile/pages/help&support/help_support.dart';
-import 'package:app_anansi_mobile/pages/loan_products/loan_products.dart';
+import 'package:app_anansi_mobile/pages/loan-products/loan_products.dart';
 import 'package:app_anansi_mobile/pages/loans/loan_history.dart';
 import 'package:app_anansi_mobile/pages/statements/statements.dart';
 import 'package:app_anansi_mobile/theme/app_theme.dart';

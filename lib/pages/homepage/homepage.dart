@@ -7,7 +7,7 @@ import 'package:app_anansi_mobile/pages/guarantorship/guarantorship.dart';
 import 'package:app_anansi_mobile/pages/invest/invest_amount.dart';
 import 'package:app_anansi_mobile/pages/loan-applications/loan_application.dart';
 import 'package:app_anansi_mobile/pages/loan-applications/loan_applications.dart';
-import 'package:app_anansi_mobile/pages/loan_products/loan_products.dart';
+import 'package:app_anansi_mobile/pages/loan-products/loan_products.dart';
 import 'package:app_anansi_mobile/pages/loans/loan_details.dart';
 import 'package:app_anansi_mobile/pages/loans/loans.dart';
 import 'package:app_anansi_mobile/pages/notifications/notifications.dart';

@@ -2,7 +2,7 @@ import 'package:app_anansi_mobile/helpers/format_amount.dart';
 import 'package:app_anansi_mobile/helpers/format_time.dart';
 import 'package:app_anansi_mobile/pages/help&support/help_support.dart';
 import 'package:app_anansi_mobile/pages/loan-applications/loan_application.dart';
-import 'package:app_anansi_mobile/pages/loan_products/loan_products.dart';
+import 'package:app_anansi_mobile/pages/loan-products/loan_products.dart';
 import 'package:app_anansi_mobile/theme/app_theme.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';

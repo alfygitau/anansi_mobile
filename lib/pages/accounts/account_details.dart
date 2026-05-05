@@ -3,7 +3,7 @@ import 'package:app_anansi_mobile/helpers/format_time.dart';
 import 'package:app_anansi_mobile/pages/buy-shares/shares_amount.dart';
 import 'package:app_anansi_mobile/pages/deposit-savings/deposit_amount.dart';
 import 'package:app_anansi_mobile/pages/help&support/help_support.dart';
-import 'package:app_anansi_mobile/pages/loan_products/loan_products.dart';
+import 'package:app_anansi_mobile/pages/loan-products/loan_products.dart';
 import 'package:app_anansi_mobile/pages/statements/statements.dart';
 import 'package:app_anansi_mobile/services/account_service.dart';
 import 'package:app_anansi_mobile/services/error_service.dart';
