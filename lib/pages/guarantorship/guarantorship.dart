@@ -597,11 +597,11 @@ class _GuarantorshipState extends State<Guarantorship> {
                           children: [
                             _infoRow(
                               "Total Loan",
-                              "KES ${formatAmount(loan['loanInfo']['loanamount'] ?? 0)}",
+                              formatAmount(loan['loanInfo']['loanamount'] ?? 0),
                             ),
                             _infoRow(
                               "Duration",
-                              loan['loanInfo']['loanperiod'],
+                              "${loan['loanInfo']['loanperiod'] ?? 0} days",
                             ),
                             const Divider(height: 30, thickness: 0.5),
                             _infoRow(

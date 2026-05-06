@@ -28,6 +28,7 @@ class _ProfileState extends State<Profile> {
     _isLoading = true;
     try {
       final (response, errors) = await ProfileService().profileInformation();
+      if (!mounted) return;
       if (errors != null) {
         ErrorService.showActionableError(
           context,
@@ -347,8 +348,9 @@ class _ProfileState extends State<Profile> {
                     Navigator.push(
                       context,
                       MaterialPageRoute(
-                        builder: (context) =>
-                            EditProfilePicturePage(customer: profileInformation ?? {}),
+                        builder: (context) => EditProfilePicturePage(
+                          customer: profileInformation ?? {},
+                        ),
                       ),
                     );
                   },

@@ -42,6 +42,7 @@ class _AccountDetailsState extends State<AccountDetails> {
       final (response, errors) = await AccountService().accounts(
         accountId: widget.accountId,
       );
+      if (!mounted) return;
       if (errors != null) {
         ErrorService.showActionableError(
           context,
@@ -64,6 +65,7 @@ class _AccountDetailsState extends State<AccountDetails> {
       final (response, errors) = await AccountService().transactions(
         accountNumber: widget.accountNumber,
       );
+      if (!mounted) return;
       if (errors != null) {
         ErrorService.showActionableError(
           context,
