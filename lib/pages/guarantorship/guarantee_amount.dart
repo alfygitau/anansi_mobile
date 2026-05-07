@@ -402,7 +402,7 @@ class _GuaranteeAmountState extends State<GuaranteeAmount> {
                   MaterialPageRoute(
                     builder: (context) => ReviewGuarantorship(
                       loanInfo: widget.loanInfo,
-                      guarantorAmount: "120000",
+                      guarantorAmount: _amountController.text.trim(),
                     ),
                   ),
                 );
