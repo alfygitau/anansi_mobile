@@ -1,3 +1,4 @@
+import 'package:app_anansi_mobile/components/profile_success.dart';
 import 'package:app_anansi_mobile/pages/profile/profile.dart';
 import 'package:app_anansi_mobile/services/error_service.dart';
 import 'package:app_anansi_mobile/services/onboarding_service.dart';
@@ -96,9 +97,15 @@ class _EditAddressPageState extends State<EditAddressPage> {
           message: errors[1],
         );
       } else if (response != null) {
-        Navigator.push(
+        showProfileSuccessSheet(
           context,
-          MaterialPageRoute(builder: (context) => Profile()),
+          title: "Address Updated!",
+          onAction: () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (context) => Profile()),
+            );
+          },
         );
       }
     } finally {
