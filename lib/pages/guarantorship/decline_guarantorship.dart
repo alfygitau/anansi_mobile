@@ -35,7 +35,7 @@ class _DeclineGuarantorshipState extends State<DeclineGuarantorship> {
             guarantor: widget.loanInfo?['guarantorId'],
             requestor: widget.loanInfo?['id'],
             isAccepted: false,
-            status: "declined",
+            status: "rejected",
             amount: "0",
             reason: _selectedReason ?? "",
           );
@@ -321,7 +321,7 @@ class _DeclineGuarantorshipState extends State<DeclineGuarantorship> {
               : null,
           style: ElevatedButton.styleFrom(
             backgroundColor: Colors.redAccent,
-            disabledBackgroundColor: Colors.grey.shade100,
+            disabledForegroundColor: Colors.white,
             elevation: 0,
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(18),
@@ -395,7 +395,6 @@ class _DeclineGuarantorshipState extends State<DeclineGuarantorship> {
                 style: TextStyle(color: Colors.grey, fontSize: 15, height: 1.4),
               ),
               const SizedBox(height: 30),
-              // Simple Action Notification
               Container(
                 padding: const EdgeInsets.all(16),
                 decoration: BoxDecoration(
@@ -434,7 +433,7 @@ class _DeclineGuarantorshipState extends State<DeclineGuarantorship> {
                     ),
                   ),
                   child: const Text(
-                    "Return to Dashboard",
+                    "Return to Home",
                     style: TextStyle(
                       color: Colors.white,
                       fontWeight: FontWeight.bold,

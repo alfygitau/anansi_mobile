@@ -537,22 +537,21 @@ class _ReviewGuarantorshipState extends State<ReviewGuarantorship> {
         ],
       ),
       child: Column(
-        // Using a column in case you want to add a "Cancel" link later
         mainAxisSize: MainAxisSize.min,
         children: [
           SizedBox(
             width: double.infinity,
-            height: 58, // Fixed height prevents distortion during loading
+            height: 58,
             child: ElevatedButton(
               onPressed: canContinue ? () => _submitRequest() : null,
               style: ElevatedButton.styleFrom(
                 backgroundColor: AnansiColors.darkBlue,
-                disabledBackgroundColor: Colors.grey.shade100,
+                disabledBackgroundColor: AnansiColors.darkBlue,
+                disabledForegroundColor: Colors.white,
                 elevation: 0,
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(18),
                 ),
-                // Remove internal button padding to let SizedBox control size
                 padding: EdgeInsets.zero,
               ),
               child: AnimatedSwitcher(
@@ -571,7 +570,7 @@ class _ReviewGuarantorshipState extends State<ReviewGuarantorship> {
                         style: TextStyle(
                           fontWeight: FontWeight.w900,
                           color: Colors.white,
-                          fontSize: 15, // Explicit size for consistency
+                          fontSize: 15,
                           letterSpacing: 0.2,
                         ),
                       ),
