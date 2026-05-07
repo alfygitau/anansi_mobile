@@ -101,6 +101,7 @@ class _EditAddressPageState extends State<EditAddressPage> {
           context,
           title: "Address Updated!",
           onAction: () {
+            Navigator.pop(context);
             Navigator.push(
               context,
               MaterialPageRoute(builder: (context) => Profile()),

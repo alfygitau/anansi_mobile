@@ -121,6 +121,7 @@ class _EditNextOfKinState extends State<EditNextOfKin> {
           context,
           title: "Kin Updated!",
           onAction: () {
+            Navigator.pop(context);
             Navigator.push(
               context,
               MaterialPageRoute(builder: (context) => Profile()),

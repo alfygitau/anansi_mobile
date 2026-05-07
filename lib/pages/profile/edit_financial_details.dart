@@ -65,6 +65,7 @@ class _EditFinancialsPageState extends State<EditFinancialsPage> {
           context,
           title: "Financials Updated!",
           onAction: () {
+            Navigator.pop(context);
             Navigator.push(
               context,
               MaterialPageRoute(builder: (context) => Profile()),
