@@ -1,3 +1,6 @@
+import 'package:app_anansi_mobile/pages/guarantorship/guarantorship.dart';
+import 'package:app_anansi_mobile/services/error_service.dart';
+import 'package:app_anansi_mobile/services/guarantorship_service.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:app_anansi_mobile/theme/app_theme.dart';
@@ -23,6 +26,46 @@ class _ReviewGuarantorshipState extends State<ReviewGuarantorship> {
   String formatToKES(dynamic amount) {
     final value = double.tryParse(amount.toString()) ?? 0.0;
     return "KES ${NumberFormat('#,###.00').format(value)}";
+  }
+
+  void _submitRequest() async {
+    setState(() {
+      _isSubmitting = true;
+    });
+    try {
+      final (
+        response,
+        errors,
+      ) = await GuarantorshipService().respondToGuarantor(
+        guarantor: widget.loanInfo['guarantorId'],
+        requestor: widget.loanInfo['id'],
+        isAccepted: true,
+        status: "accepted",
+        amount: widget.guarantorAmount,
+        reason: "I have a strong faith in the borrower ability to repay a loan",
+      );
+      if (errors != null) {
+        ErrorService.showActionableError(
+          context,
+          title: errors[0],
+          message: errors[1],
+        );
+      } else if (response != null) {
+        showGuarantorAcceptSheet(
+          context,
+          loanCode: widget.loanInfo['loancode'] ?? "",
+          amount: widget.loanInfo['loanamount'],
+          onAction: () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (context) => Guarantorship()),
+            );
+          },
+        );
+      }
+    } finally {
+      if (mounted) setState(() => _isSubmitting = false);
+    }
   }
 
   @override
@@ -60,16 +103,17 @@ class _ReviewGuarantorshipState extends State<ReviewGuarantorship> {
                         ),
                         _infoRow(
                           "Interest",
-                          "${widget.loanInfo['loanInfo']['loanInterest']}% p.m",
+                          "${widget.loanInfo['loanInfo']['loaninterest']}% p.m",
                         ),
                         _infoRow(
                           "Duration",
-                          widget.loanInfo['loanInfo']['duration'],
+                          (widget.loanInfo['loanInfo']?['loanperiod'] ?? "0")
+                              .toString(),
                         ),
                         _infoRow(
                           "Total Repayable",
                           formatToKES(
-                            widget.loanInfo['loanInfo']['loanRepaymentAmount'],
+                            widget.loanInfo['loanInfo']['loanrepaymentamount'],
                           ),
                         ),
                       ]),
@@ -339,136 +383,140 @@ class _ReviewGuarantorshipState extends State<ReviewGuarantorship> {
     );
   }
 
-  void _showStatusSheet({
-    required BuildContext context,
-    required bool isSuccess,
-    required String message,
+  void showGuarantorAcceptSheet(
+    BuildContext context, {
+    required String loanCode,
     required String amount,
+    required VoidCallback onAction,
   }) {
     showModalBottomSheet(
       context: context,
-      isDismissible: false, // Prevents tapping outside to close
-      enableDrag: false, // Prevents swiping down to close
+      isDismissible: false,
+      enableDrag: false,
       backgroundColor: Colors.transparent,
       builder: (context) {
         return Container(
-          padding: const EdgeInsets.all(24),
+          padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 20),
           decoration: const BoxDecoration(
             color: Colors.white,
-            borderRadius: BorderRadius.vertical(top: Radius.circular(32)),
+            borderRadius: BorderRadius.only(
+              topLeft: Radius.circular(40),
+              topRight: Radius.circular(40),
+            ),
           ),
           child: Column(
-            mainAxisSize: MainAxisSize.min, // Sheet fits content size
+            mainAxisSize: MainAxisSize.min,
             children: [
-              // 1. Status Icon with soft glow
+              const SizedBox(height: 10),
+              // Dynamic Success Icon
               Container(
                 height: 80,
                 width: 80,
                 decoration: BoxDecoration(
-                  color: (isSuccess ? AnansiColors.accentCyan : Colors.red)
-                      .withValues(alpha: 0.1),
+                  color: Colors.blue[600],
                   shape: BoxShape.circle,
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.blue.withValues(alpha: 0.2),
+                      blurRadius: 20,
+                      spreadRadius: 5,
+                    ),
+                  ],
                 ),
                 child: Icon(
-                  isSuccess
-                      ? CupertinoIcons.checkmark_seal_fill
-                      : CupertinoIcons.exclamationmark_triangle_fill,
-                  color: isSuccess ? AnansiColors.accentCyan : Colors.red,
+                  Icons.check_circle_outline,
                   size: 40,
+                  color: Colors.white,
                 ),
               ),
               const SizedBox(height: 24),
-
-              // 2. Title & Message
-              Text(
-                isSuccess ? "Request Successful" : "Action Failed",
-                style: const TextStyle(
-                  fontSize: 20,
-                  fontWeight: FontWeight.w900,
-                  color: AnansiColors.darkBlue,
-                ),
-              ),
-              const SizedBox(height: 8),
-              Text(
-                message,
-                textAlign: TextAlign.center,
+              const Text(
+                "Commitment Confirmed",
                 style: TextStyle(
-                  fontSize: 14,
-                  color: Colors.grey.shade500,
-                  height: 1.5,
+                  fontSize: 22,
+                  fontWeight: FontWeight.w900,
+                  letterSpacing: -0.5,
                 ),
               ),
-
-              // 3. Amount Summary (Optional Context)
-              if (isSuccess) ...[
-                const SizedBox(height: 24),
-                Container(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 20,
-                    vertical: 12,
-                  ),
-                  decoration: BoxDecoration(
-                    color: const Color(0xFFF8FAFC),
-                    borderRadius: BorderRadius.circular(16),
-                  ),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Text(
-                        "Guaranteed",
-                        style: TextStyle(
-                          color: Colors.grey.shade500,
-                          fontSize: 12,
-                          fontWeight: FontWeight.w600,
-                        ),
-                      ),
-                      Text(
-                        amount, // Use your KES formatter here
-                        style: const TextStyle(
-                          color: AnansiColors.darkBlue,
-                          fontSize: 14,
-                          fontWeight: FontWeight.w800,
-                        ),
-                      ),
-                    ],
-                  ),
+              const SizedBox(height: 12),
+              const Text(
+                "You have officially accepted the request to guarantee this loan. Your digital signature has been timestamped.",
+                textAlign: TextAlign.center,
+                style: TextStyle(color: Colors.grey, fontSize: 15, height: 1.4),
+              ),
+              const SizedBox(height: 24),
+              // Loan Details Summary Card
+              Container(
+                padding: const EdgeInsets.all(20),
+                decoration: BoxDecoration(
+                  color: Colors.black,
+                  borderRadius: BorderRadius.circular(24),
                 ),
-              ],
-
-              const SizedBox(height: 32),
-
-              // 4. THE ONLY EXIT POINT
+                child: Column(
+                  children: [
+                    _summaryRow("Loan Reference", loanCode, isWhite: true),
+                    const Divider(color: Colors.white24, height: 24),
+                    _summaryRow(
+                      "Guaranteed Amount",
+                      "KES $amount",
+                      isWhite: true,
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(height: 30),
               SizedBox(
                 width: double.infinity,
-                height: 58,
+                height: 60,
                 child: ElevatedButton(
                   onPressed: () {
-                    Navigator.pop(context); // Close sheet
-                    if (isSuccess) {
-                      // Navigate to Dashboard or clear stack
-                    }
+                    Navigator.pop(context);
+                    onAction();
                   },
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: AnansiColors.darkBlue,
+                    backgroundColor: Colors.blue[600],
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(18),
                     ),
                     elevation: 0,
                   ),
                   child: const Text(
-                    "Return to Home",
+                    "Finish",
                     style: TextStyle(
-                      fontWeight: FontWeight.w900,
+                      fontWeight: FontWeight.bold,
                       color: Colors.white,
                     ),
                   ),
                 ),
               ),
-              const SizedBox(height: 16), // Padding for bottom notch
+              const SizedBox(height: 15),
             ],
           ),
         );
       },
+    );
+  }
+
+  Widget _summaryRow(String label, String value, {bool isWhite = false}) {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: [
+        Text(
+          label,
+          style: TextStyle(
+            color: isWhite ? Colors.white70 : Colors.grey,
+            fontSize: 13,
+          ),
+        ),
+        Text(
+          value,
+          style: TextStyle(
+            color: isWhite ? Colors.white : Colors.black,
+            fontWeight: FontWeight.bold,
+            fontSize: 14,
+          ),
+        ),
+      ],
     );
   }
 
@@ -532,15 +580,6 @@ class _ReviewGuarantorshipState extends State<ReviewGuarantorship> {
           ),
         ],
       ),
-    );
-  }
-
-  void _submitRequest() async {
-    _showStatusSheet(
-      context: context,
-      amount: "120000",
-      isSuccess: true,
-      message: "Request accepted successfully",
     );
   }
 }

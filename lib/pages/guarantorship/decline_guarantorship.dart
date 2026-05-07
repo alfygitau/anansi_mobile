@@ -1,6 +1,10 @@
+import 'package:app_anansi_mobile/pages/guarantorship/guarantorship.dart';
+import 'package:app_anansi_mobile/services/error_service.dart';
+import 'package:app_anansi_mobile/services/guarantorship_service.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:app_anansi_mobile/theme/app_theme.dart';
+import 'package:lucide_icons_flutter/lucide_icons.dart';
 
 class DeclineGuarantorship extends StatefulWidget {
   final Map<String, dynamic>? loanInfo;
@@ -20,6 +24,42 @@ class _DeclineGuarantorshipState extends State<DeclineGuarantorship> {
     "I've reached my guarantee limit",
     "I do not wish to guarantee this loan",
   ];
+
+  void _submitDecline() async {
+    setState(() {
+      _isSubmitting = true;
+    });
+    try {
+      final (response, errors) = await GuarantorshipService()
+          .respondToGuarantor(
+            guarantor: widget.loanInfo?['guarantorId'],
+            requestor: widget.loanInfo?['id'],
+            isAccepted: false,
+            status: "declined",
+            amount: "0",
+            reason: _selectedReason ?? "",
+          );
+      if (errors != null) {
+        ErrorService.showActionableError(
+          context,
+          title: errors[0],
+          message: errors[1],
+        );
+      } else if (response != null) {
+        showGuarantorDeclineSheet(
+          context,
+          onAction: () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (context) => Guarantorship()),
+            );
+          },
+        );
+      }
+    } finally {
+      if (mounted) setState(() => _isSubmitting = false);
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -302,141 +342,107 @@ class _DeclineGuarantorshipState extends State<DeclineGuarantorship> {
     );
   }
 
-  void _submitDecline() async {
-    _showStatusSheet(
-      context: context,
-      amount: "120000",
-      isSuccess: false,
-      message: "Request declined successfully",
-    );
-  }
-
-  void _showStatusSheet({
-    required BuildContext context,
-    required bool isSuccess,
-    required String message,
-    required String amount,
+  void showGuarantorDeclineSheet(
+    BuildContext context, {
+    required VoidCallback onAction,
   }) {
     showModalBottomSheet(
       context: context,
-      isDismissible: false, // Prevents tapping outside to close
-      enableDrag: false, // Prevents swiping down to close
+      isDismissible: false,
+      enableDrag: false,
       backgroundColor: Colors.transparent,
       builder: (context) {
         return Container(
-          padding: const EdgeInsets.all(24),
+          padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 20),
           decoration: const BoxDecoration(
             color: Colors.white,
-            borderRadius: BorderRadius.vertical(top: Radius.circular(32)),
+            borderRadius: BorderRadius.only(
+              topLeft: Radius.circular(40),
+              topRight: Radius.circular(40),
+            ),
           ),
           child: Column(
-            mainAxisSize: MainAxisSize.min, // Sheet fits content size
+            mainAxisSize: MainAxisSize.min,
             children: [
-              // 1. Status Icon with soft glow
+              const SizedBox(height: 10),
+              // Decline Icon
               Container(
                 height: 80,
                 width: 80,
                 decoration: BoxDecoration(
-                  color: (isSuccess ? AnansiColors.accentCyan : Colors.red)
-                      .withValues(alpha: 0.1),
+                  color: Colors.grey[100],
                   shape: BoxShape.circle,
                 ),
                 child: Icon(
-                  isSuccess
-                      ? CupertinoIcons.checkmark_seal_fill
-                      : CupertinoIcons.exclamationmark_triangle_fill,
-                  color: isSuccess ? AnansiColors.accentCyan : Colors.red,
+                  Icons.check_circle_rounded,
                   size: 40,
+                  color: Colors.redAccent,
                 ),
               ),
               const SizedBox(height: 24),
-
-              // 2. Title & Message
-              Text(
-                isSuccess ? "Request Successful" : "Action Failed",
-                style: const TextStyle(
-                  fontSize: 20,
-                  fontWeight: FontWeight.w900,
-                  color: AnansiColors.darkBlue,
-                ),
-              ),
-              const SizedBox(height: 8),
-              Text(
-                message,
-                textAlign: TextAlign.center,
+              const Text(
+                "Request Declined",
                 style: TextStyle(
-                  fontSize: 14,
-                  color: Colors.grey.shade500,
-                  height: 1.5,
+                  fontSize: 22,
+                  fontWeight: FontWeight.w900,
+                  letterSpacing: -0.5,
                 ),
               ),
-
-              // 3. Amount Summary (Optional Context)
-              if (isSuccess) ...[
-                const SizedBox(height: 24),
-                Container(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 20,
-                    vertical: 12,
-                  ),
-                  decoration: BoxDecoration(
-                    color: const Color(0xFFF8FAFC),
-                    borderRadius: BorderRadius.circular(16),
-                  ),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Text(
-                        "Guaranteed",
+              const SizedBox(height: 12),
+              const Text(
+                "You have declined the invitation to act as a guarantor. The borrower has been notified and the request is now void.",
+                textAlign: TextAlign.center,
+                style: TextStyle(color: Colors.grey, fontSize: 15, height: 1.4),
+              ),
+              const SizedBox(height: 30),
+              // Simple Action Notification
+              Container(
+                padding: const EdgeInsets.all(16),
+                decoration: BoxDecoration(
+                  border: Border.all(color: Colors.grey[200]!),
+                  borderRadius: BorderRadius.circular(16),
+                ),
+                child: Row(
+                  children: [
+                    const Icon(LucideIcons.info, color: Colors.amber, size: 20),
+                    const SizedBox(width: 12),
+                    const Expanded(
+                      child: Text(
+                        "No legal or financial obligations have been created.",
                         style: TextStyle(
-                          color: Colors.grey.shade500,
-                          fontSize: 12,
+                          fontSize: 13,
                           fontWeight: FontWeight.w600,
                         ),
                       ),
-                      Text(
-                        amount, // Use your KES formatter here
-                        style: const TextStyle(
-                          color: AnansiColors.darkBlue,
-                          fontSize: 14,
-                          fontWeight: FontWeight.w800,
-                        ),
-                      ),
-                    ],
-                  ),
+                    ),
+                  ],
                 ),
-              ],
-
-              const SizedBox(height: 32),
-
-              // 4. THE ONLY EXIT POINT
+              ),
+              const SizedBox(height: 30),
               SizedBox(
                 width: double.infinity,
-                height: 58,
+                height: 60,
                 child: ElevatedButton(
                   onPressed: () {
-                    Navigator.pop(context); // Close sheet
-                    if (isSuccess) {
-                      // Navigate to Dashboard or clear stack
-                    }
+                    Navigator.pop(context);
+                    onAction();
                   },
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: AnansiColors.darkBlue,
+                    backgroundColor: Colors.black,
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(18),
                     ),
-                    elevation: 0,
                   ),
                   child: const Text(
-                    "Return to Home",
+                    "Return to Dashboard",
                     style: TextStyle(
-                      fontWeight: FontWeight.w900,
                       color: Colors.white,
+                      fontWeight: FontWeight.bold,
                     ),
                   ),
                 ),
               ),
-              const SizedBox(height: 16), // Padding for bottom notch
+              const SizedBox(height: 15),
             ],
           ),
         );

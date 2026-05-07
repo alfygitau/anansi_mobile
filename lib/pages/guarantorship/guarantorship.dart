@@ -405,13 +405,13 @@ class _GuarantorshipState extends State<Guarantorship> {
           Container(
             padding: const EdgeInsets.all(30),
             decoration: BoxDecoration(
-              color: AnansiColors.logoBg.withOpacity(0.05),
+              color: AnansiColors.logoBg.withValues(alpha: 0.05),
               shape: BoxShape.circle,
             ),
             child: Icon(
               icon,
               size: 60,
-              color: AnansiColors.iconBlue.withOpacity(0.5),
+              color: AnansiColors.iconBlue.withValues(alpha: 0.5),
             ),
           ),
           const SizedBox(height: 24),
@@ -542,7 +542,7 @@ class _GuarantorshipState extends State<Guarantorship> {
                   width: 36,
                   height: 5,
                   decoration: BoxDecoration(
-                    color: Colors.grey.withOpacity(0.3),
+                    color: Colors.grey.withValues(alpha: 0.3),
                     borderRadius: BorderRadius.circular(10),
                   ),
                 ),
@@ -631,7 +631,7 @@ class _GuarantorshipState extends State<Guarantorship> {
                     begin: Alignment.topCenter,
                     end: Alignment.bottomCenter,
                     colors: [
-                      const Color(0xFFF8FAFC).withOpacity(0),
+                      const Color(0xFFF8FAFC).withValues(alpha: 0),
                       const Color(0xFFF8FAFC),
                     ],
                   ),
@@ -671,10 +671,10 @@ class _GuarantorshipState extends State<Guarantorship> {
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(24),
-        border: Border.all(color: Colors.grey.withOpacity(0.1)),
+        border: Border.all(color: Colors.grey.withValues(alpha: 0.1)),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.02),
+            color: Colors.black.withValues(alpha: 0.02),
             blurRadius: 10,
             offset: const Offset(0, 4),
           ),
