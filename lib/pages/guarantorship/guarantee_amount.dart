@@ -15,8 +15,37 @@ class GuaranteeAmount extends StatefulWidget {
 class _GuaranteeAmountState extends State<GuaranteeAmount> {
   final TextEditingController _amountController = TextEditingController();
   bool _hasAgreed = false;
-  double _maxLimit = 150000.00;
+  final double _maxLimit = 150000.00;
   Map<String, String?> formErrors = {'amount': null, 'phone': null};
+  final FocusNode _amountFocus = FocusNode();
+
+  void _validateField(String key) {
+    final amount = _amountController.text.trim();
+
+    setState(() {
+      if (key == 'amount') {
+        if (amount.isEmpty) {
+          formErrors['amount'] = "Amount is required";
+        } else if (double.tryParse(amount) == null ||
+            double.parse(amount) <= 0) {
+          formErrors['amount'] = "Enter a valid investment amount";
+        } else {
+          formErrors['amount'] = null;
+        }
+      }
+    });
+  }
+
+  @override
+  void initState() {
+    _amountFocus.addListener(() {
+      if (!_amountFocus.hasFocus) {
+        _validateField('amount');
+      }
+      setState(() {});
+    });
+    super.initState();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -42,7 +71,7 @@ class _GuaranteeAmountState extends State<GuaranteeAmount> {
                         hint: "Enter amount in KES",
                         icon: CupertinoIcons.money_dollar_circle,
                         fieldKey: "amount",
-                        focusNode: FocusNode(),
+                        focusNode: _amountFocus,
                         keyboardType: TextInputType.number,
                       ),
 
