@@ -527,7 +527,6 @@ class _ReviewGuarantorshipState extends State<ReviewGuarantorship> {
       padding: const EdgeInsets.fromLTRB(24, 20, 24, 40),
       decoration: BoxDecoration(
         color: Colors.white,
-        // Slightly more prominent shadow for depth
         boxShadow: [
           BoxShadow(
             color: Colors.black.withValues(alpha: 0.06),
@@ -543,11 +542,14 @@ class _ReviewGuarantorshipState extends State<ReviewGuarantorship> {
             width: double.infinity,
             height: 58,
             child: ElevatedButton(
+              // When onPressed is null, the button automatically enters the 'disabled' state
               onPressed: canContinue ? () => _submitRequest() : null,
               style: ElevatedButton.styleFrom(
                 backgroundColor: AnansiColors.darkBlue,
-                disabledBackgroundColor: AnansiColors.darkBlue,
-                disabledForegroundColor: Colors.white,
+                foregroundColor: Colors.white,
+                // FIX: Use a soft grey for the background and a darker grey for the text
+                disabledBackgroundColor: Colors.grey[200],
+                disabledForegroundColor: Colors.grey[500],
                 elevation: 0,
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(18),
@@ -557,11 +559,12 @@ class _ReviewGuarantorshipState extends State<ReviewGuarantorship> {
               child: AnimatedSwitcher(
                 duration: const Duration(milliseconds: 200),
                 child: _isSubmitting
-                    ? const SizedBox(
+                    ? SizedBox(
                         height: 20,
                         width: 20,
                         child: CupertinoActivityIndicator(
-                          color: Colors.white,
+                          // If you use a grey background, make sure the loader is visible
+                          color: canContinue ? Colors.white : Colors.grey[500],
                           radius: 10,
                         ),
                       )
@@ -569,7 +572,6 @@ class _ReviewGuarantorshipState extends State<ReviewGuarantorship> {
                         "Confirm & Submit",
                         style: TextStyle(
                           fontWeight: FontWeight.w900,
-                          color: Colors.white,
                           fontSize: 15,
                           letterSpacing: 0.2,
                         ),
