@@ -53,7 +53,7 @@ class _ReviewGuarantorshipState extends State<ReviewGuarantorship> {
       } else if (response != null) {
         showGuarantorAcceptSheet(
           context,
-          loanCode: widget.loanInfo['loanInfo']['loancode'] ?? "",
+          loanCode: widget.loanInfo['loanInfo']['loancode'] ?? "C5086",
           amount: widget.guarantorAmount,
           onAction: () {
             Navigator.push(
