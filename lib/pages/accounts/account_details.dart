@@ -36,7 +36,7 @@ class _AccountDetailsState extends State<AccountDetails> {
   List<Map<String, dynamic>> transactions = [];
   Map<String, dynamic> accountInfo = {};
 
-  void fetchAccount() async {
+  Future<void> fetchAccount() async {
     _isLoading = true;
     try {
       final (response, errors) = await AccountService().accounts(
@@ -59,7 +59,7 @@ class _AccountDetailsState extends State<AccountDetails> {
     }
   }
 
-  void fetchTransactions() async {
+  Future<void> fetchTransactions() async {
     _loading = true;
     try {
       final (response, errors) = await AccountService().transactions(
@@ -83,6 +83,11 @@ class _AccountDetailsState extends State<AccountDetails> {
     }
   }
 
+  Future<void> _handleRefresh() async {
+    await fetchAccount();
+    await fetchTransactions();
+  }
+
   @override
   void initState() {
     fetchAccount();
@@ -98,6 +103,11 @@ class _AccountDetailsState extends State<AccountDetails> {
         physics: const BouncingScrollPhysics(),
         slivers: [
           _isLoading ? buildAppBarSkeleton() : _buildAppBar(),
+          CupertinoSliverRefreshControl(
+            onRefresh: () async {
+              _handleRefresh();
+            },
+          ),
           SliverToBoxAdapter(
             child: Padding(
               padding: const EdgeInsets.fromLTRB(20.0, 10.0, 20.0, 20.0),
