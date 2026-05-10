@@ -36,21 +36,20 @@ class Homepage extends StatefulWidget {
 class _HomepageState extends State<Homepage> {
   double currentShares = 0;
   final double targetShares = 10.0;
-  bool _isBalanceVisible = true;
   bool _loading = false;
   bool _isLoading = false;
   List<Map<String, dynamic>> accounts = [];
   Map<String, dynamic> sharesSummary = {};
   Map<String, dynamic> sharesAccount = {};
   Map<String, dynamic> savingsAccount = {};
-  Set<String> _hiddenAccountIds = {};
+  Set<String> hiddenAccountIds = {};
 
   void _toggleVisibility(String accountId) {
     setState(() {
-      if (_hiddenAccountIds.contains(accountId)) {
-        _hiddenAccountIds.remove(accountId);
+      if (hiddenAccountIds.contains(accountId)) {
+        hiddenAccountIds.remove(accountId);
       } else {
-        _hiddenAccountIds.add(accountId);
+        hiddenAccountIds.add(accountId);
       }
     });
   }
@@ -933,7 +932,7 @@ class _HomepageState extends State<Homepage> {
     required String balance,
     required bool isPrimary,
   }) {
-    bool isHidden = _hiddenAccountIds.contains(id);
+    bool isHidden = hiddenAccountIds.contains(id);
     return GestureDetector(
       onTap: () {
         Navigator.push(
@@ -998,7 +997,7 @@ class _HomepageState extends State<Homepage> {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Text(
-                  isHidden ? formatAmount(balance) : "KES ••••••••",
+                  isHidden ? "KES ••••••••" : formatAmount(balance),
                   style: GoogleFonts.outfit(
                     fontWeight: FontWeight.bold,
                     fontSize: 24,
@@ -1010,9 +1009,7 @@ class _HomepageState extends State<Homepage> {
                   iconSize: 20,
                   constraints: const BoxConstraints(),
                   icon: Icon(
-                    _isBalanceVisible
-                        ? CupertinoIcons.eye_slash
-                        : CupertinoIcons.eye,
+                    isHidden ? CupertinoIcons.eye_slash : CupertinoIcons.eye,
                   ),
                   color: isPrimary ? Colors.blue.shade200 : Colors.grey,
                   style: IconButton.styleFrom(
