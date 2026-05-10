@@ -410,9 +410,8 @@ class _CollateralsState extends State<Collaterals> {
       ),
       child: Row(
         children: [
-          // 1. Refined Image Container (Reduced Size)
           Container(
-            width: 72, // Balanced size for detail vs space
+            width: 72,
             height: 72,
             decoration: BoxDecoration(
               color: const Color(0xFFF1F5F9),
@@ -433,8 +432,6 @@ class _CollateralsState extends State<Collaterals> {
                 : null,
           ),
           const SizedBox(width: 16),
-
-          // 2. Info Section
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -471,8 +468,6 @@ class _CollateralsState extends State<Collaterals> {
               ],
             ),
           ),
-
-          // 3. Status and Interaction
           Column(
             crossAxisAlignment: CrossAxisAlignment.end,
             children: [
@@ -509,8 +504,6 @@ class _CollateralsState extends State<Collaterals> {
       ),
     );
   }
-
-  // Helper to make the icons match the category
   IconData _getCategoryIcon(String category) {
     switch (category.toLowerCase()) {
       case 'motor vehicle':

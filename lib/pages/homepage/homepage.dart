@@ -43,6 +43,17 @@ class _HomepageState extends State<Homepage> {
   Map<String, dynamic> sharesSummary = {};
   Map<String, dynamic> sharesAccount = {};
   Map<String, dynamic> savingsAccount = {};
+  Set<String> _hiddenAccountIds = {};
+
+  void _toggleVisibility(String accountId) {
+    setState(() {
+      if (_hiddenAccountIds.contains(accountId)) {
+        _hiddenAccountIds.remove(accountId);
+      } else {
+        _hiddenAccountIds.add(accountId);
+      }
+    });
+  }
 
   Future<void> fetchCustomerDetails() async {
     _isLoading = true;
@@ -922,6 +933,7 @@ class _HomepageState extends State<Homepage> {
     required String balance,
     required bool isPrimary,
   }) {
+    bool isHidden = _hiddenAccountIds.contains(id);
     return GestureDetector(
       onTap: () {
         Navigator.push(
@@ -986,7 +998,7 @@ class _HomepageState extends State<Homepage> {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Text(
-                  _isBalanceVisible ? formatAmount(balance) : "KES ••••••••",
+                  isHidden ? formatAmount(balance) : "KES ••••••••",
                   style: GoogleFonts.outfit(
                     fontWeight: FontWeight.bold,
                     fontSize: 24,
@@ -1008,8 +1020,7 @@ class _HomepageState extends State<Homepage> {
                     minimumSize: Size.zero,
                     tapTargetSize: MaterialTapTargetSize.shrinkWrap,
                   ),
-                  onPressed: () =>
-                      setState(() => _isBalanceVisible = !_isBalanceVisible),
+                  onPressed: () => _toggleVisibility(id),
                 ),
               ],
             ),

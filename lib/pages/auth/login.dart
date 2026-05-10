@@ -31,7 +31,7 @@ class _LoginState extends State<Login> {
   Map<String, String?> formErrors = {'email': null, 'password': null};
   final FocusNode _passFocus = FocusNode();
   final FocusNode _emailFocus = FocusNode();
-  bool _isPasswordVisible = false;
+  bool _isPasswordVisible = true;
   String loginType = "Biometric";
   bool _isLoading = false;
   Future<bool>? _biometricSupportFuture;
@@ -724,8 +724,6 @@ class _LoginState extends State<Login> {
             ],
           ),
         ),
-
-        // 3. Error Area
         AnimatedSize(
           duration: const Duration(milliseconds: 200),
           child: SizedBox(
