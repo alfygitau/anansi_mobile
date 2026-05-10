@@ -415,7 +415,7 @@ class _CollateralsState extends State<Collaterals> {
             width: 72, // Balanced size for detail vs space
             height: 72,
             decoration: BoxDecoration(
-              color: const Color(0xFFF8FAFC),
+              color: const Color(0xFFF1F5F9),
               borderRadius: BorderRadius.circular(16),
               image: item.images.isNotEmpty
                   ? DecorationImage(
