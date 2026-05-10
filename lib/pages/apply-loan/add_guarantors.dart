@@ -17,6 +17,13 @@ class _AddGuarantorsState extends State<AddGuarantors> {
     {"name": "David Omondi", "id": "M-8842", "amount": "KES 200,000"},
     {"name": "John Kamau", "id": "M-7731", "amount": "KES 100,000"},
   ];
+
+  Map<String, String?> formErrors = {'name': null, "mobile": null};
+  final FocusNode _nameFocus = FocusNode();
+  final FocusNode _mobileFocus = FocusNode();
+  final TextEditingController _nameController = TextEditingController();
+  final TextEditingController _mobileController = TextEditingController();
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -394,7 +401,7 @@ class _AddGuarantorsState extends State<AddGuarantors> {
 
   Widget _buildGuarantorSearchSection() {
     return Container(
-      padding: const EdgeInsets.all(24),
+      padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(30),
@@ -410,23 +417,24 @@ class _AddGuarantorsState extends State<AddGuarantors> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // 1. FULL NAME INPUT
-          _buildSearchLabel("FULL NAME"),
-          const SizedBox(height: 8),
-          _buildModernTextField(
+          _buildInputField(
             hint: "e.g. Alfred Kariuki Gitau",
             icon: CupertinoIcons.person_fill,
+            label: "Full Name",
+            fieldKey: "name",
+            controller: _nameController,
+            focusNode: _nameFocus,
+            keyboardType: TextInputType.text,
           ),
-
           const SizedBox(height: 20),
-
-          // 2. PHONE NUMBER INPUT
-          _buildSearchLabel("PHONE NUMBER"),
-          const SizedBox(height: 8),
-          _buildModernTextField(
+          _buildInputField(
             hint: "e.g. 0712 345 678",
             icon: CupertinoIcons.phone_fill,
             keyboardType: TextInputType.phone,
+            fieldKey: "mobile",
+            focusNode: _mobileFocus,
+            label: "Mobile Number",
+            controller: _mobileController,
           ),
 
           const SizedBox(height: 24),
@@ -469,51 +477,139 @@ class _AddGuarantorsState extends State<AddGuarantors> {
     );
   }
 
-  // --- REUSABLE PRIVATE COMPONENTS ---
-
-  Widget _buildSearchLabel(String text) {
-    return Text(
-      text,
-      style: TextStyle(
-        color: const Color(0xFF0A2351).withValues(alpha: 0.4),
-        fontSize: 9,
-        fontWeight: FontWeight.w900,
-        letterSpacing: 1.2,
-      ),
-    );
-  }
-
-  Widget _buildModernTextField({
+  Widget _buildInputField({
+    required String label,
+    required String fieldKey,
+    required TextEditingController controller,
     required String hint,
     required IconData icon,
-    TextInputType keyboardType = TextInputType.text,
+    required FocusNode focusNode,
+    required TextInputType keyboardType,
   }) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 16),
-      decoration: BoxDecoration(
-        color: const Color(0xFFF8FAFC),
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: const Color(0xFFF1F4F8)),
-      ),
-      child: TextField(
-        keyboardType: keyboardType,
-        style: const TextStyle(
-          fontWeight: FontWeight.w700,
-          color: Color(0xFF0A2351),
-          fontSize: 15,
-        ),
-        decoration: InputDecoration(
-          hintText: hint,
-          hintStyle: TextStyle(
-            color: Colors.grey.shade400,
-            fontSize: 14,
-            fontWeight: FontWeight.w500,
+    final String? errorText = formErrors[fieldKey];
+    final bool hasError = errorText != null;
+    final bool isFocused = focusNode.hasFocus;
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Padding(
+          padding: const EdgeInsets.only(left: 8, bottom: 4),
+          child: Row(
+            children: [
+              Text(
+                label.toUpperCase(),
+                style: TextStyle(
+                  color: hasError
+                      ? Colors.redAccent
+                      : AnansiColors.darkBlue.withValues(alpha: 0.6),
+                  fontWeight: FontWeight.w900,
+                  fontSize: 11,
+                  letterSpacing: 1.2,
+                ),
+              ),
+              if (hasError) ...[
+                const SizedBox(width: 8),
+                const Icon(
+                  CupertinoIcons.exclamationmark_circle,
+                  size: 12,
+                  color: Colors.redAccent,
+                ),
+              ],
+            ],
           ),
-          prefixIcon: Icon(icon, size: 18, color: const Color(0xFF17C6C6)),
-          border: InputBorder.none,
-          contentPadding: const EdgeInsets.symmetric(vertical: 18),
         ),
-      ),
+        AnimatedContainer(
+          duration: const Duration(milliseconds: 250),
+          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 4),
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(22),
+            border: Border.all(
+              color: hasError
+                  ? Colors.redAccent.withValues(alpha: 0.4)
+                  : (isFocused ? Color(0xFFE2E8F0) : const Color(0xFFE2E8F0)),
+              width: 1.8,
+            ),
+          ),
+          child: Row(
+            children: [
+              AnimatedContainer(
+                duration: const Duration(milliseconds: 250),
+                width: 44,
+                height: 44,
+                decoration: BoxDecoration(
+                  color: isFocused
+                      ? AnansiColors.darkBlue
+                      : const Color(0xFFF8FAFC),
+                  borderRadius: BorderRadius.circular(16),
+                ),
+                child: Icon(
+                  icon,
+                  size: 20,
+                  color: isFocused
+                      ? Colors.white
+                      : AnansiColors.darkBlue.withValues(alpha: 0.4),
+                ),
+              ),
+              Container(
+                height: 24,
+                width: 1.5,
+                margin: const EdgeInsets.symmetric(horizontal: 16),
+                color: const Color(0xFFE2E8F0),
+              ),
+              Expanded(
+                child: TextField(
+                  focusNode: focusNode,
+                  controller: controller,
+                  keyboardType: keyboardType,
+                  style: const TextStyle(
+                    fontSize: 17,
+                    fontWeight: FontWeight.w500,
+                    letterSpacing: 0.2,
+                  ),
+                  cursorColor: AnansiColors.darkBlue,
+                  decoration: InputDecoration(
+                    hintText: hint,
+                    hintStyle: TextStyle(
+                      color: Colors.blueGrey.shade200,
+                      fontSize: 15,
+                      fontWeight: FontWeight.w500,
+                    ),
+                    border: InputBorder.none,
+                    contentPadding: const EdgeInsets.symmetric(vertical: 16),
+                  ),
+                  onChanged: (val) {
+                    if (formErrors[fieldKey] != null) {
+                      setState(() => formErrors[fieldKey] = null);
+                    }
+                    setState(() {});
+                  },
+                  onTapOutside: (event) {
+                    FocusScope.of(context).unfocus();
+                  },
+                ),
+              ),
+            ],
+          ),
+        ),
+        AnimatedSize(
+          duration: const Duration(milliseconds: 200),
+          child: SizedBox(
+            height: hasError ? null : 0,
+            child: Padding(
+              padding: const EdgeInsets.only(left: 8, top: 8),
+              child: Text(
+                errorText ?? "",
+                style: const TextStyle(
+                  color: Colors.redAccent,
+                  fontSize: 12,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+            ),
+          ),
+        ),
+      ],
     );
   }
 }

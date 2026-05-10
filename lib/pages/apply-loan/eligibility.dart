@@ -54,7 +54,7 @@ class _LoanEligibilityState extends State<LoanEligibility> {
                   title: "Existing Obligations",
                   desc: "Must not have an active loan of the same type.",
                   status: "1 Active Loan Found",
-                  isMet: true,
+                  isMet: false,
                   isWarning: true,
                 ),
                 _buildSaccoCheck(
@@ -63,6 +63,7 @@ class _LoanEligibilityState extends State<LoanEligibility> {
                       "Ability to provide at least 3 active members as guarantors.",
                   status: "Pending Check",
                   isMet: false,
+                  isWarning: true
                 ),
 
                 const SizedBox(height: 120),
