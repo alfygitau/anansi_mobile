@@ -10,12 +10,10 @@ import 'package:app_anansi_mobile/services/auth_service.dart';
 import 'package:app_anansi_mobile/services/biometric_service.dart';
 import 'package:app_anansi_mobile/services/error_service.dart';
 import 'package:app_anansi_mobile/services/secure_storage_service.dart';
-import 'package:app_anansi_mobile/state/auth_provider.dart';
 import 'package:app_anansi_mobile/theme/app_theme.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:provider/provider.dart';
 
 class Login extends StatefulWidget {
   const Login({super.key});
@@ -110,12 +108,10 @@ class _LoginState extends State<Login> {
     Map<String, dynamic> data,
     BuildContext context,
   ) async {
-    final authProvider = Provider.of<AuthProvider>(context, listen: false);
     final user = data['user'];
     final tokens = data['tokens'];
 
     if (user != null) {
-      authProvider.setUser(user);
       await SecureStorageService().write("user", user);
     }
     if (tokens == null) {

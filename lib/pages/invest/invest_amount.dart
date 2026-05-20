@@ -1,11 +1,12 @@
+import 'dart:convert';
 import 'package:app_anansi_mobile/pages/help&support/help_support.dart';
 import 'package:app_anansi_mobile/pages/invest/review_invest_details.dart';
-import 'package:app_anansi_mobile/state/auth_provider.dart';
+import 'package:app_anansi_mobile/services/secure_storage_service.dart';
 import 'package:app_anansi_mobile/theme/app_theme.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:provider/provider.dart';
+
 
 class InvestAmount extends StatefulWidget {
   const InvestAmount({super.key});
@@ -118,12 +119,19 @@ class InvestAmountState extends State<InvestAmount> {
         formErrors['phone'] == null;
   }
 
-  void _prefillUserData() {
-    final authProvider = Provider.of<AuthProvider>(context, listen: false);
-    if (authProvider.user != null && authProvider.user?['mobileno'] != null) {
+  Future<Map<String, dynamic>?> getUser() async {
+    String? userJson = await SecureStorageService().read('user');
+    if (userJson == null) return null;
+    Map<String, dynamic> userMap = jsonDecode(userJson);
+    return userMap;
+  }
+
+  void _prefillUserData() async{
+    final user = await getUser();
+    if (user != null && user['mobileno'] != null) {
       setState(() {
         _mobileController.text =
-            authProvider.user?['mobileno'] ?? "".toString();
+            user['mobileno'] ?? "".toString();
         _validateField('phone');
       });
     }

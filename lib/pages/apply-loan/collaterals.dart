@@ -1,5 +1,5 @@
 import 'dart:io';
-import 'package:app_anansi_mobile/models/Collateral.dart';
+import 'package:app_anansi_mobile/models/collateral.dart';
 import 'package:app_anansi_mobile/pages/apply-loan/add_collateral.dart';
 import 'package:app_anansi_mobile/pages/apply-loan/loan_terms_conditions.dart';
 import 'package:app_anansi_mobile/pages/help&support/help_support.dart';
@@ -15,8 +15,8 @@ class Collaterals extends StatefulWidget {
 }
 
 class _CollateralsState extends State<Collaterals> {
-  final List<CollateralItem> staticCollateralItems = [
-    CollateralItem(
+  final List<Collateral> staticCollateralItems = [
+    Collateral(
       name: "Samsung 55' UHD Smart TV",
       category: "Electronics",
       value: "85,000",
@@ -24,7 +24,7 @@ class _CollateralsState extends State<Collaterals> {
       documents: ["receipt.pdf"],
       status: "Verified",
     ),
-    CollateralItem(
+    Collateral(
       name: "Toyota Passo (KDL 123X)",
       category: "Motor Vehicle",
       value: "850,000",
@@ -32,7 +32,7 @@ class _CollateralsState extends State<Collaterals> {
       documents: ["logbook.pdf", "insurance.pdf"],
       status: "Pending",
     ),
-    CollateralItem(
+    Collateral(
       name: "Double Door Fridge",
       category: "Appliances",
       value: "45,000",

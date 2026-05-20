@@ -1,5 +1,8 @@
+import 'dart:convert';
+
 import 'package:app_anansi_mobile/pages/buy-shares/review_purchase_shares.dart';
 import 'package:app_anansi_mobile/pages/help&support/help_support.dart';
+import 'package:app_anansi_mobile/services/secure_storage_service.dart';
 import 'package:app_anansi_mobile/state/auth_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
@@ -72,14 +75,21 @@ class _SharesAmountState extends State<SharesAmount> {
         formErrors['phone'] == null;
   }
 
-  void _prefillUserData() {
-    final authProvider = Provider.of<AuthProvider>(context, listen: false);
-    if (authProvider.user != null && authProvider.user?['mobileno'] != null) {
+  void _prefillUserData() async {
+    final user = await getUser();
+    if (user != null && user['mobileno'] != null) {
       setState(() {
-        _phoneController.text = authProvider.user?['mobileno'] ?? "".toString();
+        _phoneController.text = user['mobileno'] ?? "".toString();
         _validateField('phone');
       });
     }
+  }
+
+  Future<Map<String, dynamic>?> getUser() async {
+    String? userJson = await SecureStorageService().read('user');
+    if (userJson == null) return null;
+    Map<String, dynamic> userMap = jsonDecode(userJson);
+    return userMap;
   }
 
   @override

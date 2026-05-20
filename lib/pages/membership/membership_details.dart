@@ -1,9 +1,9 @@
+import 'dart:convert';
 import 'package:app_anansi_mobile/pages/membership/register_invest.dart';
-import 'package:app_anansi_mobile/state/auth_provider.dart';
+import 'package:app_anansi_mobile/services/secure_storage_service.dart';
 import 'package:app_anansi_mobile/theme/app_theme.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
 
 class MembershipDetails extends StatefulWidget {
   const MembershipDetails({super.key});
@@ -20,6 +20,7 @@ class _MembershipDetailsState extends State<MembershipDetails> {
   final FocusNode _phoneFocus = FocusNode();
   final FocusNode _feeFocus = FocusNode();
   Map<String, String?> formErrors = {'phone': null};
+  Map<String, dynamic>? user;
 
   void _validateField(String key, String value) {
     String? error;
@@ -52,19 +53,29 @@ class _MembershipDetailsState extends State<MembershipDetails> {
     return kenyanRegex.hasMatch(cleanPhone);
   }
 
+  Future<Map<String, dynamic>?> getUser() async {
+    String? userJson = await SecureStorageService().read('user');
+    if (userJson == null) return null;
+    Map<String, dynamic> userMap = jsonDecode(userJson);
+    return userMap;
+  }
+
   @override
   void initState() {
     super.initState();
-    final authProvider = Provider.of<AuthProvider>(context, listen: false);
-    final mobile = authProvider.user?['mobileno'] ?? "";
-    setState(() {
-      _mobileController.text = mobile;
-    });
+    _initializeInfo();
 
     _phoneFocus.addListener(() {
       if (!_phoneFocus.hasFocus) {
         _validateField('phone', _mobileController.text);
       }
+    });
+  }
+
+  Future<void> _initializeInfo() async {
+    final myUser = await getUser();
+    setState(() {
+      user = myUser;
     });
   }
 
@@ -212,11 +223,10 @@ class _MembershipDetailsState extends State<MembershipDetails> {
   }
 
   Widget _buildSummaryCard() {
-    final authProvider = context.watch<AuthProvider>();
-    final String firstName = authProvider.user?["firstname"] ?? "Guest";
-    final String middleName = authProvider.user?["middlename"] ?? "";
-    final String lastName = authProvider.user?["lastname"] ?? "User";
-    final String email = authProvider.user?["email"] ?? "Not provided";
+    final String firstName = user?["firstname"] ?? "Guest";
+    final String middleName = user?["middlename"] ?? "";
+    final String lastName = user?["lastname"] ?? "User";
+    final String email = user?["email"] ?? "Not provided";
     final String fullName =
         [
           firstName,

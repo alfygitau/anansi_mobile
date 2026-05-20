@@ -1,12 +1,12 @@
+import 'dart:convert';
 import 'package:app_anansi_mobile/pages/onboarding/introduce_id_front.dart';
 import 'package:app_anansi_mobile/services/error_service.dart';
 import 'package:app_anansi_mobile/services/onboarding_service.dart';
-import 'package:app_anansi_mobile/state/auth_provider.dart';
+import 'package:app_anansi_mobile/services/secure_storage_service.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:app_anansi_mobile/theme/app_theme.dart';
 import 'package:flutter/services.dart';
-import 'package:provider/provider.dart';
 
 class IdType extends StatefulWidget {
   const IdType({super.key});
@@ -26,14 +26,21 @@ class _IdTypeState extends State<IdType> {
         selectedIdType != null;
   }
 
+  Future<Map<String, dynamic>?> getUser() async {
+    String? userJson = await SecureStorageService().read('user');
+    if (userJson == null) return null;
+    Map<String, dynamic> userMap = jsonDecode(userJson);
+    return userMap;
+  }
+
   Future<void> _updateCustomer() async {
     setState(() {
       _isLoading = true;
     });
-    final authProvider = Provider.of<AuthProvider>(context, listen: false);
+    final user = await getUser();
     try {
       final (response, errors) = await OnboardingService().updateIdType(
-        id: authProvider.user?['id'] ?? "",
+        id: user?['id'] ?? "",
         idType: selectedIdType ?? "",
         citizenship: selectedCountry ?? "",
       );

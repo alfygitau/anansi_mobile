@@ -1,12 +1,12 @@
+import 'dart:convert';
 import 'dart:math';
 import 'package:app_anansi_mobile/pages/membership/await_stk_membership.dart';
 import 'package:app_anansi_mobile/services/error_service.dart';
 import 'package:app_anansi_mobile/services/membership_service.dart';
-import 'package:app_anansi_mobile/state/auth_provider.dart';
+import 'package:app_anansi_mobile/services/secure_storage_service.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/services.dart';
-import 'package:provider/provider.dart';
 
 class ReviewMembership extends StatefulWidget {
   final double savingsAmount;
@@ -39,15 +39,22 @@ class _ReviewMembershipState extends State<ReviewMembership> {
     ).join();
   }
 
+  Future<Map<String, dynamic>?> getUser() async {
+    String? userJson = await SecureStorageService().read('user');
+    if (userJson == null) return null;
+    Map<String, dynamic> userMap = jsonDecode(userJson);
+    return userMap;
+  }
+
   void _payMembership() async {
     setState(() {
       _isLoading = true;
     });
-    final authProvider = Provider.of<AuthProvider>(context, listen: false);
+    final user = await getUser();
     try {
       final (response, errors) = await MembershipService().payMembership(
         reference: generateAlphaNumericId(),
-        id: authProvider.user?['id'] ?? "",
+        id: user?['id'] ?? "",
         shares: widget.sharesAmount,
         savings: widget.savingsAmount,
         mobile: widget.phoneNumber,

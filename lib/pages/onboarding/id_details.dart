@@ -1,8 +1,10 @@
+import 'dart:convert';
 import 'dart:io';
 import 'package:app_anansi_mobile/pages/onboarding/introduce_id_front.dart';
 import 'package:app_anansi_mobile/pages/onboarding/introduce_selfie.dart';
 import 'package:app_anansi_mobile/services/error_service.dart';
 import 'package:app_anansi_mobile/services/onboarding_service.dart';
+import 'package:app_anansi_mobile/services/secure_storage_service.dart';
 import 'package:app_anansi_mobile/state/auth_provider.dart';
 import 'package:app_anansi_mobile/theme/app_theme.dart';
 import 'package:flutter/cupertino.dart';
@@ -52,11 +54,19 @@ class _IdDetailsState extends State<IdDetails> {
     'Date of Birth': CupertinoIcons.calendar,
   };
 
+  Future<Map<String, dynamic>?> getUser() async {
+    String? userJson = await SecureStorageService().read('user');
+    if (userJson == null) return null;
+    Map<String, dynamic> userMap = jsonDecode(userJson);
+    return userMap;
+  }
+
   void _onContinue() async {
     setState(() {
       _isLoading = true;
     });
     final authProvider = Provider.of<AuthProvider>(context, listen: false);
+    final user = await getUser();
     final kycData = authProvider.kycDetails;
 
     final String idNumber = kycData?['idNumber'] ?? '';
@@ -76,7 +86,7 @@ class _IdDetailsState extends State<IdDetails> {
         : '';
     try {
       final (response, errors) = await OnboardingService().updateIdentity(
-        id: authProvider.user?['id'] ?? "",
+        id: user?['id'] ?? "",
         firstName: firstName,
         middleName: middleName,
         lastName: lastName,
@@ -99,9 +109,9 @@ class _IdDetailsState extends State<IdDetails> {
   }
 
   Future<void> _updateCustomer() async {
-    final authProvider = Provider.of<AuthProvider>(context, listen: false);
+     final user = await getUser();
     final (response, errors) = await OnboardingService().updateIdImages(
-      id: authProvider.user?['id'] ?? "",
+      id: user?['id'] ?? "",
       frontImage: widget.frontFile,
       backImage: widget.backFile,
     );

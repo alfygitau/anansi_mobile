@@ -1,4 +1,4 @@
-class CollateralItem {
+class Collateral {
   final String name;
   final String category;
   final String value;
@@ -6,7 +6,7 @@ class CollateralItem {
   final List<String> documents;
   final String status; // Added for the badge logic
 
-  CollateralItem({
+  Collateral({
     required this.name,
     required this.category,
     required this.value,

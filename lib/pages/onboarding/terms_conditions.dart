@@ -1,13 +1,13 @@
+import 'dart:convert';
 import 'package:app_anansi_mobile/pages/membership/intro_membership.dart';
 import 'package:app_anansi_mobile/services/account_service.dart';
 import 'package:app_anansi_mobile/services/error_service.dart';
 import 'package:app_anansi_mobile/services/onboarding_service.dart';
-import 'package:app_anansi_mobile/state/auth_provider.dart';
+import 'package:app_anansi_mobile/services/secure_storage_service.dart';
 import 'package:app_anansi_mobile/theme/app_theme.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:provider/provider.dart';
 
 class TermsConditions extends StatefulWidget {
   const TermsConditions({super.key});
@@ -21,11 +21,18 @@ class _TermsConditionsState extends State<TermsConditions> {
   bool _hasScrolledToBottom = false;
   bool _isLoading = false;
 
+  Future<Map<String, dynamic>?> getUser() async {
+    String? userJson = await SecureStorageService().read('user');
+    if (userJson == null) return null;
+    Map<String, dynamic> userMap = jsonDecode(userJson);
+    return userMap;
+  }
+
   void _updateCustomer() async {
-    final authProvider = Provider.of<AuthProvider>(context, listen: false);
+    final user = await getUser();
     try {
       final (response, errors) = await OnboardingService()
-          .updateCustomerStatuses(id: authProvider.user?['id'] ?? "");
+          .updateCustomerStatuses(id: user?['id'] ?? "");
       if (errors != null) {
         ErrorService.showActionableError(
           context,
@@ -43,10 +50,10 @@ class _TermsConditionsState extends State<TermsConditions> {
     setState(() {
       _isLoading = true;
     });
-    final authProvider = Provider.of<AuthProvider>(context, listen: false);
+    final user = await getUser();
     try {
       final (response, errors) = await AccountService().createProducts(
-        id: authProvider.user?['id'] ?? "",
+        id: user?['id'] ?? "",
       );
       if (errors != null) {
         ErrorService.showActionableError(
@@ -110,7 +117,6 @@ class _TermsConditionsState extends State<TermsConditions> {
                             "Access is restricted to registered and verified members only.",
                           ],
                         ),
-
                         _buildLegalSection(
                           "2. Membership & Eligibility",
                           "By using this application, you warrant that you are at least 18 years of age and possess the legal capacity to enter into binding financial contracts in Kenya.",
