@@ -11,7 +11,7 @@ Future<void> main() async {
   await SentryFlutter.init(
     (options) {
       options.dsn =
-          'https://189124959c83df531e14e1cee2e09a6a@o4511297356365824.ingest.de.sentry.io/4511297358987344';
+          'https://89d0fc12a38d4594aa1aa3c68f578e07@o4508850577604609.ingest.de.sentry.io/4511427142615120';
       options.tracesSampleRate = 1.0;
       options.attachScreenshot = true;
     },
