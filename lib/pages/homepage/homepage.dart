@@ -18,13 +18,11 @@ import 'package:app_anansi_mobile/services/error_service.dart';
 import 'package:app_anansi_mobile/services/secure_storage_service.dart';
 import 'package:app_anansi_mobile/shimmers/homepage/accounts.dart';
 import 'package:app_anansi_mobile/shimmers/homepage/shares_summary.dart';
-import 'package:app_anansi_mobile/state/auth_provider.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:app_anansi_mobile/theme/app_theme.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
-import 'package:provider/provider.dart';
 
 class Homepage extends StatefulWidget {
   const Homepage({super.key});
@@ -65,9 +63,8 @@ class _HomepageState extends State<Homepage> {
           message: errors[1],
         );
       } else if (response != null) {
-        final authProvider = Provider.of<AuthProvider>(context, listen: false);
         final responseInfo = response.data['data'];
-        authProvider.setUser(responseInfo);
+        await SecureStorageService().write("user", responseInfo);
         setState(() {
           accounts = List<Map<String, dynamic>>.from(
             responseInfo['accounts'] ?? [],
@@ -983,12 +980,15 @@ class _HomepageState extends State<Homepage> {
                     ),
                   ],
                 ),
-                Icon(
-                  LucideIcons.wallet,
-                  size: 20,
-                  color: isPrimary
-                      ? Colors.blue.shade200
-                      : Colors.grey.shade300,
+                Padding(
+                  padding: EdgeInsets.symmetric(horizontal: 6),
+                  child: Icon(
+                    LucideIcons.wallet,
+                    size: 20,
+                    color: isPrimary
+                        ? Colors.blue.shade200
+                        : Colors.grey.shade300,
+                  ),
                 ),
               ],
             ),
@@ -1004,20 +1004,29 @@ class _HomepageState extends State<Homepage> {
                     color: isPrimary ? Colors.white : AnansiColors.darkBlue,
                   ),
                 ),
-                IconButton(
-                  padding: EdgeInsets.zero,
-                  iconSize: 20,
-                  constraints: const BoxConstraints(),
-                  icon: Icon(
-                    isHidden ? CupertinoIcons.eye_slash : CupertinoIcons.eye,
+                Container(
+                  padding: const EdgeInsets.all(6),
+                  decoration: BoxDecoration(
+                    color: isPrimary
+                        ? Colors.blue.shade200.withValues(alpha: 0.15)
+                        : Colors.grey.shade300.withValues(alpha: 0.3),
+                    shape: BoxShape.circle,
                   ),
-                  color: isPrimary ? Colors.blue.shade200 : Colors.grey,
-                  style: IconButton.styleFrom(
+                  child: IconButton(
                     padding: EdgeInsets.zero,
-                    minimumSize: Size.zero,
-                    tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                    iconSize: 20,
+                    constraints: const BoxConstraints(),
+                    icon: Icon(
+                      isHidden ? CupertinoIcons.eye_slash : CupertinoIcons.eye,
+                    ),
+                    color: isPrimary ? Colors.blue.shade200 : Colors.grey,
+                    style: IconButton.styleFrom(
+                      padding: EdgeInsets.zero,
+                      minimumSize: Size.zero,
+                      tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                    ),
+                    onPressed: () => _toggleVisibility(id),
                   ),
-                  onPressed: () => _toggleVisibility(id),
                 ),
               ],
             ),

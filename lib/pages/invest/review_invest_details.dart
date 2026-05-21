@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'dart:math';
 import 'package:app_anansi_mobile/helpers/format_amount.dart';
 import 'package:app_anansi_mobile/helpers/format_mobile.dart';
@@ -5,12 +6,11 @@ import 'package:app_anansi_mobile/pages/help&support/help_support.dart';
 import 'package:app_anansi_mobile/pages/invest/invest_stk_push.dart';
 import 'package:app_anansi_mobile/services/account_service.dart';
 import 'package:app_anansi_mobile/services/error_service.dart';
-import 'package:app_anansi_mobile/state/auth_provider.dart';
+import 'package:app_anansi_mobile/services/secure_storage_service.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:app_anansi_mobile/theme/app_theme.dart';
 import 'package:flutter/services.dart';
-import 'package:provider/provider.dart';
 
 class ReviewInvestDetails extends StatefulWidget {
   final String savingsAmount;
@@ -43,6 +43,13 @@ class _ReviewInvestDetailsState extends State<ReviewInvestDetails> {
     ).join();
   }
 
+  Future<Map<String, dynamic>?> getUser() async {
+    String? userJson = await SecureStorageService().read('user');
+    if (userJson == null) return null;
+    Map<String, dynamic> userMap = jsonDecode(userJson);
+    return userMap;
+  }
+
   void quickInvest() async {
     final String ref = generateAlphaNumericId();
     setState(() {
@@ -50,12 +57,12 @@ class _ReviewInvestDetailsState extends State<ReviewInvestDetails> {
       _reference = ref;
     });
     try {
-      final authProvider = Provider.of<AuthProvider>(context, listen: false);
+      final user = await getUser();
       final (response, errors) = await AccountService().quickInvest(
         savingsAmount: widget.savingsAmount.toString(),
         reference: ref,
         sharesAmount: widget.sharesAmount.toString(),
-        id: authProvider.user?['id'] ?? "",
+        id: user?['id'] ?? "",
         mobile: formatToKenyanPhone(widget.phoneNumber) ?? "",
       );
       if (errors != null) {
@@ -173,7 +180,6 @@ class _ReviewInvestDetailsState extends State<ReviewInvestDetails> {
                         ],
                       ),
                     ),
-
                     const SizedBox(height: 32),
                     _buildSectionHeader("Compliance & Safety"),
                     const SizedBox(height: 10),

@@ -1,16 +1,16 @@
 import 'dart:async';
+import 'dart:convert';
 import 'package:app_anansi_mobile/pages/onboarding/account_success.dart';
 import 'package:app_anansi_mobile/pages/onboarding/change_mobile.dart';
 import 'package:app_anansi_mobile/services/error_service.dart';
 import 'package:app_anansi_mobile/services/onboarding_service.dart';
+import 'package:app_anansi_mobile/services/secure_storage_service.dart';
 import 'package:app_anansi_mobile/shimmers/onboarding/verify_email_shimmer.dart';
-import 'package:app_anansi_mobile/state/auth_provider.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:app_anansi_mobile/theme/app_theme.dart';
 import 'package:app_anansi_mobile/components/otp_boxes.dart';
 import 'package:flutter/services.dart';
-import 'package:provider/provider.dart';
 
 class VerifyMobile extends StatefulWidget {
   final String phoneNumber;
@@ -62,14 +62,21 @@ class _VerifyMobileState extends State<VerifyMobile> {
     });
   }
 
+  Future<Map<String, dynamic>?> getUser() async {
+    String? userJson = await SecureStorageService().read('user');
+    if (userJson == null) return null;
+    Map<String, dynamic> userMap = jsonDecode(userJson);
+    return userMap;
+  }
+
   void _getCustomer() async {
     setState(() {
       _loading = true;
     });
     try {
-      final authProvider = Provider.of<AuthProvider>(context, listen: false);
+      final user = await getUser();
       final (response, errors) = await OnboardingService().getCustomer(
-        id: authProvider.user?['id'] ?? "",
+        id: user?['id'] ?? "",
       );
       if (errors != null) {
         ErrorService.showActionableError(
@@ -95,10 +102,10 @@ class _VerifyMobileState extends State<VerifyMobile> {
       _errorText = null;
     });
     try {
-      final authProvider = Provider.of<AuthProvider>(context, listen: false);
+      final user = await getUser();
       final (response, error) = await OnboardingService().verifyMobileNumber(
         otp: _controller.text.trim(),
-        mobile: authProvider.user?['mobileno'],
+        mobile: user?['mobileno'],
       );
       if (error != null) {
         ErrorService.showActionableError(
@@ -115,9 +122,9 @@ class _VerifyMobileState extends State<VerifyMobile> {
   }
 
   void _updateVerification() async {
-    final authProvider = Provider.of<AuthProvider>(context, listen: false);
+    final user = await getUser();
     final (response, errors) = await OnboardingService()
-        .updateCustomerVerification(id: authProvider.user?['id'] ?? "");
+        .updateCustomerVerification(id: user?['id'] ?? "");
     if (errors != null) {
       ErrorService.showActionableError(
         context,

@@ -1,12 +1,12 @@
+import 'dart:convert';
 import 'dart:io';
 import 'package:app_anansi_mobile/pages/onboarding/personal_information.dart';
 import 'package:app_anansi_mobile/services/error_service.dart';
 import 'package:app_anansi_mobile/services/ocr_service.dart';
-import 'package:app_anansi_mobile/state/auth_provider.dart';
+import 'package:app_anansi_mobile/services/secure_storage_service.dart';
 import 'package:app_anansi_mobile/theme/app_theme.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
 
 class SelfiePreview extends StatefulWidget {
   final File imageFile;
@@ -20,15 +20,22 @@ class SelfiePreview extends StatefulWidget {
 class _SelfiePreviewState extends State<SelfiePreview> {
   bool _isLoading = false;
 
+  Future<Map<String, dynamic>?> getUser() async {
+    String? userJson = await SecureStorageService().read('user');
+    if (userJson == null) return null;
+    Map<String, dynamic> userMap = jsonDecode(userJson);
+    return userMap;
+  }
+
   void uploadFile() async {
     setState(() {
       _isLoading = true;
     });
     try {
-      final authProvider = Provider.of<AuthProvider>(context, listen: false);
+      final user = await getUser();
       final (response, errors) = await OcrService().uploadSelfie(
         file: widget.imageFile,
-        id: authProvider.user?['id'] ?? "",
+        id: user?['id'] ?? "",
       );
       if (errors != null) {
         ErrorService.showActionableError(

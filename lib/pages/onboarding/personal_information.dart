@@ -1,13 +1,13 @@
+import 'dart:convert';
 import 'package:app_anansi_mobile/pages/onboarding/income.dart';
 import 'package:app_anansi_mobile/services/error_service.dart';
 import 'package:app_anansi_mobile/services/onboarding_service.dart';
+import 'package:app_anansi_mobile/services/secure_storage_service.dart';
 import 'package:app_anansi_mobile/shimmers/onboarding/verify_email_shimmer.dart';
-import 'package:app_anansi_mobile/state/auth_provider.dart';
 import 'package:app_anansi_mobile/theme/app_theme.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:provider/provider.dart';
 
 class PersonalInformation extends StatefulWidget {
   const PersonalInformation({super.key});
@@ -255,14 +255,21 @@ class _PersonalInformationState extends State<PersonalInformation> {
     super.dispose();
   }
 
+  Future<Map<String, dynamic>?> getUser() async {
+    String? userJson = await SecureStorageService().read('user');
+    if (userJson == null) return null;
+    Map<String, dynamic> userMap = jsonDecode(userJson);
+    return userMap;
+  }
+
   Future<void> createAddress() async {
     setState(() {
       _loading = true;
     });
-    final authProvider = Provider.of<AuthProvider>(context, listen: false);
+    final user = await getUser();
     try {
       final (response, errors) = await OnboardingService().createAddress(
-        id: authProvider.user?['id'] ?? "",
+        id: user?['id'] ?? "",
         county: selectedCounty?.trim() ?? "",
         subcounty: selectedSubCounty?.trim() ?? "",
         physicalAddress: _physicalAddressController.text.trim(),

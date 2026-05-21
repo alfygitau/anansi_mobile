@@ -84,7 +84,7 @@ class BiometricService {
             'Please authenticate to securely access your Anansi account',
         options: const AuthenticationOptions(
           stickyAuth: true,
-          biometricOnly: true,
+          biometricOnly: false,
           useErrorDialogs: true,
         ),
         authMessages: const [

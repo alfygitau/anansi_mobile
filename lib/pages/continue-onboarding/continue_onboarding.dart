@@ -1,8 +1,8 @@
-import 'package:app_anansi_mobile/state/auth_provider.dart';
+import 'dart:convert';
+import 'package:app_anansi_mobile/services/secure_storage_service.dart';
 import 'package:app_anansi_mobile/theme/app_theme.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
 
 class ContinueOnboarding extends StatefulWidget {
   const ContinueOnboarding({super.key});
@@ -12,10 +12,10 @@ class ContinueOnboarding extends StatefulWidget {
 }
 
 class _ContinueOnboardingState extends State<ContinueOnboarding> {
+  Map<String, dynamic>? user;
+
   void _handleContinue() {
-    final authProvider = Provider.of<AuthProvider>(context, listen: false);
-    final String stage =
-        authProvider.user?['onboarding_stage'] ?? 'personal-information';
+    final String stage = user?['onboarding_stage'] ?? 'personal-information';
     final Map<String, String> routes = {
       "facial-identity": "/onboarding/facial-identity",
       "review-identity": "/onboarding/verify-identity",
@@ -34,14 +34,32 @@ class _ContinueOnboardingState extends State<ContinueOnboarding> {
     Navigator.pushReplacementNamed(context, routes[stage] ?? "/");
   }
 
+  Future<Map<String, dynamic>?> getUser() async {
+    String? userJson = await SecureStorageService().read('user');
+    if (userJson == null) return null;
+    Map<String, dynamic> userMap = jsonDecode(userJson);
+    return userMap;
+  }
+
+  @override
+  initState() async {
+    super.initState();
+    _initializeInfo();
+  }
+
+  Future<void> _initializeInfo() async {
+    final myUser = await getUser();
+    setState(() {
+      user = myUser;
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
-    final authProvider = context.watch<AuthProvider>();
-    final String firstName = authProvider.user?['firstname'] ?? "Member";
-    final String currentStage =
-        (authProvider.user?['onboarding_stage'] ?? "Unknown")
-            .toString()
-            .replaceAll('-', ' ');
+    final String firstName = user?['firstname'] ?? "Member";
+    final String currentStage = (user?['onboarding_stage'] ?? "Unknown")
+        .toString()
+        .replaceAll('-', ' ');
 
     return Scaffold(
       backgroundColor: Colors.white,

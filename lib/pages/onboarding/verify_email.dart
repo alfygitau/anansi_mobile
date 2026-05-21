@@ -1,17 +1,17 @@
 import 'dart:async';
+import 'dart:convert';
 import 'package:app_anansi_mobile/pages/onboarding/change_email.dart';
 import 'package:app_anansi_mobile/pages/onboarding/verify_mobile.dart';
 import 'package:app_anansi_mobile/services/error_service.dart';
 import 'package:app_anansi_mobile/services/onboarding_service.dart';
 import 'package:app_anansi_mobile/services/recovery_service.dart';
+import 'package:app_anansi_mobile/services/secure_storage_service.dart';
 import 'package:app_anansi_mobile/shimmers/onboarding/verify_email_shimmer.dart';
-import 'package:app_anansi_mobile/state/auth_provider.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:app_anansi_mobile/theme/app_theme.dart';
 import 'package:app_anansi_mobile/components/otp_boxes.dart';
 import 'package:flutter/services.dart';
-import 'package:provider/provider.dart';
 
 class VerifyEmail extends StatefulWidget {
   const VerifyEmail({super.key});
@@ -39,14 +39,21 @@ class _VerifyEmailState extends State<VerifyEmail> {
     _getCustomer();
   }
 
+  Future<Map<String, dynamic>?> getUser() async {
+    String? userJson = await SecureStorageService().read('user');
+    if (userJson == null) return null;
+    Map<String, dynamic> userMap = jsonDecode(userJson);
+    return userMap;
+  }
+
   void _getCustomer() async {
     setState(() {
       _loading = true;
     });
     try {
-      final authProvider = Provider.of<AuthProvider>(context, listen: false);
+      final user = await getUser();
       final (response, errors) = await OnboardingService().getCustomer(
-        id: authProvider.user?['id'] ?? "",
+        id: user?['id'] ?? "",
       );
       if (errors != null) {
         ErrorService.showActionableError(
@@ -65,9 +72,9 @@ class _VerifyEmailState extends State<VerifyEmail> {
   }
 
   void _resendEmailOtp() async {
-    final authProvider = Provider.of<AuthProvider>(context, listen: false);
+    final user = await getUser();
     final (response, errors) = await OnboardingService().resendEmailOtp(
-      userId: authProvider.user?['id'] ?? "",
+      userId: user?['id'] ?? "",
     );
     if (errors != null) {
       ErrorService.showActionableError(
@@ -86,9 +93,9 @@ class _VerifyEmailState extends State<VerifyEmail> {
   }
 
   void _sendMobileOtp() async {
-    final authProvider = Provider.of<AuthProvider>(context, listen: false);
+    final user = await getUser();
     final (response, errors) = await OnboardingService().sendMobileOtp(
-      userId: authProvider.user?['id'] ?? "",
+      userId: user?['id'] ?? "",
     );
     if (errors != null) {
       ErrorService.showActionableError(
@@ -130,11 +137,11 @@ class _VerifyEmailState extends State<VerifyEmail> {
       _isLoading = true;
       _errorText = null;
     });
-    final authProvider = Provider.of<AuthProvider>(context, listen: false);
+    final user = await getUser();
     try {
       final (response, errors) = await RecoveryService().verifyEmailAddress(
         otp: _controller.text.trim(),
-        email: authProvider.user?['email'] ?? "",
+        email: user?['email'] ?? "",
       );
       if (errors != null) {
         ErrorService.showActionableError(

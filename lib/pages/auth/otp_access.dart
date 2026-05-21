@@ -7,13 +7,11 @@ import 'package:app_anansi_mobile/pages/pending-account/pending_account.dart';
 import 'package:app_anansi_mobile/services/auth_service.dart';
 import 'package:app_anansi_mobile/services/error_service.dart';
 import 'package:app_anansi_mobile/services/secure_storage_service.dart';
-import 'package:app_anansi_mobile/state/auth_provider.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:app_anansi_mobile/theme/app_theme.dart';
 import 'package:app_anansi_mobile/components/otp_boxes.dart';
 import 'package:flutter/services.dart';
-import 'package:provider/provider.dart';
 
 class OtpAccess extends StatefulWidget {
   const OtpAccess({super.key});
@@ -29,11 +27,20 @@ class _OtpAccessState extends State<OtpAccess> {
   int _secondsRemaining = 59;
   String? _errorText;
   bool _isLoading = false;
+  Map<String, dynamic>? user;
+
+  Future<void> _initializeInfo() async {
+    final myUser = await getUser();
+    setState(() {
+      user = myUser;
+    });
+  }
 
   @override
   void initState() {
     super.initState();
     _startTimer();
+    _initializeInfo();
 
     _controller.addListener(() {
       if (_errorText != null) {
@@ -69,12 +76,12 @@ class _OtpAccessState extends State<OtpAccess> {
       _errorText = null;
     });
     try {
-      final authProvider = Provider.of<AuthProvider>(context, listen: false);
+      final user = await getUser();
       final (response, error) = await AuthService().verifyLogin(
-        email: authProvider.user?['email'],
+        email: user?['email'],
         oneTimePassword: _controller.text.trim(),
-        mobile: authProvider.user?['mobileno'],
-        customerId: authProvider.user?['id'],
+        mobile: user?['mobileno'],
+        customerId: user?['id'],
       );
       if (error != null) {
         ErrorService.showActionableError(
@@ -151,9 +158,10 @@ class _OtpAccessState extends State<OtpAccess> {
   void _resendOtp() async {
     _controller.clear();
     _startTimer();
-    final authProvider = Provider.of<AuthProvider>(context, listen: false);
+
+    final user = await getUser();
     final (response, errors) = await AuthService().sendMobileOtp(
-      userId: authProvider.user?['id'],
+      userId: user?['id'] ?? "",
     );
     if (errors != null) {
       ErrorService.showActionableError(
@@ -240,12 +248,11 @@ class _OtpAccessState extends State<OtpAccess> {
   }
 
   Widget _buildMobileDescription() {
-    final authProvider = Provider.of<AuthProvider>(context, listen: false);
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          "We've sent a 6-digit verification code to the mobile number ${authProvider.user?['mobileno'] ?? "0700000000"}. Please check your messages.",
+          "We've sent a 6-digit verification code to the mobile number ${user?['mobileno'] ?? "0700000000"}. Please check your messages.",
           style: TextStyle(
             color: Colors.blueGrey.shade400,
             fontSize: 15,
