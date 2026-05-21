@@ -66,20 +66,5 @@
 		<string>UIInterfaceOrientationLandscapeLeft</string>
 		<string>UIInterfaceOrientationLandscapeRight</string>
 	</array>
-	
-	<key>NSCameraUsageDescription</key>
-	<string>Anansi requires camera access to verify your identity documents for secure onboarding.</string>
-	<key>NSPhotoLibraryUsageDescription</key>
-	<string>Anansi requires access to your gallery to upload existing ID documents.</string>
-	<key>UIFileSharingEnabled</key>
-	<true/>
-	<key>LSSupportsOpeningDocumentsInPlace</key>
-	<true/>
-	<key>NSAppleMusicUsageDescription</key>
-	<string>Explain why you need this if using older file_picker versions</string>
-	<key>NSPhotoLibraryUsageDescription</key>
-	<string>Explain why you need this to pick documents from gallery if needed</string>
-	<key>NSFaceIDUsageDescription</key>
-	<string>Anansi Sacco requires Face ID to securely log you into your account.</string>
 </dict>
 </plist>
