@@ -666,7 +666,5 @@ Widget _buildDropdownRow(IconData icon, String text, {required bool isHint}) {
   );
 }
 
-// Inline styling parsing helper extension
-extension on TextStyle {
-  Widget toTextHint(String value) => Text(value, style: this);
-}
+
+

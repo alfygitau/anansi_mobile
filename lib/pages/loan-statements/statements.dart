@@ -141,7 +141,7 @@ class _LoanStatementsState extends State<LoanStatements> {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Text(
-                              "Custom Statement",
+                              "Generate Statement",
                               style: TextStyle(
                                 fontWeight: FontWeight.w900,
                                 fontSize: 14,
@@ -149,7 +149,7 @@ class _LoanStatementsState extends State<LoanStatements> {
                               ),
                             ),
                             Text(
-                              "Filter by specific dates or categories",
+                              "Instant processing of statements",
                               style: TextStyle(
                                 fontSize: 11,
                                 color: Colors.grey,
@@ -276,7 +276,7 @@ class _LoanStatementsState extends State<LoanStatements> {
                     borderRadius: BorderRadius.circular(16),
                   ),
                   child: Icon(
-                    isLoan ? CupertinoIcons.shield : CupertinoIcons.creditcard,
+                    isLoan ? CupertinoIcons.folder : CupertinoIcons.creditcard,
                     color: isLoan
                         ? const Color(0xFF2563EB)
                         : const Color(0xFF16A34A),
@@ -437,7 +437,7 @@ class _LoanStatementsState extends State<LoanStatements> {
       centerTitle: true,
       leadingWidth: 64,
       title: const Text(
-        "Statements",
+        "Loan Statements",
         style: TextStyle(
           color: AnansiColors.darkBlue,
           fontWeight: FontWeight.w900,
