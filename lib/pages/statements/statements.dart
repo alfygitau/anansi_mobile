@@ -1,3 +1,7 @@
+import 'package:app_anansi_mobile/components/statements/generate_statement.dart';
+import 'package:app_anansi_mobile/services/account_service.dart';
+import 'package:app_anansi_mobile/services/error_service.dart';
+import 'package:app_anansi_mobile/services/secure_storage_service.dart';
 import 'package:app_anansi_mobile/theme/app_theme.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -10,6 +14,7 @@ class Statements extends StatefulWidget {
 }
 
 class _StatementsState extends State<Statements> {
+  List<Map<String, dynamic>> accounts = [];
   final List<Map<String, dynamic>> accountStatements = [
     {
       "id": "STMT-ACC-091",
@@ -97,64 +102,49 @@ class _StatementsState extends State<Statements> {
     },
   ];
 
-  final List<Map<String, dynamic>> loanStatements = [
-    {
-      "title": "Emergency Loan",
-      "ref": "REP-9901",
-      "date": "Oct 27, 2025",
-      "amount": "2,400.00",
-      "type": "Repayment",
-    },
-    {
-      "title": "Asset Finance",
-      "ref": "REP-8821",
-      "date": "Oct 25, 2025",
-      "amount": "12,500.00",
-      "type": "Repayment",
-    },
-    {
-      "title": "Loan Disbursement",
-      "ref": "DIS-4402",
-      "date": "Oct 20, 2025",
-      "amount": "150,000.00",
-      "type": "Credit",
-    },
-    {
-      "title": "Development Loan",
-      "ref": "REP-4420",
-      "date": "Oct 15, 2025",
-      "amount": "15,200.00",
-      "type": "Repayment",
-    },
-    {
-      "title": "Interest Charged",
-      "ref": "CHG-1122",
-      "date": "Oct 12, 2025",
-      "amount": "1,850.00",
-      "type": "Debit",
-    },
-    {
-      "title": "Salary Advance",
-      "ref": "REP-0032",
-      "date": "Oct 08, 2025",
-      "amount": "4,000.00",
-      "type": "Repayment",
-    },
-    {
-      "title": "Education Loan",
-      "ref": "REP-7761",
-      "date": "Oct 05, 2025",
-      "amount": "8,000.00",
-      "type": "Repayment",
-    },
-    {
-      "title": "Processing Fee",
-      "ref": "FEE-9932",
-      "date": "Oct 02, 2025",
-      "amount": "1,500.00",
-      "type": "Debit",
-    },
-  ];
+  void showGenerateStatementSheet(
+    BuildContext context, {
+    required List<Map<String, dynamic>> accounts,
+    required VoidCallback onSubmit,
+    bool isLoading = false,
+  }) {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      barrierColor: const Color(0xFF0F172A).withValues(alpha: 0.6),
+      builder: (context) => GenerateStatement(
+        accounts: accounts,
+        onSubmit: onSubmit,
+        isLoading: isLoading,
+      ),
+    );
+  }
+
+  Future<void> fetchCustomerDetails() async {
+    final (response, errors) = await AccountService().customerDetails();
+    if (errors != null) {
+      ErrorService.showActionableError(
+        context,
+        title: errors[0],
+        message: errors[1],
+      );
+    } else if (response != null) {
+      final responseInfo = response.data['data'];
+      await SecureStorageService().write("user", responseInfo);
+      setState(() {
+        accounts = List<Map<String, dynamic>>.from(
+          responseInfo['accounts'] ?? [],
+        );
+      });
+    }
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    fetchCustomerDetails();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -168,7 +158,13 @@ class _StatementsState extends State<Statements> {
             child: Padding(
               padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
               child: InkWell(
-                onTap: () => {},
+                onTap: () => {
+                  showGenerateStatementSheet(
+                    context,
+                    accounts: accounts,
+                    onSubmit: () => {},
+                  ),
+                },
                 borderRadius: BorderRadius.circular(20),
                 child: Container(
                   padding: const EdgeInsets.all(16),
@@ -200,7 +196,7 @@ class _StatementsState extends State<Statements> {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Text(
-                              "Custom Statement",
+                              "Generate Statement",
                               style: TextStyle(
                                 fontWeight: FontWeight.w900,
                                 fontSize: 14,
@@ -208,7 +204,7 @@ class _StatementsState extends State<Statements> {
                               ),
                             ),
                             Text(
-                              "Filter by specific dates or categories",
+                              "Instant processing of statements",
                               style: TextStyle(
                                 fontSize: 11,
                                 color: Colors.grey,

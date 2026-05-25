@@ -1,7 +1,7 @@
 import 'package:app_anansi_mobile/pages/help&support/help_support.dart';
 import 'package:app_anansi_mobile/pages/loan-products/loan_products.dart';
+import 'package:app_anansi_mobile/pages/loan-statements/statements.dart';
 import 'package:app_anansi_mobile/pages/loans/loan_history.dart';
-import 'package:app_anansi_mobile/pages/statements/statements.dart';
 import 'package:app_anansi_mobile/theme/app_theme.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -174,7 +174,7 @@ class _LoanDetailsState extends State<LoanDetails> {
           onTap: () {
             Navigator.push(
               context,
-              MaterialPageRoute(builder: (context) => Statements()),
+              MaterialPageRoute(builder: (context) => LoanStatements()),
             );
           },
         ),

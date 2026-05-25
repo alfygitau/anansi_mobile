@@ -361,8 +361,6 @@ class _LoanStatementsState extends State<LoanStatements> {
                     ),
                   ],
                 ),
-
-                // Meta Block 2: End Date
                 Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
@@ -386,7 +384,6 @@ class _LoanStatementsState extends State<LoanStatements> {
                     ),
                   ],
                 ),
-                // Meta Block 4: Download trigger button node
                 GestureDetector(
                   onTap: onDownload,
                   child: MouseRegion(

@@ -1,5 +1,7 @@
 import 'dart:convert';
+import 'package:app_anansi_mobile/components/drawer/navigation.dart';
 import 'package:app_anansi_mobile/helpers/format_amount.dart';
+import 'package:app_anansi_mobile/main.dart';
 import 'package:app_anansi_mobile/pages/accounts/account_details.dart';
 import 'package:app_anansi_mobile/pages/buy-shares/shares_amount.dart';
 import 'package:app_anansi_mobile/pages/deposit-savings/deposit_amount.dart';
@@ -143,6 +145,14 @@ class _HomepageState extends State<Homepage> {
     bool shouldShowProgress = currentShares < targetShares;
     return Scaffold(
       backgroundColor: const Color(0xFFF8FAFC),
+      drawer: Navigation(
+        activePageRoute: AnansiRoutes.dashboard,
+        onRouteSelected: (String targetNamedRoute) {
+          Navigator.pop(context);
+          if (targetNamedRoute == AnansiRoutes.dashboard) return;
+          Navigator.pushNamed(context, targetNamedRoute);
+        },
+      ),
       body: CustomScrollView(
         physics: const BouncingScrollPhysics(),
         slivers: [
@@ -554,14 +564,20 @@ class _HomepageState extends State<Homepage> {
       elevation: 0,
       centerTitle: true,
       leadingWidth: 72,
-      leading: IconButton(
-        padding: EdgeInsets.zero,
-        icon: Icon(
-          CupertinoIcons.square_grid_2x2,
-          size: 30,
-          color: AnansiColors.darkBlue,
-        ),
-        onPressed: () {},
+      leading: Builder(
+        builder: (nestedContext) {
+          return IconButton(
+            padding: EdgeInsets.zero,
+            icon: const Icon(
+              CupertinoIcons.square_grid_2x2,
+              size: 30,
+              color: AnansiColors.darkBlue,
+            ),
+            onPressed: () {
+              Scaffold.of(nestedContext).openDrawer();
+            },
+          );
+        },
       ),
       title: Column(
         mainAxisSize: MainAxisSize.min,

@@ -1,4 +1,4 @@
-import 'package:app_anansi_mobile/components/profile_success.dart';
+import 'package:app_anansi_mobile/components/profile/profile_success.dart';
 import 'package:app_anansi_mobile/pages/profile/profile.dart';
 import 'package:app_anansi_mobile/services/error_service.dart';
 import 'package:app_anansi_mobile/services/profile_service.dart';

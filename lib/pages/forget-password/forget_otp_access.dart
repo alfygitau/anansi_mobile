@@ -5,7 +5,7 @@ import 'package:app_anansi_mobile/services/recovery_service.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:app_anansi_mobile/theme/app_theme.dart';
-import 'package:app_anansi_mobile/components/otp_boxes.dart';
+import 'package:app_anansi_mobile/components/password/otp_boxes.dart';
 import 'package:flutter/services.dart';
 
 class ForgetOtpAccess extends StatefulWidget {

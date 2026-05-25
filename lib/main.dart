@@ -1,4 +1,13 @@
 import 'package:app_anansi_mobile/pages/auth/login.dart';
+import 'package:app_anansi_mobile/pages/guarantorship/guarantorship.dart';
+import 'package:app_anansi_mobile/pages/homepage/homepage.dart';
+import 'package:app_anansi_mobile/pages/loan-applications/loan_applications.dart';
+import 'package:app_anansi_mobile/pages/loan-products/loan_products.dart';
+import 'package:app_anansi_mobile/pages/loan-statements/statements.dart';
+import 'package:app_anansi_mobile/pages/loans/loans.dart';
+import 'package:app_anansi_mobile/pages/profile/profile.dart';
+import 'package:app_anansi_mobile/pages/settings/settings.dart';
+import 'package:app_anansi_mobile/pages/statements/statements.dart';
 import 'package:app_anansi_mobile/pages/welcome/welcome.dart';
 import 'package:app_anansi_mobile/services/route_service.dart';
 import 'package:app_anansi_mobile/state/auth_provider.dart';
@@ -27,6 +36,19 @@ Future<void> main() async {
   );
 }
 
+class AnansiRoutes {
+  static const String dashboard = 'homepage';
+  static const String savings = 'savings-shares';
+  static const String loans = 'loan-facilities';
+  static const String applications = 'loan-applications';
+  static const String statements = 'accounts-statements';
+  static const String loanstatements = 'loan-statements';
+  static const String guarantorship = 'guarantorship';
+  static const String settings = 'settings';
+  static const String profile = 'profile';
+  static const String products = 'products';
+}
+
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
 
@@ -37,7 +59,18 @@ class MyApp extends StatelessWidget {
       navigatorKey: NavigationService.navigatorKey,
       navigatorObservers: [SentryNavigatorObserver()],
       initialRoute: '/',
-      routes: {'/login': (context) => const Login()},
+      routes: {
+        '/login': (context) => const Login(),
+        AnansiRoutes.dashboard: (context) => const Homepage(),
+        AnansiRoutes.loans: (context) => const MyLoans(),
+        AnansiRoutes.applications: (context) => const LoanApplications(),
+        AnansiRoutes.statements: (context) => const Statements(),
+        AnansiRoutes.loanstatements: (context) => const LoanStatements(),
+        AnansiRoutes.guarantorship: (context) => const Guarantorship(),
+        AnansiRoutes.products: (context) => const LoanProducts(),
+        AnansiRoutes.profile: (context) => const Profile(),
+        AnansiRoutes.settings: (context) => const Settings(),
+      },
       theme: ThemeData(
         colorScheme: ColorScheme.fromSeed(seedColor: const Color(0xFF042159)),
         textTheme: GoogleFonts.outfitTextTheme(Theme.of(context).textTheme),
