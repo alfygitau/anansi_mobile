@@ -2,157 +2,98 @@ import 'package:app_anansi_mobile/theme/app_theme.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
-class Statements extends StatefulWidget {
-  const Statements({super.key});
+class LoanStatements extends StatefulWidget {
+  const LoanStatements({super.key});
 
   @override
-  State<Statements> createState() => _StatementsState();
+  State<LoanStatements> createState() => _LoanStatementsState();
 }
 
-class _StatementsState extends State<Statements> {
-  final List<Map<String, dynamic>> accountStatements = [
+class _LoanStatementsState extends State<LoanStatements> {
+  final List<Map<String, dynamic>> loanStatements = [
     {
-      "id": "STMT-ACC-091",
-      "type": "account",
-      "status": "completed",
-      "start_date": "2026-01-01T00:00:00Z",
-      "end_date": "2026-01-31T23:59:59Z",
-      "amount": "84,500.00",
-      "ref": "ANS/SAV/4821",
+      "id": "STMT-LN-201",
+      "type": "loan",
+      "status": "active",
+      "start_date": "2026-01-15T09:00:00Z",
+      "end_date": "2026-02-15T09:00:00Z",
+      "amount": "30,000.00",
+      "ref": "ANS/LN/EMG-881",
       "product": {
-        "id": "PROD-ORDINARY-SAVINGS",
-        "name": "Ordinary Savings Ledger",
+        "id": "PROD-EMERGENCY-LOAN",
+        "name": "Instant Emergency Loan",
+        "interest_rate": "6.0",
+      },
+    },
+    {
+      "id": "STMT-LN-202",
+      "type": "loan",
+      "status": "active",
+      "start_date": "2026-02-25T14:30:00Z",
+      "end_date": "2026-03-25T14:30:00Z",
+      "amount": "15,000.00",
+      "ref": "ANS/LN/SAL-042",
+      "product": {
+        "id": "PROD-SALARY-ADVANCE",
+        "name": "Salary Advance Booster",
         "interest_rate": "4.5",
       },
     },
     {
-      "id": "STMT-ACC-092",
-      "type": "account",
-      "status": "completed",
-      "start_date": "2026-02-01T00:00:00Z",
-      "end_date": "2026-02-28T23:59:59Z",
-      "amount": "350,000.00",
-      "ref": "ANS/SHR/9024",
+      "id": "STMT-LN-203",
+      "type": "loan",
+      "status": "settled",
+      "start_date": "2025-03-01T10:00:00Z",
+      "end_date": "2026-03-01T10:00:00Z",
+      "amount": "450,000.00",
+      "ref": "ANS/LN/AST-990",
       "product": {
-        "id": "PROD-MEMBER-SHARES",
-        "name": "Core Member Capital Shares",
-        "interest_rate": "11.2",
+        "id": "PROD-ASSET-FINANCE",
+        "name": "Asset & Motor Vehicle Financing",
+        "interest_rate": "13.5",
       },
     },
     {
-      "id": "STMT-ACC-093",
-      "type": "account",
-      "status": "completed",
-      "start_date": "2026-03-01T00:00:00Z",
-      "end_date": "2026-03-31T23:59:59Z",
-      "amount": "1,200,000.00",
-      "ref": "ANS/INV/3115",
+      "id": "STMT-LN-204",
+      "type": "loan",
+      "status": "active",
+      "start_date": "2026-04-10T11:15:00Z",
+      "end_date": "2026-10-10T11:15:00Z",
+      "amount": "180,000.00",
+      "ref": "ANS/LN/DEV-332",
       "product": {
-        "id": "PROD-WEALTH-GROWTH",
-        "name": "Alpha Investment Fund",
-        "interest_rate": "9.8",
+        "id": "PROD-DEVELOPMENT-LN",
+        "name": "6-Month Development Capital",
+        "interest_rate": "10.0",
       },
     },
     {
-      "id": "STMT-ACC-094",
-      "type": "account",
-      "status": "completed",
-      "start_date": "2025-12-01T00:00:00Z",
-      "end_date": "2026-05-01T00:00:00Z",
-      "amount": "500,000.00",
-      "ref": "ANS/FXD/7762",
+      "id": "STMT-LN-205",
+      "type": "loan",
+      "status": "default_warning",
+      "start_date": "2026-01-05T08:00:00Z",
+      "end_date": "2026-04-05T08:00:00Z",
+      "amount": "60,000.00",
+      "ref": "ANS/LN/EDU-114",
       "product": {
-        "id": "PROD-FIXED-DEPOSIT",
-        "name": "6-Month Fixed Term Lock-In",
-        "interest_rate": "8.75",
-      },
-    },
-    {
-      "id": "STMT-ACC-095",
-      "type": "account",
-      "status": "completed",
-      "start_date": "2026-04-01T00:00:00Z",
-      "end_date": "2026-04-30T23:59:59Z",
-      "amount": "12,450.25",
-      "ref": "ANS/CHG/1089",
-      "product": {
-        "id": "PROD-HOLIDAY-CLUB",
-        "name": "Christmas & Holiday Savings",
+        "id": "PROD-EDUCATION-LOAN",
+        "name": "School Fees Flexi-Loan",
         "interest_rate": "5.0",
       },
     },
     {
-      "id": "STMT-ACC-096",
-      "type": "account",
-      "status": "completed",
-      "start_date": "2026-05-01T00:00:00Z",
-      "end_date": "2026-05-24T18:00:00Z",
-      "amount": "96,320.00",
-      "ref": "ANS/VOL/5541",
+      "id": "STMT-LN-206",
+      "type": "loan",
+      "status": "pending_approval",
+      "start_date": "2026-05-20T16:45:00Z",
+      "end_date": "2026-06-20T16:45:00Z",
+      "amount": "250,000.00",
+      "ref": "ANS/LN/BIZ-607",
       "product": {
-        "id": "PROD-VOLUNTARY-DEP",
-        "name": "Voluntary Micro-Deposits",
-        "interest_rate": "6.2",
+        "id": "PROD-BIZ-GROWTH",
+        "name": "SME Business Working Capital",
+        "interest_rate": "12.0",
       },
-    },
-  ];
-
-  final List<Map<String, dynamic>> loanStatements = [
-    {
-      "title": "Emergency Loan",
-      "ref": "REP-9901",
-      "date": "Oct 27, 2025",
-      "amount": "2,400.00",
-      "type": "Repayment",
-    },
-    {
-      "title": "Asset Finance",
-      "ref": "REP-8821",
-      "date": "Oct 25, 2025",
-      "amount": "12,500.00",
-      "type": "Repayment",
-    },
-    {
-      "title": "Loan Disbursement",
-      "ref": "DIS-4402",
-      "date": "Oct 20, 2025",
-      "amount": "150,000.00",
-      "type": "Credit",
-    },
-    {
-      "title": "Development Loan",
-      "ref": "REP-4420",
-      "date": "Oct 15, 2025",
-      "amount": "15,200.00",
-      "type": "Repayment",
-    },
-    {
-      "title": "Interest Charged",
-      "ref": "CHG-1122",
-      "date": "Oct 12, 2025",
-      "amount": "1,850.00",
-      "type": "Debit",
-    },
-    {
-      "title": "Salary Advance",
-      "ref": "REP-0032",
-      "date": "Oct 08, 2025",
-      "amount": "4,000.00",
-      "type": "Repayment",
-    },
-    {
-      "title": "Education Loan",
-      "ref": "REP-7761",
-      "date": "Oct 05, 2025",
-      "amount": "8,000.00",
-      "type": "Repayment",
-    },
-    {
-      "title": "Processing Fee",
-      "ref": "FEE-9932",
-      "date": "Oct 02, 2025",
-      "amount": "1,500.00",
-      "type": "Debit",
     },
   ];
 
@@ -259,9 +200,9 @@ class _StatementsState extends State<Statements> {
             padding: const EdgeInsets.symmetric(horizontal: 24),
             sliver: SliverList(
               delegate: SliverChildBuilderDelegate((context, index) {
-                final data = accountStatements;
+                final data = loanStatements;
                 return _buildStatementCard(data[index], () {});
-              }, childCount: accountStatements.length),
+              }, childCount: loanStatements.length),
             ),
           ),
         ],
@@ -370,7 +311,7 @@ class _StatementsState extends State<Statements> {
                       ),
                       SizedBox(height: 3),
                       Text(
-                        "Account Summary",
+                        "Repayment Summary",
                         style: const TextStyle(
                           fontSize: 12,
                           fontWeight: FontWeight.w700,
