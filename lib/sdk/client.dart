@@ -13,6 +13,16 @@ class DioConfig {
   );
 }
 
+class AuditConfig {
+  static BaseOptions options = BaseOptions(
+    baseUrl: baseUrl,
+    connectTimeout: const Duration(seconds: 15),
+    sendTimeout: const Duration(seconds: 15),
+    receiveTimeout: const Duration(seconds: 20),
+    contentType: 'application/json',
+  );
+}
+
 class PublicDioClient {
   static final PublicDioClient _instance = PublicDioClient._internal();
   factory PublicDioClient() => _instance;
@@ -21,6 +31,18 @@ class PublicDioClient {
 
   PublicDioClient._internal() {
     dio = Dio(DioConfig.options);
+    dio.interceptors.add(LogInterceptor(responseBody: true, requestBody: true));
+  }
+}
+
+class AuditDioClient {
+  static final AuditDioClient _instance = AuditDioClient._internal();
+  factory AuditDioClient() => _instance;
+
+  late Dio dio;
+
+  AuditDioClient._internal() {
+    dio = Dio(AuditConfig.options);
     dio.interceptors.add(LogInterceptor(responseBody: true, requestBody: true));
   }
 }

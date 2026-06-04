@@ -70,12 +70,14 @@ class _LoginState extends State<Login> {
         password: _passwordController.text.trim(),
       );
       if (error != null) {
+
         ErrorService.showActionableError(
           context,
           title: error[0],
           message: error[1],
         );
       } else if (response != null) {
+        
         final responseInfo = response.data['data'];
         HapticFeedback.lightImpact();
         await storeUserInfo(responseInfo, context);
