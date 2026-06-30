@@ -671,14 +671,11 @@ class _LoanApplicationState extends State<LoanApplication> {
   }
 
   // --- 3. REQUIREMENTS LIST ---
-  // 1. FIXED: Made the list nullable (?) so it doesn't crash at the method gate
   Widget _buildRequirementsList(List<dynamic>? dynamicRequirements) {
-    // 2. FIXED: If loading or data is missing entirely, show the skeleton safely
     if (_isLoading || dynamicRequirements == null) {
       return _buildRequirementsSkeleton();
     }
 
-    // 3. LOADED BUT NO DATA -> SHOW EMPTY UI
     if (dynamicRequirements.isEmpty) {
       return _buildRequirementsEmptyState();
     }
@@ -687,10 +684,7 @@ class _LoanApplicationState extends State<LoanApplication> {
       padding: const EdgeInsets.symmetric(horizontal: 24),
       sliver: SliverList(
         delegate: SliverChildBuilderDelegate((context, index) {
-          // 4. FIXED: Changed cast to loose 'Map' to prevent '_Map<dynamic, dynamic>' runtime TypeErrors
           final req = dynamicRequirements[index] as Map;
-
-          // 5. DYNAMIC STATUS LOGIC BASED ON YOUR DATA
           final String rawStatus = req['status']?.toString() ?? 'pending';
           final bool isDone = [
             'completed',

@@ -391,74 +391,71 @@ class _LoanHistoryState extends State<LoanHistory> {
     required String description,
     required IconData icon,
   }) {
-    return SliverToBoxAdapter(
+    return SliverFillRemaining(
+      hasScrollBody:
+          false, // Allows content to scale to viewport size without breaking scroll
       child: Padding(
-        // Handles the layout padding context right below your section headers
-        padding: const EdgeInsets.fromLTRB(24, 16, 24, 32),
-        child: Center(
-          child: Container(
-            // Inside layout spacing boundaries
-            padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 40),
-            decoration: BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.circular(
-                32,
-              ), // High-rounded premium aesthetic
-              border: Border.all(color: const Color(0xFFF1F5F9), width: 1.5),
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.black.withValues(alpha: 0.02),
-                  blurRadius: 16,
-                  offset: const Offset(0, 6),
-                ),
-              ],
-            ),
-            child: Column(
-              mainAxisSize: MainAxisSize
-                  .min, // Hugs content perfectly inside the view adapter
-              mainAxisAlignment: MainAxisAlignment.center,
-              crossAxisAlignment: CrossAxisAlignment.center,
-              children: [
-                // Muted Circular Icon Container Base
-                Container(
-                  padding: const EdgeInsets.all(20),
-                  decoration: BoxDecoration(
-                    color: const Color(0xFFF8FAFC),
-                    shape: BoxShape.circle,
-                    border: Border.all(
-                      color: const Color(0xFFF1F5F9),
-                      width: 1.5,
-                    ),
+        // 4 horizontal + 20 from parent SliverPadding = 24 total padding alignment
+        padding: const EdgeInsets.fromLTRB(4, 16, 4, 24),
+        child: Container(
+          width: double.infinity, // Forces full horizontal growth
+          padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 40),
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(32),
+            border: Border.all(color: const Color(0xFFF1F5F9), width: 1.5),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withValues(alpha: 0.02),
+                blurRadius: 16,
+                offset: const Offset(0, 6),
+              ),
+            ],
+          ),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment
+                .center, // Centers the content vertically in the expanded card
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              // Muted Circular Icon Container Base
+              Container(
+                padding: const EdgeInsets.all(20),
+                decoration: BoxDecoration(
+                  color: const Color(0xFFF8FAFC),
+                  shape: BoxShape.circle,
+                  border: Border.all(
+                    color: const Color(0xFFF1F5F9),
+                    width: 1.5,
                   ),
-                  child: Icon(icon, size: 44, color: Colors.grey.shade400),
                 ),
-                const SizedBox(height: 24),
+                child: Icon(icon, size: 44, color: Colors.grey.shade400),
+              ),
+              const SizedBox(height: 24),
 
-                // Empty State Action Title
-                Text(
-                  title,
-                  textAlign: TextAlign.center,
-                  style: const TextStyle(
-                    fontSize: 18,
-                    fontWeight: FontWeight.w900,
-                    color: AnansiColors.darkBlue,
-                    letterSpacing: -0.4,
-                  ),
+              // Empty State Action Title
+              Text(
+                title,
+                textAlign: TextAlign.center,
+                style: const TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.w900,
+                  color: AnansiColors.darkBlue,
+                  letterSpacing: -0.4,
                 ),
-                const SizedBox(height: 8),
+              ),
+              const SizedBox(height: 8),
 
-                // Informative Description Body Text
-                Text(
-                  description,
-                  textAlign: TextAlign.center,
-                  style: TextStyle(
-                    fontSize: 13,
-                    color: Colors.blueGrey.shade400,
-                    height: 1.4,
-                  ),
+              // Informative Description Body Text
+              Text(
+                description,
+                textAlign: TextAlign.center,
+                style: TextStyle(
+                  fontSize: 13,
+                  color: Colors.blueGrey.shade400,
+                  height: 1.4,
                 ),
-              ],
-            ),
+              ),
+            ],
           ),
         ),
       ),
