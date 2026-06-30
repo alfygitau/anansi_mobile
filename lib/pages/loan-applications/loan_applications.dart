@@ -89,7 +89,9 @@ class _LoanApplicationsState extends State<LoanApplications> {
                       final item = applications[index];
                       return _buildApplicationItem(
                         reference: item['application_number'] ?? "N/A",
-                        title: item['product']['product_name'] ?? "Loan Application",
+                        title:
+                            item['product']['product_name'] ??
+                            "Loan Application",
                         date: formatPostgresDateWithTime(item['created_at']),
                         amount: formatAmount(item['applied_amount'] ?? 0),
                         status: item['status_label'] ?? "Pending",
@@ -97,7 +99,8 @@ class _LoanApplicationsState extends State<LoanApplications> {
                           Navigator.push(
                             context,
                             MaterialPageRoute(
-                              builder: (context) => LoanApplication(),
+                              builder: (context) =>
+                                  LoanApplication(appId: item['id'] ?? ""),
                             ),
                           );
                         },

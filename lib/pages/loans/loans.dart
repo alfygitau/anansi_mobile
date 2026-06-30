@@ -139,7 +139,8 @@ class _MyLoansState extends State<MyLoans> {
                           Navigator.push(
                             context,
                             MaterialPageRoute(
-                              builder: (context) => LoanDetails(),
+                              builder: (context) =>
+                                  LoanDetails(loanId: loan['id'] ?? ""),
                             ),
                           );
                         },

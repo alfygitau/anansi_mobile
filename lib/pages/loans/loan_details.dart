@@ -1,19 +1,57 @@
+import 'package:app_anansi_mobile/helpers/format_amount.dart';
+import 'package:app_anansi_mobile/helpers/format_short_date.dart';
 import 'package:app_anansi_mobile/pages/help&support/help_support.dart';
 import 'package:app_anansi_mobile/pages/loan-products/loan_products.dart';
 import 'package:app_anansi_mobile/pages/loan-statements/statements.dart';
 import 'package:app_anansi_mobile/pages/loans/loan_history.dart';
+import 'package:app_anansi_mobile/services/error_service.dart';
+import 'package:app_anansi_mobile/services/loan_service.dart';
 import 'package:app_anansi_mobile/theme/app_theme.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:shimmer/shimmer.dart';
 
 class LoanDetails extends StatefulWidget {
-  const LoanDetails({super.key});
+  final String loanId;
+  const LoanDetails({super.key, required this.loanId});
 
   @override
   State<LoanDetails> createState() => _LoanDetailsState();
 }
 
 class _LoanDetailsState extends State<LoanDetails> {
+  Map<String, dynamic> loan = {};
+  bool _isLoading = false;
+
+  Future<void> getLoan() async {
+    _isLoading = true;
+    try {
+      final (response, errors) = await LoanService().getLoan(
+        loanId: widget.loanId,
+      );
+      if (errors != null) {
+        ErrorService.showActionableError(
+          context,
+          title: errors[0],
+          message: errors[1],
+        );
+      } else if (response != null) {
+        final responseInfo = response.data['data'];
+        setState(() {
+          loan = responseInfo ?? {};
+        });
+      }
+    } finally {
+      if (mounted) setState(() => _isLoading = false);
+    }
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    getLoan();
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -22,27 +60,42 @@ class _LoanDetailsState extends State<LoanDetails> {
         physics: const BouncingScrollPhysics(),
         slivers: [
           _buildAppBar(),
-          SliverToBoxAdapter(child: _buildTopMasterCard()),
+          SliverToBoxAdapter(
+            child: _isLoading
+                ? _buildTopMasterCardSkeleton()
+                : _buildTopMasterCard(),
+          ),
           SliverToBoxAdapter(
             child: Padding(
               padding: const EdgeInsets.fromLTRB(20, 10, 20, 10),
               child: _buildQuickActions(),
             ),
           ),
-          SliverToBoxAdapter(
-            child: Padding(
-              padding: const EdgeInsets.fromLTRB(20, 10, 20, 10),
-              child: _sectionTitle("Next Repayment Detail"),
+          if (_isLoading || loan['next_payment'] != null) ...[
+            // 1. Header Section Title
+            SliverToBoxAdapter(
+              child: Padding(
+                padding: const EdgeInsets.fromLTRB(20, 10, 20, 10),
+                child: _sectionTitle("Next Repayment Detail"),
+              ),
             ),
-          ),
-          SliverToBoxAdapter(child: _buildNextPaymentCard()),
+
+            // 2. Next Repayment Card / Skeleton
+            SliverToBoxAdapter(
+              child: _isLoading
+                  ? _buildNextPaymentCardSkeleton()
+                  : _buildNextPaymentCard(),
+            ),
+          ],
           SliverToBoxAdapter(
             child: Padding(
               padding: const EdgeInsets.fromLTRB(20, 25, 20, 8),
               child: _sectionTitle("Amortization Schedule"),
             ),
           ),
-          _buildSliverTimelineSchedule(),
+          _isLoading
+              ? _buildSliverTimelineScheduleSkeleton()
+              : _buildSliverTimelineSchedule(),
           const SliverPadding(padding: EdgeInsets.only(bottom: 140)),
         ],
       ),
@@ -51,6 +104,68 @@ class _LoanDetailsState extends State<LoanDetails> {
   }
 
   // --- NEW UPPER DESIGN: High-Impact Card ---
+  Widget _buildTopMasterCardSkeleton() {
+    return Shimmer.fromColors(
+      baseColor: Colors.grey.shade300,
+      highlightColor: Colors.grey.shade100,
+      child: Container(
+        margin: const EdgeInsets.fromLTRB(20, 20, 20, 20),
+        padding: const EdgeInsets.all(28),
+        height: 250, // Matches approximate height of master card
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(35),
+        ),
+      ),
+    );
+  }
+
+  // --- 2. NEXT PAYMENT BREAKDOWN SKELETON ---
+  Widget _buildNextPaymentCardSkeleton() {
+    return Shimmer.fromColors(
+      baseColor: Colors.grey.shade200,
+      highlightColor: Colors.grey.shade50,
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 24),
+        child: Container(
+          padding: const EdgeInsets.all(24),
+          height: 160, // Matches approximate height of breaking calculations
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(24),
+          ),
+        ),
+      ),
+    );
+  }
+
+  // --- 3. AMORTIZATION TIMELINE SKELETON ---
+  Widget _buildSliverTimelineScheduleSkeleton() {
+    return SliverPadding(
+      padding: const EdgeInsets.symmetric(horizontal: 24),
+      sliver: SliverList(
+        delegate: SliverChildBuilderDelegate(
+          (context, index) {
+            return Shimmer.fromColors(
+              baseColor: Colors.grey.shade200,
+              highlightColor: Colors.grey.shade50,
+              child: Container(
+                margin: const EdgeInsets.only(bottom: 12),
+                padding: const EdgeInsets.all(18),
+                height: 76, // Matches exact tile height profile
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(24),
+                ),
+              ),
+            );
+          },
+          childCount: 4, // Renders a clean structural stack of placeholders
+        ),
+      ),
+    );
+  }
+
   Widget _buildAppBar() {
     return SliverAppBar(
       pinned: true,
@@ -161,7 +276,9 @@ class _LoanDetailsState extends State<LoanDetails> {
           onTap: () {
             Navigator.push(
               context,
-              MaterialPageRoute(builder: (context) => LoanHistory()),
+              MaterialPageRoute(
+                builder: (context) => LoanHistory(loanId: loan['id'] ?? ""),
+              ),
             );
           },
         ),
@@ -244,11 +361,27 @@ class _LoanDetailsState extends State<LoanDetails> {
 
   // --- NEW CONTENT: Health & Progress ---
   Widget _buildTopMasterCard() {
+    // 1. Extract and normalize all dynamic API values safely to Strings up front
+    final String productName =
+        loan['loan_product']?['product_name']?.toString() ?? "";
+    final String loanStatus = loan['loan_status']?.toString() ?? "Pending";
+    final String loanCode = loan['loan_code']?.toString() ?? "";
+    final String loanPeriod = loan['loan_period']?.toString() ?? "";
+    final String progressPercent =
+        loan['repayment_progress_percent']?.toString() ?? "0";
+
+    double progressFraction = 0.0;
+    if (loan['repayment_progress_percent'] != null) {
+      progressFraction =
+          (double.tryParse(loan['repayment_progress_percent'].toString()) ??
+              0.0) /
+          100.0;
+    }
+
     return Container(
       margin: const EdgeInsets.fromLTRB(20, 20, 20, 20),
       padding: const EdgeInsets.all(28),
       decoration: BoxDecoration(
-        // Soft gradient for a more "premium" depth
         gradient: const LinearGradient(
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
@@ -271,9 +404,9 @@ class _LoanDetailsState extends State<LoanDetails> {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Text(
-                "EMERGENCY FUND LOAN", // Product Name
-                style: TextStyle(
-                  color: const Color(0xFF17C6C6), // Anansi Teal
+                productName,
+                style: const TextStyle(
+                  color: Color(0xFF17C6C6), // Anansi Teal
                   fontSize: 10,
                   fontWeight: FontWeight.w900,
                   letterSpacing: 1.8,
@@ -285,9 +418,9 @@ class _LoanDetailsState extends State<LoanDetails> {
                   color: Colors.white.withValues(alpha: 0.1),
                   borderRadius: BorderRadius.circular(8),
                 ),
-                child: const Text(
-                  "ACTIVE",
-                  style: TextStyle(
+                child: Text(
+                  loanStatus,
+                  style: const TextStyle(
                     color: Colors.white,
                     fontSize: 8,
                     fontWeight: FontWeight.bold,
@@ -313,9 +446,14 @@ class _LoanDetailsState extends State<LoanDetails> {
                     ),
                   ),
                   const SizedBox(height: 4),
-                  const Text(
-                    "KES 142,500.00",
-                    style: TextStyle(
+                  Text(
+                    // Handles case where loan_Balance might be returned as an int, double, or String
+                    formatAmount(
+                      loan['loan_Balance'] is String
+                          ? loan['loan_Balance']
+                          : loan['loan_Balance'] ?? 0,
+                    ),
+                    style: const TextStyle(
                       color: Colors.white,
                       fontSize: 28,
                       fontWeight: FontWeight.w900,
@@ -323,7 +461,6 @@ class _LoanDetailsState extends State<LoanDetails> {
                   ),
                 ],
               ),
-              // Floating Graph Icon
               Container(
                 padding: const EdgeInsets.all(10),
                 decoration: BoxDecoration(
@@ -351,9 +488,9 @@ class _LoanDetailsState extends State<LoanDetails> {
                 ),
               ),
               Text(
-                "65%",
-                style: TextStyle(
-                  color: const Color(0xFF17C6C6),
+                "$progressPercent%",
+                style: const TextStyle(
+                  color: Color(0xFF17C6C6),
                   fontWeight: FontWeight.w900,
                 ),
               ),
@@ -363,7 +500,10 @@ class _LoanDetailsState extends State<LoanDetails> {
           ClipRRect(
             borderRadius: BorderRadius.circular(10),
             child: LinearProgressIndicator(
-              value: 0.65,
+              value: progressFraction.clamp(
+                0.0,
+                1.0,
+              ), // Dynamically safely driven now!
               minHeight: 8,
               backgroundColor: Colors.white.withValues(alpha: 0.1),
               valueColor: const AlwaysStoppedAnimation(Color(0xFF17C6C6)),
@@ -375,9 +515,12 @@ class _LoanDetailsState extends State<LoanDetails> {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              _cardMiniDetail("Loan ID", "#L-9902"),
-              _cardMiniDetail("Interest", "1.5%"),
-              _cardMiniDetail("Period", "6 Months"),
+              _cardMiniDetail("Loan ID", loanCode),
+              _cardMiniDetail(
+                "Interest",
+                "${double.parse((loan['loan_interest_per'] ?? 0).toString()).toStringAsFixed(1)}%",
+              ),
+              _cardMiniDetail("Period", "$loanPeriod months"),
             ],
           ),
         ],
@@ -425,9 +568,15 @@ class _LoanDetailsState extends State<LoanDetails> {
         ),
         child: Column(
           children: [
-            _paymentRow("Principal Amount", "KES 20,000.00"),
-            _paymentRow("Interest Charged", "KES 3,500.00"),
-            _paymentRow("Service Fee", "KES 1,000.00"),
+            _paymentRow(
+              "Total Amount",
+              formatAmount(loan['next_payment']['amount_due'] ?? 0),
+            ),
+            _paymentRow(
+              "Interest Charged",
+              formatAmount(loan['next_payment']['interest_due'] ?? 0),
+            ),
+            _paymentRow("Service Fee", formatAmount(0)),
             const Padding(
               padding: EdgeInsets.symmetric(vertical: 12),
               child: Divider(height: 1, color: Colors.black12),
@@ -435,12 +584,12 @@ class _LoanDetailsState extends State<LoanDetails> {
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                const Text(
-                  "Total Due (15 May)",
+                Text(
+                  "Total Due (${formatShortDate(loan['next_payment']['due_date'])})",
                   style: TextStyle(fontWeight: FontWeight.w900),
                 ),
                 Text(
-                  "KES 24,500.00",
+                  formatAmount(loan['next_payment']['balance_due'] ?? 0),
                   style: TextStyle(
                     fontWeight: FontWeight.w900,
                     color: Colors.teal.shade900,
@@ -457,115 +606,181 @@ class _LoanDetailsState extends State<LoanDetails> {
 
   // --- IMPROVED SCHEDULE: Vertical Timeline ---
   Widget _buildSliverTimelineSchedule() {
+    /// Dynamic math rule to calculate standard English ordinals (1st, 2nd, 3rd, 11th...)
+    String getOrdinalValue(int number) {
+      if (number >= 11 && number <= 13) {
+        return '${number}th';
+      }
+      switch (number % 10) {
+        case 1:
+          return '${number}st';
+        case 2:
+          return '${number}nd';
+        case 3:
+          return '${number}rd';
+        default:
+          return '${number}th';
+      }
+    }
+
+    /// Formats a raw ISO date string ("2026-07-17") to a presentation format ("17 Jul 2026")
+    String formatDueDateString(String? dateStr) {
+      if (dateStr == null || dateStr.isEmpty) return "N/A";
+      try {
+        final DateTime parsedDate = DateTime.parse(dateStr);
+        final List<String> months = [
+          'Jan',
+          'Feb',
+          'Mar',
+          'Apr',
+          'May',
+          'Jun',
+          'Jul',
+          'Aug',
+          'Sep',
+          'Oct',
+          'Nov',
+          'Dec',
+        ];
+        return "${parsedDate.day} ${months[parsedDate.month - 1]} ${parsedDate.year}";
+      } catch (_) {
+        return dateStr; // Safe fallback to raw string from database if parsing breaks
+      }
+    }
+
+    // 1. Extract the schedules list safely from your loan payload map
+    final List<dynamic> schedules = loan['schedules'] is List
+        ? loan['schedules']
+        : [];
+
+    // Fallback empty view if no schedule items have cleared yet
+    if (schedules.isEmpty) {
+      return const SliverToBoxAdapter(child: SizedBox.shrink());
+    }
+
     return SliverPadding(
       padding: const EdgeInsets.symmetric(horizontal: 24),
       sliver: SliverList(
-        delegate: SliverChildBuilderDelegate((context, index) {
-          // Logic for paid state
-          bool isPaid = index < 2; // Example: first two are paid
+        delegate: SliverChildBuilderDelegate(
+          (context, index) {
+            final Map<String, dynamic> schedule = schedules[index] ?? {};
 
-          // Dynamic Naming Logic (Ordinal)
-          final List<String> ordinals = [
-            "1st",
-            "2nd",
-            "3rd",
-            "4th",
-            "5th",
-            "6th",
-          ];
-          String installmentLabel = "${ordinals[index]} Installment";
+            // 2. Drive the state from your true payload status string flag
+            final String statusStr =
+                schedule['status']?.toString().toLowerCase() ?? "pending";
+            final bool isPaid = statusStr == 'paid' || statusStr == 'success';
 
-          return Container(
-            margin: const EdgeInsets.only(bottom: 12),
-            // If paid, we can slightly lower the opacity of the whole card
-            child: Opacity(
-              opacity: isPaid ? 0.6 : 1.0,
-              child: Container(
-                padding: const EdgeInsets.all(18),
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.circular(24),
-                  border: Border.all(
-                    color: isPaid
-                        ? Colors.transparent
-                        : const Color(0xFFF1F4F8),
-                  ),
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.black.withValues(alpha: 0.02),
-                      blurRadius: 10,
-                      offset: const Offset(0, 4),
+            // 3. Dynamic Ordinal Generator (handles any number of items up to infinity safely)
+            final int installmentNum =
+                int.tryParse(
+                  schedule['installment_number']?.toString() ?? '',
+                ) ??
+                (index + 1);
+            final String installmentLabel =
+                "${getOrdinalValue(installmentNum)} Installment";
+
+            // 4. Safe parse dynamic amount metrics
+            final double totalDueAmount =
+                double.tryParse(schedule['total_due']?.toString() ?? '0') ??
+                0.0;
+
+            // 5. Raw Timestamp Parser to formatted UI presentation
+            final String cleanDueDate = formatDueDateString(
+              schedule['due_date']?.toString(),
+            );
+
+            return Container(
+              margin: const EdgeInsets.only(bottom: 12),
+              child: Opacity(
+                opacity: isPaid ? 0.6 : 1.0,
+                child: Container(
+                  padding: const EdgeInsets.all(18),
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(24),
+                    border: Border.all(
+                      color: isPaid
+                          ? Colors.transparent
+                          : const Color(0xFFF1F4F8),
                     ),
-                  ],
-                ),
-                child: Row(
-                  children: [
-                    // 1. Status Indicator (Instead of a line, we use a simple Dot/Check)
-                    _buildStatusMarker(isPaid),
-                    const SizedBox(width: 16),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black.withValues(alpha: 0.02),
+                        blurRadius: 10,
+                        offset: const Offset(0, 4),
+                      ),
+                    ],
+                  ),
+                  child: Row(
+                    children: [
+                      // Status Circle Indicator
+                      _buildStatusMarker(isPaid),
+                      const SizedBox(width: 16),
 
-                    // 2. Details
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
+                      // Details Column
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              installmentLabel,
+                              style: TextStyle(
+                                fontWeight: FontWeight.w900,
+                                fontSize: 14,
+                                decoration: isPaid
+                                    ? TextDecoration.lineThrough
+                                    : null,
+                                color: isPaid
+                                    ? Colors.grey
+                                    : const Color(0xFF0A2351),
+                              ),
+                            ),
+                            const SizedBox(height: 2),
+                            Text(
+                              "Due: $cleanDueDate",
+                              style: TextStyle(
+                                color: Colors.grey.shade400,
+                                fontSize: 11,
+                                fontWeight: FontWeight.w600,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+
+                      // Amount / Verification Badge Context
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.end,
                         children: [
                           Text(
-                            installmentLabel,
+                            formatAmount(totalDueAmount),
                             style: TextStyle(
                               fontWeight: FontWeight.w900,
                               fontSize: 14,
-                              // Strikethrough for paid items
-                              decoration: isPaid
-                                  ? TextDecoration.lineThrough
-                                  : null,
-                              color: isPaid
-                                  ? Colors.grey
-                                  : const Color(0xFF0A2351),
+                              color: isPaid ? Colors.grey : Colors.black,
                             ),
                           ),
-                          const SizedBox(height: 2),
-                          Text(
-                            "Due: 15 ${['May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct'][index]} 2026",
-                            style: TextStyle(
-                              color: Colors.grey.shade400,
-                              fontSize: 11,
-                              fontWeight: FontWeight.w600,
+                          if (isPaid)
+                            const Text(
+                              "SUCCESS",
+                              style: TextStyle(
+                                color: Color(0xFF17C6C6),
+                                fontSize: 9,
+                                fontWeight: FontWeight.w900,
+                                letterSpacing: 0.5,
+                              ),
                             ),
-                          ),
                         ],
                       ),
-                    ),
-
-                    // 3. Amount or Paid Badge
-                    Column(
-                      crossAxisAlignment: CrossAxisAlignment.end,
-                      children: [
-                        Text(
-                          "KES 24,500",
-                          style: TextStyle(
-                            fontWeight: FontWeight.w900,
-                            fontSize: 14,
-                            color: isPaid ? Colors.grey : Colors.black,
-                          ),
-                        ),
-                        if (isPaid)
-                          Text(
-                            "SUCCESS",
-                            style: TextStyle(
-                              color: const Color(0xFF17C6C6),
-                              fontSize: 9,
-                              fontWeight: FontWeight.w900,
-                              letterSpacing: 0.5,
-                            ),
-                          ),
-                      ],
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
               ),
-            ),
-          );
-        }, childCount: 6),
+            );
+          },
+          childCount: schedules
+              .length, // Driven directly by the backend response list size
+        ),
       ),
     );
   }

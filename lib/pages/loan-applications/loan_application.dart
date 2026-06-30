@@ -1,17 +1,51 @@
 import 'package:app_anansi_mobile/helpers/format_amount.dart';
 import 'package:app_anansi_mobile/pages/help&support/help_support.dart';
+import 'package:app_anansi_mobile/services/error_service.dart';
+import 'package:app_anansi_mobile/services/loan_application_service.dart';
 import 'package:app_anansi_mobile/theme/app_theme.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
 class LoanApplication extends StatefulWidget {
-  const LoanApplication({super.key});
+  final String appId;
+  const LoanApplication({super.key, required this.appId});
 
   @override
   State<LoanApplication> createState() => _LoanApplicationState();
 }
 
 class _LoanApplicationState extends State<LoanApplication> {
+  Map<String, dynamic> application = {};
+  bool _isLoading = false;
+
+  Future<void> getLoanApplication() async {
+    _isLoading = true;
+    try {
+      final (response, errors) = await LoanApplicationService()
+          .listLoanApplication(appId: widget.appId);
+      if (errors != null) {
+        ErrorService.showActionableError(
+          context,
+          title: errors[0],
+          message: errors[1],
+        );
+      } else if (response != null) {
+        final responseInfo = response.data['data'];
+        setState(() {
+          application = responseInfo ?? {};
+        });
+      }
+    } finally {
+      if (mounted) setState(() => _isLoading = false);
+    }
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    getLoanApplication();
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -20,21 +54,29 @@ class _LoanApplicationState extends State<LoanApplication> {
         physics: const BouncingScrollPhysics(),
         slivers: [
           _buildAppBar(),
-          SliverToBoxAdapter(child: _buildApplicationStatusHeader()),
+          SliverToBoxAdapter(
+            child: _isLoading
+                ? _buildApplicationStatusHeaderSkeleton()
+                : _buildApplicationStatusHeader(),
+          ),
           SliverToBoxAdapter(
             child: Padding(
               padding: const EdgeInsets.fromLTRB(24, 24, 24, 8),
               child: _sectionTitle("Potential Terms"),
             ),
           ),
-          SliverToBoxAdapter(child: _buildPotentialParameters()),
+          SliverToBoxAdapter(
+            child: _isLoading
+                ? _buildPotentialParametersSkeleton()
+                : _buildPotentialParameters(),
+          ),
           SliverToBoxAdapter(
             child: Padding(
               padding: const EdgeInsets.fromLTRB(24, 32, 24, 8),
               child: _sectionTitle("Application Checklist"),
             ),
           ),
-          _buildRequirementsList(),
+          _buildRequirementsList(application['progress']?['steps']),
           const SliverPadding(padding: EdgeInsets.only(bottom: 140)),
         ],
       ),
@@ -87,8 +129,8 @@ class _LoanApplicationState extends State<LoanApplication> {
                               letterSpacing: 1.2,
                             ),
                           ),
-                          const Text(
-                            "AN-8821-026",
+                          Text(
+                            application['application_number'] ?? "",
                             style: TextStyle(
                               color: Colors.white,
                               fontSize: 12,
@@ -98,7 +140,7 @@ class _LoanApplicationState extends State<LoanApplication> {
                         ],
                       ),
                       _buildPremiumStatusBadge(
-                        "UNDER REVIEW",
+                        application['current_stage_label'] ?? "Pending",
                         const Color(0xFFFFB300),
                       ),
                     ],
@@ -114,8 +156,8 @@ class _LoanApplicationState extends State<LoanApplication> {
                     ),
                   ),
                   const SizedBox(height: 6),
-                   Text(
-                    formatAmount(45000),
+                  Text(
+                    formatAmount(application['applied_amount'] ?? 0),
                     style: TextStyle(
                       color: Colors.white,
                       fontSize: 36,
@@ -143,6 +185,147 @@ class _LoanApplicationState extends State<LoanApplication> {
                             fontWeight: FontWeight.w500,
                             height: 1.4,
                           ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildApplicationStatusHeaderSkeleton() {
+    final skeletonColor = Colors.white.withValues(alpha: 0.12);
+
+    return Container(
+      margin: const EdgeInsets.fromLTRB(20, 10, 20, 10),
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(35),
+        gradient: const LinearGradient(
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+          colors: [Color(0xFF0A2351), Color(0xFF1A3A7A)],
+        ),
+      ),
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(35),
+        child: Stack(
+          children: [
+            // Background design layer
+            Positioned(
+              right: -20,
+              top: -20,
+              child: CircleAvatar(
+                radius: 60,
+                backgroundColor: Colors.white.withValues(alpha: 0.03),
+              ),
+            ),
+
+            Padding(
+              padding: const EdgeInsets.all(28),
+              child: Column(
+                children: [
+                  // 1. TOP BAR SKELETON
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            "APPLICATION ID",
+                            style: TextStyle(
+                              color: Colors.white.withValues(alpha: 0.4),
+                              fontSize: 9,
+                              fontWeight: FontWeight.w800,
+                              letterSpacing: 1.2,
+                            ),
+                          ),
+                          const SizedBox(height: 4),
+                          // ID string replacement box
+                          Container(
+                            width: 85,
+                            height: 12,
+                            decoration: BoxDecoration(
+                              color: skeletonColor,
+                              borderRadius: BorderRadius.circular(4),
+                            ),
+                          ),
+                        ],
+                      ),
+                      // Badge replacement box
+                      Container(
+                        width: 75,
+                        height: 24,
+                        decoration: BoxDecoration(
+                          color: skeletonColor,
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 32),
+                  Text(
+                    "LOAN AMOUNT",
+                    style: TextStyle(
+                      color: Colors.white.withValues(alpha: 0.5),
+                      fontSize: 10,
+                      fontWeight: FontWeight.w800,
+                      letterSpacing: 1.5,
+                    ),
+                  ),
+                  const SizedBox(height: 6),
+                  // Huge dynamic loan amount replacement box
+                  Container(
+                    width: 170,
+                    height: 36,
+                    decoration: BoxDecoration(
+                      color: skeletonColor,
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                  ),
+                  const SizedBox(height: 22),
+                  const Divider(color: Colors.white12, height: 1),
+                  const SizedBox(height: 20),
+                  // Bottom descriptive block loading strings
+                  Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Container(
+                        width: 16,
+                        height: 16,
+                        decoration: BoxDecoration(
+                          color: skeletonColor,
+                          shape: BoxShape.circle,
+                        ),
+                      ),
+                      const SizedBox(width: 12),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Container(
+                              width: double.infinity,
+                              height: 10,
+                              decoration: BoxDecoration(
+                                color: skeletonColor,
+                                borderRadius: BorderRadius.circular(3),
+                              ),
+                            ),
+                            const SizedBox(height: 6),
+                            Container(
+                              width: 140,
+                              height: 10,
+                              decoration: BoxDecoration(
+                                color: skeletonColor,
+                                borderRadius: BorderRadius.circular(3),
+                              ),
+                            ),
+                          ],
                         ),
                       ),
                     ],
@@ -229,8 +412,9 @@ class _LoanApplicationState extends State<LoanApplication> {
                         letterSpacing: 1,
                       ),
                     ),
-                    const Text(
-                      "Emergency Fund Plus",
+                    Text(
+                      application['loan_product']['product_name'] ??
+                          "No Product Name",
                       style: TextStyle(
                         color: Color(0xFF0A2351),
                         fontSize: 15,
@@ -254,12 +438,12 @@ class _LoanApplicationState extends State<LoanApplication> {
                   children: [
                     _detailCell(
                       "Interest Rate",
-                      "1.5% / Mo",
+                      "${double.parse(application['loan_product']['interest_rate'].toString()).toStringAsFixed(1)}% / Mo",
                       CupertinoIcons.percent,
                     ),
                     _detailCell(
                       "Loan Period",
-                      "6 Months",
+                      "${application['loan_period'].toString()} Months",
                       CupertinoIcons.calendar,
                     ),
                   ],
@@ -269,10 +453,14 @@ class _LoanApplicationState extends State<LoanApplication> {
                 ),
                 TableRow(
                   children: [
-                    _detailCell("Frequency", "Monthly", CupertinoIcons.repeat),
+                    _detailCell(
+                      "Frequency",
+                      application['loan_interval'] ?? "",
+                      CupertinoIcons.repeat,
+                    ),
                     _detailCell(
                       "Processing Fee",
-                      "KES 500",
+                      formatAmount(0),
                       CupertinoIcons.doc_text_viewfinder,
                     ),
                   ],
@@ -284,12 +472,12 @@ class _LoanApplicationState extends State<LoanApplication> {
                   children: [
                     _detailCell(
                       "Insurance Fee",
-                      "KES 150",
+                      formatAmount(0),
                       CupertinoIcons.lock_shield,
                     ),
                     _detailCell(
                       "Excise Duty",
-                      "KES 100",
+                      formatAmount(0),
                       CupertinoIcons.briefcase,
                     ),
                   ],
@@ -299,6 +487,140 @@ class _LoanApplicationState extends State<LoanApplication> {
           ],
         ),
       ),
+    );
+  }
+
+  Widget _buildPotentialParametersSkeleton() {
+    final baseColor = Colors.grey.shade200;
+
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 24),
+      child: Container(
+        padding: const EdgeInsets.all(24),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(28),
+          border: Border.all(color: const Color(0xFFF1F4F8), width: 1.5),
+        ),
+        child: Column(
+          children: [
+            // 1. PRODUCT BRANDING LINE SKELETON
+            Row(
+              children: [
+                // Mock Circular Icon
+                Container(
+                  width: 36,
+                  height: 36,
+                  decoration: BoxDecoration(
+                    color: baseColor,
+                    shape: BoxShape.circle,
+                  ),
+                ),
+                const SizedBox(width: 12),
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      "LOAN PRODUCT",
+                      style: TextStyle(
+                        color: Colors.grey.shade400,
+                        fontSize: 9,
+                        fontWeight: FontWeight.w800,
+                        letterSpacing: 1,
+                      ),
+                    ),
+                    const SizedBox(height: 4),
+                    // Mock Product Name String
+                    Container(
+                      width: 120,
+                      height: 14,
+                      decoration: BoxDecoration(
+                        color: baseColor,
+                        borderRadius: BorderRadius.circular(4),
+                      ),
+                    ),
+                  ],
+                ),
+              ],
+            ),
+
+            const Padding(
+              padding: EdgeInsets.symmetric(vertical: 20),
+              child: Divider(color: Color(0xFFF1F4F8), height: 1),
+            ),
+
+            // 2. DATA GRID SKELETON (2x3 Layout)
+            Table(
+              children: [
+                TableRow(
+                  children: [
+                    _buildDetailCellSkeleton(baseColor),
+                    _buildDetailCellSkeleton(baseColor),
+                  ],
+                ),
+                const TableRow(
+                  children: [SizedBox(height: 20), SizedBox(height: 20)],
+                ),
+                TableRow(
+                  children: [
+                    _buildDetailCellSkeleton(baseColor),
+                    _buildDetailCellSkeleton(baseColor),
+                  ],
+                ),
+                const TableRow(
+                  children: [SizedBox(height: 20), SizedBox(height: 20)],
+                ),
+                TableRow(
+                  children: [
+                    _buildDetailCellSkeleton(baseColor),
+                    _buildDetailCellSkeleton(baseColor),
+                  ],
+                ),
+              ],
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  // HELPER TO SHAPE EACH DATA CELL INSIDE THE TABLE GRID
+  Widget _buildDetailCellSkeleton(Color baseColor) {
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        // Mock icon footprint
+        Container(
+          width: 32,
+          height: 32,
+          decoration: BoxDecoration(color: baseColor, shape: BoxShape.circle),
+        ),
+        const SizedBox(width: 10),
+        Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            // Mock Label Line (e.g. "Interest Rate")
+            Container(
+              width: 60,
+              height: 9,
+              decoration: BoxDecoration(
+                color: baseColor,
+                borderRadius: BorderRadius.circular(3),
+              ),
+            ),
+            const SizedBox(height: 5),
+            // Mock Value Line (e.g. "12.0% / Mo")
+            Container(
+              width: 80,
+              height: 12,
+              decoration: BoxDecoration(
+                color: baseColor,
+                borderRadius: BorderRadius.circular(4),
+              ),
+            ),
+          ],
+        ),
+      ],
     );
   }
 
@@ -349,67 +671,39 @@ class _LoanApplicationState extends State<LoanApplication> {
   }
 
   // --- 3. REQUIREMENTS LIST ---
-  Widget _buildRequirementsList() {
-    final reqs = [
-      {
-        'title': 'Identity Verification',
-        'subtitle': 'National ID & Selfie',
-        'status': 'Verified',
-        'isDone': true,
-        'icon': CupertinoIcons.person_crop_circle_fill,
-      },
-      {
-        'title': 'Eligibility Check',
-        'subtitle': 'Credit score & history',
-        'status': 'Cleared',
-        'isDone': true,
-        'icon': CupertinoIcons.gauge,
-      },
-      {
-        'title': 'Loan Details',
-        'subtitle': 'Loan amount and loan period',
-        'status': 'Cleared',
-        'isDone': true,
-        'icon': CupertinoIcons.doc,
-      },
-      {
-        'title': 'Bank Statements',
-        'subtitle': 'Last 3 months (PDF)',
-        'status': 'Under Review',
-        'isDone': false,
-        'isPending': true,
-        'icon': CupertinoIcons.doc_text_search,
-      },
-      {
-        'title': 'Guarantor Approval',
-        'subtitle': '2 guarantors required',
-        'status': '1/2 Approved',
-        'isDone': false,
-        'icon': CupertinoIcons.drop_fill,
-      },
-      {
-        'title': 'Assets & Chattels',
-        'subtitle': 'Logbook or Household items',
-        'status': 'Action Required',
-        'isDone': false,
-        'icon': CupertinoIcons.cube_box_fill,
-      },
-      {
-        'title': 'Legal Agreement',
-        'subtitle': 'Sign loan contract',
-        'status': 'Locked',
-        'isDone': false,
-        'icon': CupertinoIcons.signature,
-      },
-    ];
+  // 1. FIXED: Made the list nullable (?) so it doesn't crash at the method gate
+  Widget _buildRequirementsList(List<dynamic>? dynamicRequirements) {
+    // 2. FIXED: If loading or data is missing entirely, show the skeleton safely
+    if (_isLoading || dynamicRequirements == null) {
+      return _buildRequirementsSkeleton();
+    }
+
+    // 3. LOADED BUT NO DATA -> SHOW EMPTY UI
+    if (dynamicRequirements.isEmpty) {
+      return _buildRequirementsEmptyState();
+    }
 
     return SliverPadding(
       padding: const EdgeInsets.symmetric(horizontal: 24),
       sliver: SliverList(
         delegate: SliverChildBuilderDelegate((context, index) {
-          final req = reqs[index];
-          bool isDone = req['isDone'] as bool;
-          bool isPending = (req['isDone'] as bool?) ?? false;
+          // 4. FIXED: Changed cast to loose 'Map' to prevent '_Map<dynamic, dynamic>' runtime TypeErrors
+          final req = dynamicRequirements[index] as Map;
+
+          // 5. DYNAMIC STATUS LOGIC BASED ON YOUR DATA
+          final String rawStatus = req['status']?.toString() ?? 'pending';
+          final bool isDone = [
+            'completed',
+            'done',
+            'verified',
+            'cleared',
+            'skipped',
+          ].contains(rawStatus);
+          final bool isPending = [
+            'pending',
+            'under_review',
+            'processing',
+          ].contains(rawStatus);
 
           return Container(
             margin: const EdgeInsets.only(bottom: 16),
@@ -434,7 +728,7 @@ class _LoanApplicationState extends State<LoanApplication> {
             ),
             child: Row(
               children: [
-                // 1. DYNAMIC ICON HOUSING
+                // DYNAMIC ICON HOUSING
                 Container(
                   padding: const EdgeInsets.all(10),
                   decoration: BoxDecoration(
@@ -447,20 +741,22 @@ class _LoanApplicationState extends State<LoanApplication> {
                   child: Icon(
                     isDone
                         ? CupertinoIcons.checkmark_circle_fill
-                        : req['icon'] as IconData,
+                        : _getIconForStage(
+                            (req['stage'] ?? req['key'] ?? '').toString(),
+                          ),
                     size: 20,
                     color: _getRequirementColor(isDone, isPending),
                   ),
                 ),
                 const SizedBox(width: 18),
 
-                // 2. TEXT CONTENT
+                // TEXT CONTENT
                 Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        req['title'] as String,
+                        req['label']?.toString() ?? 'Requirement',
                         style: TextStyle(
                           fontWeight: FontWeight.w900,
                           fontSize: 14,
@@ -472,7 +768,7 @@ class _LoanApplicationState extends State<LoanApplication> {
                       ),
                       const SizedBox(height: 2),
                       Text(
-                        req['subtitle'] as String,
+                        req['summary']?.toString() ?? '',
                         style: TextStyle(
                           fontSize: 11,
                           color: Colors.grey.shade400,
@@ -483,8 +779,12 @@ class _LoanApplicationState extends State<LoanApplication> {
                   ),
                 ),
 
-                // 3. STATUS BADGE
-                _buildMiniStatus(req['status'] as String, isDone, isPending),
+                // STATUS BADGE
+                _buildMiniStatus(
+                  _formatStatusText(rawStatus),
+                  isDone,
+                  isPending,
+                ),
 
                 if (!isDone && !isPending)
                   const Padding(
@@ -498,9 +798,171 @@ class _LoanApplicationState extends State<LoanApplication> {
               ],
             ),
           );
-        }, childCount: reqs.length),
+        }, childCount: dynamicRequirements.length),
       ),
     );
+  }
+
+  Widget _buildRequirementsEmptyState() {
+    return SliverToBoxAdapter(
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 40),
+        child: Container(
+          padding: const EdgeInsets.all(32),
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(24),
+            border: Border.all(color: const Color(0xFFF1F4F8), width: 1.5),
+          ),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Container(
+                padding: const EdgeInsets.all(16),
+                decoration: BoxDecoration(
+                  color: const Color(0xFFF1F4F8),
+                  shape: BoxShape.circle,
+                ),
+                child: const Icon(
+                  CupertinoIcons.doc_plaintext,
+                  size: 32,
+                  color: Colors.grey,
+                ),
+              ),
+              const SizedBox(height: 16),
+              const Text(
+                "No Requirements Found",
+                textAlign: TextAlign.center,
+                style: TextStyle(
+                  fontWeight: FontWeight.w900,
+                  fontSize: 16,
+                  color: Color(0xFF0A2351),
+                ),
+              ),
+              const SizedBox(height: 6),
+              Text(
+                "There are no verification steps or history available for this loan profile.",
+                textAlign: TextAlign.center,
+                style: TextStyle(
+                  fontSize: 12,
+                  color: Colors.grey.shade500,
+                  fontWeight: FontWeight.w500,
+                  height: 1.4,
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildRequirementsSkeleton() {
+    final baseColor = Colors.grey.shade200;
+
+    return SliverPadding(
+      padding: const EdgeInsets.symmetric(horizontal: 24),
+      sliver: SliverList(
+        delegate: SliverChildBuilderDelegate((context, index) {
+          return Container(
+            margin: const EdgeInsets.only(bottom: 16),
+            padding: const EdgeInsets.all(20),
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(24),
+              border: Border.all(color: const Color(0xFFF1F4F8), width: 1.5),
+            ),
+            child: Row(
+              children: [
+                // Circular Icon Placeholder
+                Container(
+                  width: 40,
+                  height: 40,
+                  decoration: BoxDecoration(
+                    color: baseColor,
+                    shape: BoxShape.circle,
+                  ),
+                ),
+                const SizedBox(width: 18),
+
+                // Text Blocks Placeholders
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      // Title skeleton line
+                      Container(
+                        width: 140,
+                        height: 14,
+                        decoration: BoxDecoration(
+                          color: baseColor,
+                          borderRadius: BorderRadius.circular(4),
+                        ),
+                      ),
+                      const SizedBox(height: 6),
+                      // Subtitle skeleton line
+                      Container(
+                        width: 200,
+                        height: 10,
+                        decoration: BoxDecoration(
+                          color: baseColor,
+                          borderRadius: BorderRadius.circular(4),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+
+                // Status Badge Placeholder
+                Container(
+                  width: 65,
+                  height: 22,
+                  decoration: BoxDecoration(
+                    color: baseColor,
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                ),
+              ],
+            ),
+          );
+        }, childCount: 6), // Forces exactly 6 items
+      ),
+    );
+  }
+
+  // 2. HELPER TO MATCH YOUR BACKEND KEYS TO CUPERTINO ICONS
+  IconData _getIconForStage(String stage) {
+    switch (stage.toLowerCase()) {
+      case 'identity':
+      case 'verification':
+        return CupertinoIcons.person_crop_circle_fill;
+      case 'eligibility':
+        return CupertinoIcons.gauge;
+      case 'loan_details':
+        return CupertinoIcons.doc;
+      case 'documents':
+      case 'bank_statements':
+        return CupertinoIcons.doc_text_search;
+      case 'guarantor':
+        return CupertinoIcons.drop_fill;
+      case 'assets':
+      case 'chattels':
+        return CupertinoIcons.cube_box_fill;
+      case 'legal':
+      case 'agreement':
+        return CupertinoIcons.signature;
+      default:
+        return CupertinoIcons.doc; // Fallback icon
+    }
+  }
+
+  // 3. HELPER TO CLEAN UP SNAKE_CASE STATUS STRINGS FOR THE UI BADGE
+  String _formatStatusText(String status) {
+    if (status.isEmpty) return '';
+    return status
+        .split('_')
+        .map((word) => word[0].toUpperCase() + word.substring(1).toLowerCase())
+        .join(' ');
   }
 
   // --- HELPER LOGIC ---

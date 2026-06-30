@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'package:app_anansi_mobile/components/drawer/navigation.dart';
 import 'package:app_anansi_mobile/helpers/format_amount.dart';
+import 'package:app_anansi_mobile/helpers/format_time.dart';
 import 'package:app_anansi_mobile/main.dart';
 import 'package:app_anansi_mobile/pages/accounts/account_details.dart';
 import 'package:app_anansi_mobile/pages/buy-shares/shares_amount.dart';
@@ -17,6 +18,8 @@ import 'package:app_anansi_mobile/pages/profile/profile.dart';
 import 'package:app_anansi_mobile/pages/statements/statements.dart';
 import 'package:app_anansi_mobile/services/account_service.dart';
 import 'package:app_anansi_mobile/services/error_service.dart';
+import 'package:app_anansi_mobile/services/loan_application_service.dart';
+import 'package:app_anansi_mobile/services/loan_service.dart';
 import 'package:app_anansi_mobile/services/secure_storage_service.dart';
 import 'package:app_anansi_mobile/shimmers/homepage/accounts.dart';
 import 'package:app_anansi_mobile/shimmers/homepage/shares_summary.dart';
@@ -25,6 +28,7 @@ import 'package:flutter/material.dart';
 import 'package:app_anansi_mobile/theme/app_theme.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
+import 'package:shimmer/shimmer.dart';
 
 class Homepage extends StatefulWidget {
   const Homepage({super.key});
@@ -37,12 +41,16 @@ class _HomepageState extends State<Homepage> {
   double currentShares = 0;
   final double targetShares = 10.0;
   bool _loading = false;
+  bool _loadingApplications = false;
+  bool _loadingLoans = false;
   bool _isLoading = false;
   List<Map<String, dynamic>> accounts = [];
   Map<String, dynamic> sharesSummary = {};
   Map<String, dynamic> sharesAccount = {};
   Map<String, dynamic> savingsAccount = {};
   Set<String> hiddenAccountIds = {};
+  List<Map<String, dynamic>> applications = [];
+  List<Map<String, dynamic>> loans = [];
 
   void _toggleVisibility(String accountId) {
     setState(() {
@@ -121,9 +129,100 @@ class _HomepageState extends State<Homepage> {
     }
   }
 
+  Future<void> getActiveLoanApplications() async {
+    _loadingApplications = true;
+    try {
+      final user = await getUser();
+      final (response, errors) = await LoanApplicationService()
+          .listActiveLoanApplications(customerId: user?['id'] ?? "");
+      if (errors != null) {
+        ErrorService.showActionableError(
+          context,
+          title: errors[0],
+          message: errors[1],
+        );
+      } else if (response != null) {
+        final responseInfo = response.data['data'];
+        setState(() {
+          applications = List<Map<String, dynamic>>.from(
+            responseInfo['applications'] ?? [],
+          );
+        });
+      }
+    } finally {
+      if (mounted) setState(() => _loadingApplications = false);
+    }
+  }
+
+  Future<void> getActiveLoans() async {
+    _loadingLoans = true;
+    try {
+      final user = await getUser();
+      final (response, errors) = await LoanService().listActiveLoans(
+        customerId: user?['id'] ?? "",
+      );
+      if (errors != null) {
+        ErrorService.showActionableError(
+          context,
+          title: errors[0],
+          message: errors[1],
+        );
+      } else if (response != null) {
+        final responseInfo = response.data['data'];
+        setState(() {
+          loans = List<Map<String, dynamic>>.from(responseInfo['loans'] ?? []);
+        });
+      }
+    } finally {
+      if (mounted) setState(() => _loadingLoans = false);
+    }
+  }
+
   Future<void> _handleRefresh() async {
     await fetchCustomerDetails();
     await fetchSharesDetails();
+    await getActiveLoanApplications();
+    await getActiveLoans();
+  }
+
+  Color _getStatusColor(String? status) {
+    if (status == null) {
+      return const Color(0xFF94A3B8); // Default Slate Gray for null
+    }
+
+    switch (status.toLowerCase().trim()) {
+      // Active & Healthy Statuses
+      case 'approved':
+      case 'active':
+      case 'running':
+      case 'current':
+        return const Color(0xFF10B981); // Emerald Green
+
+      // Waiting or Processing Statuses
+      case 'pending':
+      case 'processing':
+      case 'under review':
+      case 'applied':
+        return const Color(0xFFF59E0B); // Amber Yellow
+
+      // At Risk or Rejected Statuses
+      case 'declined':
+      case 'rejected':
+      case 'defaulted':
+      case 'overdue':
+      case 'arrears':
+        return const Color(0xFFEF4444); // Rose Red
+
+      // Completed Statuses
+      case 'settled':
+      case 'paid':
+      case 'closed':
+        return const Color(0xFF3B82F6); // Info Blue
+
+      // Fallback for any unmapped string values
+      default:
+        return const Color(0xFF64748B); // Neutral Cool Gray
+    }
   }
 
   @override
@@ -131,6 +230,8 @@ class _HomepageState extends State<Homepage> {
     super.initState();
     fetchSharesDetails();
     fetchCustomerDetails();
+    getActiveLoans();
+    getActiveLoanApplications();
   }
 
   @override
@@ -359,99 +460,172 @@ class _HomepageState extends State<Homepage> {
             ),
           ),
           SliverPadding(
-            padding: const EdgeInsets.fromLTRB(0, 5, 0, 0),
+            padding: const EdgeInsets.fromLTRB(0, 0, 0, 0),
             sliver: SliverToBoxAdapter(
-              child: _buildSectionHeader("Active Applications", "2 Active"),
-            ),
-          ),
-          SliverPadding(
-            padding: const EdgeInsets.symmetric(horizontal: 16),
-            sliver: SliverToBoxAdapter(
-              child: Column(
-                children: [
-                  _buildApplicationItem(
-                    reference: "HGVFDTCS4327T",
-                    title: "Emergency Medical Credit",
-                    date: "Applied Today, 10:45 AM",
-                    amount: "KES 50,000.00",
-                    status: "UNDER REVIEW",
-                    onTap: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => LoanApplication(),
-                        ),
-                      );
-                    },
-                  ),
-                  const SizedBox(height: 12),
-                  _buildApplicationItem(
-                    reference: "UHGBFCT6754DCR",
-                    title: "Asset Finance: MacBook Pro",
-                    date: "Applied 15 Mar 2026",
-                    amount: "KES 320,000.00",
-                    status: "DOCUMENTS PENDING",
-                    onTap: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => LoanApplication(),
-                        ),
-                      );
-                    },
-                  ),
-                ],
+              child: _buildSectionHeader(
+                "Active Applications",
+                "${applications.length} Active",
               ),
             ),
           ),
+          _loadingApplications
+              ? _buildLoanApplicationsSkeleton()
+              : applications.isNotEmpty
+              ? SliverPadding(
+                  padding: const EdgeInsets.symmetric(horizontal: 16),
+                  sliver: SliverList(
+                    delegate: SliverChildBuilderDelegate((context, index) {
+                      final item = applications[index];
+                      return _buildApplicationItem(
+                        reference: item['application_number'] ?? "N/A",
+                        title:
+                            item['product']['product_name'] ??
+                            "Loan Application",
+                        date: formatPostgresDateWithTime(
+                          item['application_date'],
+                        ),
+                        amount: formatAmount(item['applied_amount'] ?? 0),
+                        status: item['status_label'] ?? "Pending",
+                        onTap: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) =>
+                                  LoanApplication(appId: item['id'] ?? ""),
+                            ),
+                          );
+                        },
+                      );
+                    }, childCount: applications.length),
+                  ),
+                )
+              : _buildEmptyState(
+                  title: "No Loan Applications",
+                  description:
+                      "You haven't submitted any loan applications yet. When you apply for a loan, your application progress, approval stages, and status tracking will appear here.",
+                  icon: CupertinoIcons
+                      .doc_text, // Form/document icon perfect for applications
+                ),
           SliverPadding(
             padding: const EdgeInsets.fromLTRB(0, 0, 0, 0),
             sliver: SliverToBoxAdapter(
-              child: _buildSectionHeader("Recent Loans", "2 Active"),
-            ),
-          ),
-          SliverPadding(
-            padding: const EdgeInsets.symmetric(horizontal: 16),
-            sliver: SliverToBoxAdapter(
-              child: Column(
-                children: [
-                  _buildLoanItem(
-                    title: "Business Growth Loan",
-                    id: "LN-670042",
-                    amount: "KES 1,200,000.00",
-                    balance: "KES 740,500.00",
-                    status: "Active",
-                    statusColor: const Color(0xFF17C6C6),
-                    maturityDate: "19th/09/2026",
-                    onTap: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(builder: (context) => LoanDetails()),
-                      );
-                    },
-                  ),
-                  const SizedBox(height: 10),
-                  _buildLoanItem(
-                    title: "Executive Personal Credit",
-                    id: "LN-450918",
-                    amount: "KES 150,000.00",
-                    balance: "KES 12,000.00",
-                    status: "Near Completion",
-                    statusColor: Colors.green.shade400,
-                    maturityDate: "20th/01/2027",
-                    onTap: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(builder: (context) => LoanDetails()),
-                      );
-                    },
-                  ),
-                ],
+              child: _buildSectionHeader(
+                "Recent Loans",
+                "${loans.length} Active",
               ),
             ),
           ),
+          _loadingLoans
+              ? _buildLoansSkeletonList()
+              : loans.isNotEmpty
+              ? SliverPadding(
+                  padding: const EdgeInsets.symmetric(horizontal: 16),
+                  sliver: SliverList(
+                    delegate: SliverChildBuilderDelegate((context, index) {
+                      final loan = loans[index];
+                      return _buildLoanItem(
+                        title: loan['loan_type'],
+                        id: loan['loan_code'],
+                        amount: formatAmount(loan['loan_amount']),
+                        balance: formatAmount(loan['outstanding_balance']),
+                        status: loan['loan_status'],
+                        statusColor: _getStatusColor(loan['loan_status']),
+                        maturityDate: loan['loan_due_date'],
+                        onTap: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) =>
+                                  LoanDetails(loanId: loan['id'] ?? ""),
+                            ),
+                          );
+                        },
+                      );
+                    }, childCount: loans.length),
+                  ),
+                )
+              : _buildEmptyState(
+                  title: "No Active Loans",
+                  description:
+                      "You currently do not have any running or settled loans on your profile. When you accept a loan offer, its repayment tracker and balances will show up here.",
+                  icon: CupertinoIcons
+                      .creditcard, // Swapped to a credit card icon for loans
+                ),
           const SliverToBoxAdapter(child: SizedBox(height: 40)),
         ],
+      ),
+    );
+  }
+
+  Widget _buildEmptyState({
+    required String title,
+    required String description,
+    required IconData icon,
+  }) {
+    return SliverToBoxAdapter(
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 16),
+        child: Container(
+          padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 30),
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(
+              32,
+            ), // Matches your app's high rounded aesthetic
+            border: Border.all(color: const Color(0xFFF1F5F9), width: 1.5),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withValues(alpha: 0.02),
+                blurRadius: 16,
+                offset: const Offset(0, 6),
+              ),
+            ],
+          ),
+          child: Column(
+            mainAxisSize: MainAxisSize
+                .min, // Constrains the card height to wrap contents snugly
+            mainAxisAlignment: MainAxisAlignment.center,
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              // Muted Circular Icon Wrapper
+              Container(
+                padding: const EdgeInsets.all(20),
+                decoration: BoxDecoration(
+                  color: const Color(0xFFF8FAFC),
+                  shape: BoxShape.circle,
+                  border: Border.all(
+                    color: const Color(0xFFF1F5F9),
+                    width: 1.5,
+                  ),
+                ),
+                child: Icon(icon, size: 44, color: Colors.grey.shade400),
+              ),
+              const SizedBox(height: 24),
+
+              // Description Headers
+              Text(
+                title,
+                textAlign: TextAlign.center,
+                style: const TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.w900,
+                  color: AnansiColors.darkBlue,
+                  letterSpacing: -0.4,
+                ),
+              ),
+              const SizedBox(height: 8),
+              Text(
+                description,
+                textAlign: TextAlign.center,
+                style: TextStyle(
+                  fontSize: 13,
+                  color: Colors.blueGrey.shade400,
+                  height: 1.4,
+                ),
+              ),
+            ],
+          ),
+        ),
       ),
     );
   }
@@ -547,6 +721,177 @@ class _HomepageState extends State<Homepage> {
             style: TextButton.styleFrom(
               foregroundColor: const Color(0xFF17C6C6),
               textStyle: const TextStyle(fontWeight: FontWeight.w700),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildLoansSkeletonList() {
+    return SliverPadding(
+      padding: const EdgeInsets.symmetric(horizontal: 20),
+      sliver: SliverList(
+        delegate: SliverChildBuilderDelegate(
+          (context, index) {
+            return Shimmer.fromColors(
+              baseColor: Colors.grey.shade200,
+              highlightColor: Colors.grey.shade50,
+              period: const Duration(milliseconds: 1200),
+              child: _buildLoanSkeletonItem(),
+            );
+          },
+          childCount: 5, // Renders a uniform layout block of 5 items
+        ),
+      ),
+    );
+  }
+
+  Widget _buildLoanSkeletonItem() {
+    return Container(
+      margin: const EdgeInsets.only(bottom: 16),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(30),
+      ),
+      child: Column(
+        children: [
+          // 1. Header Section Placeholder
+          Padding(
+            padding: const EdgeInsets.fromLTRB(24, 20, 24, 14),
+            child: Row(
+              children: [
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      // Loan Title Bar
+                      Container(
+                        width: 140,
+                        height: 16,
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          borderRadius: BorderRadius.circular(4),
+                        ),
+                      ),
+                      const SizedBox(height: 6),
+                      // Loan ID Tag block
+                      Container(
+                        width: 70,
+                        height: 12,
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          borderRadius: BorderRadius.circular(6),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                // Maturity Badge circle block
+                Container(
+                  width: 75,
+                  height: 20,
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                ),
+              ],
+            ),
+          ),
+
+          // 2. Main Stats Box Placeholder
+          Container(
+            margin: const EdgeInsets.symmetric(horizontal: 16),
+            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 18),
+            decoration: BoxDecoration(
+              color: const Color(0xFFF8FAFC),
+              borderRadius: BorderRadius.circular(20),
+            ),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                // Principal Stat block
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Container(
+                      width: 50,
+                      height: 10,
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(2),
+                      ),
+                    ),
+                    const SizedBox(height: 6),
+                    Container(
+                      width: 80,
+                      height: 14,
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(4),
+                      ),
+                    ),
+                  ],
+                ),
+                // Internal Divider Element
+                Container(
+                  width: 1,
+                  height: 30,
+                  color: Colors.grey.withValues(alpha: 0.15),
+                ),
+                // Current Balance Stat block
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.end,
+                  children: [
+                    Container(
+                      width: 75,
+                      height: 10,
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(2),
+                      ),
+                    ),
+                    const SizedBox(height: 6),
+                    Container(
+                      width: 90,
+                      height: 14,
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(4),
+                      ),
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          ),
+
+          // 3. Status Footer Placeholder
+          Padding(
+            padding: const EdgeInsets.fromLTRB(24, 16, 24, 20),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                // Status Rounded Chip
+                Container(
+                  width: 85,
+                  height: 22,
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(100),
+                  ),
+                ),
+                // View Details Indicator Action
+                Container(
+                  width: 70,
+                  height: 12,
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(4),
+                  ),
+                ),
+              ],
             ),
           ),
         ],
@@ -1372,6 +1717,115 @@ class _HomepageState extends State<Homepage> {
             ],
           ),
         ),
+      ),
+    );
+  }
+
+  Widget _buildLoanApplicationsSkeleton() {
+    return SliverPadding(
+      padding: const EdgeInsets.symmetric(horizontal: 20),
+      sliver: SliverList(
+        delegate: SliverChildBuilderDelegate(
+          (context, index) {
+            return Shimmer.fromColors(
+              baseColor: Colors.grey.shade200,
+              highlightColor: Colors.grey.shade50,
+              period: const Duration(milliseconds: 1200),
+              child: _buildApplicationSkeletonItem(),
+            );
+          },
+          childCount: 6, // Enforces exactly 6 layout skeletons
+        ),
+      ),
+    );
+  }
+
+  Widget _buildApplicationSkeletonItem() {
+    return Container(
+      margin: const EdgeInsets.only(bottom: 16),
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(24),
+        border: Border.all(color: const Color(0xFFF1F5F9), width: 1.5),
+      ),
+      child: Row(
+        children: [
+          // 1. Status Indicator Icon Placeholder
+          Container(
+            width: 40,
+            height: 40,
+            decoration: const BoxDecoration(
+              color: Colors.white,
+              shape: BoxShape.circle,
+            ),
+          ),
+          const SizedBox(width: 16),
+
+          // 2. Main Details Placeholder
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                // Reference line
+                Container(
+                  width: 70,
+                  height: 10,
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(4),
+                  ),
+                ),
+                const SizedBox(height: 6),
+                // Title line
+                Container(
+                  width: 140,
+                  height: 13,
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(4),
+                  ),
+                ),
+                const SizedBox(height: 6),
+                // Date line
+                Container(
+                  width: 90,
+                  height: 11,
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(4),
+                  ),
+                ),
+              ],
+            ),
+          ),
+
+          // 3. Amount and Status Badge Placeholder
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.end,
+            children: [
+              // Amount line
+              Container(
+                width: 65,
+                height: 13,
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(4),
+                ),
+              ),
+              const SizedBox(height: 8),
+              // Status Badge block
+              Container(
+                width: 60,
+                height: 18,
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(8),
+                ),
+              ),
+            ],
+          ),
+        ],
       ),
     );
   }
