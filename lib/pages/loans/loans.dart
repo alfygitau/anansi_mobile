@@ -1,11 +1,16 @@
+import 'dart:convert';
 import 'package:app_anansi_mobile/helpers/format_amount.dart';
 import 'package:app_anansi_mobile/pages/help&support/help_support.dart';
 import 'package:app_anansi_mobile/pages/loan-products/loan_products.dart';
 import 'package:app_anansi_mobile/pages/loans/loan_details.dart';
+import 'package:app_anansi_mobile/services/error_service.dart';
+import 'package:app_anansi_mobile/services/loan_service.dart';
+import 'package:app_anansi_mobile/services/secure_storage_service.dart';
 import 'package:app_anansi_mobile/theme/app_theme.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:shimmer/shimmer.dart';
 
 class MyLoans extends StatefulWidget {
   const MyLoans({super.key});
@@ -15,71 +20,87 @@ class MyLoans extends StatefulWidget {
 }
 
 class _MyLoansState extends State<MyLoans> {
-  final List<Map<String, dynamic>> loanData = [
-    {
-      "title": "Business Growth Loan",
-      "id": "LN-2026-001",
-      "amount": 250000.0,
-      "balance": 185000.0,
-      "status": "Active",
-      "color": const Color(0xFF17C6C6), // Teal
-      "maturity": "15 Dec, 2026",
-    },
-    {
-      "title": "Emergency Medical",
-      "id": "LN-2026-042",
-      "amount": 50000.0,
-      "balance": 12400.0,
-      "status": "Active",
-      "color": const Color(0xFF17C6C6),
-      "maturity": "20 May, 2026",
-    },
-    {
-      "title": "School Fees Advance",
-      "id": "LN-2026-115",
-      "amount": 75000.0,
-      "balance": 0.0,
-      "status": "Settled",
-      "color": const Color(0xFF10B981), // Emerald/Green
-      "maturity": "01 Apr, 2026",
-    },
-    {
-      "title": "Personal Asset Loan",
-      "id": "LN-2026-209",
-      "amount": 120000.0,
-      "balance": 120000.0,
-      "status": "Overdue",
-      "color": const Color(0xFFEF4444), // Rose/Red
-      "maturity": "10 Mar, 2026",
-    },
-    {
-      "title": "Agri-Input Credit",
-      "id": "LN-2026-330",
-      "amount": 35000.0,
-      "balance": 15000.0,
-      "status": "Active",
-      "color": const Color(0xFF17C6C6),
-      "maturity": "30 Jun, 2026",
-    },
-    {
-      "title": "Instant Salary Loan",
-      "id": "LN-2026-405",
-      "amount": 20000.0,
-      "balance": 5000.0,
-      "status": "Active",
-      "color": const Color(0xFF17C6C6),
-      "maturity": "28 Apr, 2026",
-    },
-    {
-      "title": "Home Improvement",
-      "id": "LN-2026-512",
-      "amount": 400000.0,
-      "balance": 390000.0,
-      "status": "Grace Period",
-      "color": const Color(0xFFF59E0B), // Amber
-      "maturity": "12 Jan, 2027",
-    },
-  ];
+  List<Map<String, dynamic>> loans = [];
+  bool _isLoading = false;
+
+  Future<Map<String, dynamic>?> getUser() async {
+    String? userJson = await SecureStorageService().read('user');
+    if (userJson == null) return null;
+    Map<String, dynamic> userMap = jsonDecode(userJson);
+    return userMap;
+  }
+
+  Future<void> getLoans() async {
+    _isLoading = true;
+    try {
+      final user = await getUser();
+      final (response, errors) = await LoanService().listLoans(
+        customerId: user?['id'] ?? "",
+      );
+      if (errors != null) {
+        ErrorService.showActionableError(
+          context,
+          title: errors[0],
+          message: errors[1],
+        );
+      } else if (response != null) {
+        final responseInfo = response.data['data'];
+        setState(() {
+          loans = List<Map<String, dynamic>>.from(
+            responseInfo['loan_data'] ?? [],
+          );
+        });
+      }
+    } finally {
+      if (mounted) setState(() => _isLoading = false);
+    }
+  }
+
+  Color _getStatusColor(String? status) {
+    if (status == null)
+      return const Color(0xFF94A3B8); // Default Slate Gray for null
+
+    switch (status.toLowerCase().trim()) {
+      // Active & Healthy Statuses
+      case 'approved':
+      case 'active':
+      case 'running':
+      case 'current':
+        return const Color(0xFF10B981); // Emerald Green
+
+      // Waiting or Processing Statuses
+      case 'pending':
+      case 'processing':
+      case 'under review':
+      case 'applied':
+        return const Color(0xFFF59E0B); // Amber Yellow
+
+      // At Risk or Rejected Statuses
+      case 'declined':
+      case 'rejected':
+      case 'defaulted':
+      case 'overdue':
+      case 'arrears':
+        return const Color(0xFFEF4444); // Rose Red
+
+      // Completed Statuses
+      case 'settled':
+      case 'paid':
+      case 'closed':
+        return const Color(0xFF3B82F6); // Info Blue
+
+      // Fallback for any unmapped string values
+      default:
+        return const Color(0xFF64748B); // Neutral Cool Gray
+    }
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    getLoans();
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -99,29 +120,33 @@ class _MyLoansState extends State<MyLoans> {
           SliverToBoxAdapter(child: _buildSectionHeader("Active Facilities")),
 
           // 5. The Loans List
-          SliverPadding(
-            padding: const EdgeInsets.symmetric(horizontal: 20),
-            sliver: SliverList(
-              delegate: SliverChildBuilderDelegate((context, index) {
-                final loan = loanData[index];
-                return _buildLoanItem(
-                  title: loan['title'],
-                  id: loan['id'],
-                  amount: formatAmount(loan['amount']),
-                  balance: formatAmount(loan['balance']),
-                  status: loan['status'],
-                  statusColor: loan['color'],
-                  maturityDate: loan['maturity'],
-                  onTap: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(builder: (context) => LoanDetails()),
-                    );
-                  },
-                );
-              }, childCount: loanData.length),
-            ),
-          ),
+          _isLoading
+              ? _buildLoansSkeletonList()
+              : SliverPadding(
+                  padding: const EdgeInsets.symmetric(horizontal: 20),
+                  sliver: SliverList(
+                    delegate: SliverChildBuilderDelegate((context, index) {
+                      final loan = loans[index];
+                      return _buildLoanItem(
+                        title: loan['loan_type'],
+                        id: loan['loan_code'],
+                        amount: formatAmount(loan['loan_amount']),
+                        balance: formatAmount(loan['loan_Balance']),
+                        status: loan['loan_status'],
+                        statusColor: _getStatusColor(loan['loan_status']),
+                        maturityDate: loan['loan_due_date'],
+                        onTap: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => LoanDetails(),
+                            ),
+                          );
+                        },
+                      );
+                    }, childCount: loans.length),
+                  ),
+                ),
           const SliverToBoxAdapter(child: SizedBox(height: 100)),
         ],
       ),
@@ -624,6 +649,177 @@ class _MyLoansState extends State<MyLoans> {
     Navigator.push(
       context,
       MaterialPageRoute(builder: (context) => LoanProducts()),
+    );
+  }
+
+  Widget _buildLoansSkeletonList() {
+    return SliverPadding(
+      padding: const EdgeInsets.symmetric(horizontal: 20),
+      sliver: SliverList(
+        delegate: SliverChildBuilderDelegate(
+          (context, index) {
+            return Shimmer.fromColors(
+              baseColor: Colors.grey.shade200,
+              highlightColor: Colors.grey.shade50,
+              period: const Duration(milliseconds: 1200),
+              child: _buildLoanSkeletonItem(),
+            );
+          },
+          childCount: 5, // Renders a uniform layout block of 5 items
+        ),
+      ),
+    );
+  }
+
+  Widget _buildLoanSkeletonItem() {
+    return Container(
+      margin: const EdgeInsets.only(bottom: 16),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(30),
+      ),
+      child: Column(
+        children: [
+          // 1. Header Section Placeholder
+          Padding(
+            padding: const EdgeInsets.fromLTRB(24, 20, 24, 14),
+            child: Row(
+              children: [
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      // Loan Title Bar
+                      Container(
+                        width: 140,
+                        height: 16,
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          borderRadius: BorderRadius.circular(4),
+                        ),
+                      ),
+                      const SizedBox(height: 6),
+                      // Loan ID Tag block
+                      Container(
+                        width: 70,
+                        height: 12,
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          borderRadius: BorderRadius.circular(6),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                // Maturity Badge circle block
+                Container(
+                  width: 75,
+                  height: 20,
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                ),
+              ],
+            ),
+          ),
+
+          // 2. Main Stats Box Placeholder
+          Container(
+            margin: const EdgeInsets.symmetric(horizontal: 16),
+            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 18),
+            decoration: BoxDecoration(
+              color: const Color(0xFFF8FAFC),
+              borderRadius: BorderRadius.circular(20),
+            ),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                // Principal Stat block
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Container(
+                      width: 50,
+                      height: 10,
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(2),
+                      ),
+                    ),
+                    const SizedBox(height: 6),
+                    Container(
+                      width: 80,
+                      height: 14,
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(4),
+                      ),
+                    ),
+                  ],
+                ),
+                // Internal Divider Element
+                Container(
+                  width: 1,
+                  height: 30,
+                  color: Colors.grey.withValues(alpha: 0.15),
+                ),
+                // Current Balance Stat block
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.end,
+                  children: [
+                    Container(
+                      width: 75,
+                      height: 10,
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(2),
+                      ),
+                    ),
+                    const SizedBox(height: 6),
+                    Container(
+                      width: 90,
+                      height: 14,
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(4),
+                      ),
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          ),
+
+          // 3. Status Footer Placeholder
+          Padding(
+            padding: const EdgeInsets.fromLTRB(24, 16, 24, 20),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                // Status Rounded Chip
+                Container(
+                  width: 85,
+                  height: 22,
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(100),
+                  ),
+                ),
+                // View Details Indicator Action
+                Container(
+                  width: 70,
+                  height: 12,
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(4),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
     );
   }
 }

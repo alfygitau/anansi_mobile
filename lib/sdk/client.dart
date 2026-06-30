@@ -23,6 +23,20 @@ class AuditConfig {
   );
 }
 
+/// Configuration derived from the React/Axios loanClient setup
+class LoanConfig {
+  static BaseOptions options = BaseOptions(
+    baseUrl: loanBaseUrl, // Make sure to add this to constants.dart
+    connectTimeout: const Duration(seconds: 10),
+    sendTimeout: const Duration(seconds: 10),
+    receiveTimeout: const Duration(seconds: 10),
+    contentType: 'application/json',
+    headers: {
+      'X-API-Key': loanApiKey, // Make sure to add this to constants.dart
+    },
+  );
+}
+
 class PublicDioClient {
   static final PublicDioClient _instance = PublicDioClient._internal();
   factory PublicDioClient() => _instance;
@@ -69,6 +83,33 @@ class SecureDioClient {
         onError: (DioException e, handler) async {
           if (e.response?.statusCode == 401) {
             await SecureStorageService().deleteAll();
+            NavigationService.navigateToLogin();
+          }
+          return handler.next(e);
+        },
+      ),
+    );
+  }
+}
+
+class LoanDioClient {
+  static final LoanDioClient _instance = LoanDioClient._internal();
+  factory LoanDioClient() => _instance;
+
+  late Dio dio;
+
+  LoanDioClient._internal() {
+    dio = Dio(LoanConfig.options);
+    dio.interceptors.add(LogInterceptor(responseBody: true, requestBody: true));
+
+    dio.interceptors.add(
+      InterceptorsWrapper(
+        onError: (DioException e, handler) async {
+          // Captures the 401 error handler routine matching your Axios layout
+          if (e.response?.statusCode == 401) {
+            // Replicates localStorage.removeItem("auth")
+            await SecureStorageService().delete("auth");
+            // Replicates window.location.href redirection
             NavigationService.navigateToLogin();
           }
           return handler.next(e);

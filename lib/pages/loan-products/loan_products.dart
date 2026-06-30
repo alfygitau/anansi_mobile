@@ -1,7 +1,12 @@
+import 'dart:convert';
 import 'package:app_anansi_mobile/pages/apply-loan/eligibility.dart';
+import 'package:app_anansi_mobile/services/error_service.dart';
+import 'package:app_anansi_mobile/services/loan_products_service.dart';
+import 'package:app_anansi_mobile/services/secure_storage_service.dart';
 import 'package:app_anansi_mobile/theme/app_theme.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:shimmer/shimmer.dart';
 
 class LoanProducts extends StatefulWidget {
   const LoanProducts({super.key});
@@ -11,70 +16,8 @@ class LoanProducts extends StatefulWidget {
 }
 
 class _LoanProductsState extends State<LoanProducts> {
-  final List<Map<String, dynamic>> loanProducts = [
-    {
-      "name": "Emergency Loan",
-      "icon": CupertinoIcons.bolt_fill,
-      "rate": "1.5%",
-      "period": "1 Month",
-      "color": const Color(0xFFEF4444),
-      "description": "Instant funds for urgent needs.",
-      "maxAmount": "50,000",
-    },
-    {
-      "name": "Development Loan",
-      "icon": CupertinoIcons.house_fill,
-      "rate": "12%",
-      "period": "36 Months",
-      "color": const Color(0xFF3B82F6),
-      "description": "Long-term financing for projects.",
-      "maxAmount": "2,000,000",
-    },
-    {
-      "name": "Education Loan",
-      "icon": CupertinoIcons.book_fill,
-      "rate": "10%",
-      "period": "12 Months",
-      "color": const Color(0xFF10B981),
-      "description": "Invest in your future knowledge.",
-      "maxAmount": "200,000",
-    },
-    {
-      "name": "Asset Finance",
-      "icon": CupertinoIcons.car_detailed,
-      "rate": "13.5%",
-      "period": "48 Months",
-      "color": const Color(0xFF8B5CF6),
-      "description": "Acquire vehicles or machinery.",
-      "maxAmount": "5,000,000",
-    },
-    {
-      "name": "Salary Advance",
-      "icon": CupertinoIcons.money_dollar_circle_fill,
-      "rate": "5%",
-      "period": "1 Month",
-      "color": const Color(0xFFF59E0B),
-      "description": "Bridge the gap to your next payday.",
-      "maxAmount": "100,000",
-    },
-    {
-      "name": "Agri-Business",
-      "icon": CupertinoIcons.clear_fill,
-      "rate": "8%",
-      "period": "24 Months",
-      "color": const Color(0xFF065F46),
-      "description": "Boost your farm's productivity.",
-      "maxAmount": "1,500,000",
-    },
-    {
-      "name": "Instant Mobile",
-      "icon": CupertinoIcons.device_phone_portrait,
-      "rate": "10%",
-      "period": "2 Weeks",
-      "color": const Color(0xFFEC4899),
-      "description": "Quick app-based micro-loans.",
-      "maxAmount": "15,000",
-    },
+  bool _isLoading = false;
+  List<Map<String, dynamic>> loanProducts = [
     {
       "name": "Business Growth",
       "icon": CupertinoIcons.briefcase_fill,
@@ -85,6 +28,41 @@ class _LoanProductsState extends State<LoanProducts> {
       "maxAmount": "3,000,000",
     },
   ];
+
+  Future<Map<String, dynamic>?> getUser() async {
+    String? userJson = await SecureStorageService().read('user');
+    if (userJson == null) return null;
+    Map<String, dynamic> userMap = jsonDecode(userJson);
+    return userMap;
+  }
+
+  Future<void> getLoanProducts() async {
+    _isLoading = true;
+    try {
+      final (response, errors) = await LoanProductsService().listLoanProducts();
+      if (errors != null) {
+        ErrorService.showActionableError(
+          context,
+          title: errors[0],
+          message: errors[1],
+        );
+      } else if (response != null) {
+        final responseInfo = response.data['data'];
+        setState(() {
+          loanProducts = List<Map<String, dynamic>>.from(responseInfo ?? []);
+        });
+      }
+    } finally {
+      if (mounted) setState(() => _isLoading = false);
+    }
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    getLoanProducts();
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -184,26 +162,28 @@ class _LoanProductsState extends State<LoanProducts> {
               ),
             ),
           ),
-          SliverPadding(
-            padding: const EdgeInsets.fromLTRB(24, 10, 24, 24),
-            sliver: SliverList(
-              delegate: SliverChildBuilderDelegate((context, index) {
-                final product = loanProducts[index];
-                return _buildDetailedLoanCard(
-                  context,
-                  product,
-                  onTap: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => LoanEligibility(),
-                      ),
-                    );
-                  },
-                );
-              }, childCount: loanProducts.length),
-            ),
-          ),
+          _isLoading
+              ? _buildDetailedLoanCardsSkeletonList()
+              : SliverPadding(
+                  padding: const EdgeInsets.fromLTRB(24, 10, 24, 24),
+                  sliver: SliverList(
+                    delegate: SliverChildBuilderDelegate((context, index) {
+                      final product = loanProducts[index];
+                      return _buildDetailedLoanCard(
+                        context,
+                        product,
+                        onTap: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => LoanEligibility(),
+                            ),
+                          );
+                        },
+                      );
+                    }, childCount: loanProducts.length),
+                  ),
+                ),
         ],
       ),
     );
@@ -214,7 +194,7 @@ class _LoanProductsState extends State<LoanProducts> {
     Map<String, dynamic> product, {
     required VoidCallback onTap,
   }) {
-    final Color baseColor = product['color'];
+    final Color baseColor = const Color(0xFF6366F1);
 
     return Container(
       margin: const EdgeInsets.only(bottom: 24),
@@ -246,7 +226,11 @@ class _LoanProductsState extends State<LoanProducts> {
                         color: baseColor.withValues(alpha: 0.1),
                         borderRadius: BorderRadius.circular(20),
                       ),
-                      child: Icon(product['icon'], color: baseColor, size: 28),
+                      child: Icon(
+                        CupertinoIcons.briefcase_fill,
+                        color: baseColor,
+                        size: 28,
+                      ),
                     ),
                     Container(
                       padding: const EdgeInsets.symmetric(
@@ -258,7 +242,7 @@ class _LoanProductsState extends State<LoanProducts> {
                         borderRadius: BorderRadius.circular(100),
                       ),
                       child: Text(
-                        "${product['rate']} p.a",
+                        "${double.parse(product['interest_rate'].toString()).toStringAsFixed(2)}% p.a",
                         style: const TextStyle(
                           color: AnansiColors.darkBlue,
                           fontWeight: FontWeight.w800,
@@ -272,7 +256,7 @@ class _LoanProductsState extends State<LoanProducts> {
 
                 // Name and Description
                 Text(
-                  product['name'],
+                  product['product_name'],
                   style: const TextStyle(
                     fontSize: 20,
                     fontWeight: FontWeight.w900,
@@ -296,10 +280,13 @@ class _LoanProductsState extends State<LoanProducts> {
                   children: [
                     _buildInfoColumn(
                       "MAX AMOUNT",
-                      "KES ${product['maxAmount']}",
+                      "KES ${product['max_amount']}",
                     ),
                     const Spacer(),
-                    _buildInfoColumn("TENURE", product['period']),
+                    _buildInfoColumn(
+                      "TENURE",
+                      product['max_period'].toString(),
+                    ),
                     const Spacer(),
                     _buildInfoColumn("REPAYMENT", "Monthly"),
                   ],
@@ -379,6 +366,216 @@ class _LoanProductsState extends State<LoanProducts> {
           ),
         ),
       ],
+    );
+  }
+
+  Widget _buildDetailedLoanCardsSkeletonList() {
+    return SliverPadding(
+      padding: const EdgeInsets.fromLTRB(24, 10, 24, 24),
+      sliver: SliverList(
+        delegate: SliverChildBuilderDelegate(
+          (context, index) {
+            return Shimmer.fromColors(
+              baseColor: Colors.grey.shade200,
+              highlightColor: Colors.grey.shade50,
+              period: const Duration(milliseconds: 1200),
+              child: _buildDetailedLoanCardSkeleton(),
+            );
+          },
+          childCount: 5, // Renders 3 placeholder cards for large detailed views
+        ),
+      ),
+    );
+  }
+
+  Widget _buildDetailedLoanCardSkeleton() {
+    return Container(
+      margin: const EdgeInsets.only(bottom: 24),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(32),
+        border: Border.all(color: Colors.white, width: 2),
+      ),
+      child: Column(
+        children: [
+          Padding(
+            padding: const EdgeInsets.all(24),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                // Top Action Row (Icon & Rate Badge)
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    // Icon placeholder
+                    Container(
+                      width: 56,
+                      height: 56,
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(20),
+                      ),
+                    ),
+                    // Interest Rate Badge placeholder
+                    Container(
+                      width: 70,
+                      height: 28,
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(100),
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 20),
+
+                // Product Name placeholder
+                Container(
+                  width: 180,
+                  height: 20,
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(4),
+                  ),
+                ),
+                const SizedBox(height: 8),
+
+                // Product Description placeholder lines
+                Container(
+                  width: double.infinity,
+                  height: 14,
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(4),
+                  ),
+                ),
+                const SizedBox(height: 6),
+                Container(
+                  width: 200,
+                  height: 14,
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(4),
+                  ),
+                ),
+                const SizedBox(height: 24),
+
+                // Details Grid Alignment placeholders
+                Row(
+                  children: [
+                    // Max Amount Column
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Container(
+                          width: 70,
+                          height: 10,
+                          decoration: BoxDecoration(
+                            color: Colors.white,
+                            borderRadius: BorderRadius.circular(2),
+                          ),
+                        ),
+                        const SizedBox(height: 6),
+                        Container(
+                          width: 90,
+                          height: 14,
+                          decoration: BoxDecoration(
+                            color: Colors.white,
+                            borderRadius: BorderRadius.circular(4),
+                          ),
+                        ),
+                      ],
+                    ),
+                    const Spacer(),
+                    // Tenure Column
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Container(
+                          width: 50,
+                          height: 10,
+                          decoration: BoxDecoration(
+                            color: Colors.white,
+                            borderRadius: BorderRadius.circular(2),
+                          ),
+                        ),
+                        const SizedBox(height: 6),
+                        Container(
+                          width: 65,
+                          height: 14,
+                          decoration: BoxDecoration(
+                            color: Colors.white,
+                            borderRadius: BorderRadius.circular(4),
+                          ),
+                        ),
+                      ],
+                    ),
+                    const Spacer(),
+                    // Repayment Column
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Container(
+                          width: 60,
+                          height: 10,
+                          decoration: BoxDecoration(
+                            color: Colors.white,
+                            borderRadius: BorderRadius.circular(2),
+                          ),
+                        ),
+                        const SizedBox(height: 6),
+                        Container(
+                          width: 70,
+                          height: 14,
+                          decoration: BoxDecoration(
+                            color: Colors.white,
+                            borderRadius: BorderRadius.circular(4),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          ),
+
+          // Bottom Action Bar Placeholder
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
+            decoration: BoxDecoration(
+              color: const Color(0xFFF8FAFC),
+              borderRadius: const BorderRadius.vertical(
+                bottom: Radius.circular(32),
+              ),
+              border: Border(top: BorderSide(color: Colors.grey.shade100)),
+            ),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                // Terms disclaimer text placeholder
+                Container(
+                  width: 120,
+                  height: 10,
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(2),
+                  ),
+                ),
+                // Button placeholder
+                Container(
+                  width: 110,
+                  height: 44,
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(16),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
     );
   }
 }

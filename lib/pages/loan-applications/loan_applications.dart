@@ -1,12 +1,18 @@
+import 'dart:convert';
+
 import 'package:app_anansi_mobile/helpers/format_amount.dart';
 import 'package:app_anansi_mobile/helpers/format_time.dart';
 import 'package:app_anansi_mobile/pages/help&support/help_support.dart';
 import 'package:app_anansi_mobile/pages/loan-applications/loan_application.dart';
 import 'package:app_anansi_mobile/pages/loan-products/loan_products.dart';
+import 'package:app_anansi_mobile/services/error_service.dart';
+import 'package:app_anansi_mobile/services/loan_application_service.dart';
+import 'package:app_anansi_mobile/services/secure_storage_service.dart';
 import 'package:app_anansi_mobile/theme/app_theme.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:shimmer/shimmer.dart';
 
 class LoanApplications extends StatefulWidget {
   const LoanApplications({super.key});
@@ -16,70 +22,52 @@ class LoanApplications extends StatefulWidget {
 }
 
 class _LoanApplicationsState extends State<LoanApplications> {
-  final List<Map<String, dynamic>> applicationData = [
-    {
-      "reference": "LN-2026-901",
-      "title": "Emergency Personal Loan",
-      "createdAt": "2026-04-21T10:30:00Z",
-      "amount": 45000.0,
-      "status": "Pending",
-    },
-    {
-      "reference": "LN-2026-885",
-      "title": "Business Expansion",
-      "createdAt": "2026-04-15T14:20:00Z",
-      "amount": 120000.0,
-      "status": "Under Review",
-    },
-    {
-      "reference": "LN-2026-872",
-      "title": "Medical Expense Cover",
-      "createdAt": "2026-04-12T08:45:00Z",
-      "amount": 35000.0,
-      "status": "Approved",
-    },
-    {
-      "reference": "LN-2026-810",
-      "title": "Home Improvement",
-      "createdAt": "2026-04-02T16:10:00Z",
-      "amount": 250000.0,
-      "status": "Pending",
-    },
-    {
-      "reference": "LN-2026-772",
-      "title": "School Fees Loan",
-      "createdAt": "2026-03-10T09:15:00Z",
-      "amount": 25000.0,
-      "status": "Declined",
-    },
-    {
-      "reference": "LN-2026-654",
-      "title": "Agribusiness Startup",
-      "createdAt": "2026-02-28T11:20:00Z",
-      "amount": 150000.0,
-      "status": "Approved",
-    },
-    {
-      "reference": "LN-2026-512",
-      "title": "Vehicle Maintenance",
-      "createdAt": "2026-02-14T13:00:00Z",
-      "amount": 15000.0,
-      "status": "Approved",
-    },
-    {
-      "reference": "LN-2026-440",
-      "title": "Rent Advancement",
-      "createdAt": "2026-01-25T10:00:00Z",
-      "amount": 60000.0,
-      "status": "Approved",
-    },
-  ];
+  List<Map<String, dynamic>> applications = [];
+  bool _loading = false;
+
+  Future<Map<String, dynamic>?> getUser() async {
+    String? userJson = await SecureStorageService().read('user');
+    if (userJson == null) return null;
+    Map<String, dynamic> userMap = jsonDecode(userJson);
+    return userMap;
+  }
+
+  Future<void> getLoanApplications() async {
+    _loading = true;
+    try {
+      final user = await getUser();
+      final (response, errors) = await LoanApplicationService()
+          .listLoanApplications(customerId: user?['id'] ?? "");
+      if (errors != null) {
+        ErrorService.showActionableError(
+          context,
+          title: errors[0],
+          message: errors[1],
+        );
+      } else if (response != null) {
+        final responseInfo = response.data['data'];
+        setState(() {
+          applications = List<Map<String, dynamic>>.from(
+            responseInfo['applications'] ?? [],
+          );
+        });
+      }
+    } finally {
+      if (mounted) setState(() => _loading = false);
+    }
+  }
 
   void _handleNewApplication(BuildContext context) {
     Navigator.push(
       context,
       MaterialPageRoute(builder: (context) => LoanProducts()),
     );
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    getLoanApplications();
   }
 
   @override
@@ -92,30 +80,31 @@ class _LoanApplicationsState extends State<LoanApplications> {
           SliverToBoxAdapter(child: _buildApplicationSummary()),
           SliverToBoxAdapter(child: _buildApplyLoanAction(context)),
           SliverToBoxAdapter(child: _buildSectionHeader("Application History")),
-          // 3. Application Action
-          SliverPadding(
-            padding: const EdgeInsets.symmetric(horizontal: 20),
-            sliver: SliverList(
-              delegate: SliverChildBuilderDelegate((context, index) {
-                final item = applicationData[index];
-                return _buildApplicationItem(
-                  reference: item['reference'] ?? "N/A",
-                  title: item['title'] ?? "Loan Application",
-                  date: formatPostgresDateWithTime(item['createdAt']),
-                  amount: formatAmount(item['amount'] ?? 0),
-                  status: item['status'] ?? "Pending",
-                  onTap: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => LoanApplication(),
-                      ),
-                    );
-                  },
-                );
-              }, childCount: applicationData.length),
-            ),
-          ),
+          _loading
+              ? _buildLoanApplicationsSkeleton()
+              : SliverPadding(
+                  padding: const EdgeInsets.symmetric(horizontal: 20),
+                  sliver: SliverList(
+                    delegate: SliverChildBuilderDelegate((context, index) {
+                      final item = applications[index];
+                      return _buildApplicationItem(
+                        reference: item['application_number'] ?? "N/A",
+                        title: item['product']['product_name'] ?? "Loan Application",
+                        date: formatPostgresDateWithTime(item['created_at']),
+                        amount: formatAmount(item['applied_amount'] ?? 0),
+                        status: item['status_label'] ?? "Pending",
+                        onTap: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => LoanApplication(),
+                            ),
+                          );
+                        },
+                      );
+                    }, childCount: applications.length),
+                  ),
+                ),
         ],
       ),
     );
@@ -422,6 +411,10 @@ class _LoanApplicationsState extends State<LoanApplications> {
         statusColor = const Color(0xFF10B981); // Emerald
         statusIcon = CupertinoIcons.checkmark_circle_fill;
         break;
+      case 'disbursed':
+        statusColor = const Color(0xFF10B981); // Emerald
+        statusIcon = CupertinoIcons.checkmark_circle_fill;
+        break;
       case 'declined':
         statusColor = const Color(0xFFEF4444); // Rose
         statusIcon = CupertinoIcons.xmark_circle_fill;
@@ -555,4 +548,113 @@ class _LoanApplicationsState extends State<LoanApplications> {
       ),
     );
   }
+}
+
+Widget _buildLoanApplicationsSkeleton() {
+  return SliverPadding(
+    padding: const EdgeInsets.symmetric(horizontal: 20),
+    sliver: SliverList(
+      delegate: SliverChildBuilderDelegate(
+        (context, index) {
+          return Shimmer.fromColors(
+            baseColor: Colors.grey.shade200,
+            highlightColor: Colors.grey.shade50,
+            period: const Duration(milliseconds: 1200),
+            child: _buildApplicationSkeletonItem(),
+          );
+        },
+        childCount: 6, // Enforces exactly 6 layout skeletons
+      ),
+    ),
+  );
+}
+
+Widget _buildApplicationSkeletonItem() {
+  return Container(
+    margin: const EdgeInsets.only(bottom: 16),
+    padding: const EdgeInsets.all(16),
+    decoration: BoxDecoration(
+      color: Colors.white,
+      borderRadius: BorderRadius.circular(24),
+      border: Border.all(color: const Color(0xFFF1F5F9), width: 1.5),
+    ),
+    child: Row(
+      children: [
+        // 1. Status Indicator Icon Placeholder
+        Container(
+          width: 40,
+          height: 40,
+          decoration: const BoxDecoration(
+            color: Colors.white,
+            shape: BoxShape.circle,
+          ),
+        ),
+        const SizedBox(width: 16),
+
+        // 2. Main Details Placeholder
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              // Reference line
+              Container(
+                width: 70,
+                height: 10,
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(4),
+                ),
+              ),
+              const SizedBox(height: 6),
+              // Title line
+              Container(
+                width: 140,
+                height: 13,
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(4),
+                ),
+              ),
+              const SizedBox(height: 6),
+              // Date line
+              Container(
+                width: 90,
+                height: 11,
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(4),
+                ),
+              ),
+            ],
+          ),
+        ),
+
+        // 3. Amount and Status Badge Placeholder
+        Column(
+          crossAxisAlignment: CrossAxisAlignment.end,
+          children: [
+            // Amount line
+            Container(
+              width: 65,
+              height: 13,
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(4),
+              ),
+            ),
+            const SizedBox(height: 8),
+            // Status Badge block
+            Container(
+              width: 60,
+              height: 18,
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(8),
+              ),
+            ),
+          ],
+        ),
+      ],
+    ),
+  );
 }
