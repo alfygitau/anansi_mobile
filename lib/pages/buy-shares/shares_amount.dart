@@ -1,14 +1,11 @@
 import 'dart:convert';
-
 import 'package:app_anansi_mobile/pages/buy-shares/review_purchase_shares.dart';
 import 'package:app_anansi_mobile/pages/help&support/help_support.dart';
 import 'package:app_anansi_mobile/services/secure_storage_service.dart';
-import 'package:app_anansi_mobile/state/auth_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:app_anansi_mobile/theme/app_theme.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:provider/provider.dart';
 
 class SharesAmount extends StatefulWidget {
   final String id;
