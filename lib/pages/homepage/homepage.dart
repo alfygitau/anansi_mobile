@@ -1583,7 +1583,7 @@ class _HomepageState extends State<Homepage> {
               TextSpan(
                 text: value,
                 style: GoogleFonts.outfit(
-                  fontWeight: FontWeight.w900,
+                  fontWeight: FontWeight.w400,
                   fontSize: 15,
                   color: isHighlight ? AnansiColors.darkBlue : Colors.black,
                 ),

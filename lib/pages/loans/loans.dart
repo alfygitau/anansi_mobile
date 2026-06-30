@@ -57,8 +57,9 @@ class _MyLoansState extends State<MyLoans> {
   }
 
   Color _getStatusColor(String? status) {
-    if (status == null)
+    if (status == null) {
       return const Color(0xFF94A3B8); // Default Slate Gray for null
+    }
 
     switch (status.toLowerCase().trim()) {
       // Active & Healthy Statuses
@@ -148,7 +149,7 @@ class _MyLoansState extends State<MyLoans> {
                     }, childCount: loans.length),
                   ),
                 ),
-          const SliverToBoxAdapter(child: SizedBox(height: 100)),
+          const SliverToBoxAdapter(child: SizedBox(height: 20)),
         ],
       ),
     );
@@ -439,7 +440,7 @@ class _MyLoansState extends State<MyLoans> {
               TextSpan(
                 text: value,
                 style: GoogleFonts.outfit(
-                  fontWeight: FontWeight.w900,
+                  fontWeight: FontWeight.w400,
                   fontSize: 15,
                   color: isHighlight ? AnansiColors.darkBlue : Colors.black,
                 ),
