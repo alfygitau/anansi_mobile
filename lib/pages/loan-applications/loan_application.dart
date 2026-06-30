@@ -713,10 +713,7 @@ class _LoanApplicationState extends State<LoanApplication> {
                   ? Colors.white.withValues(alpha: 0.5)
                   : Colors.white,
               borderRadius: BorderRadius.circular(24),
-              border: Border.all(
-                color: isDone ? Colors.transparent : const Color(0xFFF1F4F8),
-                width: 1.5,
-              ),
+              border: Border.all(color: const Color(0xFFF1F4F8), width: 1),
               boxShadow: [
                 if (!isDone)
                   BoxShadow(

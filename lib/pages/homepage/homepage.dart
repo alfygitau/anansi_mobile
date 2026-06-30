@@ -1360,7 +1360,7 @@ class _HomepageState extends State<Homepage> {
                 Text(
                   isHidden ? "KES ••••••••" : formatAmount(balance),
                   style: GoogleFonts.outfit(
-                    fontWeight: FontWeight.bold,
+                    fontWeight: FontWeight.w400,
                     fontSize: 24,
                     color: isPrimary ? Colors.white : AnansiColors.darkBlue,
                   ),
