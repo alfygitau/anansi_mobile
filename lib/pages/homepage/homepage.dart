@@ -1699,8 +1699,8 @@ class _HomepageState extends State<Homepage> {
                   Text(
                     amount,
                     style: GoogleFonts.outfit(
-                      fontWeight: FontWeight.w800,
-                      fontSize: 13,
+                      fontWeight: FontWeight.w500,
+                      fontSize: 15,
                       color: AnansiColors.darkBlue,
                     ),
                   ),
