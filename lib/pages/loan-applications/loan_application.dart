@@ -105,12 +105,6 @@ class _LoanApplicationState extends State<LoanApplication> {
                 : _buildApplicationStatusHeader(),
           ),
           SliverToBoxAdapter(
-            child: Padding(
-              padding: const EdgeInsets.fromLTRB(24, 24, 24, 8),
-              child: _sectionTitle("Potential Terms"),
-            ),
-          ),
-          SliverToBoxAdapter(
             child: _isLoading
                 ? _buildApplicationActionsSkeleton()
                 : _buildApplicationActions(),
@@ -130,48 +124,66 @@ class _LoanApplicationState extends State<LoanApplication> {
   }
 
   Widget _buildApplicationActions() {
+    final bool requiresGuarantor =
+        application['loan_product']['requires_guarantor'] ?? false;
+    final bool requiresChattels =
+        application['loan_product']['requires_chattels'] ?? false;
+    final bool requiresDocuments =
+        application['loan_product']['requires_documents'] ?? false;
+    if (!requiresGuarantor && !requiresChattels && !requiresDocuments) {
+      return const SizedBox.shrink();
+    }
+
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 24),
       child: Column(
         children: [
           // GUARANTORS ACTION CARD
-          _buildActionCard(
-            title: "Guarantors Management",
-            subtitle: "Add or check status of your 2 required guarantors",
-            icon: CupertinoIcons.person_3_fill,
-            iconBgColor: const Color(0xFFEFF6FF),
-            iconColor: const Color(0xFF2563EB), // Blue
-            onTap: () {
-              // Navigator.push(context, MaterialPageRoute(builder: (context) => ApplicationGuarantors(appId: widget.appId)));
-            },
-          ),
-          const SizedBox(height: 14),
+          if (requiresGuarantor)
+            _buildActionCard(
+              title: "Guarantors Management",
+              subtitle: "Add or check status of your 2 required guarantors",
+              icon: CupertinoIcons.person_3_fill,
+              iconBgColor: const Color(0xFFEFF6FF),
+              iconColor: const Color(0xFF2563EB), // Blue
+              onTap: () {
+                // Navigator.push(context, MaterialPageRoute(builder: (context) => ApplicationGuarantors(appId: widget.appId)));
+              },
+            ),
+
+          // Spacer after Guarantors (only if Guarantors is visible AND either Chattels or Documents follow it)
+          if (requiresGuarantor && (requiresChattels || requiresDocuments))
+            const SizedBox(height: 14),
 
           // COLLATERALS ACTION CARD
-          _buildActionCard(
-            title: "Assets & Collateral",
-            subtitle:
-                "Submit or update your vehicle logbook or household items",
-            icon: CupertinoIcons.cube_box_fill,
-            iconBgColor: const Color(0xFFFDF2F8),
-            iconColor: const Color(0xFFDB2777), // Pink/Crimson
-            onTap: () {
-              // Navigator.push(context, MaterialPageRoute(builder: (context) => ApplicationCollaterals(appId: widget.appId)));
-            },
-          ),
-          const SizedBox(height: 14),
+          if (requiresChattels)
+            _buildActionCard(
+              title: "Assets & Collateral",
+              subtitle:
+                  "Submit or update your vehicle logbook or household items",
+              icon: CupertinoIcons.cube_box_fill,
+              iconBgColor: const Color(0xFFFDF2F8),
+              iconColor: const Color(0xFFDB2777), // Pink/Crimson
+              onTap: () {
+                // Navigator.push(context, MaterialPageRoute(builder: (context) => ApplicationCollaterals(appId: widget.appId)));
+              },
+            ),
+
+          // Spacer after Chattels (only if Chattels is visible AND Documents follow it)
+          if (requiresChattels && requiresDocuments) const SizedBox(height: 14),
 
           // DOCUMENTS ACTION CARD
-          _buildActionCard(
-            title: "Supportive Documents",
-            subtitle: "Upload your latest 3 months bank statements (PDF)",
-            icon: CupertinoIcons.doc_on_doc_fill,
-            iconBgColor: const Color(0xFFECFDF5),
-            iconColor: const Color(0xFF059669), // Emerald Green
-            onTap: () {
-              // Navigator.push(context, MaterialPageRoute(builder: (context) => ApplicationDocuments(appId: widget.appId)));
-            },
-          ),
+          if (requiresDocuments)
+            _buildActionCard(
+              title: "Supportive Documents",
+              subtitle: "Upload your latest 3 months bank statements (PDF)",
+              icon: CupertinoIcons.doc_on_doc_fill,
+              iconBgColor: const Color(0xFFECFDF5),
+              iconColor: const Color(0xFF059669), // Emerald Green
+              onTap: () {
+                // Navigator.push(context, MaterialPageRoute(builder: (context) => ApplicationDocuments(appId: widget.appId)));
+              },
+            ),
         ],
       ),
     );
@@ -374,7 +386,7 @@ class _LoanApplicationState extends State<LoanApplication> {
             ),
 
             Padding(
-              padding: const EdgeInsets.all(28),
+              padding: const EdgeInsets.all(20),
               child: Column(
                 children: [
                   // 1. TOP BAR: ID & GLOSS STATUS
@@ -409,7 +421,7 @@ class _LoanApplicationState extends State<LoanApplication> {
                       ),
                     ],
                   ),
-                  const SizedBox(height: 32),
+                  const SizedBox(height: 22),
                   Text(
                     "LOAN AMOUNT",
                     style: TextStyle(
@@ -424,7 +436,7 @@ class _LoanApplicationState extends State<LoanApplication> {
                     formatAmount(application['applied_amount'] ?? 0),
                     style: const TextStyle(
                       color: Colors.white,
-                      fontSize: 36,
+                      fontSize: 26,
                       fontWeight: FontWeight.w900,
                       letterSpacing: -1,
                     ),
@@ -1227,7 +1239,7 @@ class _LoanApplicationState extends State<LoanApplication> {
             mainAxisSize: MainAxisSize.min,
             children: [
               Text(
-                application['loan_product']['product_name'] ??
+                application['loan_product']?['product_name'] ??
                     "No Product Name",
                 style: TextStyle(
                   color: Colors.grey.shade500,
