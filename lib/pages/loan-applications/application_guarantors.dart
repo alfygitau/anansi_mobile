@@ -401,7 +401,7 @@ class _ApplicationGuarantorsState extends State<ApplicationGuarantors> {
           foregroundColor: Colors.white,
           disabledForegroundColor: Colors.grey.shade400,
           elevation: 0,
-          minimumSize: const Size(double.infinity, 55),
+          minimumSize: const Size(double.infinity, 60),
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(14),
           ),

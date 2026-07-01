@@ -66,7 +66,7 @@ class _AddLoanDetailsState extends State<AddLoanDetails> {
   }
 
   Future<void> createLoanApplication(
-    Widget Function(String appId) nextScreenBuilder,
+    Widget Function(String appId, String productId) nextScreenBuilder,
   ) async {
     _validateField('amount', _amountController.text);
 
@@ -98,7 +98,8 @@ class _AddLoanDetailsState extends State<AddLoanDetails> {
           Navigator.push(
             context,
             MaterialPageRoute(
-              builder: (context) => nextScreenBuilder(applicationId),
+              builder: (context) =>
+                  nextScreenBuilder(applicationId, widget.productId),
             ),
           );
         }
@@ -926,7 +927,9 @@ class _AddLoanDetailsState extends State<AddLoanDetails> {
   // --- HELPERS ---
   Widget _buildActionDock({
     // Signature updated to pass down the runtime builder closure
-    required Function(Widget Function(String appId) nextRouteBuilder)
+    required Function(
+      Widget Function(String appId, String productId) nextRouteBuilder,
+    )
     onCreateApplication,
   }) {
     final bool requiresGuarantor = loanProduct['requires_guarantor'] ?? false;
@@ -934,21 +937,21 @@ class _AddLoanDetailsState extends State<AddLoanDetails> {
     final bool requiresDocuments = loanProduct['requires_documents'] ?? false;
 
     // Change variable type to hold a blueprint function instead of a fixed Widget instance
-    Widget Function(String appId) destinationBuilder;
+    Widget Function(String appId, String productId) destinationBuilder;
     String buttonLabel;
 
     if (requiresGuarantor) {
-      destinationBuilder = (id) => AddGuarantors(appId: id);
+      destinationBuilder = (id, productId) => AddGuarantors(appId: id);
       buttonLabel = "CONTINUE TO GUARANTORS";
     } else if (requiresChattels) {
-      destinationBuilder = (id) =>
+      destinationBuilder = (id, productId) =>
           Collaterals(appId: id); // Assuming your pages accept appId
       buttonLabel = "CONTINUE TO COLLATERALS";
     } else if (requiresDocuments) {
-      destinationBuilder = (id) => AddStatements(appId: id);
+      destinationBuilder = (id, productId) => AddStatements(appId: id);
       buttonLabel = "CONTINUE TO DOCUMENTS";
     } else {
-      destinationBuilder = (id) => LoanTermsConditions(appId: id);
+      destinationBuilder = (id, productId) => LoanTermsConditions(appId: id);
       buttonLabel = "PROCEED TO TERMS";
     }
 
