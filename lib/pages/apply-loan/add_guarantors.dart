@@ -1,29 +1,209 @@
 import 'package:app_anansi_mobile/pages/apply-loan/add_statements.dart';
+import 'package:app_anansi_mobile/pages/apply-loan/collaterals.dart';
+import 'package:app_anansi_mobile/pages/apply-loan/loan_terms_conditions.dart';
 import 'package:app_anansi_mobile/pages/help&support/help_support.dart';
+import 'package:app_anansi_mobile/services/error_service.dart';
+import 'package:app_anansi_mobile/services/loan_application_service.dart';
+import 'package:app_anansi_mobile/services/loan_products_service.dart';
 import 'package:app_anansi_mobile/theme/app_theme.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:shimmer/shimmer.dart';
 
 class AddGuarantors extends StatefulWidget {
   final String appId;
-  const AddGuarantors({super.key, required this.appId});
+  final String productId;
+  const AddGuarantors({
+    super.key,
+    required this.appId,
+    required this.productId,
+  });
 
   @override
   State<AddGuarantors> createState() => _AddGuarantorsState();
 }
 
 class _AddGuarantorsState extends State<AddGuarantors> {
-  final List<Map<String, String>> guarantors = [
-    {"name": "Sarah Wanjiku", "id": "M-9921", "amount": "KES 150,000"},
-    {"name": "David Omondi", "id": "M-8842", "amount": "KES 200,000"},
-    {"name": "John Kamau", "id": "M-7731", "amount": "KES 100,000"},
-  ];
-
+  List<Map<String, dynamic>> guarantors = [];
   Map<String, String?> formErrors = {'name': null, "mobile": null};
   final FocusNode _nameFocus = FocusNode();
   final FocusNode _mobileFocus = FocusNode();
   final TextEditingController _nameController = TextEditingController();
   final TextEditingController _mobileController = TextEditingController();
+  Map<String, dynamic> loanProduct = {};
+  bool _isLoading = false;
+  bool _loading = false;
+  bool adding = false;
+  bool _deleting = false;
+  bool _committing = false;
+
+  bool get _isFormValid {
+    return _nameController.text.trim().isNotEmpty &&
+        _mobileController.text.trim().isNotEmpty;
+  }
+
+  Future<void> getLoanProduct() async {
+    _isLoading = true;
+    try {
+      final (response, errors) = await LoanProductsService().listLoanProduct(
+        productId: widget.productId,
+      );
+      if (errors != null) {
+        ErrorService.showActionableError(
+          context,
+          title: errors[0],
+          message: errors[1],
+        );
+      } else if (response != null) {
+        final responseInfo = response.data['data'];
+        setState(() {
+          loanProduct = responseInfo ?? {};
+        });
+      }
+    } finally {
+      if (mounted) setState(() => _isLoading = false);
+    }
+  }
+
+  Future<void> getGuarantors() async {
+    _loading = true;
+    try {
+      final (response, errors) = await LoanApplicationService().fetchGuarantors(
+        applicationId: widget.appId,
+      );
+      if (errors != null) {
+        ErrorService.showActionableError(
+          context,
+          title: errors[0],
+          message: errors[1],
+        );
+      } else if (response != null) {
+        final responseInfo = response.data['data'];
+        setState(() {
+          guarantors = List<Map<String, dynamic>>.from(
+            responseInfo['guarantors'] ?? [],
+          );
+        });
+      }
+    } finally {
+      if (mounted) setState(() => _loading = false);
+    }
+  }
+
+  Future<void> removeGuarantors(String id) async {
+    _deleting = true;
+    try {
+      final (response, errors) = await LoanApplicationService()
+          .removeGuarantors(applicationId: widget.appId, guarantorId: id);
+      if (errors != null) {
+        ErrorService.showActionableError(
+          context,
+          title: errors[0],
+          message: errors[1],
+        );
+      } else if (response != null) {
+        await getGuarantors();
+      }
+    } finally {
+      if (mounted) setState(() => _deleting = false);
+    }
+  }
+
+  Future<void> commitGuarantors(Widget nextScreen) async {
+    _committing = true;
+    try {
+      final (response, errors) = await LoanApplicationService().commitGuarantor(
+        applicationId: widget.appId,
+      );
+      if (errors != null) {
+        ErrorService.showActionableError(
+          context,
+          title: errors[0],
+          message: errors[1],
+        );
+      } else if (response != null) {
+        if (mounted) {
+          Navigator.push(
+            context,
+            MaterialPageRoute(builder: (context) => nextScreen),
+          );
+        }
+      }
+    } finally {
+      if (mounted) setState(() => _committing = false);
+    }
+  }
+
+  Future<void> addGuarantors() async {
+    _validateField('name', _nameController.text);
+    _validateField('mobile', _mobileController.text);
+    adding = true;
+    try {
+      final (response, errors) = await LoanApplicationService().addGuarantor(
+        applicationId: widget.appId,
+        name: _nameController.text.trim(),
+        phone: _mobileController.text.trim(),
+      );
+      if (errors != null) {
+        ErrorService.showActionableError(
+          context,
+          title: errors[0],
+          message: errors[1],
+        );
+      } else if (response != null) {
+        setState(() {
+          _nameController.text = "";
+          _mobileController.text = "";
+        });
+        await getGuarantors();
+      }
+    } finally {
+      if (mounted) setState(() => adding = false);
+    }
+  }
+
+  void _validateField(String key, String value) {
+    setState(() {
+      if (value.trim().isEmpty) {
+        formErrors[key] = "This field is required to add guarantor";
+      } else {
+        formErrors[key] = null;
+      }
+    });
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    getLoanProduct();
+    getGuarantors();
+
+    _nameController.addListener(() => setState(() {}));
+    _mobileController.addListener(() => setState(() {}));
+
+    _nameFocus.addListener(() {
+      if (!_nameFocus.hasFocus) {
+        _validateField('name', _nameController.text);
+      }
+      setState(() {});
+    });
+
+    _mobileFocus.addListener(() {
+      if (!_mobileFocus.hasFocus) {
+        _validateField('mobile', _mobileController.text);
+      }
+      setState(() {});
+    });
+  }
+
+  @override
+  void dispose() {
+    _nameFocus.dispose();
+    _mobileFocus.dispose();
+    _nameController.dispose();
+    _mobileController.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -44,38 +224,181 @@ class _AddGuarantorsState extends State<AddGuarantors> {
                   SizedBox(height: 16),
                   _sectionTitle("Find Guarantors"),
                   const SizedBox(height: 8),
-                  _buildGuarantorSearchSection(),
+                  _isLoading
+                      ? _buildGuarantorSearchSkeleton()
+                      : _buildGuarantorSearchSection(),
                 ],
               ),
             ),
           ),
 
           // 3. SELECTED GUARANTORS LIST
-          SliverPadding(
-            padding: const EdgeInsets.symmetric(horizontal: 24),
-            sliver: SliverList(
-              delegate: SliverChildListDelegate([
-                const SizedBox(height: 12),
-                _sectionTitle("SELECTED GUARANTORS"),
-                const SizedBox(height: 8),
-                if (guarantors.isEmpty)
-                  _buildEmptyGuarantorState()
-                else
-                  ...guarantors.map(
-                    (g) => _buildGuarantorCard(
-                      name: g['name'] ?? "",
-                      memberId: g['id'] ?? "",
-                      coverage: g['amount'] ?? "",
-                    ),
-                  ),
-              ]),
+          SliverToBoxAdapter(
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 24),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const SizedBox(height: 12),
+                  _sectionTitle("SELECTED GUARANTORS"),
+                  const SizedBox(height: 8),
+                ],
+              ),
             ),
           ),
 
+          // 2. DYNAMIC CONTENT AREA: Handled cleanly via conditional slivers
+          SliverPadding(
+            padding: const EdgeInsets.symmetric(horizontal: 24),
+            sliver: _loading
+                ? _buildGuarantorsSliverSkeleton()
+                : guarantors.isEmpty
+                ? SliverToBoxAdapter(child: _buildEmptyGuarantorState())
+                : SliverList(
+                    delegate: SliverChildBuilderDelegate((context, index) {
+                      final g = guarantors[index];
+                      final Map<dynamic, dynamic> guarantorData =
+                          g['guarantor'] as Map<dynamic, dynamic>? ?? {};
+                      final String guarantorId = g['id']?.toString() ?? '';
+                      return _buildGuarantorCard(
+                        name: guarantorData['name']?.toString() ?? "",
+                        mobile: guarantorData['mobile']?.toString() ?? "",
+                        onDelete: () => removeGuarantors(guarantorId),
+                      );
+                    }, childCount: guarantors.length),
+                  ),
+          ),
           const SliverToBoxAdapter(child: SizedBox(height: 120)),
         ],
       ),
-      bottomSheet: _buildActionDock(),
+      bottomSheet: _buildActionDock(
+        onProceed: (nextRoute) => commitGuarantors(nextRoute),
+      ),
+    );
+  }
+
+  Widget _buildGuarantorsSliverSkeleton() {
+    return SliverList(
+      delegate: SliverChildBuilderDelegate(
+        (context, index) {
+          return Shimmer.fromColors(
+            baseColor: Colors.grey.shade200,
+            highlightColor: Colors.grey.shade50,
+            period: const Duration(milliseconds: 1200),
+            child: _buildGuarantorSkeletonItem(),
+          );
+        },
+        childCount: 3, // Renders an optimized count of placeholder bone cards
+      ),
+    );
+  }
+
+  Widget _buildGuarantorSkeletonItem() {
+    return Container(
+      margin: const EdgeInsets.only(bottom: 12),
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: const Color(0xFFF8FAFC), // Matches bg-slate-50
+        borderRadius: BorderRadius.circular(16), // Matches rounded-2xl
+        border: Border.all(
+          color: const Color(0xFFE2E8F0), // Matches border-slate-200
+          width: 1.2,
+        ),
+      ),
+      child: Row(
+        children: [
+          // 1. LEFT SECTION: AVATAR & METADATA BONES
+          Expanded(
+            child: Row(
+              children: [
+                // Minimalist Square-Round Avatar Box Bone (Matches size 40x40)
+                Container(
+                  width: 40,
+                  height: 40,
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                ),
+                const SizedBox(width: 16), // Matches gap-4
+                // Metadata Lines Block
+                Expanded(
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      // Name Line + Verification Check Seal Row
+                      Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          // Name text placeholder line
+                          Container(
+                            width: 130,
+                            height: 14,
+                            decoration: BoxDecoration(
+                              color: Colors.white,
+                              borderRadius: BorderRadius.circular(4),
+                            ),
+                          ),
+                          const SizedBox(width: 6),
+                          // Verification Check Circle Icon bone
+                          Container(
+                            width: 14,
+                            height: 14,
+                            decoration: const BoxDecoration(
+                              color: Colors.white,
+                              shape: BoxShape.circle,
+                            ),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 8),
+
+                      // Phone Details Row Placeholder
+                      Row(
+                        children: [
+                          // Smartphone icon placeholder bone
+                          Container(
+                            width: 10,
+                            height: 12,
+                            decoration: BoxDecoration(
+                              color: Colors.white,
+                              borderRadius: BorderRadius.circular(2),
+                            ),
+                          ),
+                          const SizedBox(width: 6),
+                          // "TEL: 07XXXXXXXX" full text block bone
+                          Container(
+                            width: 110,
+                            height: 10,
+                            decoration: BoxDecoration(
+                              color: Colors.white,
+                              borderRadius: BorderRadius.circular(3),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+          ),
+
+          // 2. RIGHT SECTION: TRASH DOCK ACTION PLACEHOLDER (Matches size 38x38)
+          Padding(
+            padding: const EdgeInsets.only(left: 16),
+            child: Container(
+              width: 38,
+              height: 38,
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(12),
+              ),
+            ),
+          ),
+        ],
+      ),
     );
   }
 
@@ -252,152 +575,276 @@ class _AddGuarantorsState extends State<AddGuarantors> {
   // --- 3. THE GUARANTOR CARD (White Premium) ---
   Widget _buildGuarantorCard({
     required String name,
-    required String memberId,
-    required String coverage,
+    required String mobile,
+    required VoidCallback onDelete,
   }) {
-    return Container(
-      margin: const EdgeInsets.only(bottom: 16),
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 20),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(24),
-        border: Border.all(color: const Color(0xFFF1F4F8), width: 1.5),
-        boxShadow: [
-          BoxShadow(
-            color: const Color(0xFF0A2351).withValues(alpha: 0.02),
-            blurRadius: 20,
-            offset: const Offset(0, 10),
+    // Safe extraction for avatar initial string to prevent index range crashes
+    final String cleanName = name.trim();
+    final String avatarInitial = cleanName.isNotEmpty
+        ? cleanName[0].toUpperCase()
+        : 'G';
+
+    // 1. MOTION ANIMATION PIPELINE: Replicates <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }}>
+    return TweenAnimationBuilder<double>(
+      tween: Tween<double>(begin: 0.0, end: 1.0),
+      duration: const Duration(milliseconds: 350),
+      curve: Curves.easeOutCubic,
+      builder: (context, animationValue, child) {
+        return Transform.scale(
+          scale:
+              0.95 +
+              (0.05 * animationValue), // Scales gracefully from 0.95 to 1.0
+          child: Opacity(
+            opacity: animationValue, // Fades smoothly from 0.0 to 1.0
+            child: child,
           ),
-        ],
-      ),
-      child: Row(
-        crossAxisAlignment:
-            CrossAxisAlignment.center, // Perfect vertical alignment
-        children: [
-          // 1. IDENTITY BLOCK
-          CircleAvatar(
-            radius: 24, // Slightly smaller for better internal air
-            backgroundColor: const Color(0xFFF8FAFC),
-            child: Text(
-              name[0].toUpperCase(),
-              style: const TextStyle(
-                color: Color(0xFF0A2351),
-                fontWeight: FontWeight.w900,
-                fontSize: 16,
+        );
+      },
+      child: Container(
+        margin: const EdgeInsets.only(bottom: 12),
+        padding: const EdgeInsets.all(16), // Matches p-4
+        decoration: BoxDecoration(
+          color: const Color(0xFFF8FAFC), // Matches bg-slate-50
+          borderRadius: BorderRadius.circular(16), // Matches rounded-2xl
+          border: Border.all(
+            color: const Color(0xFFE2E8F0), // Matches border-slate-200
+            width: 1.2,
+          ),
+        ),
+        child: Row(
+          children: [
+            // 2. LEFT SECTION: AVATAR & METADATA BLOCK
+            Expanded(
+              child: Row(
+                children: [
+                  // Minimalist Premium Square-Round Avatar Box (size-10)
+                  Container(
+                    width: 40,
+                    height: 40,
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(
+                        12,
+                      ), // Matches rounded-xl
+                      border: Border.all(
+                        color: const Color(0xFFE2E8F0).withValues(alpha: 0.6),
+                      ),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.black.withValues(alpha: 0.03),
+                          blurRadius: 4,
+                          offset: const Offset(0, 2),
+                        ),
+                      ],
+                    ),
+                    child: Center(
+                      child: Text(
+                        avatarInitial,
+                        style: const TextStyle(
+                          color: Color(0xFF334155), // Matches text-slate-700
+                          fontWeight: FontWeight.w600,
+                          fontSize: 14,
+                        ),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(width: 16), // Matches gap-4
+                  // Metadata Rows
+                  Expanded(
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        // Name Line + Verification Check Seal
+                        Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Flexible(
+                              child: Text(
+                                cleanName.isNotEmpty
+                                    ? cleanName
+                                    : "Unnamed Guarantor",
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                                style: const TextStyle(
+                                  fontWeight: FontWeight.bold,
+                                  color: Color(
+                                    0xFF0F172A,
+                                  ), // Matches text-slate-900
+                                  fontSize: 14,
+                                  letterSpacing: -0.3,
+                                ),
+                              ),
+                            ),
+                            const SizedBox(width: 6),
+                            const Icon(
+                              Icons.check_circle, // Matches CheckCircle2 icon
+                              size: 14,
+                              color: Color(
+                                0xFF10B981,
+                              ), // Matches text-emerald-500
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 3),
+
+                        // Aligned Details Tracking String
+                        Row(
+                          children: [
+                            const Icon(
+                              CupertinoIcons
+                                  .device_phone_portrait, // Matches Smartphone icon
+                              size: 12,
+                              color: Color(
+                                0xFFCBD5E1,
+                              ), // Matches text-slate-300
+                            ),
+                            const SizedBox(width: 4),
+                            Text(
+                              "TEL: ",
+                              style: TextStyle(
+                                color: const Color(
+                                  0xFF94A3B8,
+                                ), // Matches text-slate-400
+                                fontSize: 10,
+                                fontWeight: FontWeight.w500,
+                                letterSpacing: 1.2,
+                              ),
+                            ),
+                            Text(
+                              mobile,
+                              style: const TextStyle(
+                                color: Color(
+                                  0xFF475569,
+                                ), // Matches text-slate-600
+                                fontSize: 10,
+                                fontWeight: FontWeight.bold,
+                                letterSpacing: 1.2,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
               ),
             ),
-          ),
-          const SizedBox(width: 14),
 
-          // 2. PRIMARY INFO BLOCK
-          Expanded(
-            flex: 4, // Allocation for name and ID
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  name,
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                  style: const TextStyle(
-                    fontWeight: FontWeight.w900,
-                    color: Color(0xFF0A2351),
-                    fontSize: 14,
+            // 3. RIGHT SECTION: PREMIUM ACTION TRASH DOCK
+            Padding(
+              padding: const EdgeInsets.only(left: 16),
+              child: InkWell(
+                // 1. Double-Tap Protection: Disable interactions while the delete network request is pending
+                onTap: _deleting ? null : onDelete,
+                borderRadius: BorderRadius.circular(12),
+                child: Container(
+                  width: 38,
+                  height: 38,
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(12),
+                    border: Border.all(
+                      color: const Color(0xFFE2E8F0).withValues(alpha: 0.8),
+                    ),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black.withValues(alpha: 0.02),
+                        blurRadius: 4,
+                        offset: const Offset(0, 2),
+                      ),
+                    ],
+                  ),
+                  child: Center(
+                    // 2. State Toggle: Replace the trash icon with a layout-locked spinner bone
+                    child: _deleting
+                        ? const SizedBox(
+                            width: 16,
+                            height: 16,
+                            child: CircularProgressIndicator(
+                              color: Color(
+                                0xFFFF6B6B,
+                              ), // Seamlessly matches your coral-red icon theme
+                              strokeWidth:
+                                  2.0, // Slightly thinner line profile to look crisp in small boxes
+                            ),
+                          )
+                        : const Icon(
+                            CupertinoIcons.trash,
+                            size: 15,
+                            color: Color(0xFFFF6B6B),
+                          ),
                   ),
                 ),
-                const SizedBox(height: 2),
-                Text(
-                  "ID: $memberId",
-                  style: TextStyle(
-                    color: Colors.grey.shade400,
-                    fontSize: 10,
-                    fontWeight: FontWeight.w700,
-                    letterSpacing: 0.5,
-                  ),
-                ),
-              ],
+              ),
             ),
-          ),
-
-          // 3. FINANCIAL BLOCK
-          Expanded(
-            flex: 3,
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment
-                  .end, // Aligns the Column children to the right
-              children: [
-                Text(
-                  "COVERAGE",
-                  style: TextStyle(
-                    color: Colors.grey.shade400,
-                    fontSize: 7,
-                    fontWeight: FontWeight.w900,
-                    letterSpacing: 0.5,
-                  ),
-                ),
-                const SizedBox(height: 2),
-                Text(
-                  coverage,
-                  textAlign: TextAlign
-                      .end, // Corrected: Property belongs to Text widget
-                  style: const TextStyle(
-                    fontWeight: FontWeight.w900,
-                    color: Color(0xFF17C6C6),
-                    fontSize: 13,
-                  ),
-                ),
-              ],
-            ),
-          ),
-
-          // 4. ACTION BLOCK
-          const SizedBox(width: 16),
-          Container(
-            height: 32,
-            width: 1,
-            color: const Color(0xFFF1F4F8), // Vertical separator for the action
-          ),
-          const SizedBox(width: 12),
-          const Icon(
-            CupertinoIcons.minus_circle_fill,
-            size: 20,
-            color: Color(0xFFFF6B6B),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
 
-  Widget _buildActionDock() {
+  Widget _buildActionDock({required Function(Widget nextRoute) onProceed}) {
+    final bool requiresCollateral = loanProduct['requires_collateral'] ?? false;
+    final bool requiresDocuments = loanProduct['requires_documents'] ?? false;
+
+    Widget destinationPage;
+    String buttonLabel;
+
+    if (requiresDocuments) {
+      destinationPage = AddStatements(
+        appId: widget.appId,
+        productId: widget.productId,
+      );
+      buttonLabel = "CONTINUE TO STATEMENTS";
+    } else if (requiresCollateral) {
+      destinationPage = Collaterals(
+        appId: widget.appId,
+        productId: widget.productId,
+      );
+      buttonLabel = "CONTINUE TO COLLATERALS";
+    } else {
+      destinationPage = LoanTermsConditions(appId: widget.appId);
+      buttonLabel = "PROCEED TO TERMS";
+    }
+
     return Container(
       padding: const EdgeInsets.fromLTRB(24, 20, 24, 40),
       color: Colors.white,
       child: ElevatedButton(
-        onPressed: () {
-          Navigator.push(
-            context,
-            MaterialPageRoute(
-              builder: (context) => AddStatements(appId: widget.appId),
-            ),
-          );
-        },
+        // The button automatically locks down while the application is loading
+        onPressed: _committing
+            ? null
+            : () {
+                onProceed(destinationPage);
+              },
         style: ElevatedButton.styleFrom(
           backgroundColor: const Color(0xFF0A2351),
+          disabledBackgroundColor: const Color(
+            0xFF0A2351,
+          ).withValues(alpha: 0.7),
           minimumSize: const Size(double.infinity, 64),
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(20),
           ),
         ),
-        child: const Text(
-          "CONTINUE TO STATEMENTS",
-          style: TextStyle(
-            fontWeight: FontWeight.w900,
-            color: Colors.white,
-            letterSpacing: 1.2,
-          ),
-        ),
+        child: _committing
+            ? const SizedBox(
+                width: 24,
+                height: 24,
+                child: CircularProgressIndicator(
+                  color: Colors.white,
+                  strokeWidth: 2.5,
+                ),
+              )
+            : Text(
+                buttonLabel,
+                style: const TextStyle(
+                  fontWeight: FontWeight.w900,
+                  color: Colors.white,
+                  letterSpacing: 1.2,
+                ),
+              ),
       ),
     );
   }
@@ -441,42 +888,126 @@ class _AddGuarantorsState extends State<AddGuarantors> {
           ),
 
           const SizedBox(height: 24),
-
-          // 3. THE ACTION BUTTON
           SizedBox(
             width: double.infinity,
             height: 58,
             child: ElevatedButton(
-              onPressed: () {
-                // Trigger Search Logic
-              },
+              onPressed: (_isFormValid && !adding)
+                  ? () {
+                      addGuarantors();
+                    }
+                  : null,
               style: ElevatedButton.styleFrom(
                 backgroundColor: const Color(0xFF0A2351),
                 foregroundColor: Colors.white,
+                disabledBackgroundColor: adding
+                    ? const Color(0xFF0A2351).withValues(alpha: 0.7)
+                    : Colors.grey.shade300,
+                disabledForegroundColor: adding
+                    ? Colors.white
+                    : Colors.grey.shade500,
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(16),
                 ),
                 elevation: 0,
               ),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  const Icon(CupertinoIcons.search, size: 18),
-                  const SizedBox(width: 12),
-                  Text(
-                    "FIND GUARANTOR",
-                    style: TextStyle(
-                      fontWeight: FontWeight.w900,
-                      fontSize: 13,
-                      letterSpacing: 1.2,
+              child: adding
+                  ? const SizedBox(
+                      width: 24,
+                      height: 24,
+                      child: CircularProgressIndicator(
+                        color: Colors.white,
+                        strokeWidth: 2.5,
+                      ),
+                    )
+                  : Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        const Icon(CupertinoIcons.search, size: 18),
+                        const SizedBox(width: 12),
+                        Text(
+                          "FIND GUARANTOR",
+                          style: const TextStyle(
+                            fontWeight: FontWeight.w900,
+                            fontSize: 13,
+                            letterSpacing: 1.2,
+                          ),
+                        ),
+                      ],
                     ),
-                  ),
-                ],
-              ),
             ),
           ),
         ],
       ),
+    );
+  }
+
+  Widget _buildGuarantorSearchSkeleton() {
+    return Shimmer.fromColors(
+      baseColor: Colors.grey.shade200,
+      highlightColor: Colors.grey.shade50,
+      period: const Duration(milliseconds: 1200),
+      child: Container(
+        padding: const EdgeInsets.all(16),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(30),
+          border: Border.all(color: const Color(0xFFF1F4F8), width: 1.5),
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            // 1. Full Name Input Box Placeholder
+            _buildInputFieldSkeleton(labelWidth: 70),
+            const SizedBox(height: 20),
+
+            // 2. Mobile Number Input Box Placeholder
+            _buildInputFieldSkeleton(labelWidth: 100),
+            const SizedBox(height: 24),
+
+            // 3. "FIND GUARANTOR" Primary Action Button Placeholder
+            Container(
+              width: double.infinity,
+              height: 58,
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(16),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  // Custom Input Element Structuring Helper
+  Widget _buildInputFieldSkeleton({required double labelWidth}) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        // Field Label Line Bone
+        Container(
+          width: labelWidth,
+          height: 12,
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(3),
+          ),
+        ),
+        const SizedBox(height: 8),
+
+        // Text Input Box Frame Bone
+        Container(
+          width: double.infinity,
+          height: 54, // Matches standard mobile text form field height scales
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(
+              14,
+            ), // Gives clean input aesthetics
+          ),
+        ),
+      ],
     );
   }
 

@@ -128,4 +128,164 @@ class LoanApplicationService {
       return (null, ["Application Error!", "An unknown error occurred."]);
     }
   }
+
+  Future<(Response?, List<String>?)> addGuarantor({
+    required String applicationId,
+    required String name,
+    required String phone,
+  }) async {
+    try {
+      final response = await _loanClient.post(
+        '/loan-applications/$applicationId/guarantors',
+        data: {"phone": phone, "name": name},
+      );
+      return (response, null);
+    } on DioException catch (e) {
+      final apiException = ApiException();
+      final errorMessages = apiException.getExceptionMessage(e);
+      return (null, errorMessages);
+    } catch (e) {
+      return (null, ["Application Error!", "An unknown error occurred."]);
+    }
+  }
+
+  Future<(Response?, List<String>?)> commitGuarantor({
+    required String applicationId,
+  }) async {
+    try {
+      final response = await _loanClient.patch(
+        '/loan-applications/$applicationId/guarantors/commit',
+      );
+      return (response, null);
+    } on DioException catch (e) {
+      final apiException = ApiException();
+      final errorMessages = apiException.getExceptionMessage(e);
+      return (null, errorMessages);
+    } catch (e) {
+      return (null, ["Application Error!", "An unknown error occurred."]);
+    }
+  }
+
+  Future<(Response?, List<String>?)> fetchGuarantors({
+    required String applicationId,
+  }) async {
+    try {
+      final response = await _loanClient.get(
+        '/loan-applications/$applicationId/guarantors',
+      );
+      return (response, null);
+    } on DioException catch (e) {
+      final apiException = ApiException();
+      final errorMessages = apiException.getExceptionMessage(e);
+      return (null, errorMessages);
+    } catch (e) {
+      return (null, ["Application Error!", "An unknown error occurred."]);
+    }
+  }
+
+  Future<(Response?, List<String>?)> removeGuarantors({
+    required String applicationId,
+    required String guarantorId,
+  }) async {
+    try {
+      final response = await _loanClient.delete(
+        '/loan-applications/$applicationId/guarantors/$guarantorId',
+      );
+      return (response, null);
+    } on DioException catch (e) {
+      final apiException = ApiException();
+      final errorMessages = apiException.getExceptionMessage(e);
+      return (null, errorMessages);
+    } catch (e) {
+      return (null, ["Application Error!", "An unknown error occurred."]);
+    }
+  }
+
+  Future<(Response?, List<String>?)> addChattel({
+    required String applicationId,
+    required String assetName,
+    required String assetValue,
+    required String assetCategory,
+    required List<String> imagePaths,
+    required List<String> docPaths,
+  }) async {
+    try {
+      // 1. Map paths concurrently to MultipartFile instances using Future.wait
+      final List<MultipartFile> imageMultipartFiles = await Future.wait(
+        imagePaths.map((path) async {
+          return await MultipartFile.fromFile(
+            path,
+            filename: path.split('/').last,
+          );
+        }),
+      );
+
+      final List<MultipartFile> docMultipartFiles = await Future.wait(
+        docPaths.map((path) async {
+          return await MultipartFile.fromFile(
+            path,
+            filename: path.split('/').last,
+          );
+        }),
+      );
+
+      // 2. Attach the lists directly to your FormData payload keys
+      final FormData formData = FormData.fromMap({
+        "asset_name": assetName,
+        "asset_category": assetCategory,
+        "estimated_value": assetValue,
+        "image_urls": imageMultipartFiles, // Sends as a multi-part array
+        "doc_urls": docMultipartFiles, // Sends as a multi-part array
+      });
+
+      // 3. Fire the request
+      final response = await _loanClient.post(
+        '/loan-applications/$applicationId/chattels',
+        data: formData,
+      );
+
+      return (response, null);
+    } on DioException catch (e) {
+      final apiException = ApiException();
+      final errorMessages = apiException.getExceptionMessage(e);
+      return (null, errorMessages);
+    } catch (e) {
+      return (null, ["Application Error!", "An unknown error occurred."]);
+    }
+  }
+
+  Future<(Response?, List<String>?)> removeChattel({
+    required String applicationId,
+    required String chattelId,
+  }) async {
+    try {
+      final response = await _loanClient.delete(
+        '/loan-applications/$applicationId/chattels/$chattelId',
+      );
+      return (response, null);
+    } on DioException catch (e) {
+      final apiException = ApiException();
+      final errorMessages = apiException.getExceptionMessage(e);
+      return (null, errorMessages);
+    } catch (e) {
+      return (null, ["Application Error!", "An unknown error occurred."]);
+    }
+  }
+
+  Future<(Response?, List<String>?)> fetchChattels({
+    required String applicationId,
+  }) async {
+    try {
+      final response = await _loanClient.get(
+        '/loan-applications/$applicationId/chattels',
+      );
+      return (response, null);
+    } on DioException catch (e) {
+      final apiException = ApiException();
+      final errorMessages = apiException.getExceptionMessage(e);
+      return (null, errorMessages);
+    } catch (e) {
+      return (null, ["Application Error!", "An unknown error occurred."]);
+    }
+  }
 }

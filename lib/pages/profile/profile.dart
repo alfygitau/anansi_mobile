@@ -1,3 +1,4 @@
+import 'package:app_anansi_mobile/helpers/format_short_date.dart';
 import 'package:app_anansi_mobile/pages/profile/edit_address.dart';
 import 'package:app_anansi_mobile/pages/profile/edit_financial_details.dart';
 import 'package:app_anansi_mobile/pages/profile/edit_kin.dart';
@@ -442,7 +443,7 @@ class _ProfileState extends State<Profile> {
           ),
           _DataField(
             label: "Date of Birth",
-            value: profileInformation?['dob'] ?? "N/A",
+            value: formatShortDate(profileInformation?['dob']),
           ),
           _DataField(
             label: "Gender",

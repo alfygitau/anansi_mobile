@@ -479,7 +479,7 @@ class _HomepageState extends State<Homepage> {
                       return _buildApplicationItem(
                         reference: item['application_number'] ?? "N/A",
                         title:
-                            item['product']['product_name'] ??
+                            item['product']['name'] ??
                             "Loan Application",
                         date: formatPostgresDateWithTime(
                           item['application_date'],

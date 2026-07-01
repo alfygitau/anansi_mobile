@@ -9,7 +9,8 @@ import 'package:flutter/material.dart';
 
 class Collaterals extends StatefulWidget {
   final String appId;
-  const Collaterals({super.key, required this.appId});
+  final String productId;
+  const Collaterals({super.key, required this.appId, required this.productId});
 
   @override
   State<Collaterals> createState() => _CollateralsState();
@@ -21,7 +22,7 @@ class _CollateralsState extends State<Collaterals> {
       name: "Samsung 55' UHD Smart TV",
       category: "Electronics",
       value: "85,000",
-      images: [], // You can add local asset paths here if needed
+      images: [],
       documents: ["receipt.pdf"],
       status: "Verified",
     ),
@@ -413,8 +414,8 @@ class _CollateralsState extends State<Collaterals> {
       child: Row(
         children: [
           Container(
-            width: 72,
-            height: 72,
+            width: 52,
+            height: 52,
             decoration: BoxDecoration(
               color: const Color(0xFFF1F5F9),
               borderRadius: BorderRadius.circular(16),

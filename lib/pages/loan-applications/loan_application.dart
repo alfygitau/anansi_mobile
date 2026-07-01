@@ -127,7 +127,7 @@ class _LoanApplicationState extends State<LoanApplication> {
     final bool requiresGuarantor =
         application['loan_product']['requires_guarantor'] ?? false;
     final bool requiresChattels =
-        application['loan_product']['requires_chattels'] ?? false;
+        application['loan_product']['requires_collateral'] ?? false;
     final bool requiresDocuments =
         application['loan_product']['requires_documents'] ?? false;
     if (!requiresGuarantor && !requiresChattels && !requiresDocuments) {

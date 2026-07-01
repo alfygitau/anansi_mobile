@@ -78,7 +78,7 @@ class _AddLoanDetailsState extends State<AddLoanDetails> {
             productId: widget.productId,
             customerId: user?['id'] ?? "",
             amount: _amountController.text.trim(),
-            duration: _selectedTenure.toString(),
+            duration: _selectedTenure.round().toString(),
             applicantName: '${user?['firstname']} ${user?['lastname']}',
             applicantMobile: user?['mobileno'] ?? "",
             purpose: _purposeController.text.trim(),
@@ -153,6 +153,7 @@ class _AddLoanDetailsState extends State<AddLoanDetails> {
   @override
   void dispose() {
     _amountFocus.dispose();
+    _amountController.dispose();
     super.dispose();
   }
 
@@ -941,14 +942,18 @@ class _AddLoanDetailsState extends State<AddLoanDetails> {
     String buttonLabel;
 
     if (requiresGuarantor) {
-      destinationBuilder = (id, productId) => AddGuarantors(appId: id);
+      destinationBuilder = (id, productId) =>
+          AddGuarantors(appId: id, productId: productId);
       buttonLabel = "CONTINUE TO GUARANTORS";
     } else if (requiresChattels) {
-      destinationBuilder = (id, productId) =>
-          Collaterals(appId: id); // Assuming your pages accept appId
+      destinationBuilder = (id, productId) => Collaterals(
+        appId: id,
+        productId: productId,
+      ); // Assuming your pages accept appId
       buttonLabel = "CONTINUE TO COLLATERALS";
     } else if (requiresDocuments) {
-      destinationBuilder = (id, productId) => AddStatements(appId: id);
+      destinationBuilder = (id, productId) =>
+          AddStatements(appId: id, productId: productId);
       buttonLabel = "CONTINUE TO DOCUMENTS";
     } else {
       destinationBuilder = (id, productId) => LoanTermsConditions(appId: id);
