@@ -1,5 +1,6 @@
 import 'package:app_anansi_mobile/helpers/format_amount.dart';
 import 'package:app_anansi_mobile/pages/help&support/help_support.dart';
+import 'package:app_anansi_mobile/pages/loan-applications/application_guarantors.dart';
 import 'package:app_anansi_mobile/services/error_service.dart';
 import 'package:app_anansi_mobile/services/loan_application_service.dart';
 import 'package:app_anansi_mobile/theme/app_theme.dart';
@@ -111,7 +112,7 @@ class _LoanApplicationState extends State<LoanApplication> {
           ),
           SliverToBoxAdapter(
             child: Padding(
-              padding: const EdgeInsets.fromLTRB(24, 32, 24, 8),
+              padding: const EdgeInsets.fromLTRB(24, 22, 24, 8),
               child: _sectionTitle("Application Milestone"),
             ),
           ),
@@ -135,7 +136,7 @@ class _LoanApplicationState extends State<LoanApplication> {
     }
 
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 24),
+      padding: const EdgeInsets.fromLTRB(24, 16, 24, 0),
       child: Column(
         children: [
           // GUARANTORS ACTION CARD
@@ -147,7 +148,13 @@ class _LoanApplicationState extends State<LoanApplication> {
               iconBgColor: const Color(0xFFEFF6FF),
               iconColor: const Color(0xFF2563EB), // Blue
               onTap: () {
-                // Navigator.push(context, MaterialPageRoute(builder: (context) => ApplicationGuarantors(appId: widget.appId)));
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) =>
+                        ApplicationGuarantors(appId: widget.appId),
+                  ),
+                );
               },
             ),
 
@@ -452,7 +459,9 @@ class _LoanApplicationState extends State<LoanApplication> {
                         // TENURE COLUMN
                         Expanded(
                           child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
+                            crossAxisAlignment: CrossAxisAlignment
+                                .center, // Centered horizontally in its slot
+                            mainAxisAlignment: MainAxisAlignment.center,
                             children: [
                               Text(
                                 "TENURE",
