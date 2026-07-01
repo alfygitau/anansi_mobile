@@ -1,4 +1,3 @@
-import 'package:app_anansi_mobile/pages/apply-loan/collaterals.dart';
 import 'package:app_anansi_mobile/pages/help&support/help_support.dart';
 import 'package:app_anansi_mobile/theme/app_theme.dart';
 import 'package:file_picker/file_picker.dart';

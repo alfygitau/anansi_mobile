@@ -1,5 +1,4 @@
 import 'dart:io';
-import 'package:app_anansi_mobile/pages/apply-loan/collaterals.dart';
 import 'package:app_anansi_mobile/pages/help&support/help_support.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
