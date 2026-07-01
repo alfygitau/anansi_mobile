@@ -123,7 +123,8 @@ class _MyLoansState extends State<MyLoans> {
           // 5. The Loans List
           _isLoading
               ? _buildLoansSkeletonList()
-              : SliverPadding(
+              : loans.isNotEmpty
+              ? SliverPadding(
                   padding: const EdgeInsets.symmetric(horizontal: 20),
                   sliver: SliverList(
                     delegate: SliverChildBuilderDelegate((context, index) {
@@ -148,9 +149,90 @@ class _MyLoansState extends State<MyLoans> {
                       );
                     }, childCount: loans.length),
                   ),
+                )
+              : _buildEmptyState(
+                  title: "No Active Loans",
+                  description:
+                      "You currently do not have any running or settled loans on your profile. When you accept a loan offer, its repayment tracker and balances will show up here.",
+                  icon: CupertinoIcons
+                      .creditcard, // Swapped to a credit card icon for loans
                 ),
-          const SliverToBoxAdapter(child: SizedBox(height: 20)),
         ],
+      ),
+    );
+  }
+
+  Widget _buildEmptyState({
+    required String title,
+    required String description,
+    required IconData icon,
+  }) {
+    return SliverFillRemaining(
+      hasScrollBody:
+          false, // Ensures accurate layout calculation for filling the viewport
+      child: Padding(
+        // 20 matching padding to perfectly align with your app bars and summary cards
+        padding: const EdgeInsets.fromLTRB(20, 0, 20, 24),
+        child: Container(
+          width:
+              double.infinity, // Forces complete horizontal alignment stretch
+          padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 40),
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(32),
+            border: Border.all(color: const Color(0xFFF1F5F9), width: 1.5),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withValues(alpha: 0.02),
+                blurRadius: 16,
+                offset: const Offset(0, 6),
+              ),
+            ],
+          ),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment
+                .center, // Centers your contents vertically in the expanded card space
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              // Muted Circular Icon Wrapper
+              Container(
+                padding: const EdgeInsets.all(20),
+                decoration: BoxDecoration(
+                  color: const Color(0xFFF8FAFC),
+                  shape: BoxShape.circle,
+                  border: Border.all(
+                    color: const Color(0xFFF1F5F9),
+                    width: 1.5,
+                  ),
+                ),
+                child: Icon(icon, size: 44, color: Colors.grey.shade400),
+              ),
+              const SizedBox(height: 24),
+
+              // Description Headers
+              Text(
+                title,
+                textAlign: TextAlign.center,
+                style: const TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.w900,
+                  color: AnansiColors.darkBlue,
+                  letterSpacing: -0.4,
+                ),
+              ),
+              const SizedBox(height: 8),
+              Text(
+                description,
+                textAlign: TextAlign.center,
+                style: TextStyle(
+                  fontSize: 13,
+                  color: Colors.blueGrey.shade400,
+                  height: 1.4,
+                ),
+              ),
+            ],
+          ),
+        ),
       ),
     );
   }

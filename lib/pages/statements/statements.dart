@@ -643,10 +643,10 @@ class _StatementsState extends State<Statements> {
     String description =
         "We couldn't find any ledger statements matching your selected account or year criteria. Try clearing your filters or changing dates.",
   }) {
-    return SliverToBoxAdapter(
+    return SliverFillRemaining(
+      hasScrollBody: false,
       child: Container(
-        height: 550,
-        margin: const EdgeInsets.symmetric(horizontal: 24, vertical: 8),
+        margin: const EdgeInsets.fromLTRB(24, 8, 24, 24),
         padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 40),
         decoration: BoxDecoration(
           color: Colors.white,
@@ -661,7 +661,8 @@ class _StatementsState extends State<Statements> {
           ],
         ),
         child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
+          mainAxisAlignment: MainAxisAlignment
+              .center, // Vertically centers internal assets within the expanded frame
           children: [
             // Center Graphic Icon Container
             Container(
@@ -680,8 +681,6 @@ class _StatementsState extends State<Statements> {
               ),
             ),
             const SizedBox(height: 24),
-
-            // Main Text Layout Hierarchy
             Text(
               title,
               style: const TextStyle(

@@ -58,7 +58,7 @@ class _LoanHistoryState extends State<LoanHistory> {
           _buildAppBar(),
           SliverToBoxAdapter(
             child: Padding(
-              padding: const EdgeInsets.only(left: 24, top: 8),
+              padding: const EdgeInsets.only(left: 16, top: 8),
               child: Text(
                 "RECENT LOAN ACTIVITY",
                 style: TextStyle(
@@ -71,7 +71,7 @@ class _LoanHistoryState extends State<LoanHistory> {
             ),
           ),
           SliverPadding(
-            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
             sliver: _isLoading
                 ? _buildTransactionsSkeletonList()
                 : loanHistory.isNotEmpty

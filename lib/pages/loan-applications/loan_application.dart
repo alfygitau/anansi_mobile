@@ -40,6 +40,49 @@ class _LoanApplicationState extends State<LoanApplication> {
     }
   }
 
+  Color _getBadgeColor(String stage) {
+    switch (stage.toLowerCase().trim()) {
+      // SUCCESS / ACTIVE STATES (Vibrant Greens)
+      case 'approved':
+      case 'cleared':
+      case 'verified':
+      case 'completed':
+      case 'disbursed':
+      case 'active':
+        return const Color(0xFF10B981); // Emerald Green
+
+      // PROCESSING / WAITING STATES (Warm Ambers)
+      case 'pending':
+      case 'pending committee approval':
+      case 'pending manager approval':
+      case 'manager review':
+      case 'under_review':
+      case 'processing':
+      case 'submitted':
+        return const Color(0xFFFFB300); // Premium Amber/Gold
+
+      // USER INTERVENTION STATES (Vivid Oranges)
+      case 'action_required':
+      case 'correction':
+      case '1/2 approved': // From your guarantor list pattern
+        return const Color(0xFFF97316); // Warning Orange
+
+      // TERMINATED / NEGATIVE STATES (Alert Reds)
+      case 'rejected':
+      case 'declined':
+      case 'cancelled':
+      case 'failed':
+        return const Color(0xFFEF4444); // Rose Crimson
+
+      // MUTED / INACTIVE STATES (Slate Grays)
+      case 'locked':
+      case 'skipped':
+      case 'draft':
+      default:
+        return const Color(0xFF64748B); // Slate Neutral
+    }
+  }
+
   @override
   void initState() {
     super.initState();
@@ -48,6 +91,8 @@ class _LoanApplicationState extends State<LoanApplication> {
 
   @override
   Widget build(BuildContext context) {
+    final String currentStage =
+        (application['current_stage_label'] ?? "Pending").toLowerCase().trim();
     return Scaffold(
       backgroundColor: const Color(0xFFF8FAFC),
       body: CustomScrollView(
@@ -67,25 +112,244 @@ class _LoanApplicationState extends State<LoanApplication> {
           ),
           SliverToBoxAdapter(
             child: _isLoading
-                ? _buildPotentialParametersSkeleton()
-                : _buildPotentialParameters(),
+                ? _buildApplicationActionsSkeleton()
+                : _buildApplicationActions(),
           ),
           SliverToBoxAdapter(
             child: Padding(
               padding: const EdgeInsets.fromLTRB(24, 32, 24, 8),
-              child: _sectionTitle("Application Checklist"),
+              child: _sectionTitle("Application Milestone"),
             ),
           ),
           _buildRequirementsList(application['progress']?['steps']),
           const SliverPadding(padding: EdgeInsets.only(bottom: 140)),
         ],
       ),
-      bottomSheet: _buildContinuationDock(),
+      bottomSheet: _buildContinuationDock(currentStage),
+    );
+  }
+
+  Widget _buildApplicationActions() {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 24),
+      child: Column(
+        children: [
+          // GUARANTORS ACTION CARD
+          _buildActionCard(
+            title: "Guarantors Management",
+            subtitle: "Add or check status of your 2 required guarantors",
+            icon: CupertinoIcons.person_3_fill,
+            iconBgColor: const Color(0xFFEFF6FF),
+            iconColor: const Color(0xFF2563EB), // Blue
+            onTap: () {
+              // Navigator.push(context, MaterialPageRoute(builder: (context) => ApplicationGuarantors(appId: widget.appId)));
+            },
+          ),
+          const SizedBox(height: 14),
+
+          // COLLATERALS ACTION CARD
+          _buildActionCard(
+            title: "Assets & Collateral",
+            subtitle:
+                "Submit or update your vehicle logbook or household items",
+            icon: CupertinoIcons.cube_box_fill,
+            iconBgColor: const Color(0xFFFDF2F8),
+            iconColor: const Color(0xFFDB2777), // Pink/Crimson
+            onTap: () {
+              // Navigator.push(context, MaterialPageRoute(builder: (context) => ApplicationCollaterals(appId: widget.appId)));
+            },
+          ),
+          const SizedBox(height: 14),
+
+          // DOCUMENTS ACTION CARD
+          _buildActionCard(
+            title: "Supportive Documents",
+            subtitle: "Upload your latest 3 months bank statements (PDF)",
+            icon: CupertinoIcons.doc_on_doc_fill,
+            iconBgColor: const Color(0xFFECFDF5),
+            iconColor: const Color(0xFF059669), // Emerald Green
+            onTap: () {
+              // Navigator.push(context, MaterialPageRoute(builder: (context) => ApplicationDocuments(appId: widget.appId)));
+            },
+          ),
+        ],
+      ),
+    );
+  }
+
+  // 2. DYNAMIC BLUEPRINT FOR INDIVIDUAL ACTION CARDS
+  Widget _buildActionCard({
+    required String title,
+    required String subtitle,
+    required IconData icon,
+    required Color iconBgColor,
+    required Color iconColor,
+    required VoidCallback onTap,
+  }) {
+    return Container(
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(24),
+        border: Border.all(color: const Color(0xFFF1F5F9), width: 1.5),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.015),
+            blurRadius: 12,
+            offset: const Offset(0, 4),
+          ),
+        ],
+      ),
+      child: Material(
+        color: Colors.transparent,
+        child: InkWell(
+          onTap: onTap,
+          borderRadius: BorderRadius.circular(24),
+          splashColor: iconColor.withValues(alpha: 0.04),
+          highlightColor: Colors.transparent,
+          child: Padding(
+            padding: const EdgeInsets.all(16),
+            child: Row(
+              children: [
+                // Left: Feature Icon housing Wrapper
+                Container(
+                  padding: const EdgeInsets.all(12),
+                  decoration: BoxDecoration(
+                    color: iconBgColor,
+                    shape: BoxShape.circle,
+                  ),
+                  child: Icon(icon, color: iconColor, size: 22),
+                ),
+                const SizedBox(width: 16),
+
+                // Center: Descriptive Labels text
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        title,
+                        style: const TextStyle(
+                          fontWeight: FontWeight.w900,
+                          fontSize: 14,
+                          color: AnansiColors.darkBlue,
+                          letterSpacing: -0.2,
+                        ),
+                      ),
+                      const SizedBox(height: 3),
+                      Text(
+                        subtitle,
+                        maxLines: 2,
+                        overflow: TextOverflow.ellipsis,
+                        style: TextStyle(
+                          fontSize: 11,
+                          color: Colors.grey.shade500,
+                          fontWeight: FontWeight.w500,
+                          height: 1.3,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                const SizedBox(width: 8),
+
+                // Right: Navigation Chevron Arrow Indicator
+                const Icon(
+                  CupertinoIcons.chevron_right,
+                  size: 14,
+                  color: Colors.grey,
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  // 3. ACTIONS LIST SKELETON LOADER
+  Widget _buildApplicationActionsSkeleton() {
+    final baseColor = Colors.grey.shade200;
+
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 24),
+      child: Column(
+        children: List.generate(3, (index) {
+          return Container(
+            margin: const EdgeInsets.only(bottom: 14),
+            padding: const EdgeInsets.all(16),
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(24),
+              border: Border.all(color: const Color(0xFFF1F5F9), width: 1.5),
+            ),
+            child: Row(
+              children: [
+                // Circle Icon loader box
+                Container(
+                  width: 46,
+                  height: 46,
+                  decoration: BoxDecoration(
+                    color: baseColor,
+                    shape: BoxShape.circle,
+                  ),
+                ),
+                const SizedBox(width: 16),
+
+                // Multi line text line templates
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Container(
+                        width: 140,
+                        height: 14,
+                        decoration: BoxDecoration(
+                          color: baseColor,
+                          borderRadius: BorderRadius.circular(4),
+                        ),
+                      ),
+                      const SizedBox(height: 6),
+                      Container(
+                        width: double.infinity,
+                        height: 10,
+                        decoration: BoxDecoration(
+                          color: baseColor,
+                          borderRadius: BorderRadius.circular(3),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                const SizedBox(width: 16),
+
+                // Arrow right container template
+                Container(
+                  width: 12,
+                  height: 12,
+                  decoration: BoxDecoration(
+                    color: baseColor,
+                    shape: BoxShape.circle,
+                  ),
+                ),
+              ],
+            ),
+          );
+        }),
+      ),
     );
   }
 
   // --- 1. THE STATUS HEADER ---
   Widget _buildApplicationStatusHeader() {
+    final String currentStage = application['current_stage_label'] ?? "Pending";
+
+    // SAFE PARSING FOR INTEREST RATE (Prevents FormatException crashes)
+    final double interestValue =
+        double.tryParse(
+          application['loan_product']?['interest_rate']?.toString() ?? '0',
+        ) ??
+        0.0;
+
     return Container(
       margin: const EdgeInsets.fromLTRB(20, 10, 20, 10),
       decoration: BoxDecoration(
@@ -130,8 +394,8 @@ class _LoanApplicationState extends State<LoanApplication> {
                             ),
                           ),
                           Text(
-                            application['application_number'] ?? "",
-                            style: TextStyle(
+                            application['application_number'] ?? "N/A",
+                            style: const TextStyle(
                               color: Colors.white,
                               fontSize: 12,
                               fontWeight: FontWeight.w700,
@@ -140,8 +404,8 @@ class _LoanApplicationState extends State<LoanApplication> {
                         ],
                       ),
                       _buildPremiumStatusBadge(
-                        application['current_stage_label'] ?? "Pending",
-                        const Color(0xFFFFB300),
+                        currentStage,
+                        _getBadgeColor(currentStage),
                       ),
                     ],
                   ),
@@ -158,7 +422,7 @@ class _LoanApplicationState extends State<LoanApplication> {
                   const SizedBox(height: 6),
                   Text(
                     formatAmount(application['applied_amount'] ?? 0),
-                    style: TextStyle(
+                    style: const TextStyle(
                       color: Colors.white,
                       fontSize: 36,
                       fontWeight: FontWeight.w900,
@@ -168,26 +432,111 @@ class _LoanApplicationState extends State<LoanApplication> {
                   const SizedBox(height: 22),
                   const Divider(color: Colors.white12, height: 1),
                   const SizedBox(height: 20),
-                  Row(
-                    children: [
-                      const Icon(
-                        CupertinoIcons.info_circle,
-                        color: Color(0xFF17C6C6),
-                        size: 16,
-                      ),
-                      const SizedBox(width: 12),
-                      Expanded(
-                        child: Text(
-                          "Verification in progress. Expect a response within 24 hours.",
-                          style: TextStyle(
-                            color: Colors.white.withValues(alpha: 0.7),
-                            fontSize: 11,
-                            fontWeight: FontWeight.w500,
-                            height: 1.4,
+
+                  // 2. FIXED SECURE SPLIT GRID ROW
+                  IntrinsicHeight(
+                    child: Row(
+                      children: [
+                        // TENURE COLUMN
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                "TENURE",
+                                style: TextStyle(
+                                  color: Colors.white.withValues(alpha: 0.4),
+                                  fontSize: 9,
+                                  fontWeight: FontWeight.w800,
+                                  letterSpacing: 1.1,
+                                ),
+                              ),
+                              const SizedBox(height: 4),
+                              Text(
+                                "${application['loan_period'] ?? 0} Mos",
+                                style: const TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 13,
+                                  fontWeight: FontWeight.w900,
+                                ),
+                              ),
+                            ],
                           ),
                         ),
-                      ),
-                    ],
+
+                        // VERTICAL BORDER ONE
+                        Container(
+                          width: 1,
+                          margin: const EdgeInsets.symmetric(vertical: 2),
+                          color: Colors.white.withValues(alpha: 0.12),
+                        ),
+                        const SizedBox(width: 16),
+
+                        // INTEREST RATE COLUMN
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                "INTEREST RATE",
+                                style: TextStyle(
+                                  color: Colors.white.withValues(alpha: 0.4),
+                                  fontSize: 9,
+                                  fontWeight: FontWeight.w800,
+                                  letterSpacing: 1.1,
+                                ),
+                              ),
+                              const SizedBox(height: 4),
+                              Text(
+                                "${interestValue.toStringAsFixed(1)}% / Mo",
+                                style: const TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 13,
+                                  fontWeight: FontWeight.w900,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+
+                        // VERTICAL BORDER TWO
+                        Container(
+                          width: 1,
+                          margin: const EdgeInsets.symmetric(vertical: 2),
+                          color: Colors.white.withValues(alpha: 0.12),
+                        ),
+                        const SizedBox(width: 16),
+
+                        // FREQUENCY COLUMN
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                "FREQUENCY",
+                                style: TextStyle(
+                                  color: Colors.white.withValues(alpha: 0.4),
+                                  fontSize: 9,
+                                  fontWeight: FontWeight.w800,
+                                  letterSpacing: 1.1,
+                                ),
+                              ),
+                              const SizedBox(height: 4),
+                              Text(
+                                (application['loan_interval'] ?? "Monthly")
+                                    .toString()
+                                    .toUpperCase(),
+                                style: const TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 13,
+                                  fontWeight: FontWeight.w900,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ],
+                    ),
                   ),
                 ],
               ),
@@ -369,304 +718,6 @@ class _LoanApplicationState extends State<LoanApplication> {
           ),
         ],
       ),
-    );
-  }
-
-  // --- 2. POTENTIAL PARAMETERS ---
-  Widget _buildPotentialParameters() {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 24),
-      child: Container(
-        padding: const EdgeInsets.all(24),
-        decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(28),
-          border: Border.all(color: const Color(0xFFF1F4F8), width: 1.5),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withValues(alpha: 0.02),
-              blurRadius: 20,
-              offset: const Offset(0, 10),
-            ),
-          ],
-        ),
-        child: Column(
-          children: [
-            // 1. PRODUCT BRANDING LINE
-            Row(
-              children: [
-                _buildCircularIcon(
-                  CupertinoIcons.shield_fill,
-                  const Color(0xFF0A2351),
-                ),
-                const SizedBox(width: 12),
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      "LOAN PRODUCT",
-                      style: TextStyle(
-                        color: Colors.grey.shade400,
-                        fontSize: 9,
-                        fontWeight: FontWeight.w800,
-                        letterSpacing: 1,
-                      ),
-                    ),
-                    Text(
-                      application['loan_product']['product_name'] ??
-                          "No Product Name",
-                      style: TextStyle(
-                        color: Color(0xFF0A2351),
-                        fontSize: 15,
-                        fontWeight: FontWeight.w900,
-                      ),
-                    ),
-                  ],
-                ),
-              ],
-            ),
-
-            const Padding(
-              padding: EdgeInsets.symmetric(vertical: 20),
-              child: Divider(color: Color(0xFFF1F4F8), height: 1),
-            ),
-
-            // 2. DATA GRID (2x3 Layout)
-            Table(
-              children: [
-                TableRow(
-                  children: [
-                    _detailCell(
-                      "Interest Rate",
-                      "${double.parse(application['loan_product']['interest_rate'].toString()).toStringAsFixed(1)}% / Mo",
-                      CupertinoIcons.percent,
-                    ),
-                    _detailCell(
-                      "Loan Period",
-                      "${application['loan_period'].toString()} Months",
-                      CupertinoIcons.calendar,
-                    ),
-                  ],
-                ),
-                const TableRow(
-                  children: [SizedBox(height: 20), SizedBox(height: 20)],
-                ),
-                TableRow(
-                  children: [
-                    _detailCell(
-                      "Frequency",
-                      application['loan_interval'] ?? "",
-                      CupertinoIcons.repeat,
-                    ),
-                    _detailCell(
-                      "Processing Fee",
-                      formatAmount(0),
-                      CupertinoIcons.doc_text_viewfinder,
-                    ),
-                  ],
-                ),
-                const TableRow(
-                  children: [SizedBox(height: 20), SizedBox(height: 20)],
-                ),
-                TableRow(
-                  children: [
-                    _detailCell(
-                      "Insurance Fee",
-                      formatAmount(0),
-                      CupertinoIcons.lock_shield,
-                    ),
-                    _detailCell(
-                      "Excise Duty",
-                      formatAmount(0),
-                      CupertinoIcons.briefcase,
-                    ),
-                  ],
-                ),
-              ],
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildPotentialParametersSkeleton() {
-    final baseColor = Colors.grey.shade200;
-
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 24),
-      child: Container(
-        padding: const EdgeInsets.all(24),
-        decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(28),
-          border: Border.all(color: const Color(0xFFF1F4F8), width: 1.5),
-        ),
-        child: Column(
-          children: [
-            // 1. PRODUCT BRANDING LINE SKELETON
-            Row(
-              children: [
-                // Mock Circular Icon
-                Container(
-                  width: 36,
-                  height: 36,
-                  decoration: BoxDecoration(
-                    color: baseColor,
-                    shape: BoxShape.circle,
-                  ),
-                ),
-                const SizedBox(width: 12),
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      "LOAN PRODUCT",
-                      style: TextStyle(
-                        color: Colors.grey.shade400,
-                        fontSize: 9,
-                        fontWeight: FontWeight.w800,
-                        letterSpacing: 1,
-                      ),
-                    ),
-                    const SizedBox(height: 4),
-                    // Mock Product Name String
-                    Container(
-                      width: 120,
-                      height: 14,
-                      decoration: BoxDecoration(
-                        color: baseColor,
-                        borderRadius: BorderRadius.circular(4),
-                      ),
-                    ),
-                  ],
-                ),
-              ],
-            ),
-
-            const Padding(
-              padding: EdgeInsets.symmetric(vertical: 20),
-              child: Divider(color: Color(0xFFF1F4F8), height: 1),
-            ),
-
-            // 2. DATA GRID SKELETON (2x3 Layout)
-            Table(
-              children: [
-                TableRow(
-                  children: [
-                    _buildDetailCellSkeleton(baseColor),
-                    _buildDetailCellSkeleton(baseColor),
-                  ],
-                ),
-                const TableRow(
-                  children: [SizedBox(height: 20), SizedBox(height: 20)],
-                ),
-                TableRow(
-                  children: [
-                    _buildDetailCellSkeleton(baseColor),
-                    _buildDetailCellSkeleton(baseColor),
-                  ],
-                ),
-                const TableRow(
-                  children: [SizedBox(height: 20), SizedBox(height: 20)],
-                ),
-                TableRow(
-                  children: [
-                    _buildDetailCellSkeleton(baseColor),
-                    _buildDetailCellSkeleton(baseColor),
-                  ],
-                ),
-              ],
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  // HELPER TO SHAPE EACH DATA CELL INSIDE THE TABLE GRID
-  Widget _buildDetailCellSkeleton(Color baseColor) {
-    return Row(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        // Mock icon footprint
-        Container(
-          width: 32,
-          height: 32,
-          decoration: BoxDecoration(color: baseColor, shape: BoxShape.circle),
-        ),
-        const SizedBox(width: 10),
-        Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            // Mock Label Line (e.g. "Interest Rate")
-            Container(
-              width: 60,
-              height: 9,
-              decoration: BoxDecoration(
-                color: baseColor,
-                borderRadius: BorderRadius.circular(3),
-              ),
-            ),
-            const SizedBox(height: 5),
-            // Mock Value Line (e.g. "12.0% / Mo")
-            Container(
-              width: 80,
-              height: 12,
-              decoration: BoxDecoration(
-                color: baseColor,
-                borderRadius: BorderRadius.circular(4),
-              ),
-            ),
-          ],
-        ),
-      ],
-    );
-  }
-
-  // --- REFINED SUB-COMPONENTS ---
-  Widget _detailCell(String label, String value, IconData icon) {
-    return Row(
-      children: [
-        Icon(icon, size: 16, color: const Color(0xFF17C6C6)),
-        const SizedBox(width: 10),
-        Expanded(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                label.toUpperCase(),
-                style: TextStyle(
-                  color: Colors.grey.shade400,
-                  fontSize: 8,
-                  fontWeight: FontWeight.w800,
-                  letterSpacing: 0.5,
-                ),
-              ),
-              const SizedBox(height: 2),
-              Text(
-                value,
-                style: const TextStyle(
-                  color: Color(0xFF0A2351),
-                  fontSize: 13,
-                  fontWeight: FontWeight.w800,
-                ),
-              ),
-            ],
-          ),
-        ),
-      ],
-    );
-  }
-
-  Widget _buildCircularIcon(IconData icon, Color color) {
-    return Container(
-      padding: const EdgeInsets.all(10),
-      decoration: BoxDecoration(
-        color: color.withValues(alpha: 0.05),
-        shape: BoxShape.circle,
-      ),
-      child: Icon(icon, size: 18, color: color),
     );
   }
 
@@ -984,7 +1035,131 @@ class _LoanApplicationState extends State<LoanApplication> {
     );
   }
 
-  Widget _buildContinuationDock() {
+  Widget? _buildContinuationDock(String stage) {
+    if (_isLoading || application.isEmpty) return null;
+
+    // 1. Fully Processed / Disbursed Success States
+    if (['approved', 'disbursed', 'active', 'completed'].contains(stage)) {
+      return Container(
+        padding: const EdgeInsets.fromLTRB(24, 20, 24, 40),
+        color: Colors.white,
+        child: ElevatedButton.icon(
+          onPressed: () {
+            Navigator.pop(
+              context,
+            ); // Send them back to the active facilities page
+          },
+          icon: const Icon(
+            CupertinoIcons.checkmark_seal_fill,
+            color: Colors.white,
+            size: 18,
+          ),
+          label: const Text(
+            "VIEW ACTIVE FACILITY",
+            style: TextStyle(
+              fontWeight: FontWeight.w900,
+              color: Colors.white,
+              letterSpacing: 0.5,
+            ),
+          ),
+          style: ElevatedButton.styleFrom(
+            backgroundColor: const Color(0xFF10B981), // Emerald Success
+            minimumSize: const Size(double.infinity, 64),
+            elevation: 0,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(20),
+            ),
+          ),
+        ),
+      );
+    }
+
+    // 2. Read-Only Process States (Pending Internal Team Review Checks)
+    if ([
+      'pending',
+      'under_review',
+      'processing',
+      'submitted',
+      'pending committee approval',
+      'pending manager approval',
+      'manager review',
+    ].contains(stage)) {
+      return Container(
+        padding: const EdgeInsets.fromLTRB(24, 20, 24, 40),
+        color: Colors.white,
+        child: ElevatedButton(
+          onPressed:
+              null, // Setting to null safely disables interactions entirely
+          style: ElevatedButton.styleFrom(
+            backgroundColor: const Color(0xFFF1F5F9),
+            disabledBackgroundColor: const Color(0xFFF1F5F9),
+            minimumSize: const Size(double.infinity, 64),
+            elevation: 0,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(20),
+            ),
+          ),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              const CupertinoActivityIndicator(radius: 7),
+              const SizedBox(width: 12),
+              Text(
+                "APPLICATION UNDER REVIEW",
+                style: TextStyle(
+                  fontWeight: FontWeight.w900,
+                  color: Colors.grey.shade500,
+                  letterSpacing: 0.5,
+                ),
+              ),
+            ],
+          ),
+        ),
+      );
+    }
+
+    // 3. User Interventions Needed (Corrections or Missing documents)
+    if (['action_required', 'correction'].contains(stage)) {
+      return Container(
+        padding: const EdgeInsets.fromLTRB(24, 20, 24, 40),
+        color: Colors.white,
+        child: ElevatedButton.icon(
+          onPressed: () {
+            // Re-route user back to document upload or guarantor correction flows
+          },
+          icon: const Icon(
+            CupertinoIcons.exclamationmark_triangle_fill,
+            color: Colors.white,
+            size: 16,
+          ),
+          label: const Text(
+            "RESOLVE REQUIRED ITEMS",
+            style: TextStyle(
+              fontWeight: FontWeight.w900,
+              color: Colors.white,
+              letterSpacing: 0.5,
+            ),
+          ),
+          style: ElevatedButton.styleFrom(
+            backgroundColor: const Color(
+              0xFFF97316,
+            ), // Attention Warning Orange
+            minimumSize: const Size(double.infinity, 64),
+            elevation: 0,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(20),
+            ),
+          ),
+        ),
+      );
+    }
+
+    // 4. Closed Negative / Dead States
+    if (['rejected', 'declined', 'failed', 'cancelled'].contains(stage)) {
+      return null; // Return null to completely strip the bottom sheet from view hierarchy
+    }
+
+    // 5. Default Fallback State (Draft Form)
     return Container(
       padding: const EdgeInsets.fromLTRB(24, 20, 24, 40),
       decoration: const BoxDecoration(
@@ -992,17 +1167,24 @@ class _LoanApplicationState extends State<LoanApplication> {
         borderRadius: BorderRadius.vertical(top: Radius.circular(30)),
       ),
       child: ElevatedButton(
-        onPressed: () {},
+        onPressed: () {
+          // Normal continuation navigation code execution hook goes here
+        },
         style: ElevatedButton.styleFrom(
           backgroundColor: const Color(0xFF0A2351),
           minimumSize: const Size(double.infinity, 64),
+          elevation: 0,
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(20),
           ),
         ),
         child: const Text(
           "CONTINUE APPLICATION",
-          style: TextStyle(fontWeight: FontWeight.w900, color: Colors.white),
+          style: TextStyle(
+            fontWeight: FontWeight.w900,
+            color: Colors.white,
+            letterSpacing: 0.5,
+          ),
         ),
       ),
     );
@@ -1045,10 +1227,11 @@ class _LoanApplicationState extends State<LoanApplication> {
             mainAxisSize: MainAxisSize.min,
             children: [
               Text(
-                "EMERGENCY FUND LOAN",
+                application['loan_product']['product_name'] ??
+                    "No Product Name",
                 style: TextStyle(
                   color: Colors.grey.shade500,
-                  fontSize: 7,
+                  fontSize: 10,
                   fontWeight: FontWeight.w800,
                   letterSpacing: 0.8,
                 ),

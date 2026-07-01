@@ -17,17 +17,7 @@ class LoanProducts extends StatefulWidget {
 
 class _LoanProductsState extends State<LoanProducts> {
   bool _isLoading = false;
-  List<Map<String, dynamic>> loanProducts = [
-    {
-      "name": "Business Growth",
-      "icon": CupertinoIcons.briefcase_fill,
-      "rate": "11%",
-      "period": "18 Months",
-      "color": const Color(0xFF6366F1),
-      "description": "Expand your SME operations.",
-      "maxAmount": "3,000,000",
-    },
-  ];
+  List<Map<String, dynamic>> loanProducts = [];
 
   Future<Map<String, dynamic>?> getUser() async {
     String? userJson = await SecureStorageService().read('user');
@@ -164,7 +154,8 @@ class _LoanProductsState extends State<LoanProducts> {
           ),
           _isLoading
               ? _buildDetailedLoanCardsSkeletonList()
-              : SliverPadding(
+              : loanProducts.isNotEmpty
+              ? SliverPadding(
                   padding: const EdgeInsets.fromLTRB(24, 10, 24, 24),
                   sliver: SliverList(
                     delegate: SliverChildBuilderDelegate((context, index) {
@@ -183,8 +174,82 @@ class _LoanProductsState extends State<LoanProducts> {
                       );
                     }, childCount: loanProducts.length),
                   ),
+                )
+              : _buildEmptyState(
+                  title: "No Loan Offerings Available",
+                  description:
+                      "We couldn't find any active credit products matching your profile configuration right now. Please check back later or contact customer support.",
+                  icon: CupertinoIcons.briefcase,
                 ),
         ],
+      ),
+    );
+  }
+
+  Widget _buildEmptyState({
+    required String title,
+    required String description,
+    required IconData icon,
+  }) {
+    return SliverFillRemaining(
+      hasScrollBody: false,
+      child: Padding(
+        padding: const EdgeInsets.fromLTRB(24, 10, 24, 24),
+        child: Container(
+          width: double.infinity,
+          padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 40),
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(32),
+            border: Border.all(color: const Color(0xFFF1F5F9), width: 1.5),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withValues(alpha: 0.02),
+                blurRadius: 16,
+                offset: const Offset(0, 6),
+              ),
+            ],
+          ),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              Container(
+                padding: const EdgeInsets.all(20),
+                decoration: BoxDecoration(
+                  color: const Color(0xFFF8FAFC),
+                  shape: BoxShape.circle,
+                  border: Border.all(
+                    color: const Color(0xFFF1F5F9),
+                    width: 1.5,
+                  ),
+                ),
+                child: Icon(icon, size: 44, color: Colors.grey.shade400),
+              ),
+              const SizedBox(height: 24),
+              Text(
+                title,
+                textAlign: TextAlign.center,
+                style: const TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.w900,
+                  color: AnansiColors.darkBlue,
+                  letterSpacing: -0.4,
+                ),
+              ),
+              const SizedBox(height: 8),
+              Text(
+                description,
+                textAlign: TextAlign.center,
+                style: TextStyle(
+                  fontSize: 13,
+                  color: Colors.blueGrey.shade400,
+                  height: 1.4,
+                ),
+              ),
+            ],
+          ),
+        ),
       ),
     );
   }
