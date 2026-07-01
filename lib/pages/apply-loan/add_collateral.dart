@@ -560,10 +560,10 @@ class _AddCollateralState extends State<AddCollateral> {
             ),
           ),
           onPressed: () {
-            Navigator.push(
-              context,
-              MaterialPageRoute(builder: (context) => const Collaterals()),
-            );
+            // Navigator.push(
+            //   context,
+            //   MaterialPageRoute(builder: (context) =>  Collaterals(appId: widget.,)),
+            // );
           },
           child: const Text(
             "Save & Continue",

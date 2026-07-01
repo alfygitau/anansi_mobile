@@ -8,7 +8,8 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
 class Collaterals extends StatefulWidget {
-  const Collaterals({super.key});
+  final String appId;
+  const Collaterals({super.key, required this.appId});
 
   @override
   State<Collaterals> createState() => _CollateralsState();
@@ -101,7 +102,8 @@ class _CollateralsState extends State<Collaterals> {
               Navigator.push(
                 context,
                 MaterialPageRoute(
-                  builder: (context) => const LoanTermsConditions(),
+                  builder: (context) =>
+                      LoanTermsConditions(appId: widget.appId),
                 ),
               );
             },
@@ -504,6 +506,7 @@ class _CollateralsState extends State<Collaterals> {
       ),
     );
   }
+
   IconData _getCategoryIcon(String category) {
     switch (category.toLowerCase()) {
       case 'motor vehicle':

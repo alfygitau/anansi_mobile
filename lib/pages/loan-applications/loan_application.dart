@@ -56,7 +56,7 @@ class _LoanApplicationState extends State<LoanApplication> {
       case 'pending':
       case 'pending committee approval':
       case 'pending manager approval':
-      case 'manager review':
+      case 'pending disbursement':
       case 'under_review':
       case 'processing':
       case 'submitted':
@@ -65,7 +65,6 @@ class _LoanApplicationState extends State<LoanApplication> {
       // USER INTERVENTION STATES (Vivid Oranges)
       case 'action_required':
       case 'correction':
-      case '1/2 approved': // From your guarantor list pattern
         return const Color(0xFFF97316); // Warning Orange
 
       // TERMINATED / NEGATIVE STATES (Alert Reds)
@@ -93,7 +92,7 @@ class _LoanApplicationState extends State<LoanApplication> {
   @override
   Widget build(BuildContext context) {
     final String currentStage =
-        (application['current_stage_label'] ?? "Pending").toLowerCase().trim();
+        (application['status_label'] ?? "Pending").toLowerCase().trim();
     return Scaffold(
       backgroundColor: const Color(0xFFF8FAFC),
       body: CustomScrollView(
@@ -360,7 +359,7 @@ class _LoanApplicationState extends State<LoanApplication> {
 
   // --- 1. THE STATUS HEADER ---
   Widget _buildApplicationStatusHeader() {
-    final String currentStage = application['current_stage_label'] ?? "Pending";
+    final String currentStage = application['status_label'] ?? "Pending";
 
     // SAFE PARSING FOR INTEREST RATE (Prevents FormatException crashes)
     final double interestValue =
@@ -1103,6 +1102,7 @@ class _LoanApplicationState extends State<LoanApplication> {
       'submitted',
       'pending committee approval',
       'pending manager approval',
+      'pending disbursement',
       'manager review',
     ].contains(stage)) {
       return Container(

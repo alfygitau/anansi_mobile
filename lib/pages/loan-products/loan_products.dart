@@ -167,7 +167,9 @@ class _LoanProductsState extends State<LoanProducts> {
                           Navigator.push(
                             context,
                             MaterialPageRoute(
-                              builder: (context) => LoanEligibility(),
+                              builder: (context) => LoanEligibility(
+                                productId: product['id'] ?? "",
+                              ),
                             ),
                           );
                         },

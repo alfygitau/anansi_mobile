@@ -1,17 +1,71 @@
+import 'dart:convert';
+
+import 'package:app_anansi_mobile/helpers/format_amount.dart';
 import 'package:app_anansi_mobile/pages/apply-loan/add_loan_details.dart';
 import 'package:app_anansi_mobile/pages/help&support/help_support.dart';
+import 'package:app_anansi_mobile/services/error_service.dart';
+import 'package:app_anansi_mobile/services/loan_application_service.dart';
+import 'package:app_anansi_mobile/services/secure_storage_service.dart';
 import 'package:app_anansi_mobile/theme/app_theme.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:shimmer/shimmer.dart';
 
 class LoanEligibility extends StatefulWidget {
-  const LoanEligibility({super.key});
+  final String productId;
+  const LoanEligibility({super.key, required this.productId});
 
   @override
   State<LoanEligibility> createState() => _LoanEligibilityState();
 }
 
 class _LoanEligibilityState extends State<LoanEligibility> {
+  Map<String, dynamic> eligibility = {};
+  List<Map<String, dynamic>> eligibilityChecks = [];
+  bool _isLoading = false;
+
+  Future<Map<String, dynamic>?> getUser() async {
+    String? userJson = await SecureStorageService().read('user');
+    if (userJson == null) return null;
+    Map<String, dynamic> userMap = jsonDecode(userJson);
+    return userMap;
+  }
+
+  Future<void> checkEligibility() async {
+    _isLoading = true;
+    try {
+      final user = await getUser();
+      final (response, errors) = await LoanApplicationService()
+          .checkEligibility(
+            customerId: user?['id'] ?? "",
+            productId: widget.productId,
+          );
+      if (errors != null) {
+        ErrorService.showActionableError(
+          context,
+          title: errors[0],
+          message: errors[1],
+        );
+      } else if (response != null) {
+        final responseInfo = response.data['data'];
+        setState(() {
+          eligibility = responseInfo ?? {};
+          eligibilityChecks = List<Map<String, dynamic>>.from(
+            responseInfo['checks'] ?? {},
+          );
+        });
+      }
+    } finally {
+      if (mounted) setState(() => _isLoading = false);
+    }
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    checkEligibility();
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -24,66 +78,146 @@ class _LoanEligibilityState extends State<LoanEligibility> {
           // 1. DYNAMIC LIMIT HERO
           SliverToBoxAdapter(child: _buildLimitCapacityHeader()),
 
-          // 2. SACCO RULES CHECKLIST
-          SliverPadding(
-            padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 32),
-            sliver: SliverList(
-              delegate: SliverChildListDelegate([
-                _sectionTitle("Membership Qualification"),
-                const SizedBox(height: 20),
-
-                _buildSaccoCheck(
-                  title: "Membership Tenure",
-                  desc: "Minimum 6 months active membership required.",
-                  status: "Active 8 Months",
-                  isMet: true,
+          SliverToBoxAdapter(
+            child: Padding(
+              padding: const EdgeInsets.fromLTRB(
+                24,
+                12,
+                24,
+                0,
+              ), // 32px top spacing down from the hero card
+              child: Text(
+                "ELIGIBILITY CHECKLIST",
+                style: TextStyle(
+                  color: const Color(0xFF0A2351).withValues(
+                    alpha: 0.5,
+                  ), // Matches your primary deep blue with a subtle label opacity
+                  fontWeight: FontWeight.w900,
+                  fontSize: 11,
+                  letterSpacing: 1.3,
                 ),
-                _buildSaccoCheck(
-                  title: "Share Capital",
-                  desc: "Minimum share capital of KES 20,000 required.",
-                  status: "KES 25,000",
-                  isMet: true,
-                ),
-                _buildSaccoCheck(
-                  title: "Savings Multiplier",
-                  desc: "Your limit is 3x your current deposits.",
-                  status: "KES 150,000 Deposits",
-                  isMet: true,
-                ),
-                _buildSaccoCheck(
-                  title: "Existing Obligations",
-                  desc: "Must not have an active loan of the same type.",
-                  status: "1 Active Loan Found",
-                  isMet: false,
-                  isWarning: true,
-                ),
-                _buildSaccoCheck(
-                  title: "Guarantor Availability",
-                  desc:
-                      "Ability to provide at least 3 active members as guarantors.",
-                  status: "Pending Check",
-                  isMet: false,
-                  isWarning: true
-                ),
-
-                const SizedBox(height: 120),
-              ]),
+              ),
             ),
           ),
+
+          // 2. SACCO RULES CHECKLIST
+          SliverPadding(
+            padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+            sliver: _isLoading
+                ? _buildSaccoChecksSkeleton()
+                : SliverList(
+                    delegate: SliverChildBuilderDelegate((context, index) {
+                      final check = eligibilityChecks[index];
+                      return _buildSaccoCheck(
+                        check,
+                        isWarning: check['isWarning'] ?? false,
+                      );
+                    }, childCount: eligibilityChecks.length),
+                  ),
+          ),
+          const SliverPadding(padding: EdgeInsets.only(bottom: 80)),
         ],
       ),
-      bottomSheet: _buildEligibilityActionDock(isQualified: true),
+      bottomSheet: _buildEligibilityActionDock(
+        isQualified: eligibility['is_eligible'] ?? false,
+      ),
     );
   }
 
-  Widget _sectionTitle(String title) {
-    return Text(
-      title.toUpperCase(),
-      style: TextStyle(
-        color: Colors.blueGrey.shade800,
-        fontWeight: FontWeight.w900,
-        fontSize: 11,
-        letterSpacing: 1.2,
+  Widget _buildSaccoChecksSkeleton() {
+    return SliverList(
+      delegate: SliverChildBuilderDelegate(
+        (context, index) {
+          return Shimmer.fromColors(
+            baseColor: Colors.grey.shade200,
+            highlightColor: Colors.grey.shade50,
+            period: const Duration(milliseconds: 1200),
+            child: _buildSaccoCheckSkeletonItem(),
+          );
+        },
+        childCount: 6, // Renders an optimized number of list placeholders
+      ),
+    );
+  }
+
+  Widget _buildSaccoCheckSkeletonItem() {
+    return Container(
+      margin: const EdgeInsets.only(bottom: 16),
+      padding: const EdgeInsets.all(20),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(24),
+        border: Border.all(color: const Color(0xFFF1F4F8), width: 1.5),
+      ),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          // 1. LEFT COLUMN: Circular Icon Placeholder (Matches size 38)
+          Container(
+            width: 38,
+            height: 38,
+            decoration: const BoxDecoration(
+              color: Colors.white,
+              shape: BoxShape.circle,
+            ),
+          ),
+          const SizedBox(width: 16),
+
+          // 2. RIGHT COLUMN: Content Text Lines Block
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                // Top Metadata Header Alignment Row
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    // Formatted Rule Title Line Placeholder
+                    Container(
+                      width: 140,
+                      height: 14,
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(4),
+                      ),
+                    ),
+                    const SizedBox(width: 8),
+
+                    // Status Badge Text Line Placeholder
+                    Container(
+                      width: 45,
+                      height: 9,
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(3),
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 10),
+
+                // 3. Multi-Line Rule Description Placeholders
+                Container(
+                  width: double.infinity,
+                  height: 11,
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(3),
+                  ),
+                ),
+                const SizedBox(height: 6),
+                Container(
+                  width: 180, // Shorter secondary trailing line mimicry
+                  height: 11,
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(3),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
       ),
     );
   }
@@ -213,8 +347,8 @@ class _LoanEligibilityState extends State<LoanEligibility> {
             ),
           ),
           const SizedBox(height: 16),
-          const Text(
-            "KES 450,000.00",
+          Text(
+            formatAmount(eligibility['limit'] ?? 0),
             style: TextStyle(
               color: Colors.white,
               fontSize: 36,
@@ -226,7 +360,7 @@ class _LoanEligibilityState extends State<LoanEligibility> {
           Text(
             "Based on 3x Deposit Multiplier",
             style: TextStyle(
-              color: Colors.white.withOpacity(0.5),
+              color: Colors.white.withValues(alpha: 0.5),
               fontSize: 12,
               fontWeight: FontWeight.w600,
             ),
@@ -237,11 +371,17 @@ class _LoanEligibilityState extends State<LoanEligibility> {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              _headerStat("Total Deposits", "KES 150k"),
+              _headerStat(
+                "Total Deposits",
+                formatAmount(eligibility['total_savings'] ?? 0),
+              ),
               Container(width: 1, height: 30, color: Colors.white10),
-              _headerStat("Share Capital", "KES 25k"),
+              _headerStat(
+                "Share Capital",
+                formatAmount(eligibility['total_shares'] ?? 0),
+              ),
               Container(width: 1, height: 30, color: Colors.white10),
-              _headerStat("Multiplier", "3.0x"),
+              _headerStat("Multiplier", "N/A"),
             ],
           ),
         ],
@@ -250,16 +390,34 @@ class _LoanEligibilityState extends State<LoanEligibility> {
   }
 
   // --- THE SACCO CHECK COMPONENT ---
-  Widget _buildSaccoCheck({
-    required String title,
-    required String desc,
-    required String status,
-    required bool isMet,
+  Widget _buildSaccoCheck(
+    Map<String, dynamic> check, {
     bool isWarning = false,
   }) {
+    // 1. Extract values safely from JSON structure
+    final String rawRule = check['rule'] ?? 'unknown_rule';
+    final String description =
+        check['description'] ?? 'No description provided';
+    final bool isMet = check['passed'] ?? false;
+
+    final String formattedTitle = rawRule
+        .split('_')
+        .map(
+          (word) => word.isNotEmpty
+              ? '${word[0].toUpperCase()}${word.substring(1)}'
+              : '',
+        )
+        .join(' ');
+
+    // 3. Derive runtime status text based on the rule evaluation
+    final String statusText = isMet
+        ? "PASSED"
+        : (isWarning ? "WARNING" : "FAILED");
+
+    // 4. Determine thematic accent colors
     Color iconColor = isMet
         ? const Color(0xFF17C6C6)
-        : (isWarning ? Colors.orange : Colors.grey.shade400);
+        : (isWarning ? Colors.orange : Colors.orange);
 
     return Container(
       margin: const EdgeInsets.only(bottom: 16),
@@ -272,15 +430,19 @@ class _LoanEligibilityState extends State<LoanEligibility> {
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
+          // Circular Icon Indicator Frame
           _buildCircularIcon(
             isMet
                 ? CupertinoIcons.checkmark_seal_fill
                 : (isWarning
                       ? CupertinoIcons.exclamationmark_triangle_fill
-                      : CupertinoIcons.circle),
+                      : CupertinoIcons
+                            .clear_circled), // Swapped plain circle for clear_circled on failure
             iconColor,
           ),
           const SizedBox(width: 16),
+
+          // Metadata text run lengths
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -288,27 +450,33 @@ class _LoanEligibilityState extends State<LoanEligibility> {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    Text(
-                      title,
-                      style: const TextStyle(
-                        fontWeight: FontWeight.w900,
-                        color: Color(0xFF0A2351),
-                        fontSize: 14,
+                    Flexible(
+                      child: Text(
+                        formattedTitle,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: const TextStyle(
+                          fontWeight: FontWeight.w900,
+                          color: Color(0xFF0A2351),
+                          fontSize: 14,
+                        ),
                       ),
                     ),
+                    const SizedBox(width: 8),
                     Text(
-                      status.toUpperCase(),
+                      statusText,
                       style: TextStyle(
                         color: iconColor,
                         fontSize: 9,
                         fontWeight: FontWeight.w900,
+                        letterSpacing: 0.5,
                       ),
                     ),
                   ],
                 ),
-                const SizedBox(height: 4),
+                const SizedBox(height: 6),
                 Text(
-                  desc,
+                  description,
                   style: TextStyle(
                     color: Colors.grey.shade500,
                     fontSize: 11,
@@ -329,18 +497,12 @@ class _LoanEligibilityState extends State<LoanEligibility> {
       width: size,
       height: size,
       decoration: BoxDecoration(
-        // Soft semi-transparent background of the primary color
         color: color.withValues(alpha: 0.1),
         shape: BoxShape.circle,
-        // A very thin border helps define the shape on white backgrounds
         border: Border.all(color: color.withValues(alpha: 0.15), width: 1),
       ),
       child: Center(
-        child: Icon(
-          icon,
-          size: size * 0.45, // Proportional icon sizing
-          color: color,
-        ),
+        child: Icon(icon, size: size * 0.45, color: color),
       ),
     );
   }
@@ -381,7 +543,10 @@ class _LoanEligibilityState extends State<LoanEligibility> {
             ? () {
                 Navigator.push(
                   context,
-                  MaterialPageRoute(builder: (context) => AddLoanDetails()),
+                  MaterialPageRoute(
+                    builder: (context) =>
+                        AddLoanDetails(productId: widget.productId),
+                  ),
                 );
               }
             : null, // Disabled if not qualified

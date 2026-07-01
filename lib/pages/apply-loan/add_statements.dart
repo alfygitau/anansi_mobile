@@ -20,7 +20,7 @@ class StatementFile {
 }
 
 class AddStatements extends StatefulWidget {
-  const AddStatements({super.key});
+  const AddStatements({super.key, required String appId});
 
   @override
   State<AddStatements> createState() => _AddStatementsState();

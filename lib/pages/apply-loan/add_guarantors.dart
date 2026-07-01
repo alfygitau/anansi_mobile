@@ -5,7 +5,8 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
 class AddGuarantors extends StatefulWidget {
-  const AddGuarantors({super.key});
+  final String appId;
+  const AddGuarantors({super.key, required this.appId});
 
   @override
   State<AddGuarantors> createState() => _AddGuarantorsState();
@@ -377,7 +378,9 @@ class _AddGuarantorsState extends State<AddGuarantors> {
         onPressed: () {
           Navigator.push(
             context,
-            MaterialPageRoute(builder: (context) => const AddStatements()),
+            MaterialPageRoute(
+              builder: (context) => AddStatements(appId: widget.appId),
+            ),
           );
         },
         style: ElevatedButton.styleFrom(

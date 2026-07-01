@@ -286,10 +286,10 @@ class _ContractsPayslipsState extends State<ContractsPayslips> {
             ),
           ),
           onPressed: () {
-            Navigator.push(
-              context,
-              MaterialPageRoute(builder: (context) => const Collaterals()),
-            );
+            // Navigator.push(
+            //   context,
+            //   MaterialPageRoute(builder: (context) => const Collaterals()),
+            // );
           },
           child: const Text(
             "Continue Application",

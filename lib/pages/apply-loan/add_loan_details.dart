@@ -1,13 +1,21 @@
-import 'dart:math' as Math;
-
+import 'dart:convert';
 import 'package:app_anansi_mobile/pages/apply-loan/add_guarantors.dart';
+import 'package:app_anansi_mobile/pages/apply-loan/add_statements.dart';
+import 'package:app_anansi_mobile/pages/apply-loan/collaterals.dart';
+import 'package:app_anansi_mobile/pages/apply-loan/loan_terms_conditions.dart';
 import 'package:app_anansi_mobile/pages/help&support/help_support.dart';
+import 'package:app_anansi_mobile/services/error_service.dart';
+import 'package:app_anansi_mobile/services/loan_application_service.dart';
+import 'package:app_anansi_mobile/services/loan_products_service.dart';
+import 'package:app_anansi_mobile/services/secure_storage_service.dart';
 import 'package:app_anansi_mobile/theme/app_theme.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:shimmer/shimmer.dart';
 
 class AddLoanDetails extends StatefulWidget {
-  const AddLoanDetails({super.key});
+  final String productId;
+  const AddLoanDetails({super.key, required this.productId});
 
   @override
   State<AddLoanDetails> createState() => _AddLoanDetailsState();
@@ -15,45 +23,136 @@ class AddLoanDetails extends StatefulWidget {
 
 class _AddLoanDetailsState extends State<AddLoanDetails> {
   final TextEditingController _amountController = TextEditingController();
+  final TextEditingController _purposeController = TextEditingController();
   String _selectedFrequency = "Monthly";
   final FocusNode _amountFocus = FocusNode();
-  double _selectedTenure = 12;
+  double _selectedTenure = 0;
   Map<String, String?> formErrors = {'amount': null};
-  final double _monthlyInterestRate = 0.012;
-  double get _loanAmount => double.tryParse(_amountController.text) ?? 0.0;
+  Map<String, dynamic> loanProduct = {};
+  bool _isLoading = false;
+  bool _loading = false;
 
-  double get _calculateInstallment {
-    if (_loanAmount <= 0) return 0.0;
+  Future<Map<String, dynamic>?> getUser() async {
+    String? userJson = await SecureStorageService().read('user');
+    if (userJson == null) return null;
+    Map<String, dynamic> userMap = jsonDecode(userJson);
+    return userMap;
+  }
 
-    double p = _loanAmount;
-    double r = _monthlyInterestRate;
-    double n = _selectedTenure;
-
-    if (_selectedFrequency == "Weekly") {
-      r = _monthlyInterestRate / 4;
-      n = _selectedTenure * 4;
-    } else if (_selectedFrequency == "Quarterly") {
-      r = _monthlyInterestRate * 3;
-      n = _selectedTenure / 3;
+  Future<void> getLoanProduct() async {
+    _isLoading = true;
+    try {
+      final (response, errors) = await LoanProductsService().listLoanProduct(
+        productId: widget.productId,
+      );
+      if (errors != null) {
+        ErrorService.showActionableError(
+          context,
+          title: errors[0],
+          message: errors[1],
+        );
+      } else if (response != null) {
+        final responseInfo = response.data['data'];
+        setState(() {
+          loanProduct = responseInfo ?? {};
+          _selectedTenure =
+              double.tryParse(responseInfo['min_period']?.toString() ?? "") ??
+              0.0;
+        });
+      }
+    } finally {
+      if (mounted) setState(() => _isLoading = false);
     }
-
-    if (r == 0) return p / n;
-
-    double installment =
-        p * (r * (Math.pow(1 + r, n))) / (Math.pow(1 + r, n) - 1);
-    return installment;
   }
 
-  double get _calculateTotalRepayable {
-    double n = _selectedTenure;
-    if (_selectedFrequency == "Weekly") n = _selectedTenure * 4;
-    if (_selectedFrequency == "Quarterly") n = _selectedTenure / 3;
+  Future<void> createLoanApplication(
+    Widget Function(String appId) nextScreenBuilder,
+  ) async {
+    _validateField('amount', _amountController.text);
 
-    return _calculateInstallment * n;
+    setState(() => _loading = true);
+    try {
+      final user = await getUser();
+      final (response, errors) = await LoanApplicationService()
+          .createApplication(
+            productId: widget.productId,
+            customerId: user?['id'] ?? "",
+            amount: _amountController.text.trim(),
+            duration: _selectedTenure.toString(),
+            applicantName: '${user?['firstname']} ${user?['lastname']}',
+            applicantMobile: user?['mobileno'] ?? "",
+            purpose: _purposeController.text.trim(),
+          );
+
+      if (errors != null) {
+        ErrorService.showActionableError(
+          context,
+          title: errors[0],
+          message: errors[1],
+        );
+      } else if (response != null) {
+        final responseInfo = response.data['data'] ?? {};
+        final String applicationId = responseInfo['id']?.toString() ?? "";
+
+        if (mounted) {
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => nextScreenBuilder(applicationId),
+            ),
+          );
+        }
+      }
+    } finally {
+      if (mounted) setState(() => _loading = false);
+    }
   }
 
-  String _formatCurrency(double amount) {
-    return "KES ${amount.toStringAsFixed(0).replaceAllMapped(RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))'), (Match m) => '${m[1]},')}";
+  void _validateField(String key, String value) {
+    setState(() {
+      final String trimmedValue = value.trim();
+      if (trimmedValue.isEmpty) {
+        formErrors[key] = "This field is required to apply loan";
+        return;
+      }
+      final double? inputAmount = double.tryParse(trimmedValue);
+      if (inputAmount == null) {
+        formErrors[key] = "Please enter a valid numerical amount";
+        return;
+      }
+      final double maxAmount =
+          double.tryParse(loanProduct['max_amount']?.toString() ?? '') ?? 0.0;
+      final double minAmount =
+          double.tryParse(loanProduct['min_amount']?.toString() ?? '') ?? 0.0;
+      if (inputAmount > maxAmount) {
+        formErrors[key] =
+            "Maximum allowable amount is KES ${maxAmount.toStringAsFixed(0)}";
+      } else if (inputAmount < minAmount) {
+        formErrors[key] =
+            "Minimum required amount is KES ${minAmount.toStringAsFixed(0)}";
+      } else {
+        formErrors[key] = null;
+      }
+    });
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    getLoanProduct();
+
+    _amountFocus.addListener(() {
+      if (!_amountFocus.hasFocus) {
+        _validateField('amount', _amountController.text);
+      }
+      setState(() {});
+    });
+  }
+
+  @override
+  void dispose() {
+    _amountFocus.dispose();
+    super.dispose();
   }
 
   @override
@@ -64,7 +163,11 @@ class _AddLoanDetailsState extends State<AddLoanDetails> {
         physics: const BouncingScrollPhysics(),
         slivers: [
           _buildAppBar(),
-          SliverToBoxAdapter(child: _buildProductIdentityCard()),
+          SliverToBoxAdapter(
+            child: _isLoading
+                ? _buildProductIdentitySkeleton()
+                : _buildProductIdentityCard(),
+          ),
           SliverPadding(
             padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 20),
             sliver: SliverList(
@@ -78,24 +181,29 @@ class _AddLoanDetailsState extends State<AddLoanDetails> {
                   focusNode: _amountFocus,
                   fieldKey: "amount",
                   controller: _amountController,
+                  keyboardType: TextInputType.number,
                 ),
                 const SizedBox(height: 25),
                 _sectionTitle("Repayment Tenure"),
-                const SizedBox(height: 16),
+                const SizedBox(height: 10),
                 _buildTenureSelector(),
-                const SizedBox(height: 32),
+                const SizedBox(height: 30),
                 _sectionTitle("Repayment Frequency"),
                 const SizedBox(height: 16),
                 _buildFrequencySelector(),
-                const SizedBox(height: 40),
-                _buildLivePreviewCard(),
+                const SizedBox(height: 25),
+                _sectionTitle("Loan Purpose"),
+                const SizedBox(height: 5),
+                _buildTextAreaCard(controller: _purposeController),
                 const SizedBox(height: 120),
               ]),
             ),
           ),
         ],
       ),
-      bottomSheet: _buildActionDock(),
+      bottomSheet: _buildActionDock(
+        onCreateApplication: (nextRoute) => createLoanApplication(nextRoute),
+      ),
     );
   }
 
@@ -217,6 +325,7 @@ class _AddLoanDetailsState extends State<AddLoanDetails> {
     required String hint,
     required IconData icon,
     required FocusNode focusNode,
+    required TextInputType keyboardType,
   }) {
     final String? errorText = formErrors[fieldKey];
     final bool hasError = errorText != null;
@@ -293,6 +402,7 @@ class _AddLoanDetailsState extends State<AddLoanDetails> {
                 child: TextField(
                   focusNode: focusNode,
                   controller: controller,
+                  keyboardType: keyboardType,
                   style: const TextStyle(
                     fontSize: 17,
                     fontWeight: FontWeight.w500,
@@ -379,7 +489,7 @@ class _AddLoanDetailsState extends State<AddLoanDetails> {
                   const Color(0xFF0A2351),
                 ),
                 const SizedBox(width: 16),
-                const Column(
+                Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
@@ -392,7 +502,7 @@ class _AddLoanDetailsState extends State<AddLoanDetails> {
                       ),
                     ),
                     Text(
-                      "Development Loan Plus",
+                      loanProduct['product_name'] ?? "Unknown",
                       style: TextStyle(
                         color: Color(0xFF0A2351),
                         fontSize: 17,
@@ -417,11 +527,23 @@ class _AddLoanDetailsState extends State<AddLoanDetails> {
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                _buildFeatureDetail("Interest", "1.2%", "p.m"),
+                _buildFeatureDetail(
+                  "Interest",
+                  (double.tryParse(
+                            loanProduct['interest_rate']?.toString() ?? '',
+                          ) ??
+                          0.0)
+                      .toStringAsFixed(2),
+                  "p.m",
+                ),
                 _buildVerticalDivider(),
-                _buildFeatureDetail("Tenure", "48", "Mo"),
+                _buildFeatureDetail(
+                  "Tenure",
+                  (loanProduct['max_period'] ?? 1).toString(),
+                  "Months",
+                ),
                 _buildVerticalDivider(),
-                _buildFeatureDetail("Multiplier", "3.0", "x"),
+                _buildFeatureDetail("Multiplier", 'N/A', "x"),
               ],
             ),
           ),
@@ -436,7 +558,9 @@ class _AddLoanDetailsState extends State<AddLoanDetails> {
                 ),
                 const SizedBox(width: 10),
                 Text(
-                  "Reducing balance model applied to all repayments",
+                  loanProduct['interest_method'] == 'flat_rate'
+                      ? "Flat rate model applied to all repayments"
+                      : "Reducing balance model applied to all repayments",
                   style: TextStyle(
                     color: Colors.grey.shade500,
                     fontSize: 11,
@@ -449,6 +573,161 @@ class _AddLoanDetailsState extends State<AddLoanDetails> {
         ],
       ),
     );
+  }
+
+  Widget _buildProductIdentitySkeleton() {
+    return Shimmer.fromColors(
+      baseColor: Colors.grey.shade200,
+      highlightColor: Colors.grey.shade50,
+      period: const Duration(milliseconds: 1200),
+      child: Container(
+        margin: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(30),
+          border: Border.all(color: const Color(0xFFF1F4F8), width: 0.7),
+        ),
+        child: Column(
+          children: [
+            // 1. HEADER ROW PLACEHOLDER
+            Padding(
+              padding: const EdgeInsets.fromLTRB(24, 16, 24, 16),
+              child: Row(
+                children: [
+                  // Circular Avatar/Icon Bone
+                  Container(
+                    width: 38,
+                    height: 38,
+                    decoration: const BoxDecoration(
+                      color: Colors.white,
+                      shape: BoxShape.circle,
+                    ),
+                  ),
+                  const SizedBox(width: 16),
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      // "LOAN PRODUCT" label line
+                      Container(
+                        width: 70,
+                        height: 9,
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          borderRadius: BorderRadius.circular(3),
+                        ),
+                      ),
+                      const SizedBox(height: 6),
+                      // Main Title Line
+                      Container(
+                        width: 150,
+                        height: 15,
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          borderRadius: BorderRadius.circular(4),
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+            ),
+
+            // 2. MIDDLE FEATURE GRID PLACEHOLDER
+            Container(
+              margin: const EdgeInsets.symmetric(horizontal: 20),
+              padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 24),
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(20),
+                border: Border.symmetric(
+                  horizontal: BorderSide(color: Colors.grey.shade200, width: 1),
+                ),
+              ),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  // Interest Parameter Blocks
+                  _buildFeatureDetailSkeleton(labelWidth: 40, valueWidth: 50),
+                  _buildVerticalDividerPlaceholder(),
+
+                  // Tenure Parameter Blocks
+                  _buildFeatureDetailSkeleton(labelWidth: 35, valueWidth: 45),
+                  _buildVerticalDividerPlaceholder(),
+
+                  // Multiplier Parameter Blocks
+                  _buildFeatureDetailSkeleton(labelWidth: 50, valueWidth: 30),
+                ],
+              ),
+            ),
+
+            // 3. FOOTER INFO TRAILING PLACEHOLDER
+            Padding(
+              padding: const EdgeInsets.fromLTRB(24, 14, 20, 14),
+              child: Row(
+                children: [
+                  // Info Small Icon Circle
+                  Container(
+                    width: 14,
+                    height: 14,
+                    decoration: const BoxDecoration(
+                      color: Colors.white,
+                      shape: BoxShape.circle,
+                    ),
+                  ),
+                  const SizedBox(width: 10),
+                  // Footer Explainer Text Line
+                  Expanded(
+                    child: Container(
+                      height: 11,
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(3),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(
+                    width: 20,
+                  ), // Retains safe edge padding parameters
+                ],
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  // Compact Sub-Layout Structural Helpers
+  Widget _buildFeatureDetailSkeleton({
+    required double labelWidth,
+    required double valueWidth,
+  }) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Container(
+          width: labelWidth,
+          height: 8,
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(2),
+          ),
+        ),
+        const SizedBox(height: 6),
+        Container(
+          width: valueWidth,
+          height: 16,
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(4),
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildVerticalDividerPlaceholder() {
+    return Container(width: 1, height: 25, color: Colors.white);
   }
 
   // --- REFINED SUB-COMPONENTS ---
@@ -499,20 +778,34 @@ class _AddLoanDetailsState extends State<AddLoanDetails> {
 
   // --- 2. CONFIGURATION TOOLS ---
   Widget _buildTenureSelector() {
+    // 1. Safely extract values converting them to String first, then parsing to double
+    final double minPeriod =
+        double.tryParse(loanProduct['min_period']?.toString() ?? '') ?? 0.0;
+    final double maxPeriod =
+        double.tryParse(loanProduct['max_period']?.toString() ?? '') ?? 0.0;
+
+    // 2. Guard constraint: Ensure slider value stays within the parsed min/max range
+    // This prevents Slider assertion crashes if data changes dynamically
+    final double safeValue = _selectedTenure.clamp(
+      minPeriod,
+      maxPeriod > minPeriod ? maxPeriod : minPeriod + 1,
+    );
+
     return Column(
       children: [
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
             Text(
-              "${_selectedTenure.toInt()} Months",
+              "${safeValue.toInt()} Months",
               style: const TextStyle(
                 fontWeight: FontWeight.w900,
                 color: Color(0xFF0A2351),
               ),
             ),
             Text(
-              "Max: 48 Months",
+              // Cleaned up string interpolation (handles null automatically)
+              "Max: ${loanProduct['max_period'] ?? 0} Months",
               style: TextStyle(
                 color: Colors.grey.shade400,
                 fontSize: 11,
@@ -521,20 +814,24 @@ class _AddLoanDetailsState extends State<AddLoanDetails> {
             ),
           ],
         ),
-        SizedBox(height: 8),
+        const SizedBox(height: 8),
         SliderTheme(
           data: SliderThemeData(
-            overlayShape: RoundSliderOverlayShape(overlayRadius: 0.0),
+            overlayShape: const RoundSliderOverlayShape(overlayRadius: 0.0),
             activeTrackColor: const Color(0xFF0A2351),
             inactiveTrackColor: const Color(0xFFF1F4F8),
             thumbColor: const Color(0xFF17C6C6),
             overlayColor: const Color(0xFF17C6C6).withValues(alpha: 0.2),
           ),
           child: Slider(
-            value: _selectedTenure,
-            min: 1,
-            max: 48,
-            onChanged: (val) => setState(() => _selectedTenure = val),
+            value: safeValue,
+            min: minPeriod,
+            max: maxPeriod > minPeriod ? maxPeriod : minPeriod + 1,
+            onChanged: (val) {
+              setState(() {
+                _selectedTenure = val;
+              });
+            },
           ),
         ),
       ],
@@ -579,88 +876,122 @@ class _AddLoanDetailsState extends State<AddLoanDetails> {
   }
 
   // --- 3. LIVE PREVIEW CARD ---
-  Widget _buildLivePreviewCard() {
+  Widget _buildTextAreaCard({
+    required TextEditingController controller,
+    String hintText = "Provide additional reasons or application notes here...",
+  }) {
     return Container(
-      padding: const EdgeInsets.fromLTRB(24, 20, 24, 20),
+      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
       decoration: BoxDecoration(
-        color: const Color(0xFF17C6C6).withValues(alpha: 0.05),
+        color: Colors.white,
         borderRadius: BorderRadius.circular(24),
         border: Border.all(
-          color: const Color(0xFF17C6C6).withValues(alpha: 0.2),
+          color: const Color(
+            0xFFF1F4F8,
+          ), // Neutral border matching your form inputs
+          width: 1.5,
         ),
-      ),
-      child: Column(
-        children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              _previewItem(
-                "Est. $_selectedFrequency Installment",
-                _formatCurrency(_calculateInstallment),
-              ),
-              _previewItem(
-                "Total Repayable",
-                _formatCurrency(_calculateTotalRepayable),
-              ),
-            ],
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.01),
+            blurRadius: 10,
+            offset: const Offset(0, 4),
           ),
         ],
+      ),
+      child: TextField(
+        controller: controller,
+        minLines: 4, // Gives it a clear "textarea" vertical footprint
+        maxLines:
+            null, // Allows it to expand dynamically if they type a long essay
+        keyboardType: TextInputType.multiline,
+        textInputAction: TextInputAction.newline,
+        style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w400),
+        decoration: InputDecoration(
+          hintText: hintText,
+          hintStyle: TextStyle(
+            color: Colors.grey.shade400,
+            fontSize: 13,
+            fontWeight: FontWeight.w500,
+          ),
+          border: InputBorder.none, // Removes native Material border lines
+          isDense: true, // Collapses unnecessary field padding
+          contentPadding: EdgeInsets
+              .zero, // Allows our custom container wrapper to control padding
+        ),
       ),
     );
   }
 
   // --- HELPERS ---
-  Widget _previewItem(String label, String value) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          label,
-          style: TextStyle(
-            color: Colors.grey.shade500,
-            fontSize: 10,
-            fontWeight: FontWeight.w800,
-          ),
-        ),
-        const SizedBox(height: 4),
-        Text(
-          value,
-          style: const TextStyle(
-            color: Color(0xFF0A2351),
-            fontWeight: FontWeight.w900,
-            fontSize: 18,
-          ),
-        ),
-      ],
-    );
-  }
+  Widget _buildActionDock({
+    // Signature updated to pass down the runtime builder closure
+    required Function(Widget Function(String appId) nextRouteBuilder)
+    onCreateApplication,
+  }) {
+    final bool requiresGuarantor = loanProduct['requires_guarantor'] ?? false;
+    final bool requiresChattels = loanProduct['requires_collateral'] ?? false;
+    final bool requiresDocuments = loanProduct['requires_documents'] ?? false;
 
-  Widget _buildActionDock() {
+    // Change variable type to hold a blueprint function instead of a fixed Widget instance
+    Widget Function(String appId) destinationBuilder;
+    String buttonLabel;
+
+    if (requiresGuarantor) {
+      destinationBuilder = (id) => AddGuarantors(appId: id);
+      buttonLabel = "CONTINUE TO GUARANTORS";
+    } else if (requiresChattels) {
+      destinationBuilder = (id) =>
+          Collaterals(appId: id); // Assuming your pages accept appId
+      buttonLabel = "CONTINUE TO COLLATERALS";
+    } else if (requiresDocuments) {
+      destinationBuilder = (id) => AddStatements(appId: id);
+      buttonLabel = "CONTINUE TO DOCUMENTS";
+    } else {
+      destinationBuilder = (id) => LoanTermsConditions(appId: id);
+      buttonLabel = "PROCEED TO TERMS";
+    }
+
     return Container(
       padding: const EdgeInsets.fromLTRB(24, 20, 24, 40),
       color: Colors.white,
       child: ElevatedButton(
-        onPressed: () {
-          Navigator.push(
-            context,
-            MaterialPageRoute(builder: (context) => const AddGuarantors()),
-          );
-        },
+        onPressed: _loading
+            ? null
+            : () {
+                _validateField('amount', _amountController.text);
+                if (formErrors['amount'] != null) return;
+
+                // Passes the blueprint down to your server submit request handler
+                onCreateApplication(destinationBuilder);
+              },
         style: ElevatedButton.styleFrom(
           backgroundColor: const Color(0xFF0A2351),
+          disabledBackgroundColor: const Color(
+            0xFF0A2351,
+          ).withValues(alpha: 0.7),
           minimumSize: const Size(double.infinity, 64),
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(20),
           ),
         ),
-        child: const Text(
-          "CONTINUE TO GUARANTORS",
-          style: TextStyle(
-            fontWeight: FontWeight.w900,
-            color: Colors.white,
-            letterSpacing: 1,
-          ),
-        ),
+        child: _loading
+            ? const SizedBox(
+                width: 24,
+                height: 24,
+                child: CircularProgressIndicator(
+                  color: Colors.white,
+                  strokeWidth: 2.5,
+                ),
+              )
+            : Text(
+                buttonLabel,
+                style: const TextStyle(
+                  fontWeight: FontWeight.w900,
+                  color: Colors.white,
+                  letterSpacing: 1,
+                ),
+              ),
       ),
     );
   }
