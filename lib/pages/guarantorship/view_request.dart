@@ -8,8 +8,8 @@ import 'package:app_anansi_mobile/theme/app_theme.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 class ViewRequest extends StatefulWidget {
-  final Map<String, dynamic> loanInfo;
-  const ViewRequest({super.key, required this.loanInfo});
+  final Map<String, dynamic> request;
+  const ViewRequest({super.key, required this.request});
 
   @override
   State<ViewRequest> createState() => _ViewRequestState();
@@ -43,41 +43,40 @@ class _ViewRequestState extends State<ViewRequest> {
                       _buildInfoCard([
                         _infoRow(
                           "Full Name",
-                          widget.loanInfo['borrowerName'] ?? "N/A",
+                          widget.request['borrower']['name'] ?? "N/A",
                         ),
                         _infoRow(
                           "Phone Number",
-                          widget.loanInfo['borrowerPhone'] ?? "N/A",
+                          widget.request['borrower']['mobile'] ?? "N/A",
                         ),
                       ]),
 
                       const SizedBox(height: 32),
 
                       _buildSectionHeader(
-                        "LOAN TERMS",
+                        "LOAN APPLICATION DETAILS",
                         CupertinoIcons.doc_text,
                       ),
                       _buildInfoCard([
                         _infoRowNumber(
                           "Principal Amount",
                           formatAmount(
-                            widget.loanInfo['loanInfo']['loanamount'] ?? 0,
+                            widget.request['application']['applied_amount'] ?? 0,
                           ),
                         ),
                         _infoRow(
                           "Interest Rate",
-                          "${widget.loanInfo['loanInfo']['loaninterest'] ?? '0'}% per month",
+                          "${widget.request['product']['interest_rate'] ?? '0'}% per month",
                         ),
                         _infoRow(
                           "Repayment Period",
-                          "${widget.loanInfo['loanInfo']['loanperiod']} days",
+                          "${widget.request['application']['loan_period']} days",
                         ),
                         const Divider(height: 32, thickness: 0.5),
                         _infoRowNumber(
                           "Total Repayable",
                           formatAmount(
-                            widget.loanInfo['loanInfo']['loanrepaymentamount'] ??
-                                0,
+                            widget.request['application']['applied_amount'] ?? 0,
                           ),
                           isHighlight: true,
                         ),
@@ -319,7 +318,7 @@ class _ViewRequestState extends State<ViewRequest> {
 
   Widget _buildContextBadge() {
     final status =
-        widget.loanInfo['status']?.toString().toLowerCase() ?? 'pending';
+        widget.request['status']?.toString().toLowerCase() ?? 'pending';
     final Map<String, dynamic> config =
         {
           'pending': {
@@ -395,7 +394,7 @@ class _ViewRequestState extends State<ViewRequest> {
             )
           else
             Text(
-              widget.loanInfo['date'] ?? "",
+              widget.request['date'] ?? "",
               style: TextStyle(
                 color: Colors.grey.shade500,
                 fontSize: 11,
@@ -408,7 +407,7 @@ class _ViewRequestState extends State<ViewRequest> {
   }
 
   Widget _buildActionFooter() {
-    final status = widget.loanInfo['status'];
+    final status = (widget.request['status']?.toString() ?? 'pending').toLowerCase();
     return Container(
       padding: const EdgeInsets.fromLTRB(24, 20, 24, 32),
       decoration: BoxDecoration(
@@ -432,7 +431,7 @@ class _ViewRequestState extends State<ViewRequest> {
                         context,
                         MaterialPageRoute(
                           builder: (context) =>
-                              DeclineGuarantorship(loanInfo: widget.loanInfo),
+                              DeclineGuarantorship(request: widget.request),
                         ),
                       );
                     },
@@ -464,7 +463,7 @@ class _ViewRequestState extends State<ViewRequest> {
                         context,
                         MaterialPageRoute(
                           builder: (context) =>
-                              GuaranteeAmount(loanInfo: widget.loanInfo),
+                              GuaranteeAmount(request: widget.request),
                         ),
                       );
                     },
@@ -477,7 +476,7 @@ class _ViewRequestState extends State<ViewRequest> {
                       ),
                     ),
                     child: const Text(
-                      "Continue",
+                      "Accept Request",
                       style: TextStyle(
                         fontWeight: FontWeight.w800,
                         color: Colors.white,

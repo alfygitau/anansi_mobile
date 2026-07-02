@@ -3,12 +3,15 @@ import 'package:app_anansi_mobile/sdk/client.dart';
 import 'package:dio/dio.dart';
 
 class GuarantorshipService {
-  final Dio _secureClient = SecureDioClient().dio;
+  final Dio _loanClient = LoanDioClient().dio;
 
-  Future<(Response?, List<String>?)> guarantorRequests() async {
+  Future<(Response?, List<String>?)> guarantorRequests({
+    required String customerId,
+  }) async {
     try {
-      final response = await _secureClient.get(
-        '/guarantors/guarantor-requests',
+      final response = await _loanClient.get(
+        '/loan-applications/guarantor-requests',
+        queryParameters: {"customer_id": customerId},
       );
       return (response, null);
     } on DioException catch (e) {
@@ -20,9 +23,14 @@ class GuarantorshipService {
     }
   }
 
-  Future<(Response?, List<String>?)> guarantorshipSummary() async {
+  Future<(Response?, List<String>?)> guarantorshipSummary({
+    required String customerId,
+  }) async {
     try {
-      final response = await _secureClient.get('/guarantors/eligibility');
+      final response = await _loanClient.get(
+        '/loan-applications/guarantorship/eligibility',
+        queryParameters: {"customer_id": customerId},
+      );
       return (response, null);
     } on DioException catch (e) {
       final apiException = ApiException();
@@ -33,24 +41,21 @@ class GuarantorshipService {
     }
   }
 
-  Future<(Response?, List<String>?)> respondToGuarantor(
-    {
-    required String guarantor,
+  Future<(Response?, List<String>?)> respondToGuarantor({
+    required String customerId,
     required String requestor,
-    required bool isAccepted,
-    required String status,
+    required String decision,
     required String amount,
     required String reason,
-  }
-  ) async {
+  }) async {
     try {
-      final response = await _secureClient.post(
-        '/guarantors/$guarantor/respond/$requestor',
+      final response = await _loanClient.patch(
+        '/loan-applications/guarantor-requests/$requestor/respond',
+        queryParameters: {"customer_id": customerId},
         data: {
-          "isAccepted": isAccepted,
-          "status": status,
-          "amountGuaranteed": amount,
-          "responseReason": reason,
+          "decision": decision,
+          "amount_guaranteed": amount,
+          "reason": reason,
         },
       );
       return (response, null);

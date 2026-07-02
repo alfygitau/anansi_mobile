@@ -1,14 +1,16 @@
+import 'dart:convert';
 import 'package:app_anansi_mobile/pages/guarantorship/guarantorship.dart';
 import 'package:app_anansi_mobile/services/error_service.dart';
 import 'package:app_anansi_mobile/services/guarantorship_service.dart';
+import 'package:app_anansi_mobile/services/secure_storage_service.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:app_anansi_mobile/theme/app_theme.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 
 class DeclineGuarantorship extends StatefulWidget {
-  final Map<String, dynamic>? loanInfo;
-  const DeclineGuarantorship({super.key, required this.loanInfo});
+  final Map<String, dynamic>? request;
+  const DeclineGuarantorship({super.key, required this.request});
 
   @override
   State<DeclineGuarantorship> createState() => _DeclineGuarantorshipState();
@@ -25,17 +27,24 @@ class _DeclineGuarantorshipState extends State<DeclineGuarantorship> {
     "I do not wish to guarantee this loan",
   ];
 
+  Future<Map<String, dynamic>?> getUser() async {
+    String? userJson = await SecureStorageService().read('user');
+    if (userJson == null) return null;
+    Map<String, dynamic> userMap = jsonDecode(userJson);
+    return userMap;
+  }
+
   void _submitDecline() async {
     setState(() {
       _isSubmitting = true;
     });
     try {
+      final user = await getUser();
       final (response, errors) = await GuarantorshipService()
           .respondToGuarantor(
-            guarantor: widget.loanInfo?['guarantorId'],
-            requestor: widget.loanInfo?['id'],
-            isAccepted: false,
-            status: "rejected",
+            customerId: user?['id'] ?? "",
+            requestor: widget.request?['id'],
+            decision: "decline",
             amount: "0",
             reason: _selectedReason ?? "",
           );

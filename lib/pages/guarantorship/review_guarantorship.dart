@@ -1,6 +1,8 @@
+import 'dart:convert';
 import 'package:app_anansi_mobile/pages/guarantorship/guarantorship.dart';
 import 'package:app_anansi_mobile/services/error_service.dart';
 import 'package:app_anansi_mobile/services/guarantorship_service.dart';
+import 'package:app_anansi_mobile/services/secure_storage_service.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:app_anansi_mobile/theme/app_theme.dart';
@@ -8,11 +10,11 @@ import 'package:intl/intl.dart';
 
 class ReviewGuarantorship extends StatefulWidget {
   final String guarantorAmount;
-  final Map<String, dynamic> loanInfo;
+  final Map<String, dynamic> request;
   const ReviewGuarantorship({
     super.key,
     required this.guarantorAmount,
-    required this.loanInfo,
+    required this.request,
   });
 
   @override
@@ -28,19 +30,26 @@ class _ReviewGuarantorshipState extends State<ReviewGuarantorship> {
     return "KES ${NumberFormat('#,###.00').format(value)}";
   }
 
+  Future<Map<String, dynamic>?> getUser() async {
+    String? userJson = await SecureStorageService().read('user');
+    if (userJson == null) return null;
+    Map<String, dynamic> userMap = jsonDecode(userJson);
+    return userMap;
+  }
+
   void _submitRequest() async {
     setState(() {
       _isSubmitting = true;
     });
     try {
+      final user = await getUser();
       final (
         response,
         errors,
       ) = await GuarantorshipService().respondToGuarantor(
-        guarantor: widget.loanInfo['guarantorId'],
-        requestor: widget.loanInfo['id'],
-        isAccepted: true,
-        status: "accepted",
+        customerId: user?['id'] ?? "",
+        requestor: widget.request['id'],
+        decision: "approve",
         amount: widget.guarantorAmount,
         reason: "I have a strong faith in the borrower ability to repay a loan",
       );
@@ -53,7 +62,7 @@ class _ReviewGuarantorshipState extends State<ReviewGuarantorship> {
       } else if (response != null) {
         showGuarantorAcceptSheet(
           context,
-          loanCode: widget.loanInfo['loanInfo']['loancode'] ?? "C5086",
+          loanCode: widget.request['application']['loan_code'] ?? "C5086",
           amount: widget.guarantorAmount,
           onAction: () {
             Navigator.push(
@@ -92,28 +101,28 @@ class _ReviewGuarantorshipState extends State<ReviewGuarantorship> {
                       const SizedBox(height: 32),
                       _buildSectionHeader("LOAN & BORROWER OVERVIEW"),
                       _buildInfoGroupCard([
-                        _infoRow("Borrower", widget.loanInfo['borrowerName']),
-                        _infoRow("Phone", widget.loanInfo['borrowerPhone']),
+                        _infoRow("Borrower", widget.request['borrower']['name']),
+                        _infoRow("Phone", widget.request['borrower']['mobile']),
                         const Divider(height: 32, thickness: 0.5),
                         _infoRow(
                           "Principal",
                           formatToKES(
-                            widget.loanInfo['loanInfo']['loanamount'],
+                            widget.request['application']['applied_amount'],
                           ),
                         ),
                         _infoRow(
                           "Interest",
-                          "${widget.loanInfo['loanInfo']['loaninterest']}% p.m",
+                          "${widget.request['product']['interest_rate']}% p.m",
                         ),
                         _infoRow(
-                          "Duration",
-                          (widget.loanInfo['loanInfo']?['loanperiod'] ?? "0")
+                          "Duration (months)",
+                          (widget.request['application']?['loan_period'] ?? "0")
                               .toString(),
                         ),
                         _infoRow(
                           "Total Repayable",
                           formatToKES(
-                            widget.loanInfo['loanInfo']['loanrepaymentamount'],
+                            widget.request['application']['applied_amount'],
                           ),
                         ),
                       ]),

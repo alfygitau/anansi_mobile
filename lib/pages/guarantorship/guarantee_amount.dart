@@ -5,8 +5,8 @@ import 'package:app_anansi_mobile/theme/app_theme.dart';
 import 'package:intl/intl.dart';
 
 class GuaranteeAmount extends StatefulWidget {
-  final Map<String, dynamic> loanInfo;
-  const GuaranteeAmount({super.key, required this.loanInfo});
+  final Map<String, dynamic> request;
+  const GuaranteeAmount({super.key, required this.request});
 
   @override
   State<GuaranteeAmount> createState() => _GuaranteeAmountState();
@@ -175,7 +175,7 @@ class _GuaranteeAmountState extends State<GuaranteeAmount> {
         ),
         const SizedBox(height: 8),
         Text(
-          "You are providing a guarantee for ${widget.loanInfo['borrowerName']}. Please ensure you only commit an amount you can comfortably cover.",
+          "You are providing a guarantee for ${widget.request['borrowerName']}. Please ensure you only commit an amount you can comfortably cover.",
           style: TextStyle(
             fontSize: 13,
             color: Colors.grey.shade600,
@@ -430,7 +430,7 @@ class _GuaranteeAmountState extends State<GuaranteeAmount> {
                   context,
                   MaterialPageRoute(
                     builder: (context) => ReviewGuarantorship(
-                      loanInfo: widget.loanInfo,
+                      request: widget.request,
                       guarantorAmount: _amountController.text.trim(),
                     ),
                   ),

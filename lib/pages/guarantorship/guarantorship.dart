@@ -1,9 +1,11 @@
+import 'dart:convert';
 import 'package:app_anansi_mobile/helpers/format_amount.dart';
 import 'package:app_anansi_mobile/helpers/format_time.dart';
 import 'package:app_anansi_mobile/pages/guarantorship/view_request.dart';
 import 'package:app_anansi_mobile/pages/help&support/help_support.dart';
 import 'package:app_anansi_mobile/services/error_service.dart';
 import 'package:app_anansi_mobile/services/guarantorship_service.dart';
+import 'package:app_anansi_mobile/services/secure_storage_service.dart';
 import 'package:app_anansi_mobile/shimmers/guarantorship/guarantorship.dart';
 import 'package:app_anansi_mobile/theme/app_theme.dart';
 import 'package:flutter/cupertino.dart';
@@ -23,14 +25,22 @@ class _GuarantorshipState extends State<Guarantorship> {
   bool _loading = false;
 
   Map<String, dynamic> loanStatus = {};
-
   List<Map<String, dynamic>> myRequests = [];
+
+  Future<Map<String, dynamic>?> getUser() async {
+    String? userJson = await SecureStorageService().read('user');
+    if (userJson == null) return null;
+    Map<String, dynamic> userMap = jsonDecode(userJson);
+    return userMap;
+  }
 
   void getGuarantorRequests() async {
     _isLoading = true;
     try {
-      final (response, errors) = await GuarantorshipService()
-          .guarantorRequests();
+      final user = await getUser();
+      final (response, errors) = await GuarantorshipService().guarantorRequests(
+        customerId: user?['id'] ?? "",
+      );
       if (errors != null) {
         ErrorService.showActionableError(
           context,
@@ -40,7 +50,7 @@ class _GuarantorshipState extends State<Guarantorship> {
       } else if (response != null) {
         setState(() {
           myRequests = List<Map<String, dynamic>>.from(
-            response.data['data'] ?? [],
+            response.data['data']['requests'] ?? [],
           );
         });
       }
@@ -52,8 +62,9 @@ class _GuarantorshipState extends State<Guarantorship> {
   void getGuarantorshipSummary() async {
     _loading = true;
     try {
+      final user = await getUser();
       final (response, errors) = await GuarantorshipService()
-          .guarantorshipSummary();
+          .guarantorshipSummary(customerId: user?['id'] ?? "");
       if (errors != null) {
         ErrorService.showActionableError(
           context,
@@ -62,7 +73,7 @@ class _GuarantorshipState extends State<Guarantorship> {
         );
       } else if (response != null) {
         setState(() {
-          loanStatus = response.data ?? {};
+          loanStatus = response.data['data'] ?? {};
         });
       }
     } finally {
@@ -216,7 +227,7 @@ class _GuarantorshipState extends State<Guarantorship> {
             children: [
               _headerStat(
                 "Available",
-                (loanStatus['availableBalance'] ?? 0).toDouble(),
+                (loanStatus['available_to_guarantee'] ?? 0).toDouble(),
                 AnansiColors.iconBlue,
               ),
               Container(
@@ -226,7 +237,7 @@ class _GuarantorshipState extends State<Guarantorship> {
               ),
               _headerStat(
                 "Guaranteed",
-                (loanStatus['totalAmountAlreadyGuaranteed'] ?? 0).toDouble(),
+                (loanStatus['currently_guaranteed_amount'] ?? 0).toDouble(),
                 AnansiColors.darkBlue,
               ),
             ],
@@ -247,7 +258,7 @@ class _GuarantorshipState extends State<Guarantorship> {
                 ),
                 const SizedBox(width: 10),
                 Text(
-                  "You are currently guaranteeing ${loanStatus['guaranteedLoans']?.length} active loans.",
+                  "You are currently guaranteeing ${loanStatus['guaranteed_loans']?.length} active loans.",
                   style: const TextStyle(
                     fontSize: 12,
                     color: AnansiColors.darkBlue,
@@ -337,17 +348,25 @@ class _GuarantorshipState extends State<Guarantorship> {
     return SliverList(
       delegate: SliverChildBuilderDelegate((context, i) {
         final req = myRequests[i];
+        final borrowerName = req['borrower']?['name'] ?? 'A borrower';
+        final amount = req['application']?['applied_amount'] ?? '0';
+        final productName = req['product']?['product_name'] ?? 'Loan';
+
+        final message =
+            "Hi! $borrowerName has requested your support as a guarantor for a ${formatAmount(amount)} $productName. Could you please review and confirm your authorization?";
         return _modernCard(
-          title: req['borrowerName'],
-          subtitle: req['message'],
-          trailing: _statusBadge(req['status']),
-          date: formatPostgresDateWithTime(req['createdAt']),
+          title: req['borrower']['name'],
+          subtitle: req['message'] ?? message,
+          trailing: _statusBadge(
+            (req['status_label']?.toString() ?? 'pending').toLowerCase(),
+          ),
+          date: formatPostgresDateWithTime(req['created_at']),
           icon: Icons.person_add_alt_1_rounded,
           onTap: () {
             Navigator.push(
               context,
               MaterialPageRoute(
-                builder: (context) => ViewRequest(loanInfo: req),
+                builder: (context) => ViewRequest(request: req),
               ),
             );
           },
@@ -357,7 +376,7 @@ class _GuarantorshipState extends State<Guarantorship> {
   }
 
   Widget _buildLoanSliverList() {
-    final loans = loanStatus['guaranteedLoans'] as List;
+    final loans = loanStatus['guaranteed_loans'] as List;
 
     if (loans.isEmpty) {
       return SliverFillRemaining(
@@ -375,16 +394,16 @@ class _GuarantorshipState extends State<Guarantorship> {
       delegate: SliverChildBuilderDelegate((context, i) {
         final loan = loans[i];
         return _modernCard(
-          title: loan['borrowerName'],
-          subtitle: "Loan ID: ${loan['loanInfo']['loancode']}",
+          title: loan['borrower']['name'] ?? "",
+          subtitle: "Loan ID: ${loan['application']['loan_code']}",
           trailing: Text(
-            formatAmount(loan['amountGuaranteed'] ?? 0),
+            formatAmount(loan['amount_guaranteed'] ?? 0),
             style: const TextStyle(
               fontWeight: FontWeight.bold,
               color: AnansiColors.darkBlue,
             ),
           ),
-          date: loan['borrowerPhone'],
+          date: loan['borrower']['mobile'] ?? "",
           icon: Icons.shield_outlined,
           onTap: () => _showDetailedSheet(loan),
         );
@@ -508,7 +527,7 @@ class _GuarantorshipState extends State<Guarantorship> {
   Widget _statusBadge(String status) {
     Color c = status == 'pending'
         ? Colors.orange
-        : (status == 'accepted' ? AnansiColors.accentCyan : Colors.red);
+        : (status == 'approved' ? AnansiColors.accentCyan : Colors.red);
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
       decoration: BoxDecoration(
@@ -562,7 +581,7 @@ class _GuarantorshipState extends State<Guarantorship> {
                       ),
                       const SizedBox(height: 4),
                       Text(
-                        "Reference #${loan['loanInfo']['loancode']}",
+                        "Reference #${loan['application']['loan_code']}",
                         style: TextStyle(
                           color: Colors.grey.shade500,
                           fontSize: 13,
@@ -583,10 +602,13 @@ class _GuarantorshipState extends State<Guarantorship> {
                           title: "Borrower Information",
                           icon: CupertinoIcons.person_fill,
                           children: [
-                            _infoRow("Full Name", loan['borrowerName']),
+                            _infoRow(
+                              "Full Name",
+                              loan['borrower']['name'] ?? "",
+                            ),
                             _infoRow(
                               "Mobile Number",
-                              loan['borrowerPhone'] ?? "N/A",
+                              loan['borrower']['mobile'] ?? "N/A",
                             ),
                           ],
                         ),
@@ -597,16 +619,18 @@ class _GuarantorshipState extends State<Guarantorship> {
                           children: [
                             _infoRow(
                               "Total Loan",
-                              formatAmount(loan['loanInfo']['loanamount'] ?? 0),
+                              formatAmount(
+                                loan['application']['applied_amount'] ?? 0,
+                              ),
                             ),
                             _infoRow(
                               "Duration",
-                              "${loan['loanInfo']['loanperiod'] ?? 0} days",
+                              "${loan['application']['loan_period'] ?? 0} days",
                             ),
                             const Divider(height: 30, thickness: 0.5),
                             _infoRow(
                               "Your Guarantee",
-                              "KES ${formatAmount(loan['amountGuaranteed'] ?? 0)}",
+                              "KES ${formatAmount(loan['amount_guaranteed'] ?? 0)}",
                               isHighlight: true,
                             ),
                           ],
