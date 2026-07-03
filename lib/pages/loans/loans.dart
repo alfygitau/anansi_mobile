@@ -3,6 +3,7 @@ import 'package:app_anansi_mobile/helpers/format_amount.dart';
 import 'package:app_anansi_mobile/pages/help&support/help_support.dart';
 import 'package:app_anansi_mobile/pages/loan-products/loan_products.dart';
 import 'package:app_anansi_mobile/pages/loans/loan_details.dart';
+import 'package:app_anansi_mobile/pages/notifications/loan_notifications.dart';
 import 'package:app_anansi_mobile/services/error_service.dart';
 import 'package:app_anansi_mobile/services/loan_service.dart';
 import 'package:app_anansi_mobile/services/secure_storage_service.dart';
@@ -316,7 +317,7 @@ class _MyLoansState extends State<MyLoans> {
               child: IconButton(
                 padding: EdgeInsets.zero,
                 icon: const Icon(
-                  CupertinoIcons.question_circle,
+                  CupertinoIcons.bell,
                   size: 18,
                   color: AnansiColors.darkBlue,
                 ),
@@ -324,7 +325,7 @@ class _MyLoansState extends State<MyLoans> {
                   Navigator.push(
                     context,
                     MaterialPageRoute(
-                      builder: (context) => const HelpSupport(),
+                      builder: (context) => const LoanNotifications(),
                     ),
                   );
                 },
