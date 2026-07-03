@@ -1,6 +1,5 @@
 import 'dart:convert';
 import 'package:app_anansi_mobile/helpers/format_amount.dart';
-import 'package:app_anansi_mobile/pages/help&support/help_support.dart';
 import 'package:app_anansi_mobile/pages/loan-products/loan_products.dart';
 import 'package:app_anansi_mobile/pages/loans/loan_details.dart';
 import 'package:app_anansi_mobile/pages/notifications/loan_notifications.dart';

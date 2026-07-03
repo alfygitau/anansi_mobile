@@ -1,6 +1,9 @@
+import 'dart:convert';
+
 import 'package:app_anansi_mobile/helpers/format_time.dart';
 import 'package:app_anansi_mobile/services/error_service.dart';
 import 'package:app_anansi_mobile/services/notification_service.dart';
+import 'package:app_anansi_mobile/services/secure_storage_service.dart';
 import 'package:app_anansi_mobile/shimmers/notifications/notification.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
@@ -18,10 +21,20 @@ class _LoanNotificationsState extends State<LoanNotifications> {
   bool _isLoading = false;
   int? _loadingNotificationId;
 
+  Future<Map<String, dynamic>?> getUser() async {
+    String? userJson = await SecureStorageService().read('user');
+    if (userJson == null) return null;
+    Map<String, dynamic> userMap = jsonDecode(userJson);
+    return userMap;
+  }
+
   void fetchNotifications() async {
     _isLoading = true;
     try {
-      final (response, errors) = await NotificationService().notifications();
+      final user = await getUser();
+      final (response, errors) = await NotificationService().loanNotifications(
+        customerId: user?['id'] ?? "",
+      );
       if (errors != null) {
         ErrorService.showActionableError(
           context,
@@ -30,7 +43,7 @@ class _LoanNotificationsState extends State<LoanNotifications> {
         );
       } else if (response != null) {
         notifications = List<Map<String, dynamic>>.from(
-          response.data['data'] ?? [],
+          response.data['data']['items'] ?? [],
         );
       }
     } finally {
@@ -39,8 +52,10 @@ class _LoanNotificationsState extends State<LoanNotifications> {
   }
 
   Future<void> readNotification(String id) async {
-    final (response, errors) = await NotificationService().readNotification(
-      id: id,
+    final user = await getUser();
+    final (response, errors) = await NotificationService().readLoanNotification(
+      notificationId: id,
+      customerId: user?['id'] ?? "",
     );
     if (errors != null) {
       ErrorService.showActionableError(
@@ -140,10 +155,10 @@ class _LoanNotificationsState extends State<LoanNotifications> {
                     child: Stack(
                       children: [
                         _buildNotificationCard(
-                          title: "Guarantor Request",
+                          title: item['title'],
                           message: item['message'],
-                          time: formatPostgresDateWithTime(item['createdAt']),
-                          type: item['module'],
+                          time: formatPostgresDateWithTime(item['created_at']),
+                          type: item['type'],
                           isUnread: !item['is_read'],
                         ),
                         if (isThisItemLoading)
@@ -275,7 +290,7 @@ class _LoanNotificationsState extends State<LoanNotifications> {
       centerTitle: true,
       leadingWidth: 64,
       title: const Text(
-        "Notifications",
+        "Loan Notifications",
         style: TextStyle(
           color: AnansiColors.darkBlue,
           fontWeight: FontWeight.w900,
@@ -324,11 +339,11 @@ class _LoanNotificationsState extends State<LoanNotifications> {
     Color color;
     String actionText;
 
-    switch (item['module']) {
+    switch (item['title']) {
       case "transaction":
         icon = CupertinoIcons.arrow_up_right_circle_fill;
         color = const Color(0xFF17C6C6);
-        actionText = "View Transaction";
+        actionText = "Guarantor response received";
         break;
       case "security":
         icon = CupertinoIcons.shield_fill;
@@ -381,7 +396,7 @@ class _LoanNotificationsState extends State<LoanNotifications> {
                   Icon(icon, color: color, size: 16),
                   const SizedBox(width: 8),
                   Text(
-                    item['module'].toString().toUpperCase(),
+                    item['title'].toString().toUpperCase(),
                     style: TextStyle(
                       color: color,
                       fontSize: 10,
@@ -394,7 +409,7 @@ class _LoanNotificationsState extends State<LoanNotifications> {
             ),
             const SizedBox(height: 24),
             Text(
-              "Guarantor Request",
+              item['title'].toString(),
               textAlign: TextAlign.center,
               style: const TextStyle(
                 fontSize: 22,
@@ -415,7 +430,7 @@ class _LoanNotificationsState extends State<LoanNotifications> {
             ),
             const SizedBox(height: 12),
             Text(
-              formatPostgresDateWithTime(item['createdAt']),
+              formatPostgresDateWithTime(item['created_at']),
               style: TextStyle(
                 fontSize: 12,
                 color: Colors.grey.shade400,
@@ -526,7 +541,7 @@ class _LoanNotificationsState extends State<LoanNotifications> {
         ],
       ),
       child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
+        crossAxisAlignment: CrossAxisAlignment.center,
         children: [
           Stack(
             children: [
