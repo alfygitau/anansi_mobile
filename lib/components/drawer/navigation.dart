@@ -87,7 +87,6 @@ class _NavigationState extends State<Navigation> {
               ],
             ),
           ),
-
           // ====== MAIN NAVIGATION LIST LINKS ======
           Expanded(
             child: SingleChildScrollView(
@@ -125,9 +124,6 @@ class _NavigationState extends State<Navigation> {
                     icon: CupertinoIcons
                         .briefcase, // Institutional asset/facility portfolio
                     targetPageRoute: AnansiRoutes.loans,
-                    badgeText: "2 Active",
-                    badgeColor: const Color(0xFFEFF6FF),
-                    badgeTextColor: const Color(0xFF2563EB),
                   ),
                   _buildDrawerItem(
                     title: "Account Statements",
@@ -165,9 +161,6 @@ class _NavigationState extends State<Navigation> {
                     title: "Guarantorship",
                     icon: CupertinoIcons.group,
                     targetPageRoute: AnansiRoutes.guarantorship,
-                    badgeText: "New Request",
-                    badgeColor: const Color(0xFFFEF2F2),
-                    badgeTextColor: const Color(0xFFDC2626),
                   ),
                   _buildDrawerItem(
                     title: "Settings",
