@@ -61,7 +61,8 @@ class _ViewRequestState extends State<ViewRequest> {
                         _infoRowNumber(
                           "Principal Amount",
                           formatAmount(
-                            widget.request['application']['applied_amount'] ?? 0,
+                            widget.request['application']['applied_amount'] ??
+                                0,
                           ),
                         ),
                         _infoRow(
@@ -76,7 +77,8 @@ class _ViewRequestState extends State<ViewRequest> {
                         _infoRowNumber(
                           "Total Repayable",
                           formatAmount(
-                            widget.request['application']['applied_amount'] ?? 0,
+                            widget.request['application']['applied_amount'] ??
+                                0,
                           ),
                           isHighlight: true,
                         ),
@@ -181,6 +183,12 @@ class _ViewRequestState extends State<ViewRequest> {
   // --- Supporting UI components remain consistent with your premium design ---
 
   Widget _buildSecurityNotice() {
+    final borrowerName = widget.request['borrower']?['name'] ?? 'A borrower';
+    final amount = widget.request['application']?['applied_amount'] ?? '0';
+    final productName = widget.request['product']?['product_name'] ?? 'Loan';
+
+    final message =
+        "Hi! $borrowerName has requested your support as a guarantor for a ${formatAmount(amount)} $productName. Could you please review and confirm your authorization?";
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
@@ -191,15 +199,9 @@ class _ViewRequestState extends State<ViewRequest> {
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Icon(
-            CupertinoIcons.shield_lefthalf_fill,
-            size: 18,
-            color: AnansiColors.darkBlue,
-          ),
-          const SizedBox(width: 12),
-          const Expanded(
+          Expanded(
             child: Text(
-              'Please verify the borrower\'s identity. By continuing, you agree to be legally responsible if the borrower fails to repay.',
+              message,
               style: TextStyle(
                 color: AnansiColors.darkBlue,
                 fontSize: 11,
@@ -327,7 +329,7 @@ class _ViewRequestState extends State<ViewRequest> {
             'text': 'AWAITING YOUR REVIEW',
             'showExpiry': true,
           },
-          'accepted': {
+          'approved': {
             'color': AnansiColors.accentCyan,
             'icon': CupertinoIcons.checkmark_shield_fill,
             'text': 'GUARANTORSHIP ACTIVE',
@@ -407,7 +409,8 @@ class _ViewRequestState extends State<ViewRequest> {
   }
 
   Widget _buildActionFooter() {
-    final status = (widget.request['status']?.toString() ?? 'pending').toLowerCase();
+    final status = (widget.request['status']?.toString() ?? 'pending')
+        .toLowerCase();
     return Container(
       padding: const EdgeInsets.fromLTRB(24, 20, 24, 32),
       decoration: BoxDecoration(
