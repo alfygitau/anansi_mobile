@@ -265,7 +265,7 @@ class _HomepageState extends State<Homepage> {
             },
           ),
           SliverPadding(
-            padding: const EdgeInsets.fromLTRB(20, 5, 20, 10),
+            padding: const EdgeInsets.fromLTRB(20, 5, 20, 20),
             sliver: SliverToBoxAdapter(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -361,7 +361,7 @@ class _HomepageState extends State<Homepage> {
               ),
             ),
           ),
-          const SliverToBoxAdapter(child: SizedBox(height: 20)),
+          const SliverToBoxAdapter(child: SizedBox(height: 16)),
           SliverToBoxAdapter(
             child: Padding(
               padding: const EdgeInsets.symmetric(
@@ -451,7 +451,7 @@ class _HomepageState extends State<Homepage> {
               ),
             ),
           ),
-          const SliverToBoxAdapter(child: SizedBox(height: 30)),
+          const SliverToBoxAdapter(child: SizedBox(height: 25)),
           SliverToBoxAdapter(
             child: Padding(
               padding: const EdgeInsets.symmetric(horizontal: 20),
@@ -680,7 +680,7 @@ class _HomepageState extends State<Homepage> {
 
   Widget _buildSectionHeader(String title, String badge) {
     return Padding(
-      padding: const EdgeInsets.fromLTRB(24, 32, 24, 16),
+      padding: const EdgeInsets.fromLTRB(24, 20, 24, 8),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
@@ -956,7 +956,7 @@ class _HomepageState extends State<Homepage> {
       surfaceTintColor: Colors.transparent,
       elevation: 0,
       centerTitle: true,
-      leadingWidth: 60,
+      leadingWidth: 65,
       leading: Builder(
         builder: (nestedContext) {
           return IconButton(

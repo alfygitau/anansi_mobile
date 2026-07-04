@@ -7,6 +7,9 @@ class AnansiColors {
   static const Color iconBlue = Color(0xFF4DB8E4); // Shield Color
   static const Color white = Colors.white;
   static const Color successGreen = Color(0xFF10B981);
+  static const Color successBg = Color(0xFFE6F4EA);
+  static const Color successText = Color(0xFF137333);
+  static const Color primary = Color(0xFF2563EB);
 }
 
 class ThemeColors {
