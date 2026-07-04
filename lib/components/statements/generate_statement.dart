@@ -37,7 +37,6 @@ class _GenerateStatementState extends State<GenerateStatement> {
   @override
   void initState() {
     super.initState();
-    // Re-render design hooks dynamically when focus bounds shift
     _accountFocusNode.addListener(() => setState(() {}));
     _durationFocusNode.addListener(() => setState(() {}));
     _startDateFocusNode.addListener(() => setState(() {}));

@@ -1,4 +1,5 @@
 import 'package:app_anansi_mobile/components/statements/generate_statement.dart';
+import 'package:app_anansi_mobile/helpers/download.dart';
 import 'package:app_anansi_mobile/services/account_service.dart';
 import 'package:app_anansi_mobile/services/error_service.dart';
 import 'package:app_anansi_mobile/services/secure_storage_service.dart';
@@ -20,6 +21,7 @@ class _StatementsState extends State<Statements> {
   List<Map<String, dynamic>> accountStatements = [];
   String? selectedYear;
   String? selectedAccountId;
+  String? loadingItemId;
 
   Future<void> fetchStatements() async {
     setState(() {
@@ -243,9 +245,25 @@ class _StatementsState extends State<Statements> {
               padding: const EdgeInsets.symmetric(horizontal: 24),
               sliver: SliverList(
                 delegate: SliverChildBuilderDelegate((context, index) {
-                  return _buildStatementCard(accountStatements[index], () {
-                    // File download logic execution hook
-                  });
+                  final statement = accountStatements[index];
+                  final String statementId =
+                      "${statement['id'] ?? statement['start_date'] ?? 'statement'}_$index";
+                  final String uniqueFileName =
+                      "Account_Statement_$statementId";
+                  return _buildStatementCard(
+                    statement,
+                    statementId,
+                    loadingItemId,
+                    (id) => setState(() => loadingItemId = id),
+                    () => setState(() => loadingItemId = null),
+                    () async {
+                      await downloadAndOpenStatement(
+                        context: context,
+                        url: statement['url'] ?? "",
+                        fileName: uniqueFileName,
+                      );
+                    },
+                  );
                 }, childCount: accountStatements.length),
               ),
             ),
@@ -256,8 +274,13 @@ class _StatementsState extends State<Statements> {
 
   Widget _buildStatementCard(
     Map<String, dynamic> item,
-    VoidCallback onDownload,
+    String itemId,
+    String? currentLoadingId,
+    Function(String id) onStartLoading,
+    Function() onEndLoading,
+    Future<void> Function() onDownload,
   ) {
+    final bool isThisCardDownloading = currentLoadingId == itemId;
     final String productName =
         item['product']?['name'] ?? item['title'] ?? 'Statement';
     final String statementType = item['type'] ?? 'account';
@@ -353,10 +376,10 @@ class _StatementsState extends State<Statements> {
                           letterSpacing: 0.5,
                         ),
                       ),
-                      SizedBox(height: 3),
-                      Text(
+                      const SizedBox(height: 3),
+                      const Text(
                         "Account Summary",
-                        style: const TextStyle(
+                        style: TextStyle(
                           fontSize: 12,
                           fontWeight: FontWeight.w700,
                           color: Color(0xFF334155),
@@ -430,40 +453,65 @@ class _StatementsState extends State<Statements> {
                     ),
                   ],
                 ),
-                // Meta Block 4: Download trigger button node
                 GestureDetector(
-                  onTap: onDownload,
+                  onTap: currentLoadingId != null
+                      ? null
+                      : () async {
+                          onStartLoading(itemId);
+                          try {
+                            await onDownload();
+                          } finally {
+                            onEndLoading();
+                          }
+                        },
                   child: MouseRegion(
-                    cursor: SystemMouseCursors.click,
-                    child: Container(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 12,
-                        vertical: 6,
-                      ),
-                      decoration: BoxDecoration(
-                        color: Colors.white,
-                        borderRadius: BorderRadius.circular(8),
-                        border: Border.all(color: const Color(0xFFE2E8F0)),
-                      ),
-                      child: const Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          Icon(
-                            CupertinoIcons.cloud_download,
-                            color: AnansiColors.darkBlue,
-                            size: 14,
-                          ),
-                          SizedBox(width: 6),
-                          Text(
-                            "PDF",
-                            style: TextStyle(
-                              fontSize: 10,
-                              fontWeight: FontWeight.w900,
-                              color: AnansiColors.darkBlue,
-                              letterSpacing: 0.5,
+                    cursor: isThisCardDownloading
+                        ? SystemMouseCursors.forbidden
+                        : SystemMouseCursors.click,
+                    child: AnimatedOpacity(
+                      duration: const Duration(milliseconds: 200),
+                      opacity: isThisCardDownloading ? 0.6 : 1.0,
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 12,
+                          vertical: 6,
+                        ),
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          borderRadius: BorderRadius.circular(8),
+                          border: Border.all(color: const Color(0xFFE2E8F0)),
+                        ),
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            isThisCardDownloading
+                                ? const SizedBox(
+                                    width: 14,
+                                    height: 14,
+                                    child: CircularProgressIndicator(
+                                      strokeWidth: 2,
+                                      valueColor: AlwaysStoppedAnimation<Color>(
+                                        AnansiColors.darkBlue,
+                                      ),
+                                    ),
+                                  )
+                                : const Icon(
+                                    CupertinoIcons.cloud_download,
+                                    color: AnansiColors.darkBlue,
+                                    size: 14,
+                                  ),
+                            const SizedBox(width: 6),
+                            Text(
+                              isThisCardDownloading ? "SAVING..." : "PDF",
+                              style: const TextStyle(
+                                fontSize: 10,
+                                fontWeight: FontWeight.w900,
+                                color: AnansiColors.darkBlue,
+                                letterSpacing: 0.5,
+                              ),
                             ),
-                          ),
-                        ],
+                          ],
+                        ),
                       ),
                     ),
                   ),
