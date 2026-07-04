@@ -1,3 +1,4 @@
+import 'package:app_anansi_mobile/pages/apply-loan/eligibility.dart';
 import 'package:app_anansi_mobile/services/error_service.dart';
 import 'package:app_anansi_mobile/services/loan_products_service.dart';
 import 'package:app_anansi_mobile/theme/app_theme.dart'; // Ensure AnansiColors is exported here
@@ -532,7 +533,13 @@ class _LoanProductState extends State<LoanProduct> {
         borderRadius: BorderRadius.circular(14),
         padding: const EdgeInsets.symmetric(vertical: 20),
         onPressed: () {
-          // Trigger initialization context logic for applications here
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) =>
+                  LoanEligibility(productId: loanProduct['id'] ?? ""),
+            ),
+          );
         },
         child: const Text(
           "Proceed to Application",
