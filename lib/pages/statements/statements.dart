@@ -18,10 +18,40 @@ class Statements extends StatefulWidget {
 class _StatementsState extends State<Statements> {
   List<Map<String, dynamic>> accounts = [];
   bool _isLoading = false;
+  bool _loading = false;
   List<Map<String, dynamic>> accountStatements = [];
   String? selectedYear;
   String? selectedAccountId;
   String? loadingItemId;
+
+  Future<void> generateStatement({
+    required String accountId,
+    String? duration,
+  }) async {
+    setState(() {
+      _loading = true;
+    });
+    try {
+      final (response, error) = await StatementService().generateStatement(
+        duration: duration,
+        accountId: accountId,
+      );
+      if (error != null) {
+        ErrorService.showActionableError(
+          context,
+          title: error[0],
+          message: error[1],
+        );
+      } else if (response != null) {
+        if (mounted) {
+          fetchStatements();
+          Navigator.pop(context);
+        }
+      }
+    } finally {
+      if (mounted) setState(() => _loading = false);
+    }
+  }
 
   Future<void> fetchStatements() async {
     setState(() {
@@ -53,25 +83,6 @@ class _StatementsState extends State<Statements> {
 
   void _handleFilterReset() {
     fetchStatements();
-  }
-
-  void showGenerateStatementSheet(
-    BuildContext context, {
-    required List<Map<String, dynamic>> accounts,
-    required VoidCallback onSubmit,
-    bool isLoading = false,
-  }) {
-    showModalBottomSheet(
-      context: context,
-      isScrollControlled: true,
-      backgroundColor: Colors.transparent,
-      barrierColor: const Color(0xFF0F172A).withValues(alpha: 0.6),
-      builder: (context) => GenerateStatement(
-        accounts: accounts,
-        onSubmit: onSubmit,
-        isLoading: isLoading,
-      ),
-    );
   }
 
   Future<void> fetchCustomerDetails() async {
@@ -112,12 +123,17 @@ class _StatementsState extends State<Statements> {
             child: Padding(
               padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
               child: InkWell(
-                onTap: () => {
-                  showGenerateStatementSheet(
-                    context,
-                    accounts: accounts,
-                    onSubmit: () => {},
-                  ),
+                onTap: () {
+                  showModalBottomSheet(
+                    context: context,
+                    isScrollControlled: true,
+                    backgroundColor: Colors.transparent,
+                    builder: (context) => GenerateStatement(
+                      accounts: accounts,
+                      onRefreshParent:
+                          fetchStatements, // Simply pass the reference here
+                    ),
+                  );
                 },
                 borderRadius: BorderRadius.circular(20),
                 child: Container(

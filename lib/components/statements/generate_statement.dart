@@ -1,17 +1,17 @@
+import 'package:app_anansi_mobile/services/error_service.dart';
+import 'package:app_anansi_mobile/services/statement_service.dart';
 import 'package:app_anansi_mobile/theme/app_theme.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
 class GenerateStatement extends StatefulWidget {
   final List<Map<String, dynamic>> accounts;
-  final VoidCallback onSubmit;
-  final bool isLoading;
+  final VoidCallback onRefreshParent;
 
   const GenerateStatement({
     super.key,
     required this.accounts,
-    required this.onSubmit,
-    required this.isLoading,
+    required this.onRefreshParent,
   });
 
   @override
@@ -22,8 +22,7 @@ class _GenerateStatementState extends State<GenerateStatement> {
   // Local Form Model Parameters
   String? _selectedAccountId;
   String? _selectedDuration;
-  DateTime? _startDate;
-  DateTime? _endDate;
+  bool _isLoading = false; // Internal isolated state manager for the spinner
 
   // Track field state validations precisely
   final Map<String, String?> _formErrors = {};
@@ -31,24 +30,18 @@ class _GenerateStatementState extends State<GenerateStatement> {
   // Track node focus to drive high-fidelity icon badge animations
   final FocusNode _accountFocusNode = FocusNode();
   final FocusNode _durationFocusNode = FocusNode();
-  final FocusNode _startDateFocusNode = FocusNode();
-  final FocusNode _endDateFocusNode = FocusNode();
 
   @override
   void initState() {
     super.initState();
     _accountFocusNode.addListener(() => setState(() {}));
     _durationFocusNode.addListener(() => setState(() {}));
-    _startDateFocusNode.addListener(() => setState(() {}));
-    _endDateFocusNode.addListener(() => setState(() {}));
   }
 
   @override
   void dispose() {
     _accountFocusNode.dispose();
     _durationFocusNode.dispose();
-    _startDateFocusNode.dispose();
-    _endDateFocusNode.dispose();
     super.dispose();
   }
 
@@ -59,51 +52,66 @@ class _GenerateStatementState extends State<GenerateStatement> {
       _formErrors['accountId'] = "Please select a target account";
     }
 
-    final hasPreset =
-        _selectedDuration != null && _selectedDuration!.isNotEmpty;
-    final hasCustomRange = _startDate != null && _endDate != null;
-
-    if (!hasPreset && !hasCustomRange) {
-      _formErrors['dateRange'] =
-          "Please pick a preset duration or set custom dates";
+    if (_selectedDuration == null || _selectedDuration!.isEmpty) {
+      _formErrors['duration'] = "Please pick a statement duration";
     }
     setState(() {});
   }
 
   bool _isFormInvalid() {
     if (_selectedAccountId == null || _selectedAccountId!.isEmpty) return true;
-    final hasPreset =
-        _selectedDuration != null && _selectedDuration!.isNotEmpty;
-    final hasCustomRange = _startDate != null && _endDate != null;
-    return !((hasPreset && !hasCustomRange) || (hasCustomRange && !hasPreset));
+    if (_selectedDuration == null || _selectedDuration!.isEmpty) return true;
+    return false;
   }
 
-  String _formatDisplayDate(DateTime? date) {
-    if (date == null) return '';
-    final List<String> months = [
-      'Jan',
-      'Feb',
-      'Mar',
-      'Apr',
-      'May',
-      'Jun',
-      'Jul',
-      'Aug',
-      'Sep',
-      'Oct',
-      'Nov',
-      'Dec',
-    ];
-    return "${date.day} ${months[date.month - 1]} ${date.year}";
+  Future<void> _handleGenerateStatement() async {
+    if (_isFormInvalid()) return;
+
+    setState(() {
+      _isLoading = true;
+    });
+
+    try {
+      final (response, error) = await StatementService().generateStatement(
+        duration: _selectedDuration!,
+        accountId: _selectedAccountId!,
+      );
+
+      if (error != null) {
+        if (mounted) {
+          ErrorService.showActionableError(
+            context,
+            title: error[0],
+            message: error[1],
+          );
+        }
+      } else if (response != null) {
+        if (mounted) {
+          widget.onRefreshParent();
+          Navigator.pop(context);
+        }
+      }
+    } catch (e) {
+      if (mounted) {
+        ErrorService.showActionableError(
+          context,
+          title: "System Exception",
+          message: e.toString(),
+        );
+      }
+    } finally {
+      if (mounted) {
+        setState(() {
+          _isLoading = false;
+        });
+      }
+    }
   }
 
   @override
   Widget build(BuildContext context) {
     final double keyboardPadding = MediaQuery.of(context).viewInsets.bottom;
-    final bool isPresetDisabled = _startDate != null || _endDate != null;
-    final bool isCustomDisabled =
-        _selectedDuration != null && _selectedDuration!.isNotEmpty;
-    final bool isSubmitDisabled = widget.isLoading || _isFormInvalid();
+    final bool isSubmitDisabled = _isFormInvalid();
 
     return Container(
       decoration: const BoxDecoration(
@@ -114,7 +122,6 @@ class _GenerateStatementState extends State<GenerateStatement> {
         ),
       ),
       padding: EdgeInsets.fromLTRB(20, 10, 20, 24 + keyboardPadding),
-      // ⚡ Crucial: Letting content define sheet height layout implicitly
       child: Column(
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -125,7 +132,7 @@ class _GenerateStatementState extends State<GenerateStatement> {
               height: 5,
               margin: const EdgeInsets.only(bottom: 20, top: 4),
               decoration: BoxDecoration(
-                color: const Color(0xFFE2E8F0), // Muted slate pull bar color
+                color: const Color(0xFFE2E8F0),
                 borderRadius: BorderRadius.circular(2.5),
               ),
             ),
@@ -170,7 +177,6 @@ class _GenerateStatementState extends State<GenerateStatement> {
           ),
           Builder(
             builder: (context) {
-              // Map the complex list of objects to simple display strings for the dropdown menu
               final List<String> accountOptions = widget.accounts.map((acc) {
                 final String name = acc['product']?['name'] ?? 'Account';
                 final String num =
@@ -181,7 +187,6 @@ class _GenerateStatementState extends State<GenerateStatement> {
                 return "$name (****$num)";
               }).toList();
 
-              // Determine the current matching display string value from local state ID
               String? currentSelectedOption;
               try {
                 final matchedAcc = widget.accounts.firstWhere(
@@ -206,7 +211,6 @@ class _GenerateStatementState extends State<GenerateStatement> {
                 onChanged: (String? selectedDisplayString) {
                   if (selectedDisplayString == null) return;
 
-                  // Find the corresponding ID from the matching display string index
                   final int matchedIndex = accountOptions.indexOf(
                     selectedDisplayString,
                   );
@@ -222,199 +226,72 @@ class _GenerateStatementState extends State<GenerateStatement> {
             },
           ),
           const SizedBox(height: 20),
-          Opacity(
-            opacity: isPresetDisabled ? 0.4 : 1.0,
-            child: _buildDropdownField(
-              label: "Statement Duration",
-              value: _selectedDuration == "month_to_date"
-                  ? "This Month"
-                  : _selectedDuration == "last_month"
-                  ? "Last Month"
-                  : _selectedDuration == "three_months"
-                  ? "Last 3 Months"
-                  : _selectedDuration == "six_months"
-                  ? "Last 6 Months"
-                  : _selectedDuration,
-              items: const [
-                "This Month",
-                "Last Month",
-                "Last 3 Months",
-                "Last 6 Months",
-              ],
-              icon: CupertinoIcons.time,
-              // ⚡ FIX: Swap null for an empty action placeholder method block to satisfy Dart static checking profiles
-              onChanged: isPresetDisabled
-                  ? (_) {}
-                  : (String? selectedOption) {
-                      String? internalValue;
-                      if (selectedOption == "This Month") {
-                        internalValue = "month_to_date";
-                      }
-                      if (selectedOption == "Last Month") {
-                        internalValue = "last_month";
-                      }
-                      if (selectedOption == "Last 3 Months") {
-                        internalValue = "three_months";
-                      }
-                      if (selectedOption == "Last 6 Months") {
-                        internalValue = "six_months";
-                      }
+          _buildDropdownField(
+            label: "Statement Duration",
+            value: _selectedDuration == "month_to_date"
+                ? "This Month"
+                : _selectedDuration == "last_month"
+                ? "Last Month"
+                : _selectedDuration == "three_months"
+                ? "Last 3 Months"
+                : _selectedDuration == "six_months"
+                ? "Last 6 Months"
+                : _selectedDuration,
+            items: const [
+              "This Month",
+              "Last Month",
+              "Last 3 Months",
+              "Last 6 Months",
+            ],
+            icon: CupertinoIcons.time,
+            onChanged: (String? selectedOption) {
+              String? internalValue;
+              if (selectedOption == "This Month") {
+                internalValue = "month_to_date";
+              }
+              if (selectedOption == "Last Month") {
+                internalValue = "last_month";
+              }
+              if (selectedOption == "Last 3 Months") {
+                internalValue = "three_months";
+              }
+              if (selectedOption == "Last 6 Months") {
+                internalValue = "six_months";
+              }
 
-                      setState(() {
-                        _selectedDuration = internalValue;
-                        _startDate = null;
-                        _endDate = null;
-                      });
-                      _validateFields();
-                    },
-            ),
+              setState(() {
+                _selectedDuration = internalValue;
+              });
+              _validateFields();
+            },
           ),
-          if (_selectedDuration == null &&
-              _startDate == null &&
-              _endDate == null) ...[
-            const SizedBox(height: 16),
-            const Center(
-              child: Text(
-                "— OR —",
-                style: TextStyle(
-                  fontSize: 9,
-                  fontWeight: FontWeight.w900,
-                  color: Color(0xFFCBD5E1),
-                  letterSpacing: 1.2,
-                ),
-              ),
-            ),
-            const SizedBox(height: 16),
-          ] else ...[
-            const SizedBox(height: 20),
-          ],
-          Opacity(
-            opacity: isCustomDisabled ? 0.4 : 1.0,
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                GestureDetector(
-                  onTap: isCustomDisabled
-                      ? null
-                      : () async {
-                          _startDateFocusNode.requestFocus();
-                          final selected = await showDatePicker(
-                            context: context,
-                            initialDate: DateTime.now(),
-                            firstDate: DateTime(2020),
-                            lastDate: DateTime.now(),
-                          );
-                          if (selected != null) {
-                            setState(() {
-                              _startDate = selected;
-                              _selectedDuration = null;
-                              _formErrors['dateRange'] = null;
-                            });
-                            _validateFields();
-                          }
-                          _startDateFocusNode.unfocus();
-                        },
-                  child: _buildFormInputWrapper(
-                    label: "Start Date",
-                    fieldKey: "startDate",
-                    icon: CupertinoIcons.calendar,
-                    focusNode: _startDateFocusNode,
-                    child: Padding(
-                      padding: const EdgeInsets.symmetric(vertical: 12),
-                      child: Text(
-                        _startDate != null
-                            ? _formatDisplayDate(_startDate)
-                            : "Select start date",
-                        style: TextStyle(
-                          fontSize: 17,
-                          fontWeight: FontWeight.w500,
-                          color: _startDate != null
-                              ? AnansiColors.darkBlue
-                              : Colors.blueGrey.shade200,
-                        ),
-                      ),
-                    ),
-                  ),
-                ),
-                const SizedBox(height: 16),
-                GestureDetector(
-                  onTap: isCustomDisabled
-                      ? null
-                      : () async {
-                          _endDateFocusNode.requestFocus();
-                          final selected = await showDatePicker(
-                            context: context,
-                            initialDate: _startDate ?? DateTime.now(),
-                            firstDate: _startDate ?? DateTime(2020),
-                            lastDate: DateTime.now(),
-                          );
-                          if (selected != null) {
-                            setState(() {
-                              _endDate = selected;
-                              _selectedDuration = null;
-                              _formErrors['dateRange'] = null;
-                            });
-                            _validateFields();
-                          }
-                          _endDateFocusNode.unfocus();
-                        },
-                  child: _buildFormInputWrapper(
-                    label: "End Date",
-                    fieldKey: "endDate",
-                    icon: CupertinoIcons.calendar,
-                    focusNode: _endDateFocusNode,
-                    child: Padding(
-                      padding: const EdgeInsets.symmetric(vertical: 12),
-                      child: Text(
-                        _endDate != null
-                            ? _formatDisplayDate(_endDate)
-                            : "Select end date",
-                        style: TextStyle(
-                          fontSize: 17,
-                          fontWeight: FontWeight.w500,
-                          color: _endDate != null
-                              ? AnansiColors.darkBlue
-                              : Colors.blueGrey.shade200,
-                        ),
-                      ),
-                    ),
-                  ),
-                ),
-              ],
-            ),
-          ),
-          if (_formErrors['dateRange'] != null) ...[
-            const SizedBox(height: 12),
-            Text(
-              _formErrors['dateRange']!,
-              style: const TextStyle(
-                color: Colors.redAccent,
-                fontSize: 12,
-                fontWeight: FontWeight.w600,
-              ),
-            ),
-          ],
           const SizedBox(height: 58),
           SizedBox(
             width: double.infinity,
             height: 54,
             child: ElevatedButton(
-              onPressed: isSubmitDisabled
+              // ⚡ Intercept click if already loading, otherwise fire the submission logic
+              onPressed: isSubmitDisabled || _isLoading
                   ? null
-                  : () {
-                      Navigator.pop(context);
-                    },
+                  : _handleGenerateStatement,
               style: ElevatedButton.styleFrom(
-                backgroundColor: AnansiColors.darkBlue,
-                disabledBackgroundColor: const Color(0xFFF1F5F9),
+                // ⚡ If loading, force the background to stay darkBlue instead of turning grey
+                backgroundColor: _isLoading
+                    ? AnansiColors.darkBlue
+                    : AnansiColors.darkBlue,
+                disabledBackgroundColor: _isLoading
+                    ? AnansiColors
+                          .darkBlue // Keeps it blue while loading
+                    : const Color(0xFFF1F5F9), // Normal form-invalid grey style
                 elevation: isSubmitDisabled ? 0 : 2,
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(22),
                 ),
               ),
-              child: widget.isLoading
-                  ? const CupertinoActivityIndicator(color: Colors.white)
+              child: _isLoading
+                  ? const CupertinoActivityIndicator(
+                      color: Colors.white,
+                    ) // White spinner on blue looks great
                   : const Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
@@ -436,109 +313,9 @@ class _GenerateStatementState extends State<GenerateStatement> {
                     ),
             ),
           ),
-          SizedBox(height: 20),
+          const SizedBox(height: 20),
         ],
       ),
-    );
-  }
-
-  // Helper template wrapping layout elements exactly like your local design function
-  Widget _buildFormInputWrapper({
-    required String label,
-    required String fieldKey,
-    required IconData icon,
-    required FocusNode focusNode,
-    required Widget child,
-  }) {
-    final String? errorText = _formErrors[fieldKey];
-    final bool hasError = errorText != null;
-    final bool isFocused = focusNode.hasFocus;
-
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Padding(
-          padding: const EdgeInsets.only(left: 8, bottom: 6),
-          child: Row(
-            children: [
-              Text(
-                label.toUpperCase(),
-                style: TextStyle(
-                  color: hasError
-                      ? Colors.redAccent
-                      : AnansiColors.darkBlue.withValues(alpha: 0.6),
-                  fontWeight: FontWeight.w900,
-                  fontSize: 11,
-                  letterSpacing: 1.2,
-                ),
-              ),
-              if (hasError) ...[
-                const SizedBox(width: 8),
-                const Icon(
-                  CupertinoIcons.exclamationmark_circle,
-                  size: 12,
-                  color: Colors.redAccent,
-                ),
-              ],
-            ],
-          ),
-        ),
-        AnimatedContainer(
-          duration: const Duration(milliseconds: 250),
-          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 4),
-          decoration: BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.circular(22),
-            border: Border.all(
-              color: hasError
-                  ? Colors.redAccent.withValues(alpha: 0.4)
-                  : const Color(0xFFE2E8F0),
-              width: 1.8,
-            ),
-          ),
-          child: Row(
-            children: [
-              AnimatedContainer(
-                duration: const Duration(milliseconds: 250),
-                width: 44,
-                height: 44,
-                decoration: BoxDecoration(
-                  color: isFocused
-                      ? AnansiColors.darkBlue
-                      : const Color(0xFFF8FAFC),
-                  borderRadius: BorderRadius.circular(16),
-                ),
-                child: Icon(
-                  icon,
-                  size: 20,
-                  color: isFocused
-                      ? Colors.white
-                      : AnansiColors.darkBlue.withValues(alpha: 0.4),
-                ),
-              ),
-              Container(
-                height: 24,
-                width: 1.5,
-                margin: const EdgeInsets.symmetric(horizontal: 16),
-                color: const Color(0xFFE2E8F0),
-              ),
-              Expanded(child: child),
-            ],
-          ),
-        ),
-        if (hasError)
-          Padding(
-            padding: const EdgeInsets.only(left: 8, top: 8),
-            child: Text(
-              errorText,
-              style: const TextStyle(
-                color: Colors.redAccent,
-                fontSize: 12,
-                fontWeight: FontWeight.w600,
-              ),
-            ),
-          ),
-      ],
     );
   }
 }
@@ -568,7 +345,7 @@ Widget _buildDropdownField({
         ),
       ),
       Container(
-        height: 64, // Fixed height to match text inputs perfectly
+        height: 64,
         decoration: BoxDecoration(
           color: Colors.white,
           borderRadius: BorderRadius.circular(22),
@@ -583,11 +360,10 @@ Widget _buildDropdownField({
         ),
         child: DropdownButtonHideUnderline(
           child: ButtonTheme(
-            alignedDropdown:
-                true, // This aligns the menu width with the button width
+            alignedDropdown: true,
             child: DropdownButton<String>(
               value: hasValue ? value : null,
-              isExpanded: true, // Forces the content to span the Row
+              isExpanded: true,
               dropdownColor: Colors.white,
               borderRadius: BorderRadius.circular(22),
               icon: const Padding(
@@ -598,7 +374,6 @@ Widget _buildDropdownField({
                   color: Color(0xFF94A3B8),
                 ),
               ),
-              // We use the hint/selectedItem to build your custom Row inside the button
               hint: _buildDropdownRow(icon, "Select $label", isHint: true),
               selectedItemBuilder: (context) {
                 return items.map((String item) {
@@ -629,7 +404,6 @@ Widget _buildDropdownField({
 Widget _buildDropdownRow(IconData icon, String text, {required bool isHint}) {
   return Row(
     children: [
-      // Icon Anchor
       Container(
         width: 44,
         height: 44,
@@ -643,7 +417,6 @@ Widget _buildDropdownRow(IconData icon, String text, {required bool isHint}) {
           color: AnansiColors.darkBlue.withValues(alpha: 0.4),
         ),
       ),
-      // Vertical Separator
       Container(
         height: 24,
         width: 1.5,
@@ -664,6 +437,3 @@ Widget _buildDropdownRow(IconData icon, String text, {required bool isHint}) {
     ],
   );
 }
-
-
-
