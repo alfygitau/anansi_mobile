@@ -304,6 +304,66 @@ class _HomepageState extends State<Homepage> {
             const SliverToBoxAdapter(child: SizedBox.shrink()),
           SliverToBoxAdapter(
             child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 20),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Wrap(
+                    spacing: 16,
+                    runSpacing: 20,
+                    alignment: WrapAlignment.start,
+                    children: [
+                      _buildQuickAction(
+                        label: "Quick\nInvest",
+                        icon: Icons.trending_up_rounded,
+                        onTap: () => Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => const InvestAmount(),
+                          ),
+                        ),
+                      ),
+                      _buildQuickAction(
+                        label: "Deposit\nSavings",
+                        icon: Icons.account_balance_wallet_rounded,
+                        onTap: () => Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) =>
+                                DepositAmount(id: savingsAccount['id'] ?? ""),
+                          ),
+                        ),
+                      ),
+                      _buildQuickAction(
+                        label: "Buy\nShares",
+                        icon: Icons.pie_chart_rounded,
+                        onTap: () => Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) =>
+                                SharesAmount(id: sharesAccount['id'] ?? ""),
+                          ),
+                        ),
+                      ),
+                      _buildQuickAction(
+                        label: "All\nStatements",
+                        icon: Icons.description_rounded,
+                        onTap: () => Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => const Statements(),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+            ),
+          ),
+          const SliverToBoxAdapter(child: SizedBox(height: 20)),
+          SliverToBoxAdapter(
+            child: Padding(
               padding: const EdgeInsets.symmetric(
                 horizontal: 20.0,
               ), // Adjust to match your app padding
@@ -391,62 +451,18 @@ class _HomepageState extends State<Homepage> {
               ),
             ),
           ),
-          const SliverToBoxAdapter(child: SizedBox(height: 15)),
+          const SliverToBoxAdapter(child: SizedBox(height: 30)),
           SliverToBoxAdapter(
             child: Padding(
               padding: const EdgeInsets.symmetric(horizontal: 20),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const Padding(
-                    padding: EdgeInsets.symmetric(vertical: 10),
-                    child: Text(
-                      "QUICK ACTIONS",
-                      style: TextStyle(
-                        fontSize: 12,
-                        fontWeight: FontWeight.w900,
-                        color: Colors.grey,
-                        letterSpacing: 1.2,
-                      ),
-                    ),
-                  ),
                   Wrap(
                     spacing: 16,
                     runSpacing: 20,
                     alignment: WrapAlignment.start,
                     children: [
-                      _buildQuickAction(
-                        label: "Quick\nInvest",
-                        icon: Icons.trending_up_rounded,
-                        onTap: () => Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) => const InvestAmount(),
-                          ),
-                        ),
-                      ),
-                      _buildQuickAction(
-                        label: "Deposit\nSavings",
-                        icon: Icons.account_balance_wallet_rounded,
-                        onTap: () => Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) =>
-                                DepositAmount(id: savingsAccount['id'] ?? ""),
-                          ),
-                        ),
-                      ),
-                      _buildQuickAction(
-                        label: "Buy\nShares",
-                        icon: Icons.pie_chart_rounded,
-                        onTap: () => Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) =>
-                                SharesAmount(id: sharesAccount['id'] ?? ""),
-                          ),
-                        ),
-                      ),
                       _buildQuickAction(
                         label: "All\nLoans",
                         icon: CupertinoIcons.graph_square,
@@ -454,16 +470,6 @@ class _HomepageState extends State<Homepage> {
                           context,
                           MaterialPageRoute(
                             builder: (context) => const MyLoans(),
-                          ),
-                        ),
-                      ),
-                      _buildQuickAction(
-                        label: "All\nStatements",
-                        icon: Icons.description_rounded,
-                        onTap: () => Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) => const Statements(),
                           ),
                         ),
                       ),
@@ -950,7 +956,7 @@ class _HomepageState extends State<Homepage> {
       surfaceTintColor: Colors.transparent,
       elevation: 0,
       centerTitle: true,
-      leadingWidth: 72,
+      leadingWidth: 60,
       leading: Builder(
         builder: (nestedContext) {
           return IconButton(
