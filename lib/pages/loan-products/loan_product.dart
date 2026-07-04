@@ -545,7 +545,7 @@ class _LoanProductState extends State<LoanProduct> {
           "Proceed to Application",
           style: TextStyle(
             fontSize: 15,
-            fontWeight: FontWeight.w700,
+            fontWeight: FontWeight.w500,
             color: Colors.white,
           ),
         ),
