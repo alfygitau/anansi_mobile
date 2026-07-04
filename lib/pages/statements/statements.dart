@@ -18,40 +18,10 @@ class Statements extends StatefulWidget {
 class _StatementsState extends State<Statements> {
   List<Map<String, dynamic>> accounts = [];
   bool _isLoading = false;
-  bool _loading = false;
   List<Map<String, dynamic>> accountStatements = [];
   String? selectedYear;
   String? selectedAccountId;
   String? loadingItemId;
-
-  Future<void> generateStatement({
-    required String accountId,
-    String? duration,
-  }) async {
-    setState(() {
-      _loading = true;
-    });
-    try {
-      final (response, error) = await StatementService().generateStatement(
-        duration: duration,
-        accountId: accountId,
-      );
-      if (error != null) {
-        ErrorService.showActionableError(
-          context,
-          title: error[0],
-          message: error[1],
-        );
-      } else if (response != null) {
-        if (mounted) {
-          fetchStatements();
-          Navigator.pop(context);
-        }
-      }
-    } finally {
-      if (mounted) setState(() => _loading = false);
-    }
-  }
 
   Future<void> fetchStatements() async {
     setState(() {

@@ -4,6 +4,7 @@ import 'package:app_anansi_mobile/helpers/format_amount.dart';
 import 'package:app_anansi_mobile/helpers/format_time.dart';
 import 'package:app_anansi_mobile/main.dart';
 import 'package:app_anansi_mobile/pages/accounts/account_details.dart';
+import 'package:app_anansi_mobile/pages/accounts/all_accounts.dart';
 import 'package:app_anansi_mobile/pages/buy-shares/shares_amount.dart';
 import 'package:app_anansi_mobile/pages/deposit-savings/deposit_amount.dart';
 import 'package:app_anansi_mobile/pages/guarantorship/guarantorship.dart';
@@ -301,53 +302,96 @@ class _HomepageState extends State<Homepage> {
             )
           else
             const SliverToBoxAdapter(child: SizedBox.shrink()),
-          SliverPadding(
-            padding: const EdgeInsets.fromLTRB(20, 10, 20, 10),
-            sliver: SliverList(
-              delegate: SliverChildListDelegate([
-                const Padding(
-                  padding: EdgeInsets.symmetric(vertical: 8),
-                  child: Text(
-                    "ACCOUNTS",
-                    style: TextStyle(
-                      fontSize: 12,
-                      fontWeight: FontWeight.w900,
-                      color: Colors.grey,
-                      letterSpacing: 1.2,
+          SliverToBoxAdapter(
+            child: Padding(
+              padding: const EdgeInsets.symmetric(
+                horizontal: 20.0,
+              ), // Adjust to match your app padding
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  // --- HEADER SECTION ---
+                  Padding(
+                    padding: const EdgeInsets.symmetric(vertical: 8.0),
+                    child: Row(
+                      crossAxisAlignment: CrossAxisAlignment
+                          .baseline, // Aligns text perfectly on the bottom line
+                      textBaseline: TextBaseline.alphabetic,
+                      children: [
+                        const Text(
+                          "PRIMARY ACCOUNT",
+                          style: TextStyle(
+                            fontSize:
+                                11, // Slightly smaller makes uppercase letter-spacing pop more
+                            fontWeight: FontWeight.w900,
+                            color: Colors.grey,
+                            letterSpacing: 1.2,
+                          ),
+                        ),
+                        const Spacer(), // Replaces MainAxisAlignment.spaceBetween for more layout flexibility
+                        if (accounts.length > 1)
+                          InkWell(
+                            onTap: () {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) => const AllAccounts(),
+                                ),
+                              );
+                            },
+                            borderRadius: BorderRadius.circular(4),
+                            child: Padding(
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 6,
+                                vertical: 4,
+                              ),
+                              child: Row(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  Text(
+                                    "View All",
+                                    style: TextStyle(
+                                      fontSize: 12,
+                                      fontWeight: FontWeight.w700,
+                                      color: Theme.of(context).primaryColor,
+                                    ),
+                                  ),
+                                  const SizedBox(width: 2),
+                                  Icon(
+                                    Icons.chevron_right_rounded,
+                                    size: 16,
+                                    color: Theme.of(context).primaryColor,
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ),
+                      ],
                     ),
                   ),
-                ),
-                if (_isLoading) ...[
-                  buildAccountCardShimmer(),
-                  const SizedBox(height: 16),
-                  buildAccountCardShimmer(),
-                ] else if (accounts.isEmpty)
-                  _buildEmptyAccountsState()
-                else
-                  ...accounts.asMap().entries.map((entry) {
-                    int index = entry.key;
-                    var account = entry.value;
-                    return Column(
-                      children: [
-                        _buildAccountCard(
-                          id: account['id'] ?? "",
-                          title:
-                              account['product']['name']
-                                  ?.toString()
-                                  .toUpperCase() ??
-                              "ACCOUNT",
-                          accountNumber: account['account_number'] ?? "N/A",
-                          balance: account['balance']?.toString() ?? "0",
-                          isPrimary: index == 0,
-                        ),
-                        if (index != accounts.length - 1)
-                          const SizedBox(height: 16),
-                      ],
-                    );
-                  }),
-              ]),
+
+                  // --- CONTENT STATE SECTION ---
+                  if (_isLoading)
+                    buildAccountCardShimmer()
+                  else if (accounts.isEmpty)
+                    _buildEmptyAccountsState()
+                  else
+                    _buildAccountCard(
+                      id: savingsAccount['id'] ?? "",
+                      title:
+                          savingsAccount['product']['name']
+                              ?.toString()
+                              .toUpperCase() ??
+                          "ACCOUNT",
+                      accountNumber: savingsAccount['account_number'] ?? "N/A",
+                      balance: savingsAccount['balance']?.toString() ?? "0",
+                      isPrimary: true,
+                    ),
+                ],
+              ),
             ),
           ),
+          const SliverToBoxAdapter(child: SizedBox(height: 15)),
           SliverToBoxAdapter(
             child: Padding(
               padding: const EdgeInsets.symmetric(horizontal: 20),
@@ -478,9 +522,7 @@ class _HomepageState extends State<Homepage> {
                       final item = applications[index];
                       return _buildApplicationItem(
                         reference: item['application_number'] ?? "N/A",
-                        title:
-                            item['product']['name'] ??
-                            "Loan Application",
+                        title: item['product']['name'] ?? "Loan Application",
                         date: formatPostgresDateWithTime(
                           item['application_date'],
                         ),
