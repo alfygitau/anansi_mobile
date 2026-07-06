@@ -525,7 +525,7 @@ class _AwaitLoanStkPushState extends State<AwaitLoanStkPush>
               height: 56,
               child: ElevatedButton(
                 onPressed: () {
-                  Navigator.push(
+                  Navigator.pushReplacement(
                     context,
                     MaterialPageRoute(builder: (context) => const MyLoans()),
                   );
@@ -619,7 +619,7 @@ class _AwaitLoanStkPushState extends State<AwaitLoanStkPush>
                   child: OutlinedButton(
                     onPressed: () {
                       onCancel();
-                      Navigator.push(
+                      Navigator.pushReplacement(
                         context,
                         MaterialPageRoute(builder: (context) => MyLoans()),
                       );

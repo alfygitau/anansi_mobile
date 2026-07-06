@@ -64,7 +64,7 @@ class _AddAmountState extends State<AddAmount> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: const Color(0xFFF8FAFC),
-      bottomNavigationBar: _buildBottomActionButton(),
+      bottomSheet: _buildBottomActionButton(),
       body: CustomScrollView(
         slivers: [
           _buildAppBar(),
