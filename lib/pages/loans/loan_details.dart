@@ -2,6 +2,7 @@ import 'package:app_anansi_mobile/helpers/format_amount.dart';
 import 'package:app_anansi_mobile/helpers/format_short_date.dart';
 import 'package:app_anansi_mobile/pages/help&support/help_support.dart';
 import 'package:app_anansi_mobile/pages/loan-products/loan_products.dart';
+import 'package:app_anansi_mobile/pages/loan-repayment/repay_amount.dart';
 import 'package:app_anansi_mobile/pages/loan-statements/statements.dart';
 import 'package:app_anansi_mobile/pages/loans/loan_history.dart';
 import 'package:app_anansi_mobile/services/error_service.dart';
@@ -853,7 +854,12 @@ class _LoanDetailsState extends State<LoanDetails> {
         ],
       ),
       child: ElevatedButton(
-        onPressed: () {},
+        onPressed: () {
+          Navigator.push(
+            context,
+            MaterialPageRoute(builder: (context) => RepayAmount(loan: loan)),
+          );
+        },
         style: ElevatedButton.styleFrom(
           backgroundColor: const Color(0xFF0A2351),
           minimumSize: const Size(double.infinity, 64),
