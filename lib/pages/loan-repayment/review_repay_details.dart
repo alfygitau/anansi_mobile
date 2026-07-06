@@ -1,17 +1,25 @@
+import 'dart:math';
+
 import 'package:app_anansi_mobile/pages/help&support/help_support.dart';
+import 'package:app_anansi_mobile/pages/loan-repayment/await_stk_push.dart';
+import 'package:app_anansi_mobile/services/error_service.dart';
+import 'package:app_anansi_mobile/services/loan_service.dart';
 import 'package:app_anansi_mobile/theme/app_theme.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:intl/intl.dart';
 
 class ReviewRepayDetails extends StatefulWidget {
   final double amount;
   final String phoneNumber;
+  final Map<String, dynamic>? loan;
 
   const ReviewRepayDetails({
     super.key,
     required this.amount,
     required this.phoneNumber,
+    required this.loan,
   });
 
   @override
@@ -20,6 +28,56 @@ class ReviewRepayDetails extends StatefulWidget {
 
 class _ReviewRepayDetailsState extends State<ReviewRepayDetails> {
   bool isProcessing = false;
+  String? _reference;
+
+  String generateAlphaNumericId([int length = 8]) {
+    const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+    final random = Random.secure();
+
+    return Iterable.generate(
+      length,
+      (_) => chars[random.nextInt(chars.length)],
+    ).join();
+  }
+
+  Future<void> repayLoan() async {
+    final String ref = generateAlphaNumericId();
+    setState(() {
+      isProcessing = true;
+      _reference = ref;
+    });
+    try {
+      final (response, errors) = await LoanService().repayLoan(
+        loanId: widget.loan?['id'] ?? "",
+        amount: widget.amount,
+        phoneNumber: widget.phoneNumber,
+        accountReference: widget.loan?['loan_code'] ?? "",
+        loanKey: _reference ?? "",
+      );
+      if (errors != null) {
+        ErrorService.showActionableError(
+          context,
+          title: errors[0],
+          message: errors[1],
+        );
+      } else if (response != null) {
+        HapticFeedback.lightImpact();
+        final responseInfo = response.data['data'] ?? {};
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => AwaitLoanStkPush(
+              reference: _reference ?? "",
+              id: responseInfo['id'] ?? "",
+            ),
+          ),
+        );
+      }
+    } finally {
+      if (mounted) setState(() => isProcessing = false);
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final NumberFormat currencyFormatter = NumberFormat.currency(
@@ -184,6 +242,49 @@ class _ReviewRepayDetailsState extends State<ReviewRepayDetails> {
             ),
           ),
         ],
+      ),
+    );
+  }
+
+  Widget _buildBottomActionButton(BuildContext context) {
+    return Container(
+      padding: EdgeInsets.fromLTRB(
+        24,
+        12,
+        24,
+        MediaQuery.paddingOf(context).bottom,
+      ),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        border: Border(top: BorderSide(color: Colors.grey.shade100, width: 1)),
+      ),
+      child: CupertinoButton(
+        color: AnansiColors.darkBlue,
+        disabledColor: AnansiColors.darkBlue.withValues(alpha: 0.4),
+        borderRadius: BorderRadius.circular(16),
+        padding: const EdgeInsets.symmetric(vertical: 24),
+        onPressed: isProcessing ? null : repayLoan,
+        child: AnimatedSwitcher(
+          duration: const Duration(milliseconds: 200),
+          child: isProcessing
+              ? const SizedBox(
+                  width: 20,
+                  height: 20,
+                  child: CircularProgressIndicator.adaptive(
+                    strokeWidth: 2.5,
+                    valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                  ),
+                )
+              : const Text(
+                  "Authorize & Pay Now",
+                  style: TextStyle(
+                    fontSize: 14,
+                    fontWeight: FontWeight.w800,
+                    color: Colors.white,
+                    letterSpacing: 1,
+                  ),
+                ),
+        ),
       ),
     );
   }
@@ -353,49 +454,6 @@ class _ReviewRepayDetailsState extends State<ReviewRepayDetails> {
             ),
           ),
         ],
-      ),
-    );
-  }
-
-  Widget _buildBottomActionButton(BuildContext context) {
-    return Container(
-      padding: EdgeInsets.fromLTRB(
-        24,
-        12,
-        24,
-        MediaQuery.paddingOf(context).bottom,
-      ),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        border: Border(top: BorderSide(color: Colors.grey.shade100, width: 1)),
-      ),
-      child: CupertinoButton(
-        color: AnansiColors.darkBlue,
-        disabledColor: AnansiColors.darkBlue.withValues(alpha: 0.4),
-        borderRadius: BorderRadius.circular(16),
-        padding: const EdgeInsets.symmetric(vertical: 24),
-        onPressed: isProcessing ? null : () {},
-        child: AnimatedSwitcher(
-          duration: const Duration(milliseconds: 200),
-          child: isProcessing
-              ? const SizedBox(
-                  width: 20,
-                  height: 20,
-                  child: CircularProgressIndicator.adaptive(
-                    strokeWidth: 2.5,
-                    valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
-                  ),
-                )
-              : const Text(
-                  "Authorize & Pay Now",
-                  style: TextStyle(
-                    fontSize: 14,
-                    fontWeight: FontWeight.w800,
-                    color: Colors.white,
-                    letterSpacing: 1,
-                  ),
-                ),
-        ),
       ),
     );
   }

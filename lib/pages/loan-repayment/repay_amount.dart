@@ -77,7 +77,7 @@ class _RepayAmountState extends State<RepayAmount> {
     if (_selectedOptionId == "custom") {
       Navigator.push(
         context,
-        MaterialPageRoute(builder: (context) => AddAmount()),
+        MaterialPageRoute(builder: (context) => AddAmount(loan: widget.loan)),
       );
     } else {
       Navigator.push(
@@ -86,6 +86,7 @@ class _RepayAmountState extends State<RepayAmount> {
           builder: (context) => ReviewRepayDetails(
             amount: double.parse(_selectedAmount?.toString() ?? "0"),
             phoneNumber: user?['mobileno'] ?? "",
+            loan: widget.loan ?? {},
           ),
         ),
       );

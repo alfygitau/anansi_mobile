@@ -68,4 +68,51 @@ class LoanService {
       return (null, ["Authentication Error!", "An unknown error occurred."]);
     }
   }
+
+  Future<(Response?, List<String>?)> repayLoan({
+    required String loanId,
+    required double amount,
+    required String phoneNumber,
+    required String accountReference,
+    required String loanKey,
+  }) async {
+    try {
+      final response = await _loanClient.post(
+        '/mpesa/loan-repayments/stk-push',
+        data: {
+          "loan_id": loanId,
+          "amount": amount,
+          "phone_number": phoneNumber,
+          "org_code": "BA208",
+          "account_reference": accountReference,
+          "description": "Loan repayment $accountReference",
+          "idempotency_key": loanKey,
+        },
+      );
+      return (response, null);
+    } on DioException catch (e) {
+      final apiException = ApiException();
+      final errorMessages = apiException.getExceptionMessage(e);
+      return (null, errorMessages);
+    } catch (e) {
+      return (null, ["Authentication Error!", "An unknown error occurred."]);
+    }
+  }
+
+  Future<(Response?, List<String>?)> pollLoanRepayment({
+    required String paymentId,
+  }) async {
+    try {
+      final response = await _loanClient.get(
+        '/mpesa/loan-repayments/$paymentId/status',
+      );
+      return (response, null);
+    } on DioException catch (e) {
+      final apiException = ApiException();
+      final errorMessages = apiException.getExceptionMessage(e);
+      return (null, errorMessages);
+    } catch (e) {
+      return (null, ["Authentication Error!", "An unknown error occurred."]);
+    }
+  }
 }

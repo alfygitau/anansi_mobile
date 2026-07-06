@@ -1,22 +1,27 @@
 import 'package:app_anansi_mobile/helpers/polling.dart';
 import 'package:app_anansi_mobile/pages/homepage/homepage.dart';
-import 'package:app_anansi_mobile/services/account_service.dart';
+import 'package:app_anansi_mobile/pages/loans/loans.dart';
+import 'package:app_anansi_mobile/services/loan_service.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:app_anansi_mobile/theme/app_theme.dart';
 import 'package:flutter/services.dart';
 
-class AwaitStkPush extends StatefulWidget {
+class AwaitLoanStkPush extends StatefulWidget {
   final String reference;
   final String id;
 
-  const AwaitStkPush({super.key, required this.reference, required this.id});
+  const AwaitLoanStkPush({
+    super.key,
+    required this.reference,
+    required this.id,
+  });
 
   @override
-  State<AwaitStkPush> createState() => _AwaitStkPushState();
+  State<AwaitLoanStkPush> createState() => _AwaitLoanStkPushState();
 }
 
-class _AwaitStkPushState extends State<AwaitStkPush>
+class _AwaitLoanStkPushState extends State<AwaitLoanStkPush>
     with TickerProviderStateMixin {
   late AnimationController _pulseController;
 
@@ -25,12 +30,11 @@ class _AwaitStkPushState extends State<AwaitStkPush>
 
   Future<bool> _checkPurchaseStatus() async {
     try {
-      final (response, errors) = await AccountService().confirmBuyShares(
-        reference: widget.reference,
-        accountId: widget.id,
+      final (response, errors) = await LoanService().pollLoanRepayment(
+        paymentId: widget.id,
       );
       if (errors == null && response != null) {
-        return response.data['data']['exists'] == true;
+        return response.data['data']['terminal'] == true;
       }
     } catch (e) {
       debugPrint("Polling error: $e");
@@ -508,7 +512,7 @@ class _AwaitStkPushState extends State<AwaitStkPush>
             ),
             const SizedBox(height: 12),
             Text(
-              "Your savings purchase has been processed successfully. You can now view your updated portfolio in the dashboard.",
+              "Your loan repayment has been processed successfully. You can now view your updated schedule in the loan details page.",
               textAlign: TextAlign.center,
               style: TextStyle(
                 color: Colors.blueGrey.shade400,
@@ -524,7 +528,7 @@ class _AwaitStkPushState extends State<AwaitStkPush>
                 onPressed: () {
                   Navigator.push(
                     context,
-                    MaterialPageRoute(builder: (context) => const Homepage()),
+                    MaterialPageRoute(builder: (context) => const MyLoans()),
                   );
                 },
                 style: ElevatedButton.styleFrom(
@@ -618,7 +622,7 @@ class _AwaitStkPushState extends State<AwaitStkPush>
                       onCancel();
                       Navigator.push(
                         context,
-                        MaterialPageRoute(builder: (context) => Homepage()),
+                        MaterialPageRoute(builder: (context) => MyLoans()),
                       );
                     },
                     style: OutlinedButton.styleFrom(
@@ -642,7 +646,7 @@ class _AwaitStkPushState extends State<AwaitStkPush>
                   child: ElevatedButton(
                     onPressed: () {
                       Navigator.pop(context);
-                      onRetry(); // Restarts the logic
+                      onRetry();
                     },
                     style: ElevatedButton.styleFrom(
                       minimumSize: const Size(double.infinity, 56),

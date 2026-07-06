@@ -8,7 +8,8 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
 class AddAmount extends StatefulWidget {
-  const AddAmount({super.key});
+  final Map<String, dynamic>? loan;
+  const AddAmount({super.key, required this.loan});
 
   @override
   State<AddAmount> createState() => _AddAmountState();
@@ -67,8 +68,6 @@ class _AddAmountState extends State<AddAmount> {
       body: CustomScrollView(
         slivers: [
           _buildAppBar(),
-
-          // --- HEADER TITLE AND SUBTEXT ---
           SliverToBoxAdapter(
             child: Padding(
               padding: const EdgeInsets.fromLTRB(24, 24, 24, 8),
@@ -101,13 +100,10 @@ class _AddAmountState extends State<AddAmount> {
               ),
             ),
           ),
-
-          // --- FORM PANEL CONTAINER ---
           SliverPadding(
             padding: const EdgeInsets.symmetric(horizontal: 24.0),
             sliver: SliverList(
               delegate: SliverChildListDelegate([
-                // 1. Payment Method Channel Card
                 Container(
                   decoration: _cardDecoration(),
                   padding: const EdgeInsets.all(16),
@@ -161,7 +157,6 @@ class _AddAmountState extends State<AddAmount> {
                           ),
                         ],
                       ),
-                      // Pulse live network node icon asset placeholder
                       Container(
                         width: 8,
                         height: 8,
@@ -174,8 +169,6 @@ class _AddAmountState extends State<AddAmount> {
                   ),
                 ),
                 const SizedBox(height: 24),
-
-                // 2. Input Segment Field: Phone Number
                 _buildFieldLabel("M-Pesa Phone Number"),
                 const SizedBox(height: 8),
                 _buildCustomInputField(
@@ -186,8 +179,6 @@ class _AddAmountState extends State<AddAmount> {
                   prefixLabel: "+254",
                 ),
                 const SizedBox(height: 24),
-
-                // 3. Input Segment Field: Repayment Amount
                 _buildFieldLabel("Payment Amount"),
                 const SizedBox(height: 8),
                 _buildCustomInputField(
@@ -224,8 +215,6 @@ class _AddAmountState extends State<AddAmount> {
       ),
     );
   }
-
-  // --- MODULAR SPECIFIC SUB-ELEMENT COMPOSITIONS ---
 
   Widget _buildAppBar() {
     return SliverAppBar(
@@ -424,6 +413,7 @@ class _AddAmountState extends State<AddAmount> {
                     builder: (context) => ReviewRepayDetails(
                       amount: double.parse(_amountController.text.trim()),
                       phoneNumber: _phoneController.text.trim(),
+                      loan: widget.loan,
                     ),
                   ),
                 );
