@@ -1,5 +1,4 @@
 import 'package:app_anansi_mobile/helpers/polling.dart';
-import 'package:app_anansi_mobile/pages/homepage/homepage.dart';
 import 'package:app_anansi_mobile/pages/loans/loans.dart';
 import 'package:app_anansi_mobile/services/loan_service.dart';
 import 'package:flutter/cupertino.dart';
