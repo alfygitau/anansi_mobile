@@ -21,7 +21,6 @@ class _AllAccountsState extends State<AllAccounts> {
   bool _isLoading = true;
   String? _errorMessage;
 
-  // Track hidden balances by storing their unique account numbers
   final Set<String> _hiddenBalances = {};
 
   @override
@@ -54,7 +53,6 @@ class _AllAccountsState extends State<AllAccounts> {
     }
   }
 
-  // Helper to get premium, dynamic status colors using Dart records
   (Color backgroundColor, Color textColor) _getStatusColors(String status) {
     switch (status.toLowerCase().trim()) {
       case 'active':
@@ -86,12 +84,22 @@ class _AllAccountsState extends State<AllAccounts> {
 
   @override
   Widget build(BuildContext context) {
-    final primaryAccounts = accounts.isNotEmpty
-        ? [accounts.first]
-        : <Map<String, dynamic>>[];
-    final otherAccounts = accounts.length > 1
-        ? accounts.sublist(1)
-        : <Map<String, dynamic>>[];
+    // THE FIX: Filter primary account specifically by checking if product name matches "Savings"
+    final primaryAccounts = accounts
+        .where(
+          (acc) =>
+              acc["product"]?["name"]?.toString().toLowerCase().trim() ==
+              "savings",
+        )
+        .toList();
+
+    final otherAccounts = accounts
+        .where(
+          (acc) =>
+              acc["product"]?["name"]?.toString().toLowerCase().trim() !=
+              "savings",
+        )
+        .toList();
 
     return Scaffold(
       backgroundColor: const Color(0xFFF8F9FA),
@@ -205,12 +213,9 @@ class _AllAccountsState extends State<AllAccounts> {
     return SliverPadding(
       padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 24.0),
       sliver: SliverList(
-        delegate: SliverChildBuilderDelegate(
-          (context, index) {
-            return _buildSkeletonCard();
-          },
-          childCount: 5, // Loops and renders exactly 5 shimmer cards
-        ),
+        delegate: SliverChildBuilderDelegate((context, index) {
+          return _buildSkeletonCard();
+        }, childCount: 5),
       ),
     );
   }
@@ -222,7 +227,7 @@ class _AllAccountsState extends State<AllAccounts> {
         baseColor: const Color(0xFFEAECEF),
         highlightColor: const Color(0xFFF8F9FA),
         child: Container(
-          height: 160, // Matches the exact height footprint of your real card
+          height: 160,
           decoration: BoxDecoration(
             color: Colors.white,
             borderRadius: BorderRadius.circular(20),
@@ -230,9 +235,7 @@ class _AllAccountsState extends State<AllAccounts> {
           ),
           padding: const EdgeInsets.all(20.0),
           child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // TOP ROW: Product Name & Status Tag Skeletons
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
@@ -268,13 +271,10 @@ class _AllAccountsState extends State<AllAccounts> {
                   ),
                 ],
               ),
-
               const Padding(
                 padding: EdgeInsets.symmetric(vertical: 16.0),
                 child: Divider(color: Color(0xFFF1F3F5), height: 1),
               ),
-
-              // MIDDLE ROW: Balance & Currency Metadata Skeletons
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 crossAxisAlignment: CrossAxisAlignment.center,
@@ -337,8 +337,7 @@ class _AllAccountsState extends State<AllAccounts> {
       floating: true,
       backgroundColor: const Color(0xFFF8FAFC).withValues(alpha: 0.9),
       elevation: 0,
-      scrolledUnderElevation:
-          0, // Prevents Flutter from overriding background color on scroll
+      scrolledUnderElevation: 0,
       centerTitle: true,
       leadingWidth: 64,
       title: Column(
@@ -347,8 +346,7 @@ class _AllAccountsState extends State<AllAccounts> {
           const Text(
             "All Accounts",
             style: TextStyle(
-              color:
-                  AnansiColors.darkBlue, // Retains your custom app brand color
+              color: AnansiColors.darkBlue,
               fontWeight: FontWeight.w900,
               fontSize: 15,
               letterSpacing: -0.3,
@@ -419,8 +417,7 @@ class _AllAccountsState extends State<AllAccounts> {
               child: IconButton(
                 padding: EdgeInsets.zero,
                 icon: const Icon(
-                  Icons
-                      .refresh_rounded, // Swapped to a premium reload action for list view
+                  Icons.refresh_rounded,
                   size: 18,
                   color: AnansiColors.darkBlue,
                 ),
@@ -437,14 +434,19 @@ class _AllAccountsState extends State<AllAccounts> {
     BuildContext context,
     Map<String, dynamic> account,
   ) {
+    final String rawProductName = account["product"]?["name"]?.toString() ?? "";
+    // Evaluates condition: accounts matching "Savings" are treated as primary styled blocks
+    final bool isSavingsAccount =
+        rawProductName.toLowerCase().trim() == "savings";
+
     final String accountNumber = account["account_number"]?.toString() ?? "N/A";
-    final String productName =
-        account["product"]?["name"]?.toString().toUpperCase() ?? "ACCOUNT";
+    final String productName = rawProductName.toUpperCase().isEmpty
+        ? "ACCOUNT"
+        : rawProductName.toUpperCase();
     final String balance = formatAmount(account["balance"] ?? 0);
     final String status = account["status"]?.toString() ?? "Active";
     final (statusBg, statusText) = _getStatusColors(status);
 
-    // Check if this specific account's balance should be obscured
     final bool isBalanceHidden = _hiddenBalances.contains(
       accountShiftKey(accountNumber, productName),
     );
@@ -457,20 +459,27 @@ class _AllAccountsState extends State<AllAccounts> {
             builder: (context) => AccountDetails(
               accountId: account['id'] ?? "",
               accountNumber: accountNumber,
-            ), // Replace with your exact details page class name
+            ),
           ),
         ),
       },
-      behavior: HitTestBehavior
-          .opaque, // Ensures the entire boundary space captures taps
+      behavior: HitTestBehavior.opaque,
       child: Container(
         decoration: BoxDecoration(
-          color: Colors.white,
+          // THE FIX: Use brand dark blue for Savings accounts, otherwise render pure white
+          color: isSavingsAccount ? AnansiColors.darkBlue : Colors.white,
           borderRadius: BorderRadius.circular(20),
-          border: Border.all(color: const Color(0xFFEAECEF), width: 1),
+          border: Border.all(
+            color: isSavingsAccount
+                ? AnansiColors.darkBlue
+                : const Color(0xFFEAECEF),
+            width: 1,
+          ),
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withValues(alpha: 0.015),
+              color: Colors.black.withValues(
+                alpha: isSavingsAccount ? 0.04 : 0.015,
+              ),
               blurRadius: 20,
               offset: const Offset(0, 10),
             ),
@@ -490,10 +499,13 @@ class _AllAccountsState extends State<AllAccounts> {
                       children: [
                         Text(
                           productName,
-                          style: const TextStyle(
+                          style: TextStyle(
                             fontSize: 13,
                             fontWeight: FontWeight.w800,
-                            color: Colors.black,
+                            // Dynamic color matching to maximize font contrast configurations
+                            color: isSavingsAccount
+                                ? Colors.white
+                                : Colors.black,
                             letterSpacing: 0.5,
                           ),
                           maxLines: 1,
@@ -520,7 +532,9 @@ class _AllAccountsState extends State<AllAccounts> {
                                 accountNumber,
                                 style: TextStyle(
                                   fontSize: 12,
-                                  color: Colors.grey[600],
+                                  color: isSavingsAccount
+                                      ? Colors.white.withValues(alpha: 0.7)
+                                      : Colors.grey[600],
                                   fontWeight: FontWeight.w500,
                                 ),
                               ),
@@ -528,7 +542,9 @@ class _AllAccountsState extends State<AllAccounts> {
                               Icon(
                                 Icons.copy_rounded,
                                 size: 12,
-                                color: Colors.grey[400],
+                                color: isSavingsAccount
+                                    ? Colors.white.withValues(alpha: 0.5)
+                                    : Colors.grey[400],
                               ),
                             ],
                           ),
@@ -539,72 +555,91 @@ class _AllAccountsState extends State<AllAccounts> {
                   Container(
                     padding: const EdgeInsets.symmetric(
                       horizontal: 10,
-                      vertical: 6,
+                      vertical: 4,
                     ),
                     decoration: BoxDecoration(
-                      color: statusBg, // <-- Dynamic background color
+                      color: statusBg,
                       borderRadius: BorderRadius.circular(100),
                     ),
                     child: Text(
                       status.toUpperCase(),
                       style: TextStyle(
-                        fontSize: 10,
+                        fontSize: 8,
                         fontWeight: FontWeight.w700,
-                        color: statusText, // <-- Dynamic text color
+                        color: statusText,
                       ),
                     ),
                   ),
                 ],
               ),
 
-              const Padding(
-                padding: EdgeInsets.symmetric(vertical: 10.0),
-                child: Divider(color: Color(0xFFF1F3F5), height: 1),
+              Padding(
+                padding: const EdgeInsets.symmetric(vertical: 10.0),
+                child: Divider(
+                  color: isSavingsAccount
+                      ? Colors.white.withValues(alpha: 0.15)
+                      : const Color(0xFFF1F3F5),
+                  height: 1,
+                ),
               ),
 
-              // MIDDLE ROW: Large Balance Display + Show/Hide Action
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
                   Row(
-                    crossAxisAlignment: CrossAxisAlignment.baseline,
+                    crossAxisAlignment: CrossAxisAlignment.center,
                     textBaseline: TextBaseline.alphabetic,
                     children: [
                       Text(
                         isBalanceHidden ? "KES ••••••" : balance,
-                        style: const TextStyle(
+                        style: TextStyle(
                           fontSize: 28,
                           fontWeight: FontWeight.w500,
-                          color: AnansiColors.darkBlue,
+                          color: isSavingsAccount
+                              ? Colors.white
+                              : AnansiColors.darkBlue,
                           letterSpacing: -0.5,
                         ),
                       ),
-                      const SizedBox(width: 8),
-                      // Inline light toggle button for show/hide features
-                      IconButton(
-                        icon: Icon(
-                          isBalanceHidden
-                              ? Icons.visibility_off_outlined
-                              : Icons.visibility_outlined,
-                          size: 18,
-                          color: Colors.grey[400],
+                      const SizedBox(width: 12),
+
+                      // THE FIX: Enclose view toggle button inside a clean circular background wrapper
+                      Container(
+                        width: 28,
+                        height: 28,
+                        decoration: BoxDecoration(
+                          color: isSavingsAccount
+                              ? Colors.white.withValues(alpha: 0.12)
+                              : const Color(0xFFF1F3F5),
+                          shape: BoxShape.circle,
                         ),
-                        constraints: const BoxConstraints(),
-                        padding: EdgeInsets.zero,
-                        onPressed: () {
-                          final String key = accountShiftKey(
-                            accountNumber,
-                            productName,
-                          );
-                          setState(() {
-                            if (isBalanceHidden) {
-                              _hiddenBalances.remove(key);
-                            } else {
-                              _hiddenBalances.add(key);
-                            }
-                          });
-                        },
+                        child: IconButton(
+                          icon: Icon(
+                            isBalanceHidden
+                                ? Icons.visibility_off_outlined
+                                : Icons.visibility_outlined,
+                            size: 13,
+                            color: isSavingsAccount
+                                ? Colors.white
+                                : Colors.grey[600],
+                          ),
+                          constraints: const BoxConstraints(),
+                          padding: EdgeInsets.zero,
+                          onPressed: () {
+                            final String key = accountShiftKey(
+                              accountNumber,
+                              productName,
+                            );
+                            setState(() {
+                              if (isBalanceHidden) {
+                                _hiddenBalances.remove(key);
+                              } else {
+                                _hiddenBalances.add(key);
+                              }
+                            });
+                          },
+                        ),
                       ),
                     ],
                   ),
@@ -617,7 +652,6 @@ class _AllAccountsState extends State<AllAccounts> {
     );
   }
 
-  // Generates a predictable identifier string to track individual hidden elements securely
   String accountShiftKey(String number, String fallbackName) {
     return "${number}_$fallbackName";
   }
