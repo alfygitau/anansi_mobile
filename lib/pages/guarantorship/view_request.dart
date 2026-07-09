@@ -494,7 +494,7 @@ class _ViewRequestState extends State<ViewRequest> {
               child: Container(
                 padding: const EdgeInsets.symmetric(vertical: 18),
                 decoration: BoxDecoration(
-                  color: status == 'accepted'
+                  color: status == 'approved'
                       ? AnansiColors.accentCyan.withValues(alpha: 0.1)
                       : Colors.red.withValues(alpha: 0.1),
                   borderRadius: BorderRadius.circular(16),
@@ -503,7 +503,7 @@ class _ViewRequestState extends State<ViewRequest> {
                   status.toUpperCase(),
                   textAlign: TextAlign.center,
                   style: TextStyle(
-                    color: status == 'accepted'
+                    color: status == 'approved'
                         ? AnansiColors.accentCyan
                         : Colors.red,
                     fontWeight: FontWeight.w900,
