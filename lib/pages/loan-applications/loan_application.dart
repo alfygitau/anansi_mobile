@@ -1,5 +1,5 @@
 import 'package:app_anansi_mobile/helpers/format_amount.dart';
-import 'package:app_anansi_mobile/pages/apply-loan/add_loan_documents.dart';
+import 'package:app_anansi_mobile/pages/apply-loan/loan_documents.dart';
 import 'package:app_anansi_mobile/pages/help&support/help_support.dart';
 import 'package:app_anansi_mobile/pages/loan-applications/application_guarantors.dart';
 import 'package:app_anansi_mobile/services/error_service.dart';
@@ -1194,7 +1194,7 @@ class _LoanApplicationState extends State<LoanApplication> {
           Navigator.pushReplacement(
             context,
             MaterialPageRoute(
-              builder: (context) => AddLoanDocuments(
+              builder: (context) => LoanDocuments(
                 appId: widget.appId,
                 productId: application['loan_product']['id'] ?? "",
               ),

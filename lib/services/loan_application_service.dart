@@ -1,6 +1,7 @@
 import 'package:app_anansi_mobile/helpers/errors.dart';
 import 'package:app_anansi_mobile/sdk/client.dart';
 import 'package:dio/dio.dart';
+import 'package:file_picker/file_picker.dart';
 
 class LoanApplicationService {
   final Dio _loanClient = LoanDioClient().dio;
@@ -252,6 +253,44 @@ class LoanApplicationService {
     }
   }
 
+  Future<(Response?, List<String>?)> addLoanDocument({
+    required String applicationId,
+    required String documentType,
+    required String notes,
+    required PlatformFile file,
+  }) async {
+    try {
+      if (file.path == null) {
+        return (
+          null,
+          ["File Error", "Unable to locate local file path layout."],
+        );
+      }
+
+      final MultipartFile imageMultipartFile = await MultipartFile.fromFile(
+        file.path!,
+        filename: file.name,
+      );
+
+      final FormData formData = FormData.fromMap({
+        "doc_type": documentType,
+        "notes": notes,
+        "file": imageMultipartFile,
+      });
+      final response = await _loanClient.post(
+        '/loan-applications/$applicationId/documents',
+        data: formData,
+      );
+      return (response, null);
+    } on DioException catch (e) {
+      final apiException = ApiException();
+      final errorMessages = apiException.getExceptionMessage(e);
+      return (null, errorMessages);
+    } catch (e) {
+      return (null, ["Application Error!", "An unknown error occurred."]);
+    }
+  }
+
   Future<(Response?, List<String>?)> removeChattel({
     required String applicationId,
     required String chattelId,
@@ -276,6 +315,23 @@ class LoanApplicationService {
     try {
       final response = await _loanClient.get(
         '/loan-applications/$applicationId/chattels',
+      );
+      return (response, null);
+    } on DioException catch (e) {
+      final apiException = ApiException();
+      final errorMessages = apiException.getExceptionMessage(e);
+      return (null, errorMessages);
+    } catch (e) {
+      return (null, ["Application Error!", "An unknown error occurred."]);
+    }
+  }
+
+  Future<(Response?, List<String>?)> fetchLoanDocuments({
+    required String applicationId,
+  }) async {
+    try {
+      final response = await _loanClient.get(
+        '/loan-applications/$applicationId/documents',
       );
       return (response, null);
     } on DioException catch (e) {

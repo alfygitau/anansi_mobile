@@ -1,6 +1,6 @@
 import 'package:app_anansi_mobile/helpers/format_amount.dart';
 import 'package:app_anansi_mobile/pages/apply-loan/add_collateral.dart';
-import 'package:app_anansi_mobile/pages/apply-loan/add_loan_documents.dart';
+import 'package:app_anansi_mobile/pages/apply-loan/loan_documents.dart';
 import 'package:app_anansi_mobile/pages/apply-loan/loan_terms_conditions.dart';
 import 'package:app_anansi_mobile/pages/help&support/help_support.dart';
 import 'package:app_anansi_mobile/services/error_service.dart';
@@ -433,7 +433,7 @@ class _CollateralsState extends State<Collaterals> {
     String buttonLabel;
 
     if (requiresDocuments) {
-      destinationPage = AddLoanDocuments(
+      destinationPage = LoanDocuments(
         appId: widget.appId,
         productId: widget.productId,
       );
