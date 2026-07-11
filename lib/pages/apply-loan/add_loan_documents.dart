@@ -5,52 +5,49 @@ import 'package:file_picker/file_picker.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
-class StatementFile {
-  final String name;
-  final String size;
-  final String code;
-  final String type;
-
-  StatementFile({
-    required this.name,
-    required this.size,
-    required this.code,
-    required this.type,
-  });
-}
-
-class AddStatements extends StatefulWidget {
+class AddLoanDocuments extends StatefulWidget {
   final String appId;
   final String productId;
-  const AddStatements({
+  const AddLoanDocuments({
     super.key,
     required this.appId,
     required this.productId,
   });
 
   @override
-  State<AddStatements> createState() => _AddStatementsState();
+  State<AddLoanDocuments> createState() => _AddLoanDocumentsState();
 }
 
-class _AddStatementsState extends State<AddStatements> {
-  final List<StatementFile> _uploadedFiles = [];
+class _AddLoanDocumentsState extends State<AddLoanDocuments> {
+  // Direct list of maps instead of a custom object model
+  final List<Map<String, dynamic>> _uploadedFiles = [];
 
-  Future<void> _handlePickAndUpload(String type, Color color) async {
+  // Unified list of supported document types
+  final List<Map<String, String>> _documentTypes = [
+    {"code": "mpesa_statement", "label": "M-Pesa Statement"},
+    {"code": "bank_statement", "label": "Bank Statement"},
+    {"code": "payslip", "label": "Payslip"},
+    {"code": "national_id", "label": "National ID / Passport"},
+    {"code": "employment_contract", "label": "Employment Contract"},
+  ];
+
+  Future<void> _handlePickAndUpload() async {
     FilePickerResult? result = await FilePicker.pickFiles(
       type: FileType.custom,
-      allowedExtensions: ['pdf'],
+      allowedExtensions: ['pdf', 'png', 'jpg', 'jpeg'],
     );
+
     if (result != null) {
       PlatformFile file = result.files.first;
       if (!mounted) return;
-      _showPasswordSheet(file, type, color);
+      _showDocumentDetailsSheet(file);
     }
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Color(0xFFF1F5F9),
+      backgroundColor: const Color(0xFFF1F5F9),
       body: CustomScrollView(
         slivers: [
           _buildAppBar(context),
@@ -61,7 +58,7 @@ class _AddStatementsState extends State<AddStatements> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   const Text(
-                    "Financial Statements",
+                    "Loan Documentation",
                     style: TextStyle(
                       fontSize: 22,
                       fontWeight: FontWeight.w900,
@@ -71,7 +68,7 @@ class _AddStatementsState extends State<AddStatements> {
                   ),
                   const SizedBox(height: 8),
                   Text(
-                    "Upload your last 6 months' statements. These are used strictly for limit verification.",
+                    "Upload all supporting documents required for this loan profile verification.",
                     style: TextStyle(
                       color: Colors.grey[600],
                       fontSize: 14,
@@ -80,22 +77,14 @@ class _AddStatementsState extends State<AddStatements> {
                   ),
                   const SizedBox(height: 32),
 
-                  // Upload Buttons
                   _buildUploadTrigger(
-                    label: "M-Pesa Statement",
-                    color: Colors.green.shade700,
-                    icon: Icons.phone_android_rounded,
-                  ),
-                  const SizedBox(height: 16),
-                  _buildUploadTrigger(
-                    label: "Bank Statement",
+                    label: "Upload Document",
                     color: AnansiColors.darkBlue,
-                    icon: Icons.account_balance_rounded,
+                    icon: CupertinoIcons.cloud_upload_fill,
                   ),
 
                   const SizedBox(height: 40),
 
-                  // List of uploaded files
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
@@ -110,7 +99,7 @@ class _AddStatementsState extends State<AddStatements> {
                       ),
                       Text(
                         "${_uploadedFiles.length} Files",
-                        style: TextStyle(
+                        style: const TextStyle(
                           fontSize: 11,
                           fontWeight: FontWeight.bold,
                           color: AnansiColors.darkBlue,
@@ -134,7 +123,7 @@ class _AddStatementsState extends State<AddStatements> {
                           _buildFileItem(_uploadedFiles[index], index),
                     ),
 
-                  const SizedBox(height: 100), // Bottom padding for scroll
+                  const SizedBox(height: 100),
                 ],
               ),
             ),
@@ -153,9 +142,9 @@ class _AddStatementsState extends State<AddStatements> {
     required IconData icon,
   }) {
     return GestureDetector(
-      onTap: () => _handlePickAndUpload(label, color),
+      onTap: _handlePickAndUpload,
       child: Container(
-        padding: const EdgeInsets.symmetric(vertical: 20, horizontal: 20),
+        padding: const EdgeInsets.symmetric(vertical: 24, horizontal: 20),
         decoration: BoxDecoration(
           color: color.withValues(alpha: 0.04),
           borderRadius: BorderRadius.circular(20),
@@ -164,9 +153,9 @@ class _AddStatementsState extends State<AddStatements> {
         child: Row(
           children: [
             Container(
-              padding: const EdgeInsets.all(10),
+              padding: const EdgeInsets.all(12),
               decoration: BoxDecoration(color: color, shape: BoxShape.circle),
-              child: Icon(icon, color: Colors.white, size: 20),
+              child: Icon(icon, color: Colors.white, size: 22),
             ),
             const SizedBox(width: 16),
             Expanded(
@@ -174,7 +163,7 @@ class _AddStatementsState extends State<AddStatements> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    "Upload $label",
+                    label,
                     style: TextStyle(
                       fontWeight: FontWeight.bold,
                       color: color,
@@ -183,7 +172,7 @@ class _AddStatementsState extends State<AddStatements> {
                   ),
                   const SizedBox(height: 2),
                   Text(
-                    "Tap to select PDF file",
+                    "Supports PDF, PNG, or JPG (one at a time)",
                     style: TextStyle(color: Colors.grey[600], fontSize: 12),
                   ),
                 ],
@@ -196,7 +185,16 @@ class _AddStatementsState extends State<AddStatements> {
     );
   }
 
-  Widget _buildFileItem(StatementFile file, int index) {
+  Widget _buildFileItem(Map<String, dynamic> file, int index) {
+    // Look up human-readable label from map values
+    final String friendlyLabel = _documentTypes.firstWhere(
+      (element) => element['code'] == file['doc_type'],
+      orElse: () => {"label": "Unknown Document"},
+    )['label']!;
+
+    final int sizeInBytes = file['file_size'] ?? 0;
+    final String displayNotes = file['notes'] ?? '';
+
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
@@ -215,7 +213,7 @@ class _AddStatementsState extends State<AddStatements> {
         children: [
           const Icon(
             CupertinoIcons.doc_text_fill,
-            color: Colors.redAccent,
+            color: AnansiColors.darkBlue,
             size: 30,
           ),
           const SizedBox(width: 16),
@@ -224,7 +222,9 @@ class _AddStatementsState extends State<AddStatements> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  file.name,
+                  file['file_name'] ?? 'Unknown File',
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
                   style: const TextStyle(
                     fontWeight: FontWeight.bold,
                     fontSize: 14,
@@ -234,18 +234,43 @@ class _AddStatementsState extends State<AddStatements> {
                 Row(
                   children: [
                     Text(
-                      file.size,
+                      "${(sizeInBytes / 1024).toStringAsFixed(1)} KB",
                       style: TextStyle(fontSize: 11, color: Colors.grey[500]),
                     ),
                     const SizedBox(width: 8),
-                    Icon(Icons.lock, size: 10, color: Colors.grey[400]),
-                    const SizedBox(width: 4),
-                    Text(
-                      "Code: ••••",
-                      style: TextStyle(fontSize: 11, color: Colors.grey[500]),
+                    Container(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 6,
+                        vertical: 2,
+                      ),
+                      decoration: BoxDecoration(
+                        color: Colors.grey.shade100,
+                        borderRadius: BorderRadius.circular(4),
+                      ),
+                      child: Text(
+                        friendlyLabel.toUpperCase(),
+                        style: TextStyle(
+                          fontSize: 9,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.grey[600],
+                        ),
+                      ),
                     ),
                   ],
                 ),
+                if (displayNotes.isNotEmpty) ...[
+                  const SizedBox(height: 4),
+                  Text(
+                    "Note: $displayNotes",
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: TextStyle(
+                      fontSize: 11,
+                      color: Colors.grey[600],
+                      fontStyle: FontStyle.italic,
+                    ),
+                  ),
+                ],
               ],
             ),
           ),
@@ -270,7 +295,7 @@ class _AddStatementsState extends State<AddStatements> {
           Icon(CupertinoIcons.doc_on_doc, size: 48, color: Colors.grey[200]),
           const SizedBox(height: 16),
           Text(
-            "No statements uploaded yet",
+            "No documentation attached yet",
             style: TextStyle(color: Colors.grey[400], fontSize: 14),
           ),
         ],
@@ -295,6 +320,7 @@ class _AddStatementsState extends State<AddStatements> {
             ),
           ),
           onPressed: () {
+            // _uploadedFiles is already fully formatted JSON payload maps!
             Navigator.push(
               context,
               MaterialPageRoute(
@@ -340,7 +366,7 @@ class _AddStatementsState extends State<AddStatements> {
             mainAxisSize: MainAxisSize.min,
             children: [
               Text(
-                "ADD STATEMENTS",
+                "DOCUMENTATION DESK",
                 style: TextStyle(
                   color: Colors.grey.shade500,
                   fontSize: 7,
@@ -360,13 +386,6 @@ class _AddStatementsState extends State<AddStatements> {
             color: Colors.white,
             shape: BoxShape.circle,
             border: Border.all(color: Colors.grey.shade100),
-            boxShadow: [
-              BoxShadow(
-                color: Colors.black.withValues(alpha: 0.02),
-                blurRadius: 4,
-                offset: const Offset(0, 2),
-              ),
-            ],
           ),
           child: IconButton(
             padding: EdgeInsets.zero,
@@ -414,137 +433,178 @@ class _AddStatementsState extends State<AddStatements> {
     );
   }
 
-  void _showPasswordSheet(PlatformFile file, String type, Color color) {
-    final TextEditingController codeController = TextEditingController();
+  void _showDocumentDetailsSheet(PlatformFile file) {
+    final TextEditingController notesController = TextEditingController();
+    String selectedDocType = _documentTypes.first['code']!;
 
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
       backgroundColor: Colors.transparent,
-      builder: (context) => Container(
-        decoration: const BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.vertical(top: Radius.circular(32)),
-        ),
-        padding: EdgeInsets.only(
-          bottom: MediaQuery.of(context).viewInsets.bottom + 32,
-          left: 24,
-          right: 24,
-          top: 12,
-        ),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Center(
-              child: Container(
-                width: 40,
-                height: 4,
-                decoration: BoxDecoration(
-                  color: Colors.grey[300],
-                  borderRadius: BorderRadius.circular(2),
+      builder: (context) => StatefulBuilder(
+        builder: (context, setModalState) => Container(
+          decoration: const BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.vertical(top: Radius.circular(32)),
+          ),
+          padding: EdgeInsets.only(
+            bottom: MediaQuery.of(context).viewInsets.bottom + 32,
+            left: 24,
+            right: 24,
+            top: 12,
+          ),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Center(
+                child: Container(
+                  width: 40,
+                  height: 4,
+                  decoration: BoxDecoration(
+                    color: Colors.grey[300],
+                    borderRadius: BorderRadius.circular(2),
+                  ),
                 ),
               ),
-            ),
-            const SizedBox(height: 24),
-            Row(
-              children: [
-                const Icon(
-                  CupertinoIcons.lock_shield,
-                  color: AnansiColors.darkBlue,
-                ),
-                const SizedBox(width: 12),
-                Text(
-                  "Statement Password",
-                  style: TextStyle(
-                    fontSize: 18,
-                    fontWeight: FontWeight.w900,
-                    color: AnansiColors.darkBlue,
-                  ),
-                ),
-              ],
-            ),
-            const SizedBox(height: 12),
-            RichText(
-              text: TextSpan(
-                style: TextStyle(
-                  color: Colors.grey[600],
-                  fontSize: 14,
-                  height: 1.4,
-                ),
+              const SizedBox(height: 24),
+              const Row(
                 children: [
-                  const TextSpan(text: "The file "),
-                  TextSpan(
-                    text: file.name,
-                    style: const TextStyle(
-                      fontWeight: FontWeight.bold,
-                      color: Colors.black,
+                  Icon(CupertinoIcons.doc_person, color: AnansiColors.darkBlue),
+                  SizedBox(width: 12),
+                  Text(
+                    "Configure Document",
+                    style: TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.w900,
+                      color: AnansiColors.darkBlue,
                     ),
-                  ),
-                  TextSpan(
-                    text:
-                        " is encrypted. Please enter the code provided by your bank or Safaricom.",
                   ),
                 ],
               ),
-            ),
-            const SizedBox(height: 24),
-            TextField(
-              controller: codeController,
-              autofocus: true,
-              obscureText: true,
-              keyboardType: TextInputType.text,
-              decoration: InputDecoration(
-                hintText: "Enter Code",
-                filled: true,
-                fillColor: Colors.grey[50],
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(16),
-                  borderSide: BorderSide.none,
-                ),
-                enabledBorder: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(16),
-                  borderSide: BorderSide(color: Colors.grey.shade100),
+              const SizedBox(height: 16),
+              Text(
+                "File: ${file.name}",
+                style: const TextStyle(
+                  fontWeight: FontWeight.bold,
+                  fontSize: 13,
+                  color: Colors.black87,
                 ),
               ),
-            ),
-            const SizedBox(height: 24),
-            SizedBox(
-              width: double.infinity,
-              height: 56,
-              child: ElevatedButton(
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: AnansiColors.darkBlue,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(16),
-                  ),
+              const SizedBox(height: 20),
+
+              Text(
+                "DOCUMENT TYPE",
+                style: TextStyle(
+                  fontSize: 10,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.grey[500],
+                  letterSpacing: 0.5,
                 ),
-                onPressed: () {
-                  if (codeController.text.isNotEmpty) {
-                    setState(() {
-                      _uploadedFiles.add(
-                        StatementFile(
-                          name: file.name,
-                          size:
-                              "${(file.size / 1024 / 1024).toStringAsFixed(2)} MB",
-                          code: codeController.text,
-                          type: type,
+              ),
+              const SizedBox(height: 8),
+
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 16),
+                decoration: BoxDecoration(
+                  color: Colors.grey[50],
+                  borderRadius: BorderRadius.circular(16),
+                  border: Border.all(color: Colors.grey.shade200),
+                ),
+                child: DropdownButtonHideUnderline(
+                  child: DropdownButton<String>(
+                    value: selectedDocType,
+                    isExpanded: true,
+                    icon: const Icon(CupertinoIcons.chevron_down, size: 16),
+                    items: _documentTypes.map((type) {
+                      return DropdownMenuItem<String>(
+                        value: type['code'],
+                        child: Text(
+                          type['label']!,
+                          style: const TextStyle(
+                            fontSize: 14,
+                            fontWeight: FontWeight.w600,
+                          ),
                         ),
                       );
-                    });
-                    Navigator.pop(context);
-                  }
-                },
-                child: const Text(
-                  "Verify & Attach",
-                  style: TextStyle(
-                    color: Colors.white,
-                    fontWeight: FontWeight.bold,
+                    }).toList(),
+                    onChanged: (value) {
+                      if (value != null) {
+                        setModalState(() => selectedDocType = value);
+                      }
+                    },
                   ),
                 ),
               ),
-            ),
-          ],
+              const SizedBox(height: 20),
+
+              Text(
+                "ADDITIONAL NOTES (OPTIONAL)",
+                style: TextStyle(
+                  fontSize: 10,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.grey[500],
+                  letterSpacing: 0.5,
+                ),
+              ),
+              const SizedBox(height: 8),
+              TextField(
+                controller: notesController,
+                keyboardType: TextInputType.text,
+                maxLines: 2,
+                decoration: InputDecoration(
+                  hintText: "e.g., Pages 2-4 contain bank layout data...",
+                  hintStyle: const TextStyle(
+                    fontSize: 13,
+                    fontWeight: FontWeight.normal,
+                  ),
+                  filled: true,
+                  fillColor: Colors.grey[50],
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(16),
+                    borderSide: BorderSide.none,
+                  ),
+                  enabledBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(16),
+                    borderSide: BorderSide(color: Colors.grey.shade100),
+                  ),
+                ),
+              ),
+              const SizedBox(height: 28),
+              SizedBox(
+                width: double.infinity,
+                height: 56,
+                child: ElevatedButton(
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: AnansiColors.darkBlue,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(16),
+                    ),
+                  ),
+                  onPressed: () {
+                    setState(() {
+                      // Appending directly as a map with the exact schema requested
+                      _uploadedFiles.add({
+                        "doc_type": selectedDocType,
+                        "file_name": file.name,
+                        "file_size": file.size,
+                        "file_url": "https://cdn.example.com/docs/${file.name}",
+                        "notes": notesController.text.trim(),
+                      });
+                    });
+                    Navigator.pop(context);
+                  },
+                  child: const Text(
+                    "Confirm & Attach",
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     );

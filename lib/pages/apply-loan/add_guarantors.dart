@@ -1,4 +1,4 @@
-import 'package:app_anansi_mobile/pages/apply-loan/add_statements.dart';
+import 'package:app_anansi_mobile/pages/apply-loan/add_loan_documents.dart';
 import 'package:app_anansi_mobile/pages/apply-loan/collaterals.dart';
 import 'package:app_anansi_mobile/pages/apply-loan/loan_terms_conditions.dart';
 import 'package:app_anansi_mobile/pages/help&support/help_support.dart';
@@ -792,7 +792,7 @@ class _AddGuarantorsState extends State<AddGuarantors> {
     String buttonLabel;
 
     if (requiresDocuments) {
-      destinationPage = AddStatements(
+      destinationPage = AddLoanDocuments(
         appId: widget.appId,
         productId: widget.productId,
       );

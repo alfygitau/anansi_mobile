@@ -1,5 +1,6 @@
 import 'package:app_anansi_mobile/helpers/format_amount.dart';
 import 'package:app_anansi_mobile/pages/apply-loan/add_collateral.dart';
+import 'package:app_anansi_mobile/pages/apply-loan/add_loan_documents.dart';
 import 'package:app_anansi_mobile/pages/apply-loan/loan_terms_conditions.dart';
 import 'package:app_anansi_mobile/pages/help&support/help_support.dart';
 import 'package:app_anansi_mobile/services/error_service.dart';
@@ -426,6 +427,22 @@ class _CollateralsState extends State<Collaterals> {
   }
 
   Widget _buildBottomAction(BuildContext context) {
+    final bool requiresDocuments = loanProduct['requires_documents'] ?? false;
+
+    Widget destinationPage;
+    String buttonLabel;
+
+    if (requiresDocuments) {
+      destinationPage = AddLoanDocuments(
+        appId: widget.appId,
+        productId: widget.productId,
+      );
+      buttonLabel = "CONTINUE TO DOCUMENTS";
+    } else {
+      destinationPage = LoanTermsConditions(appId: widget.appId);
+      buttonLabel = "PROCEED TO TERMS";
+    }
+
     return Container(
       padding: const EdgeInsets.fromLTRB(20, 16, 20, 32),
       decoration: BoxDecoration(
@@ -454,10 +471,7 @@ class _CollateralsState extends State<Collaterals> {
             onPressed: () {
               Navigator.push(
                 context,
-                MaterialPageRoute(
-                  builder: (context) =>
-                      LoanTermsConditions(appId: widget.appId),
-                ),
+                MaterialPageRoute(builder: (context) => destinationPage),
               );
             },
             style: ElevatedButton.styleFrom(
@@ -468,11 +482,11 @@ class _CollateralsState extends State<Collaterals> {
                 borderRadius: BorderRadius.circular(18),
               ),
             ),
-            child: const Row(
+            child: Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 Text(
-                  "Continue Application",
+                  buttonLabel,
                   style: TextStyle(
                     color: Colors.white,
                     fontWeight: FontWeight.w800,

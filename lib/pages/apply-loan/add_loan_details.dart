@@ -1,6 +1,6 @@
 import 'dart:convert';
 import 'package:app_anansi_mobile/pages/apply-loan/add_guarantors.dart';
-import 'package:app_anansi_mobile/pages/apply-loan/add_statements.dart';
+import 'package:app_anansi_mobile/pages/apply-loan/add_loan_documents.dart';
 import 'package:app_anansi_mobile/pages/apply-loan/collaterals.dart';
 import 'package:app_anansi_mobile/pages/apply-loan/loan_terms_conditions.dart';
 import 'package:app_anansi_mobile/pages/help&support/help_support.dart';
@@ -953,7 +953,7 @@ class _AddLoanDetailsState extends State<AddLoanDetails> {
       buttonLabel = "CONTINUE TO COLLATERALS";
     } else if (requiresDocuments) {
       destinationBuilder = (id, productId) =>
-          AddStatements(appId: id, productId: productId);
+          AddLoanDocuments(appId: id, productId: productId);
       buttonLabel = "CONTINUE TO DOCUMENTS";
     } else {
       destinationBuilder = (id, productId) => LoanTermsConditions(appId: id);
