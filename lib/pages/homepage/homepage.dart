@@ -526,23 +526,27 @@ class _HomepageState extends State<Homepage> {
                   sliver: SliverList(
                     delegate: SliverChildBuilderDelegate((context, index) {
                       final item = applications[index];
-                      return _buildApplicationItem(
-                        reference: item['application_number'] ?? "N/A",
-                        title: item['product']['name'] ?? "Loan Application",
-                        date: formatPostgresDateWithTime(
-                          item['application_date'],
+                      return Padding(
+                        // Adjust the bottom padding value to get the desired spacing
+                        padding: const EdgeInsets.only(bottom: 16.0),
+                        child: _buildApplicationItem(
+                          reference: item['application_number'] ?? "N/A",
+                          title: item['product']['name'] ?? "Loan Application",
+                          date: formatPostgresDateWithTime(
+                            item['application_date'],
+                          ),
+                          amount: formatAmount(item['applied_amount'] ?? 0),
+                          status: item['status_label'] ?? "Pending",
+                          onTap: () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) =>
+                                    LoanApplication(appId: item['id'] ?? ""),
+                              ),
+                            );
+                          },
                         ),
-                        amount: formatAmount(item['applied_amount'] ?? 0),
-                        status: item['status_label'] ?? "Pending",
-                        onTap: () {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) =>
-                                  LoanApplication(appId: item['id'] ?? ""),
-                            ),
-                          );
-                        },
                       );
                     }, childCount: applications.length),
                   ),

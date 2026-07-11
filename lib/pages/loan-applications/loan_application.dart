@@ -1,4 +1,5 @@
 import 'package:app_anansi_mobile/helpers/format_amount.dart';
+import 'package:app_anansi_mobile/pages/apply-loan/collaterals.dart';
 import 'package:app_anansi_mobile/pages/help&support/help_support.dart';
 import 'package:app_anansi_mobile/pages/loan-applications/application_guarantors.dart';
 import 'package:app_anansi_mobile/services/error_service.dart';
@@ -91,8 +92,9 @@ class _LoanApplicationState extends State<LoanApplication> {
 
   @override
   Widget build(BuildContext context) {
-    final String currentStage =
-        (application['status_label'] ?? "Pending").toLowerCase().trim();
+    final String currentStage = (application['status_label'] ?? "Pending")
+        .toLowerCase()
+        .trim();
     return Scaffold(
       backgroundColor: const Color(0xFFF8FAFC),
       body: CustomScrollView(
@@ -1189,7 +1191,15 @@ class _LoanApplicationState extends State<LoanApplication> {
       ),
       child: ElevatedButton(
         onPressed: () {
-          // Normal continuation navigation code execution hook goes here
+          Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(
+              builder: (context) => Collaterals(
+                appId: widget.appId,
+                productId: application['loan_product']['id'] ?? "",
+              ),
+            ),
+          );
         },
         style: ElevatedButton.styleFrom(
           backgroundColor: const Color(0xFF0A2351),

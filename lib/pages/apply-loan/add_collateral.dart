@@ -1,5 +1,8 @@
 import 'dart:io';
+import 'package:app_anansi_mobile/pages/apply-loan/collaterals.dart';
 import 'package:app_anansi_mobile/pages/help&support/help_support.dart';
+import 'package:app_anansi_mobile/services/error_service.dart';
+import 'package:app_anansi_mobile/services/loan_application_service.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
@@ -7,7 +10,13 @@ import 'package:file_picker/file_picker.dart';
 import 'package:app_anansi_mobile/theme/app_theme.dart';
 
 class AddCollateral extends StatefulWidget {
-  const AddCollateral({super.key});
+  final String appId;
+  final String productId;
+  const AddCollateral({
+    super.key,
+    required this.appId,
+    required this.productId,
+  });
 
   @override
   State<AddCollateral> createState() => _AddCollateralState();
@@ -17,11 +26,73 @@ class _AddCollateralState extends State<AddCollateral> {
   final List<File> _chattelImages = [];
   final List<PlatformFile> _assetDocs = [];
   final ImagePicker _picker = ImagePicker();
-  Map<String, String?> formErrors = {'name': null, "value": null};
+
+  Map<String, String?> formErrors = {
+    'name': null,
+    'value': null,
+    'category': null,
+    'attachments': null,
+  };
+
   final FocusNode _nameFocus = FocusNode();
   final FocusNode _valueFocus = FocusNode();
   final TextEditingController _nameController = TextEditingController();
   final TextEditingController _valueController = TextEditingController();
+  bool isAdding = false;
+  String category = "";
+
+  final List<Map<String, dynamic>> _categories = [
+    {
+      "id": "VEHICLE",
+      "title": "Motor Vehicle",
+      "icon": Icons.directions_car_filled_rounded,
+    },
+    {"id": "LAND", "title": "Land", "icon": Icons.landscape_rounded},
+    {"id": "HOUSEHOLDS", "title": "Households", "icon": Icons.chair_rounded},
+    {
+      "id": "ELECTRONICS",
+      "title": "Electronics",
+      "icon": Icons.analytics_rounded,
+    },
+  ];
+
+  void _validateField(String key, String value) {
+    setState(() {
+      if (value.trim().isEmpty) {
+        formErrors[key] = "This field is required";
+      } else {
+        formErrors[key] = null;
+      }
+    });
+  }
+
+  bool _isFormValid() {
+    bool valid = true;
+
+    if (_nameController.text.trim().isEmpty) {
+      formErrors['name'] = "Please provide a valid asset label descriptor";
+      valid = false;
+    }
+    if (_valueController.text.trim().isEmpty) {
+      formErrors['value'] = "Estimated financial valuation is required";
+      valid = false;
+    }
+    if (category.isEmpty) {
+      formErrors['category'] =
+          "Please select an asset security classification option";
+      valid = false;
+    }
+    if (_chattelImages.isEmpty) {
+      formErrors['attachments'] =
+          "At least one clear photo of the asset must be provided";
+      valid = false;
+    } else {
+      formErrors['attachments'] = null;
+    }
+
+    setState(() {});
+    return valid;
+  }
 
   Future<void> _pickImage(ImageSource source) async {
     final XFile? image = await _picker.pickImage(
@@ -29,7 +100,10 @@ class _AddCollateralState extends State<AddCollateral> {
       imageQuality: 80,
     );
     if (image != null) {
-      setState(() => _chattelImages.add(File(image.path)));
+      setState(() {
+        _chattelImages.add(File(image.path));
+        formErrors['attachments'] = null;
+      });
     }
   }
 
@@ -37,10 +111,76 @@ class _AddCollateralState extends State<AddCollateral> {
     FilePickerResult? result = await FilePicker.pickFiles(
       type: FileType.custom,
       allowedExtensions: ['pdf', 'doc', 'docx', 'jpg'],
+      allowMultiple: true
     );
     if (result != null) {
-      setState(() => _assetDocs.add(result.files.first));
+      setState(() {
+        _assetDocs.add(result.files.first);
+        formErrors['attachments'] = null;
+      });
     }
+  }
+
+  Future<void> addChattel() async {
+    if (!_isFormValid() || isAdding) return;
+    try {
+      setState(() => isAdding = true);
+      final (response, errors) = await LoanApplicationService().addChattel(
+        applicationId: widget.appId,
+        assetName: _nameController.text.trim(),
+        assetValue: _valueController.text.trim(),
+        assetCategory: category,
+        imagePaths: _chattelImages.map((file) => file.path).toList(),
+        docPaths: _assetDocs
+            .map((file) => file.path)
+            .whereType<String>()
+            .toList(),
+      );
+      if (errors != null) {
+        ErrorService.showActionableError(
+          context,
+          title: errors[0],
+          message: errors[1],
+        );
+      } else if (response != null) {
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(
+            builder: (context) =>
+                Collaterals(appId: widget.appId, productId: widget.productId),
+          ),
+        );
+      }
+    } finally {
+      if (mounted) setState(() => isAdding = false);
+    }
+  }
+
+  @override
+  void initState() {
+    super.initState();
+
+    _nameFocus.addListener(() {
+      if (!_nameFocus.hasFocus) {
+        _validateField('name', _nameController.text);
+      }
+      setState(() {});
+    });
+    _valueFocus.addListener(() {
+      if (!_valueFocus.hasFocus) {
+        _validateField('value', _valueController.text);
+      }
+      setState(() {});
+    });
+  }
+
+  @override
+  void dispose() {
+    _nameFocus.dispose();
+    _valueFocus.dispose();
+    _nameController.dispose();
+    _valueController.dispose();
+    super.dispose();
   }
 
   @override
@@ -66,9 +206,9 @@ class _AddCollateralState extends State<AddCollateral> {
                     hint: "e.g. Samsung 55' UHD TV",
                     fieldKey: "name",
                     focusNode: _nameFocus,
-                    keyboardType:TextInputType.text,
+                    keyboardType: TextInputType.text,
                     controller: _nameController,
-                    icon: CupertinoIcons.add_circled
+                    icon: CupertinoIcons.add_circled,
                   ),
                   const SizedBox(height: 16),
                   _buildInputField(
@@ -78,10 +218,11 @@ class _AddCollateralState extends State<AddCollateral> {
                     fieldKey: "value",
                     focusNode: _valueFocus,
                     controller: _valueController,
-                    icon: CupertinoIcons.money_dollar
+                    icon: CupertinoIcons.money_dollar,
                   ),
-
-                  const SizedBox(height: 32),
+                  const SizedBox(height: 20),
+                  categoryCard(context),
+                  const SizedBox(height: 20),
                   _buildSectionTitle(
                     "CHATTEL IMAGES",
                     "Provide clear photos of the item",
@@ -91,7 +232,7 @@ class _AddCollateralState extends State<AddCollateral> {
 
                   const SizedBox(height: 32),
                   _buildSectionTitle(
-                    "DOCUMENTATION",
+                    "CHATTEL DOCUMENTS",
                     "Ownership proof, receipts, or logs",
                   ),
                   const SizedBox(height: 16),
@@ -101,8 +242,32 @@ class _AddCollateralState extends State<AddCollateral> {
                     const SizedBox(height: 12),
                     ..._assetDocs.map((file) => _buildFileTile(file)),
                   ],
-
-                  const SizedBox(height: 120),
+                  if (formErrors['attachments'] != null) ...[
+                    Padding(
+                      padding: const EdgeInsets.only(top: 16, left: 4),
+                      child: Row(
+                        children: [
+                          const Icon(
+                            CupertinoIcons.exclamationmark_circle,
+                            color: Colors.redAccent,
+                            size: 14,
+                          ),
+                          const SizedBox(width: 6),
+                          Expanded(
+                            child: Text(
+                              formErrors['attachments']!,
+                              style: const TextStyle(
+                                color: Colors.redAccent,
+                                fontSize: 12,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                  const SizedBox(height: 140),
                 ],
               ),
             ),
@@ -317,7 +482,7 @@ class _AddCollateralState extends State<AddCollateral> {
         ),
         child: Row(
           children: [
-            Icon(
+            const Icon(
               Icons.file_upload_outlined,
               color: AnansiColors.darkBlue,
               size: 32,
@@ -394,7 +559,9 @@ class _AddCollateralState extends State<AddCollateral> {
             border: Border.all(
               color: hasError
                   ? Colors.redAccent.withValues(alpha: 0.4)
-                  : (isFocused ? Color(0xFFE2E8F0) : const Color(0xFFE2E8F0)),
+                  : (isFocused
+                        ? const Color(0xFFE2E8F0)
+                        : const Color(0xFFE2E8F0)),
               width: 1.8,
             ),
           ),
@@ -545,6 +712,7 @@ class _AddCollateralState extends State<AddCollateral> {
     );
   }
 
+  // WIRED SUBMISSION DRIVER ACTION PANEL
   Widget _buildBottomAction() {
     return SafeArea(
       child: Container(
@@ -558,22 +726,156 @@ class _AddCollateralState extends State<AddCollateral> {
               borderRadius: BorderRadius.circular(16),
             ),
           ),
-          onPressed: () {
-            // Navigator.push(
-            //   context,
-            //   MaterialPageRoute(builder: (context) =>  Collaterals(appId: widget.,)),
-            // );
+          onPressed: isAdding
+              ? null
+              : addChattel, // Linked directly to execution stream
+          child: isAdding
+              ? const SizedBox(
+                  width: 24,
+                  height: 24,
+                  child: CircularProgressIndicator(
+                    strokeWidth: 2.5,
+                    valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                  ),
+                )
+              : const Text(
+                  "Save & Continue",
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontWeight: FontWeight.bold,
+                    fontSize: 16,
+                  ),
+                ),
+        ),
+      ),
+    );
+  }
+
+  Widget categoryCard(BuildContext context) {
+    const Color primaryColor = Color(0xFF074073);
+    final bool hasCategoryError = formErrors['category'] != null;
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
+          children: [
+            Text(
+              "SELECT ASSET CATEGORY",
+              style: TextStyle(
+                fontSize: 10,
+                fontWeight: FontWeight.w800,
+                color: hasCategoryError ? Colors.redAccent : Colors.blueGrey,
+                letterSpacing: 1.1,
+              ),
+            ),
+            if (hasCategoryError) ...[
+              const SizedBox(width: 6),
+              const Icon(
+                CupertinoIcons.exclamationmark_circle,
+                size: 12,
+                color: Colors.redAccent,
+              ),
+            ],
+          ],
+        ),
+        const SizedBox(height: 12),
+        GridView.builder(
+          shrinkWrap: true,
+          padding: EdgeInsets.zero,
+          physics: const NeverScrollableScrollPhysics(),
+          itemCount: _categories.length,
+          gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+            crossAxisCount:
+                2, // Shifted to 2 for optimal title text sizing boundaries
+            crossAxisSpacing: 12,
+            mainAxisSpacing: 12,
+            childAspectRatio: 1.25,
+          ),
+          itemBuilder: (context, index) {
+            final item = _categories[index];
+            final isSelected = category == item["id"];
+
+            return InkWell(
+              onTap: () {
+                setState(() {
+                  category = item["id"];
+                  formErrors['category'] = null;
+                });
+              },
+              borderRadius: BorderRadius.circular(20),
+              child: AnimatedContainer(
+                duration: const Duration(milliseconds: 180),
+                padding: const EdgeInsets.all(18),
+                decoration: BoxDecoration(
+                  color: isSelected
+                      ? primaryColor.withValues(alpha: 0.04)
+                      : const Color(0xFFF8F9FA),
+                  borderRadius: BorderRadius.circular(20),
+                  border: Border.all(
+                    color: isSelected
+                        ? primaryColor
+                        : (hasCategoryError
+                              ? Colors.redAccent.withValues(alpha: 0.3)
+                              : const Color(0xFFEAECEF)),
+                    width: isSelected ? 2.0 : 1.0,
+                  ),
+                ),
+                child: Stack(
+                  children: [
+                    if (isSelected)
+                      const Align(
+                        alignment: Alignment.topRight,
+                        child: Icon(
+                          Icons.check_circle_rounded,
+                          color: primaryColor,
+                          size: 16,
+                        ),
+                      ),
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Icon(
+                          item["icon"] as IconData,
+                          color: isSelected ? primaryColor : Colors.grey[500],
+                          size: 56,
+                        ),
+                        Text(
+                          item["title"],
+                          style: TextStyle(
+                            fontSize: 13,
+                            fontWeight: FontWeight.w800,
+                            color: isSelected ? primaryColor : Colors.black87,
+                            letterSpacing: -0.1,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
+              ),
+            );
           },
-          child: const Text(
-            "Save & Continue",
-            style: TextStyle(
-              color: Colors.white,
-              fontWeight: FontWeight.bold,
-              fontSize: 16,
+        ),
+        AnimatedSize(
+          duration: const Duration(milliseconds: 200),
+          child: SizedBox(
+            height: hasCategoryError ? null : 0,
+            child: Padding(
+              padding: const EdgeInsets.only(left: 4, top: 8),
+              child: Text(
+                formErrors['category'] ?? "",
+                style: const TextStyle(
+                  color: Colors.redAccent,
+                  fontSize: 12,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
             ),
           ),
         ),
-      ),
+      ],
     );
   }
 }

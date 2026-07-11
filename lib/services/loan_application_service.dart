@@ -210,7 +210,6 @@ class LoanApplicationService {
     required List<String> docPaths,
   }) async {
     try {
-      // 1. Map paths concurrently to MultipartFile instances using Future.wait
       final List<MultipartFile> imageMultipartFiles = await Future.wait(
         imagePaths.map((path) async {
           return await MultipartFile.fromFile(
@@ -228,14 +227,13 @@ class LoanApplicationService {
           );
         }),
       );
-
       // 2. Attach the lists directly to your FormData payload keys
       final FormData formData = FormData.fromMap({
         "asset_name": assetName,
         "asset_category": assetCategory,
         "estimated_value": assetValue,
-        "image_urls": imageMultipartFiles, // Sends as a multi-part array
-        "doc_urls": docMultipartFiles, // Sends as a multi-part array
+        "images": imageMultipartFiles, // Sends as a multi-part array
+        "documents": docMultipartFiles, // Sends as a multi-part array
       });
 
       // 3. Fire the request

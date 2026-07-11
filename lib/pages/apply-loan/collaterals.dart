@@ -1,11 +1,14 @@
-import 'dart:io';
-import 'package:app_anansi_mobile/models/collateral.dart';
+import 'package:app_anansi_mobile/helpers/format_amount.dart';
 import 'package:app_anansi_mobile/pages/apply-loan/add_collateral.dart';
 import 'package:app_anansi_mobile/pages/apply-loan/loan_terms_conditions.dart';
 import 'package:app_anansi_mobile/pages/help&support/help_support.dart';
+import 'package:app_anansi_mobile/services/error_service.dart';
+import 'package:app_anansi_mobile/services/loan_application_service.dart';
+import 'package:app_anansi_mobile/services/loan_products_service.dart';
 import 'package:app_anansi_mobile/theme/app_theme.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:shimmer/shimmer.dart';
 
 class Collaterals extends StatefulWidget {
   final String appId;
@@ -17,35 +20,92 @@ class Collaterals extends StatefulWidget {
 }
 
 class _CollateralsState extends State<Collaterals> {
-  final List<Collateral> staticCollateralItems = [
-    Collateral(
-      name: "Samsung 55' UHD Smart TV",
-      category: "Electronics",
-      value: "85,000",
-      images: [],
-      documents: ["receipt.pdf"],
-      status: "Verified",
-    ),
-    Collateral(
-      name: "Toyota Passo (KDL 123X)",
-      category: "Motor Vehicle",
-      value: "850,000",
-      images: [],
-      documents: ["logbook.pdf", "insurance.pdf"],
-      status: "Pending",
-    ),
-    Collateral(
-      name: "Double Door Fridge",
-      category: "Appliances",
-      value: "45,000",
-      images: [],
-      documents: [],
-      status: "Rejected",
-    ),
-  ];
+  List<Map<String, dynamic>> collaterals = [];
+  Map<String, dynamic> loanProduct = {};
+  bool isFetching = false;
+  bool isLoading = false;
+  bool isDeleting = false;
+
+  Future<void> fetchCollaterals() async {
+    try {
+      isFetching = true;
+      final (response, errors) = await LoanApplicationService().fetchChattels(
+        applicationId: widget.appId,
+      );
+      if (errors != null) {
+        ErrorService.showActionableError(
+          context,
+          title: errors[0],
+          message: errors[1],
+        );
+      } else if (response != null) {
+        final responseInfo = response.data['data'];
+        setState(() {
+          collaterals = List<Map<String, dynamic>>.from(responseInfo ?? []);
+        });
+      }
+    } finally {
+      if (mounted) setState(() => isFetching = false);
+    }
+  }
+
+  Future<void> deleteChattel(String chattelId) async {
+    try {
+      isDeleting = true;
+      final (response, errors) = await LoanApplicationService().removeChattel(
+        applicationId: widget.appId,
+        chattelId: chattelId,
+      );
+      if (errors != null) {
+        ErrorService.showActionableError(
+          context,
+          title: errors[0],
+          message: errors[1],
+        );
+      } else if (response != null) {
+        if (mounted) {
+          fetchCollaterals();
+          Navigator.of(context).pop();
+        }
+      }
+    } finally {
+      if (mounted) setState(() => isDeleting = false);
+    }
+  }
+
+  Future<void> getLoanProduct() async {
+    isLoading = true;
+    try {
+      final (response, errors) = await LoanProductsService().listLoanProduct(
+        productId: widget.productId,
+      );
+      if (errors != null) {
+        ErrorService.showActionableError(
+          context,
+          title: errors[0],
+          message: errors[1],
+        );
+      } else if (response != null) {
+        final responseInfo = response.data['data'];
+        setState(() {
+          loanProduct = responseInfo ?? {};
+        });
+      }
+    } finally {
+      if (mounted) setState(() => isLoading = false);
+    }
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    fetchCollaterals();
+    getLoanProduct();
+  }
+
   @override
   Widget build(BuildContext context) {
-    final items = staticCollateralItems;
+    final items = collaterals;
     return Scaffold(
       backgroundColor: const Color(0xFFF8FAFC),
       body: CustomScrollView(
@@ -53,7 +113,9 @@ class _CollateralsState extends State<Collaterals> {
           _buildAppBar(context),
           _buildPageDescription(),
           SliverToBoxAdapter(child: _buildApplyLoanAction(context)),
-          items.isEmpty
+          isFetching
+              ? _buildShimmerLoading()
+              : items.isEmpty
               ? _buildEmptyState()
               : SliverPadding(
                   padding: const EdgeInsets.symmetric(horizontal: 20),
@@ -70,6 +132,296 @@ class _CollateralsState extends State<Collaterals> {
         ],
       ),
       bottomNavigationBar: _buildBottomAction(context),
+    );
+  }
+
+  void _showCollateralActionsBottomSheet(
+    BuildContext context,
+    Map<String, dynamic> item, {
+    required VoidCallback onView,
+    required Future<void> Function() onDelete,
+  }) {
+    const Color primaryColor = Color(0xFF074073);
+    final String status = item['status']?.toString() ?? "Pending";
+    final bool isEditable =
+        status.toLowerCase().trim() == "pending" ||
+        status.toLowerCase().trim() == "draft";
+
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: Colors.white,
+      elevation: 0,
+      isScrollControlled: true,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(28)),
+      ),
+      builder: (context) {
+        // Declared outside inner builder function scope so state changes persist across frames
+        bool isRemoving = false;
+
+        return StatefulBuilder(
+          builder: (BuildContext context, StateSetter setSheetState) {
+            return SafeArea(
+              child: Padding(
+                padding: const EdgeInsets.fromLTRB(24, 14, 24, 20),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    // --- THE PULL INDICATOR CHASSIS ---
+                    Center(
+                      child: Container(
+                        width: 38,
+                        height: 4,
+                        decoration: BoxDecoration(
+                          color: const Color(0xFFE2E8F0), // Clean gray tint
+                          borderRadius: BorderRadius.circular(100),
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: 24),
+
+                    // --- CONTEXT SYNOPSIS BLOCK ---
+                    Container(
+                      padding: const EdgeInsets.all(16),
+                      decoration: BoxDecoration(
+                        color: const Color(0xFFF8FAFC),
+                        borderRadius: BorderRadius.circular(20),
+                        border: Border.all(color: const Color(0xFFF1F5F9)),
+                      ),
+                      child: Row(
+                        children: [
+                          // Recycled category thumbnail space
+                          Container(
+                            width: 44,
+                            height: 44,
+                            decoration: BoxDecoration(
+                              color: Colors.white,
+                              borderRadius: BorderRadius.circular(12),
+                              border: Border.all(
+                                color: const Color(0xFFE2E8F0),
+                              ),
+                            ),
+                            child: Center(
+                              child: Icon(
+                                _getCategoryIcon(item['asset_category'] ?? ""),
+                                color: primaryColor.withValues(alpha: 0.6),
+                                size: 20,
+                              ),
+                            ),
+                          ),
+                          const SizedBox(width: 14),
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  item['asset_name'] ?? "Asset Item",
+                                  maxLines: 1,
+                                  overflow: TextOverflow.ellipsis,
+                                  style: const TextStyle(
+                                    fontWeight: FontWeight.w900,
+                                    fontSize: 14,
+                                    color: primaryColor,
+                                  ),
+                                ),
+                                const SizedBox(height: 2),
+                                Text(
+                                  (item['asset_category'] ?? "N/A")
+                                      .toUpperCase(),
+                                  style: TextStyle(
+                                    color: Colors.blueGrey.shade300,
+                                    fontWeight: FontWeight.w800,
+                                    fontSize: 9,
+                                    letterSpacing: 0.5,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                          Text(
+                            formatAmount(item['estimated_value'] ?? 0),
+                            style: const TextStyle(
+                              fontWeight: FontWeight.w900,
+                              color: Color(0xFF1E3A8A),
+                              fontSize: 14,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    const SizedBox(height: 24),
+
+                    // 1. VIEW ACTION ITEM
+                    InkWell(
+                      onTap: isRemoving
+                          ? null // Block interaction if deletion is in progress
+                          : () {
+                              Navigator.pop(context); // Dismiss sheet first
+                              onView();
+                            },
+                      borderRadius: BorderRadius.circular(16),
+                      child: Opacity(
+                        opacity: isRemoving ? 0.45 : 1.0,
+                        child: Padding(
+                          padding: const EdgeInsets.all(12.0),
+                          child: Row(
+                            children: [
+                              Container(
+                                width: 40,
+                                height: 40,
+                                decoration: BoxDecoration(
+                                  color: primaryColor.withValues(alpha: 0.05),
+                                  shape: BoxShape.circle,
+                                ),
+                                child: const Icon(
+                                  CupertinoIcons.eye_fill,
+                                  color: primaryColor,
+                                  size: 18,
+                                ),
+                              ),
+                              const SizedBox(width: 16),
+                              const Expanded(
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(
+                                      "View Asset",
+                                      style: TextStyle(
+                                        fontWeight: FontWeight.w800,
+                                        fontSize: 14,
+                                        color: Colors.black87,
+                                      ),
+                                    ),
+                                    SizedBox(height: 2),
+                                    Text(
+                                      "Inspect current imagery data and uploaded files",
+                                      style: TextStyle(
+                                        fontSize: 11,
+                                        color: Colors.grey,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                              const Icon(
+                                CupertinoIcons.chevron_right,
+                                size: 14,
+                                color: Color(0xFFCBD5E1),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ),
+
+                    const Padding(
+                      padding: EdgeInsets.symmetric(vertical: 6.0),
+                      child: Divider(color: Color(0xFFF1F5F9), height: 1),
+                    ),
+                    InkWell(
+                      onTap: (!isEditable || isRemoving)
+                          ? null
+                          : () async {
+                              setSheetState(() => isRemoving = true);
+                              await onDelete();
+                              if (context.mounted) {
+                                setSheetState(() => isRemoving = false);
+                              }
+                            },
+                      borderRadius: BorderRadius.circular(16),
+                      child: Opacity(
+                        opacity: (isEditable && !isRemoving)
+                            ? 1.0
+                            : 0.45, // Gray out row if un-editable or executing
+                        child: Padding(
+                          padding: const EdgeInsets.all(12.0),
+                          child: Row(
+                            children: [
+                              Container(
+                                width: 40,
+                                height: 40,
+                                decoration: BoxDecoration(
+                                  color: isEditable
+                                      ? Colors.redAccent.withValues(alpha: 0.08)
+                                      : Colors.grey.withValues(alpha: 0.1),
+                                  shape: BoxShape.circle,
+                                ),
+                                child: isRemoving
+                                    ? const Center(
+                                        child: SizedBox(
+                                          width: 14,
+                                          height: 14,
+                                          child: CircularProgressIndicator(
+                                            strokeWidth: 2.0,
+                                            valueColor:
+                                                AlwaysStoppedAnimation<Color>(
+                                                  Colors.redAccent,
+                                                ),
+                                          ),
+                                        ),
+                                      )
+                                    : Icon(
+                                        isEditable
+                                            ? CupertinoIcons.trash_fill
+                                            : CupertinoIcons.lock_fill,
+                                        color: isEditable
+                                            ? Colors.redAccent
+                                            : Colors.grey.shade600,
+                                        size: 16,
+                                      ),
+                              ),
+                              const SizedBox(width: 16),
+                              Expanded(
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(
+                                      isRemoving
+                                          ? "Removing Asset..."
+                                          : "Remove from Application",
+                                      style: TextStyle(
+                                        fontWeight: FontWeight.w800,
+                                        fontSize: 14,
+                                        color: isEditable
+                                            ? Colors.redAccent
+                                            : Colors.black87,
+                                      ),
+                                    ),
+                                    const SizedBox(height: 2),
+                                    Text(
+                                      isRemoving
+                                          ? "Disconnecting asset from records..."
+                                          : (isEditable
+                                                ? "Permanently unbind this chattel parameter entry"
+                                                : "Cannot remove items currently locked under audit review"),
+                                      style: const TextStyle(
+                                        fontSize: 11,
+                                        color: Colors.grey,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                              if (isEditable && !isRemoving)
+                                const Icon(
+                                  CupertinoIcons.chevron_right,
+                                  size: 14,
+                                  color: Color(0xFFCBD5E1),
+                                ),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: 8),
+                  ],
+                ),
+              ),
+            );
+          },
+        );
+      },
     );
   }
 
@@ -175,7 +527,12 @@ class _CollateralsState extends State<Collaterals> {
         onTap: () {
           Navigator.push(
             context,
-            MaterialPageRoute(builder: (context) => const AddCollateral()),
+            MaterialPageRoute(
+              builder: (context) => AddCollateral(
+                appId: widget.appId,
+                productId: widget.productId,
+              ),
+            ),
           );
         },
         child: Container(
@@ -395,115 +752,272 @@ class _CollateralsState extends State<Collaterals> {
     );
   }
 
-  Widget _buildCollateralItemCard(dynamic item) {
+  // The skeleton loop context handler
+  Widget _buildShimmerLoading() {
+    return SliverPadding(
+      padding: const EdgeInsets.symmetric(horizontal: 20),
+      sliver: SliverList(
+        delegate: SliverChildBuilderDelegate(
+          (context, index) {
+            return Shimmer.fromColors(
+              baseColor: Colors.grey.shade200,
+              highlightColor: Colors.grey.shade50,
+              period: const Duration(milliseconds: 1200),
+              child: _buildSkeletonCollateralCard(),
+            );
+          },
+          childCount: 6, // Enforces exactly 6 layout skeletons
+        ),
+      ),
+    );
+  }
+
+  // The isolated structural placeholder card
+  Widget _buildSkeletonCollateralCard() {
     return Container(
       margin: const EdgeInsets.only(bottom: 16),
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(24),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: 0.03),
-            blurRadius: 20,
-            offset: const Offset(0, 8),
-          ),
-        ],
         border: Border.all(color: const Color(0xFFF1F5F9), width: 1),
       ),
       child: Row(
         children: [
+          // LEFT: Thumbnail Box Skeleton
           Container(
             width: 52,
             height: 52,
             decoration: BoxDecoration(
-              color: const Color(0xFFF1F5F9),
+              color: Colors.white,
               borderRadius: BorderRadius.circular(16),
-              image: item.images.isNotEmpty
-                  ? DecorationImage(
-                      image: FileImage(File(item.images[0])),
-                      fit: BoxFit.cover,
-                    )
-                  : null,
             ),
-            child: item.images.isEmpty
-                ? Icon(
-                    _getCategoryIcon(item.category),
-                    color: AnansiColors.darkBlue.withValues(alpha: 0.2),
-                    size: 28,
-                  )
-                : null,
           ),
           const SizedBox(width: 16),
+
+          // MIDDLE: Asset Details Stack Skeletons
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(
-                  item.name,
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                  style: const TextStyle(
-                    fontWeight: FontWeight.w800,
-                    fontSize: 15,
-                    color: AnansiColors.darkBlue,
-                  ),
-                ),
-                const SizedBox(height: 2),
-                Text(
-                  item.category.toUpperCase(),
-                  style: TextStyle(
-                    color: Colors.blueGrey.shade300,
-                    fontWeight: FontWeight.bold,
-                    fontSize: 10,
-                    letterSpacing: 0.5,
+                // Asset Name Placeholder
+                Container(
+                  width: 140,
+                  height: 12,
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(4),
                   ),
                 ),
                 const SizedBox(height: 8),
-                Text(
-                  "KES ${item.value}",
-                  style: const TextStyle(
-                    fontWeight: FontWeight.w900,
-                    color: Color(0xFF1E3A8A),
-                    fontSize: 16,
+                // Asset Category Placeholder
+                Container(
+                  width: 70,
+                  height: 8,
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(4),
+                  ),
+                ),
+                const SizedBox(height: 12),
+                // Estimated Value Placeholder
+                Container(
+                  width: 90,
+                  height: 14,
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(4),
                   ),
                 ),
               ],
             ),
           ),
+
+          // RIGHT: Status Badge & Metadata Column Skeletons
           Column(
             crossAxisAlignment: CrossAxisAlignment.end,
             children: [
-              _buildStatusBadge(item.status ?? "Pending"),
-              const SizedBox(height: 12),
-              if (item.documents.isNotEmpty)
-                Row(
-                  children: [
-                    Icon(
-                      CupertinoIcons.doc_text,
-                      size: 12,
-                      color: Colors.grey.shade400,
-                    ),
-                    const SizedBox(width: 4),
-                    Text(
-                      "${item.documents.length} Docs",
-                      style: TextStyle(
-                        color: Colors.grey.shade400,
-                        fontSize: 10,
-                        fontWeight: FontWeight.w600,
-                      ),
-                    ),
-                  ],
-                )
-              else
-                const Icon(
-                  CupertinoIcons.chevron_right,
-                  size: 14,
-                  color: Color(0xFFCBD5E1),
+              // Status Badge Placeholder
+              Container(
+                width: 65,
+                height: 22,
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(100),
                 ),
+              ),
+              const SizedBox(height: 16),
+              // Document / Chevron Placeholder
+              Container(
+                width: 35,
+                height: 10,
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(4),
+                ),
+              ),
             ],
           ),
         ],
+      ),
+    );
+  }
+
+  Widget _buildCollateralItemCard(dynamic item) {
+    final List<dynamic> imageUrls = item['image_urls'] ?? [];
+    final String? imageUrl = imageUrls.isNotEmpty
+        ? imageUrls[0].toString()
+        : null;
+    return GestureDetector(
+      onTap: () => _showCollateralActionsBottomSheet(
+        context,
+        item,
+        onView: () {},
+        onDelete: () async {
+          final String chattelId = item['id']?.toString() ?? "";
+          await deleteChattel(chattelId);
+        },
+      ),
+      behavior: HitTestBehavior.opaque,
+      child: Container(
+        margin: const EdgeInsets.only(bottom: 16),
+        padding: const EdgeInsets.all(16),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(24),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withValues(alpha: 0.03),
+              blurRadius: 20,
+              offset: const Offset(0, 8),
+            ),
+          ],
+          border: Border.all(color: const Color(0xFFF1F5F9), width: 1),
+        ),
+        child: Row(
+          children: [
+            Container(
+              width: 52,
+              height: 52,
+              decoration: BoxDecoration(
+                color: const Color(
+                  0xFFF1F5F9,
+                ), // Slate-100 placeholder background
+                borderRadius: BorderRadius.circular(16),
+              ),
+              child: imageUrl == null || imageUrl.trim().isEmpty
+                  ? _buildDefaultCategoryIcon(item['asset_category'] ?? "")
+                  : ClipRRect(
+                      borderRadius: BorderRadius.circular(16),
+                      child: Image.network(
+                        imageUrl,
+                        fit: BoxFit.cover,
+                        // FALLBACK: Triggers if the S3 URL is broken, expired, or returns a 404
+                        errorBuilder: (context, error, stackTrace) =>
+                            _buildDefaultCategoryIcon(
+                              item['asset_category'] ?? "",
+                            ),
+
+                        // PROGRESSIVE: Shows a micro-spinner while downloading the asset file
+                        loadingBuilder: (context, child, loadingProgress) {
+                          if (loadingProgress == null) return child;
+                          return const Center(
+                            child: SizedBox(
+                              width: 16,
+                              height: 16,
+                              child: CircularProgressIndicator(
+                                strokeWidth: 1.5,
+                                valueColor: AlwaysStoppedAnimation<Color>(
+                                  AnansiColors.darkBlue,
+                                ),
+                              ),
+                            ),
+                          );
+                        },
+                      ),
+                    ),
+            ),
+            const SizedBox(width: 16),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    item['asset_name'] ?? "",
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: const TextStyle(
+                      fontWeight: FontWeight.w800,
+                      fontSize: 15,
+                      color: AnansiColors.darkBlue,
+                    ),
+                  ),
+                  const SizedBox(height: 2),
+                  Text(
+                    item['asset_category'] ?? "N/A".toUpperCase(),
+                    style: TextStyle(
+                      color: Colors.blueGrey.shade300,
+                      fontWeight: FontWeight.bold,
+                      fontSize: 10,
+                      letterSpacing: 0.5,
+                    ),
+                  ),
+                  const SizedBox(height: 8),
+                  Text(
+                    formatAmount(item['estimated_value'] ?? 0),
+                    style: const TextStyle(
+                      fontWeight: FontWeight.w900,
+                      color: Color(0xFF1E3A8A),
+                      fontSize: 16,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.end,
+              children: [
+                _buildStatusBadge(item['status'] ?? "Pending"),
+                const SizedBox(height: 12),
+                if (item['doc_urls']?.isNotEmpty)
+                  Row(
+                    children: [
+                      Icon(
+                        CupertinoIcons.doc_text,
+                        size: 12,
+                        color: Colors.grey.shade400,
+                      ),
+                      const SizedBox(width: 4),
+                      Text(
+                        "${item['doc_urls'].length} Docs",
+                        style: TextStyle(
+                          color: Colors.grey.shade400,
+                          fontSize: 10,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                    ],
+                  )
+                else
+                  const Icon(
+                    CupertinoIcons.chevron_right,
+                    size: 14,
+                    color: Color(0xFFCBD5E1),
+                  ),
+              ],
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildDefaultCategoryIcon(String assetCategory) {
+    return Center(
+      child: Icon(
+        _getCategoryIcon(assetCategory),
+        color: AnansiColors.darkBlue.withValues(alpha: 0.35),
+        size: 24,
       ),
     );
   }
