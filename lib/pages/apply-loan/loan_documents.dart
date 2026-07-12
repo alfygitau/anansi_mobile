@@ -1,8 +1,6 @@
 import 'package:app_anansi_mobile/pages/apply-loan/add_loan_document.dart';
-import 'package:app_anansi_mobile/pages/apply-loan/contracts_payslips.dart';
 import 'package:app_anansi_mobile/pages/apply-loan/loan_terms_conditions.dart';
 import 'package:app_anansi_mobile/pages/help&support/help_support.dart';
-import 'package:app_anansi_mobile/pages/onboarding/terms_conditions.dart';
 import 'package:app_anansi_mobile/services/error_service.dart';
 import 'package:app_anansi_mobile/services/loan_application_service.dart';
 import 'package:app_anansi_mobile/theme/app_theme.dart';

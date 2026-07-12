@@ -2,6 +2,7 @@ import 'package:app_anansi_mobile/helpers/format_amount.dart';
 import 'package:app_anansi_mobile/pages/apply-loan/loan_documents.dart';
 import 'package:app_anansi_mobile/pages/help&support/help_support.dart';
 import 'package:app_anansi_mobile/pages/loan-applications/application_guarantors.dart';
+import 'package:app_anansi_mobile/pages/loans/loans.dart';
 import 'package:app_anansi_mobile/services/error_service.dart';
 import 'package:app_anansi_mobile/services/loan_application_service.dart';
 import 'package:app_anansi_mobile/theme/app_theme.dart';
@@ -1067,9 +1068,10 @@ class _LoanApplicationState extends State<LoanApplication> {
         color: Colors.white,
         child: ElevatedButton.icon(
           onPressed: () {
-            Navigator.pop(
+            Navigator.pushReplacement(
               context,
-            ); // Send them back to the active facilities page
+              MaterialPageRoute(builder: (context) => MyLoans()),
+            );
           },
           icon: const Icon(
             CupertinoIcons.checkmark_seal_fill,
@@ -1095,7 +1097,6 @@ class _LoanApplicationState extends State<LoanApplication> {
         ),
       );
     }
-
     // 2. Read-Only Process States (Pending Internal Team Review Checks)
     if ([
       'pending',
@@ -1190,17 +1191,7 @@ class _LoanApplicationState extends State<LoanApplication> {
         borderRadius: BorderRadius.vertical(top: Radius.circular(30)),
       ),
       child: ElevatedButton(
-        onPressed: () {
-          Navigator.pushReplacement(
-            context,
-            MaterialPageRoute(
-              builder: (context) => LoanDocuments(
-                appId: widget.appId,
-                productId: application['loan_product']['id'] ?? "",
-              ),
-            ),
-          );
-        },
+        onPressed: () {},
         style: ElevatedButton.styleFrom(
           backgroundColor: const Color(0xFF0A2351),
           minimumSize: const Size(double.infinity, 64),
