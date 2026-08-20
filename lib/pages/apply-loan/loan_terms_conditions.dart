@@ -41,7 +41,7 @@ class _LoanTermsConditionsState extends State<LoanTermsConditions> {
   }
 
   Future<void> acceptTermsConditions() async {
-    _isLoading = true;
+    setState(() => _isLoading = true);
     try {
       final user = await getUser();
       final (response, errors) = await LoanApplicationService()

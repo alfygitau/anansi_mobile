@@ -799,7 +799,7 @@ class _ProfileState extends State<Profile> {
           SizedBox(
             width: double.infinity,
             child: ElevatedButton.icon(
-              onPressed: _logout,
+              onPressed: () => showLogoutBottomSheet(context),
               style: ElevatedButton.styleFrom(
                 backgroundColor: Colors.white,
                 elevation: 0,

@@ -1,5 +1,7 @@
 import 'package:app_anansi_mobile/helpers/format_amount.dart';
 import 'package:app_anansi_mobile/pages/help&support/help_support.dart';
+import 'package:app_anansi_mobile/pages/loan-applications/application_collaterals.dart';
+import 'package:app_anansi_mobile/pages/loan-applications/application_documents.dart';
 import 'package:app_anansi_mobile/pages/loan-applications/application_guarantors.dart';
 import 'package:app_anansi_mobile/pages/loans/loans.dart';
 import 'package:app_anansi_mobile/services/error_service.dart';
@@ -173,7 +175,7 @@ class _LoanApplicationState extends State<LoanApplication> {
               iconBgColor: const Color(0xFFFDF2F8),
               iconColor: const Color(0xFFDB2777), // Pink/Crimson
               onTap: () {
-                // Navigator.push(context, MaterialPageRoute(builder: (context) => ApplicationCollaterals(appId: widget.appId)));
+                Navigator.push(context, MaterialPageRoute(builder: (context) => ApplicationCollaterals(appId: widget.appId)));
               },
             ),
 
@@ -189,7 +191,7 @@ class _LoanApplicationState extends State<LoanApplication> {
               iconBgColor: const Color(0xFFECFDF5),
               iconColor: const Color(0xFF059669), // Emerald Green
               onTap: () {
-                // Navigator.push(context, MaterialPageRoute(builder: (context) => ApplicationDocuments(appId: widget.appId)));
+                Navigator.push(context, MaterialPageRoute(builder: (context) => ApplicationDocuments(appId: widget.appId)));
               },
             ),
         ],
