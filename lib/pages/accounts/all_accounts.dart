@@ -108,8 +108,6 @@ class _AllAccountsState extends State<AllAccounts> {
       drawer: Navigation(
         activePageRoute: AnansiRoutes.dashboard,
         onRouteSelected: (String targetNamedRoute) {
-          Navigator.pop(context);
-          if (targetNamedRoute == AnansiRoutes.dashboard) return;
           Navigator.pushNamed(context, targetNamedRoute);
         },
       ),

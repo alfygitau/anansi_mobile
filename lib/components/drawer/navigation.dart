@@ -245,6 +245,7 @@ class _NavigationState extends State<Navigation> {
       child: InkWell(
         onTap: () {
           HapticFeedback.lightImpact();
+          Navigator.pop(context);
           widget.onRouteSelected(targetPageRoute);
         },
         borderRadius: BorderRadius.circular(16),

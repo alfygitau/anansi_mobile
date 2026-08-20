@@ -104,10 +104,8 @@ class _LoanStatementsState extends State<LoanStatements> {
     return Scaffold(
       backgroundColor: const Color(0xFFF8FAFC),
       drawer: Navigation(
-        activePageRoute: AnansiRoutes.dashboard,
+        activePageRoute: AnansiRoutes.loanstatements,
         onRouteSelected: (String targetNamedRoute) {
-          Navigator.pop(context);
-          if (targetNamedRoute == AnansiRoutes.dashboard) return;
           Navigator.pushNamed(context, targetNamedRoute);
         },
       ),
@@ -455,20 +453,17 @@ class _LoanStatementsState extends State<LoanStatements> {
           letterSpacing: -0.5,
         ),
       ),
-      leading: _buildCircledIcon(
-        CupertinoIcons.back,
-        () => Navigator.pop(context),
-      ),
+      leading: _buildCircledIcon(CupertinoIcons.back),
       actions: [
         Padding(
           padding: const EdgeInsets.only(right: 16),
-          child: _buildCircledIcon(CupertinoIcons.cloud_download, () {}),
+          child: _buildCircledIcon(CupertinoIcons.cloud_download),
         ),
       ],
     );
   }
 
-  Widget _buildCircledIcon(IconData icon, VoidCallback onTap) {
+  Widget _buildCircledIcon(IconData icon) {
     return Center(
       child: Container(
         width: 40,
@@ -478,10 +473,20 @@ class _LoanStatementsState extends State<LoanStatements> {
           shape: BoxShape.circle,
           border: Border.all(color: Colors.grey.shade100),
         ),
-        child: IconButton(
-          padding: EdgeInsets.zero,
-          icon: Icon(icon, size: 18, color: AnansiColors.darkBlue),
-          onPressed: onTap,
+        child: Builder(
+          builder: (nestedContext) {
+            return IconButton(
+              padding: EdgeInsets.zero,
+              icon: const Icon(
+                CupertinoIcons.square_grid_2x2,
+                size: 20,
+                color: AnansiColors.darkBlue,
+              ),
+              onPressed: () {
+                Scaffold.of(nestedContext).openDrawer();
+              },
+            );
+          },
         ),
       ),
     );

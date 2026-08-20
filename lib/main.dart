@@ -38,17 +38,19 @@ Future<void> main() async {
 }
 
 class AnansiRoutes {
-  static const String dashboard = 'homepage';
-  static const String savings = 'savings-shares';
-  static const String loans = 'loan-facilities';
-  static const String applications = 'loan-applications';
-  static const String statements = 'accounts-statements';
-  static const String loanstatements = 'loan-statements';
-  static const String guarantorship = 'guarantorship';
-  static const String settings = 'settings';
-  static const String profile = 'profile';
-  static const String products = 'products';
-  static const String notifications = 'notifications';
+  static const String splash = '/';
+  static const String login = '/login';
+  static const String dashboard = '/dashboard';
+  static const String savings = '/savings-shares';
+  static const String loans = '/loan-facilities';
+  static const String applications = '/loan-applications';
+  static const String statements = '/accounts-statements';
+  static const String loanstatements = '/loan-statements';
+  static const String guarantorship = '/guarantorship';
+  static const String settings = '/settings';
+  static const String profile = '/profile';
+  static const String products = '/products';
+  static const String notifications = '/notifications';
 }
 
 class MyApp extends StatelessWidget {
@@ -60,9 +62,9 @@ class MyApp extends StatelessWidget {
       title: 'Anansi Tech',
       navigatorKey: NavigationService.navigatorKey,
       navigatorObservers: [SentryNavigatorObserver()],
-      initialRoute: '/',
+      initialRoute: AnansiRoutes.splash,
       routes: {
-        '/login': (context) => const Login(),
+        AnansiRoutes.login: (context) => const Login(),
         AnansiRoutes.dashboard: (context) => const Homepage(),
         AnansiRoutes.loans: (context) => const MyLoans(),
         AnansiRoutes.applications: (context) => const LoanApplications(),

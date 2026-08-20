@@ -70,8 +70,6 @@ class _NotificationsState extends State<Notifications> {
       drawer: Navigation(
         activePageRoute: AnansiRoutes.notifications,
         onRouteSelected: (String targetNamedRoute) {
-          Navigator.pop(context);
-          if (targetNamedRoute == AnansiRoutes.dashboard) return;
           Navigator.pushNamed(context, targetNamedRoute);
         },
       ),

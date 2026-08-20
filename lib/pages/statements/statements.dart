@@ -90,8 +90,6 @@ class _StatementsState extends State<Statements> {
       drawer: Navigation(
         activePageRoute: AnansiRoutes.statements,
         onRouteSelected: (String targetNamedRoute) {
-          Navigator.pop(context);
-          if (targetNamedRoute == AnansiRoutes.dashboard) return;
           Navigator.pushNamed(context, targetNamedRoute);
         },
       ),

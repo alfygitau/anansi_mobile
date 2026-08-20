@@ -95,10 +95,8 @@ class _GuarantorshipState extends State<Guarantorship> {
     return Scaffold(
       backgroundColor: const Color(0xFFF1F5F9),
       drawer: Navigation(
-        activePageRoute: AnansiRoutes.dashboard,
+        activePageRoute: AnansiRoutes.guarantorship,
         onRouteSelected: (String targetNamedRoute) {
-          Navigator.pop(context);
-          if (targetNamedRoute == AnansiRoutes.dashboard) return;
           Navigator.pushNamed(context, targetNamedRoute);
         },
       ),

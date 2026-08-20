@@ -45,8 +45,6 @@ class _SettingsState extends State<Settings> {
       drawer: Navigation(
         activePageRoute: AnansiRoutes.settings,
         onRouteSelected: (String targetNamedRoute) {
-          Navigator.pop(context);
-          if (targetNamedRoute == AnansiRoutes.dashboard) return;
           Navigator.pushNamed(context, targetNamedRoute);
         },
       ),
@@ -206,14 +204,20 @@ class _SettingsState extends State<Settings> {
           shape: BoxShape.circle,
           border: Border.all(color: Colors.grey.shade200),
         ),
-        child: IconButton(
-          padding: EdgeInsets.zero,
-          icon: const Icon(
-            CupertinoIcons.back,
-            size: 18,
-            color: AnansiColors.darkBlue,
-          ),
-          onPressed: () => Navigator.pop(context),
+        child: Builder(
+          builder: (nestedContext) {
+            return IconButton(
+              padding: EdgeInsets.zero,
+              icon: const Icon(
+                CupertinoIcons.square_grid_2x2,
+                size: 20,
+                color: AnansiColors.darkBlue,
+              ),
+              onPressed: () {
+                Scaffold.of(nestedContext).openDrawer();
+              },
+            );
+          },
         ),
       ),
     );

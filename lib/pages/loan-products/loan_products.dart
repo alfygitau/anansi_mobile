@@ -64,8 +64,6 @@ class _LoanProductsState extends State<LoanProducts> {
       drawer: Navigation(
         activePageRoute: AnansiRoutes.products,
         onRouteSelected: (String targetNamedRoute) {
-          Navigator.pop(context);
-          if (targetNamedRoute == AnansiRoutes.dashboard) return;
           Navigator.pushNamed(context, targetNamedRoute);
         },
       ),

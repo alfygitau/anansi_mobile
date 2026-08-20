@@ -1,4 +1,6 @@
+import 'package:app_anansi_mobile/components/drawer/navigation.dart';
 import 'package:app_anansi_mobile/helpers/format_short_date.dart';
+import 'package:app_anansi_mobile/main.dart';
 import 'package:app_anansi_mobile/pages/profile/edit_address.dart';
 import 'package:app_anansi_mobile/pages/profile/edit_financial_details.dart';
 import 'package:app_anansi_mobile/pages/profile/edit_kin.dart';
@@ -62,6 +64,12 @@ class _ProfileState extends State<Profile> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: ThemeColors.background,
+      drawer: Navigation(
+        activePageRoute: AnansiRoutes.profile,
+        onRouteSelected: (String targetNamedRoute) {
+          Navigator.pushNamed(context, targetNamedRoute);
+        },
+      ),
       body: CustomScrollView(
         physics: const BouncingScrollPhysics(),
         slivers: [
@@ -641,14 +649,20 @@ class _ProfileState extends State<Profile> {
             shape: BoxShape.circle,
             border: Border.all(color: Colors.grey.shade200),
           ),
-          child: IconButton(
-            padding: EdgeInsets.zero,
-            icon: const Icon(
-              CupertinoIcons.back,
-              size: 18,
-              color: AnansiColors.darkBlue,
-            ),
-            onPressed: () => Navigator.pop(context),
+          child: Builder(
+            builder: (nestedContext) {
+              return IconButton(
+                padding: EdgeInsets.zero,
+                icon: const Icon(
+                  CupertinoIcons.square_grid_2x2,
+                  size: 20,
+                  color: AnansiColors.darkBlue,
+                ),
+                onPressed: () {
+                  Scaffold.of(nestedContext).openDrawer();
+                },
+              );
+            },
           ),
         ),
       ),
@@ -777,6 +791,37 @@ class _ProfileState extends State<Profile> {
                 style: TextStyle(
                   fontWeight: FontWeight.w900,
                   color: Colors.white,
+                ),
+              ),
+            ),
+          ),
+          SizedBox(height: 24),
+          SizedBox(
+            width: double.infinity,
+            child: ElevatedButton.icon(
+              onPressed: _logout,
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.white,
+                elevation: 0,
+                padding: const EdgeInsets.symmetric(vertical: 18),
+                side: const BorderSide(
+                  color: ThemeColors.rose, // Border color
+                  width: 1.0, // Border width
+                ),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(16),
+                ),
+              ),
+              icon: const Icon(
+                Icons.logout_rounded,
+                color: ThemeColors.rose,
+                size: 20,
+              ),
+              label: const Text(
+                "Log Out",
+                style: TextStyle(
+                  fontWeight: FontWeight.w900,
+                  color: ThemeColors.rose,
                 ),
               ),
             ),
