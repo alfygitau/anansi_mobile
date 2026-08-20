@@ -791,18 +791,18 @@ class _AddGuarantorsState extends State<AddGuarantors> {
     Widget destinationPage;
     String buttonLabel;
 
-    if (requiresDocuments) {
-      destinationPage = LoanDocuments(
-        appId: widget.appId,
-        productId: widget.productId,
-      );
-      buttonLabel = "CONTINUE TO STATEMENTS";
-    } else if (requiresCollateral) {
+    if (requiresCollateral) {
       destinationPage = Collaterals(
         appId: widget.appId,
         productId: widget.productId,
       );
       buttonLabel = "CONTINUE TO COLLATERALS";
+    } else if (requiresDocuments) {
+      destinationPage = LoanDocuments(
+        appId: widget.appId,
+        productId: widget.productId,
+      );
+      buttonLabel = "CONTINUE TO STATEMENTS";
     } else {
       destinationPage = LoanTermsConditions(appId: widget.appId);
       buttonLabel = "PROCEED TO TERMS";
