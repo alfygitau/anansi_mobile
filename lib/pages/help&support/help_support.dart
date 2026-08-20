@@ -1,3 +1,5 @@
+import 'package:app_anansi_mobile/components/drawer/navigation.dart';
+import 'package:app_anansi_mobile/main.dart';
 import 'package:app_anansi_mobile/theme/app_theme.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -89,6 +91,14 @@ class _HelpSupportState extends State<HelpSupport> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: const Color(0xFFF8FAFC),
+      drawer: Navigation(
+        activePageRoute: AnansiRoutes.dashboard,
+        onRouteSelected: (String targetNamedRoute) {
+          Navigator.pop(context);
+          if (targetNamedRoute == AnansiRoutes.dashboard) return;
+          Navigator.pushNamed(context, targetNamedRoute);
+        },
+      ),
       appBar: AppBar(
         title: const Text(
           "Help & Support",

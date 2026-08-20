@@ -1,4 +1,6 @@
+import 'package:app_anansi_mobile/components/drawer/navigation.dart';
 import 'package:app_anansi_mobile/helpers/format_time.dart';
+import 'package:app_anansi_mobile/main.dart';
 import 'package:app_anansi_mobile/services/error_service.dart';
 import 'package:app_anansi_mobile/services/notification_service.dart';
 import 'package:app_anansi_mobile/shimmers/notifications/notification.dart';
@@ -65,6 +67,14 @@ class _NotificationsState extends State<Notifications> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: const Color(0xFFF8FAFC),
+      drawer: Navigation(
+        activePageRoute: AnansiRoutes.notifications,
+        onRouteSelected: (String targetNamedRoute) {
+          Navigator.pop(context);
+          if (targetNamedRoute == AnansiRoutes.dashboard) return;
+          Navigator.pushNamed(context, targetNamedRoute);
+        },
+      ),
       body: CustomScrollView(
         slivers: [
           _buildAppBar(context),
@@ -291,14 +301,20 @@ class _NotificationsState extends State<Notifications> {
             shape: BoxShape.circle,
             border: Border.all(color: Colors.grey.shade100),
           ),
-          child: IconButton(
-            padding: EdgeInsets.zero,
-            icon: const Icon(
-              CupertinoIcons.back,
-              size: 18,
-              color: AnansiColors.darkBlue,
-            ),
-            onPressed: () => Navigator.pop(context),
+          child: Builder(
+            builder: (nestedContext) {
+              return IconButton(
+                padding: EdgeInsets.zero,
+                icon: const Icon(
+                  CupertinoIcons.square_grid_2x2,
+                  size: 20,
+                  color: AnansiColors.darkBlue,
+                ),
+                onPressed: () {
+                  Scaffold.of(nestedContext).openDrawer();
+                },
+              );
+            },
           ),
         ),
       ),

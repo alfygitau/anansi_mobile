@@ -1,5 +1,7 @@
 import 'dart:convert';
+import 'package:app_anansi_mobile/components/drawer/navigation.dart';
 import 'package:app_anansi_mobile/helpers/format_amount.dart';
+import 'package:app_anansi_mobile/main.dart';
 import 'package:app_anansi_mobile/pages/apply-loan/eligibility.dart';
 import 'package:app_anansi_mobile/pages/loan-products/loan_product.dart';
 import 'package:app_anansi_mobile/services/error_service.dart';
@@ -59,6 +61,14 @@ class _LoanProductsState extends State<LoanProducts> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: const Color(0xFFF8FAFC),
+      drawer: Navigation(
+        activePageRoute: AnansiRoutes.products,
+        onRouteSelected: (String targetNamedRoute) {
+          Navigator.pop(context);
+          if (targetNamedRoute == AnansiRoutes.dashboard) return;
+          Navigator.pushNamed(context, targetNamedRoute);
+        },
+      ),
       body: CustomScrollView(
         physics: const BouncingScrollPhysics(),
         slivers: [
@@ -96,14 +106,20 @@ class _LoanProductsState extends State<LoanProducts> {
                     ),
                   ],
                 ),
-                child: IconButton(
-                  padding: EdgeInsets.zero,
-                  icon: const Icon(
-                    CupertinoIcons.back,
-                    size: 20,
-                    color: AnansiColors.darkBlue,
-                  ),
-                  onPressed: () => Navigator.pop(context),
+                child: Builder(
+                  builder: (nestedContext) {
+                    return IconButton(
+                      padding: EdgeInsets.zero,
+                      icon: const Icon(
+                        CupertinoIcons.square_grid_2x2,
+                        size: 20,
+                        color: AnansiColors.darkBlue,
+                      ),
+                      onPressed: () {
+                        Scaffold.of(nestedContext).openDrawer();
+                      },
+                    );
+                  },
                 ),
               ),
             ),

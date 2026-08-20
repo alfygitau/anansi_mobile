@@ -1,5 +1,7 @@
 import 'dart:convert';
+import 'package:app_anansi_mobile/components/drawer/navigation.dart';
 import 'package:app_anansi_mobile/helpers/format_amount.dart';
+import 'package:app_anansi_mobile/main.dart';
 import 'package:app_anansi_mobile/pages/loan-products/loan_products.dart';
 import 'package:app_anansi_mobile/pages/loans/loan_details.dart';
 import 'package:app_anansi_mobile/pages/notifications/loan_notifications.dart';
@@ -106,6 +108,14 @@ class _MyLoansState extends State<MyLoans> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: const Color(0xFFF8FAFC),
+      drawer: Navigation(
+        activePageRoute: AnansiRoutes.loans,
+        onRouteSelected: (String targetNamedRoute) {
+          Navigator.pop(context);
+          if (targetNamedRoute == AnansiRoutes.dashboard) return;
+          Navigator.pushNamed(context, targetNamedRoute);
+        },
+      ),
       body: CustomScrollView(
         slivers: [
           // 1. App Bar
@@ -290,14 +300,20 @@ class _MyLoansState extends State<MyLoans> {
               ),
             ],
           ),
-          child: IconButton(
-            padding: EdgeInsets.zero,
-            icon: const Icon(
-              CupertinoIcons.back,
-              size: 18,
-              color: AnansiColors.darkBlue,
-            ),
-            onPressed: () => Navigator.pop(context),
+          child: Builder(
+            builder: (nestedContext) {
+              return IconButton(
+                padding: EdgeInsets.zero,
+                icon: const Icon(
+                  CupertinoIcons.square_grid_2x2,
+                  size: 20,
+                  color: AnansiColors.darkBlue,
+                ),
+                onPressed: () {
+                  Scaffold.of(nestedContext).openDrawer();
+                },
+              );
+            },
           ),
         ),
       ),

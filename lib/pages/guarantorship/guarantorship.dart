@@ -1,6 +1,8 @@
 import 'dart:convert';
+import 'package:app_anansi_mobile/components/drawer/navigation.dart';
 import 'package:app_anansi_mobile/helpers/format_amount.dart';
 import 'package:app_anansi_mobile/helpers/format_time.dart';
+import 'package:app_anansi_mobile/main.dart';
 import 'package:app_anansi_mobile/pages/guarantorship/view_request.dart';
 import 'package:app_anansi_mobile/pages/help&support/help_support.dart';
 import 'package:app_anansi_mobile/services/error_service.dart';
@@ -92,6 +94,14 @@ class _GuarantorshipState extends State<Guarantorship> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: const Color(0xFFF1F5F9),
+      drawer: Navigation(
+        activePageRoute: AnansiRoutes.dashboard,
+        onRouteSelected: (String targetNamedRoute) {
+          Navigator.pop(context);
+          if (targetNamedRoute == AnansiRoutes.dashboard) return;
+          Navigator.pushNamed(context, targetNamedRoute);
+        },
+      ),
       body: CustomScrollView(
         slivers: [
           _buildAppBar(),
@@ -163,14 +173,20 @@ class _GuarantorshipState extends State<Guarantorship> {
             shape: BoxShape.circle,
             border: Border.all(color: Colors.grey.shade100),
           ),
-          child: IconButton(
-            padding: EdgeInsets.zero,
-            icon: const Icon(
-              CupertinoIcons.back,
-              size: 18,
-              color: AnansiColors.darkBlue,
-            ),
-            onPressed: () => Navigator.pop(context),
+          child: Builder(
+            builder: (nestedContext) {
+              return IconButton(
+                padding: EdgeInsets.zero,
+                icon: const Icon(
+                  CupertinoIcons.square_grid_2x2,
+                  size: 20,
+                  color: AnansiColors.darkBlue,
+                ),
+                onPressed: () {
+                  Scaffold.of(nestedContext).openDrawer();
+                },
+              );
+            },
           ),
         ),
       ),

@@ -1,5 +1,7 @@
+import 'package:app_anansi_mobile/components/drawer/navigation.dart';
 import 'package:app_anansi_mobile/components/statements/generate_statement.dart';
 import 'package:app_anansi_mobile/helpers/download.dart';
+import 'package:app_anansi_mobile/main.dart';
 import 'package:app_anansi_mobile/services/account_service.dart';
 import 'package:app_anansi_mobile/services/error_service.dart';
 import 'package:app_anansi_mobile/services/secure_storage_service.dart';
@@ -85,6 +87,14 @@ class _StatementsState extends State<Statements> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: const Color(0xFFF8FAFC),
+      drawer: Navigation(
+        activePageRoute: AnansiRoutes.statements,
+        onRouteSelected: (String targetNamedRoute) {
+          Navigator.pop(context);
+          if (targetNamedRoute == AnansiRoutes.dashboard) return;
+          Navigator.pushNamed(context, targetNamedRoute);
+        },
+      ),
       body: CustomScrollView(
         physics: const BouncingScrollPhysics(),
         slivers: [
@@ -526,14 +536,11 @@ class _StatementsState extends State<Statements> {
           letterSpacing: -0.5,
         ),
       ),
-      leading: _buildCircledIcon(
-        CupertinoIcons.back,
-        () => Navigator.pop(context),
-      ),
+      leading: _buildCircledIcon(CupertinoIcons.back),
       actions: [
         Padding(
           padding: const EdgeInsets.only(right: 16),
-          child: _buildCircledIcon(CupertinoIcons.cloud_download, () {}),
+          child: _buildCircledIcon(CupertinoIcons.cloud_download),
         ),
       ],
     );
@@ -771,7 +778,7 @@ class _StatementsState extends State<Statements> {
     );
   }
 
-  Widget _buildCircledIcon(IconData icon, VoidCallback onTap) {
+  Widget _buildCircledIcon(IconData icon) {
     return Center(
       child: Container(
         width: 40,
@@ -781,10 +788,20 @@ class _StatementsState extends State<Statements> {
           shape: BoxShape.circle,
           border: Border.all(color: Colors.grey.shade100),
         ),
-        child: IconButton(
-          padding: EdgeInsets.zero,
-          icon: Icon(icon, size: 18, color: AnansiColors.darkBlue),
-          onPressed: onTap,
+        child: Builder(
+          builder: (nestedContext) {
+            return IconButton(
+              padding: EdgeInsets.zero,
+              icon: const Icon(
+                CupertinoIcons.square_grid_2x2,
+                size: 20,
+                color: AnansiColors.darkBlue,
+              ),
+              onPressed: () {
+                Scaffold.of(nestedContext).openDrawer();
+              },
+            );
+          },
         ),
       ),
     );

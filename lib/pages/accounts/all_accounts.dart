@@ -1,4 +1,6 @@
+import 'package:app_anansi_mobile/components/drawer/navigation.dart';
 import 'package:app_anansi_mobile/helpers/format_amount.dart';
+import 'package:app_anansi_mobile/main.dart';
 import 'package:app_anansi_mobile/pages/accounts/account_details.dart';
 import 'package:app_anansi_mobile/services/account_service.dart';
 import 'package:app_anansi_mobile/services/error_service.dart';
@@ -103,6 +105,14 @@ class _AllAccountsState extends State<AllAccounts> {
 
     return Scaffold(
       backgroundColor: const Color(0xFFF8F9FA),
+      drawer: Navigation(
+        activePageRoute: AnansiRoutes.dashboard,
+        onRouteSelected: (String targetNamedRoute) {
+          Navigator.pop(context);
+          if (targetNamedRoute == AnansiRoutes.dashboard) return;
+          Navigator.pushNamed(context, targetNamedRoute);
+        },
+      ),
       body: RefreshIndicator(
         onRefresh: fetchCustomerDetails,
         color: Theme.of(context).primaryColor,
@@ -391,14 +401,20 @@ class _AllAccountsState extends State<AllAccounts> {
               ),
             ],
           ),
-          child: IconButton(
-            padding: EdgeInsets.zero,
-            icon: const Icon(
-              CupertinoIcons.back,
-              size: 18,
-              color: AnansiColors.darkBlue,
-            ),
-            onPressed: () => Navigator.pop(context),
+          child: Builder(
+            builder: (nestedContext) {
+              return IconButton(
+                padding: EdgeInsets.zero,
+                icon: const Icon(
+                  CupertinoIcons.square_grid_2x2,
+                  size: 20,
+                  color: AnansiColors.darkBlue,
+                ),
+                onPressed: () {
+                  Scaffold.of(nestedContext).openDrawer();
+                },
+              );
+            },
           ),
         ),
       ),

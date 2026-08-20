@@ -783,7 +783,7 @@ class _AccountDetailsState extends State<AccountDetails> {
                       ),
                     ),
                     Text(
-                      tx['amount'] ?? "0.0".toString().toUpperCase(),
+                      tx['status'].toUpperCase(),
                       style: TextStyle(
                         color: Colors.grey.shade400,
                         fontSize: 8,

@@ -42,7 +42,7 @@ class _AwaitStkSharesState extends State<AwaitStkShares>
     bool success = await polling(
       apiCallback: _checkPurchaseStatus,
       interval: const Duration(seconds: 3),
-      timeout: const Duration(seconds: 25),
+      timeout: const Duration(seconds: 60),
     );
 
     if (mounted) {

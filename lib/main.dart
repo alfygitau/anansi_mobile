@@ -5,6 +5,7 @@ import 'package:app_anansi_mobile/pages/loan-applications/loan_applications.dart
 import 'package:app_anansi_mobile/pages/loan-products/loan_products.dart';
 import 'package:app_anansi_mobile/pages/loan-statements/statements.dart';
 import 'package:app_anansi_mobile/pages/loans/loans.dart';
+import 'package:app_anansi_mobile/pages/notifications/notifications.dart';
 import 'package:app_anansi_mobile/pages/profile/profile.dart';
 import 'package:app_anansi_mobile/pages/settings/settings.dart';
 import 'package:app_anansi_mobile/pages/statements/statements.dart';
@@ -47,6 +48,7 @@ class AnansiRoutes {
   static const String settings = 'settings';
   static const String profile = 'profile';
   static const String products = 'products';
+  static const String notifications = 'notifications';
 }
 
 class MyApp extends StatelessWidget {
@@ -70,6 +72,7 @@ class MyApp extends StatelessWidget {
         AnansiRoutes.products: (context) => const LoanProducts(),
         AnansiRoutes.profile: (context) => const Profile(),
         AnansiRoutes.settings: (context) => const Settings(),
+        AnansiRoutes.notifications: (context) => const Notifications(),
       },
       theme: ThemeData(
         colorScheme: ColorScheme.fromSeed(seedColor: const Color(0xFF042159)),
