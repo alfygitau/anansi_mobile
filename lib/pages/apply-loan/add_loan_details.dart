@@ -944,20 +944,20 @@ class _AddLoanDetailsState extends State<AddLoanDetails> {
     if (requiresGuarantor) {
       destinationBuilder = (id, productId) =>
           AddGuarantors(appId: id, productId: productId);
-      buttonLabel = "CONTINUE TO GUARANTORS";
+      buttonLabel = "PROCEED WITH APPLICATION";
     } else if (requiresChattels) {
       destinationBuilder = (id, productId) => Collaterals(
         appId: id,
         productId: productId,
       ); // Assuming your pages accept appId
-      buttonLabel = "CONTINUE TO COLLATERALS";
+      buttonLabel = "PROCEED WITH APPLICATION";
     } else if (requiresDocuments) {
       destinationBuilder = (id, productId) =>
           LoanDocuments(appId: id, productId: productId);
-      buttonLabel = "CONTINUE TO DOCUMENTS";
+      buttonLabel = "PROCEED WITH APPLICATION";
     } else {
       destinationBuilder = (id, productId) => LoanTermsConditions(appId: id);
-      buttonLabel = "PROCEED TO TERMS";
+      buttonLabel = "PROCEED WITH APPLICATION";
     }
 
     return Container(

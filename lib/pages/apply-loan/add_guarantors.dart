@@ -796,16 +796,16 @@ class _AddGuarantorsState extends State<AddGuarantors> {
         appId: widget.appId,
         productId: widget.productId,
       );
-      buttonLabel = "CONTINUE TO COLLATERALS";
+      buttonLabel = "PROCEED WITH APPLICATION";
     } else if (requiresDocuments) {
       destinationPage = LoanDocuments(
         appId: widget.appId,
         productId: widget.productId,
       );
-      buttonLabel = "CONTINUE TO STATEMENTS";
+      buttonLabel = "PROCEED WITH APPLICATION";
     } else {
       destinationPage = LoanTermsConditions(appId: widget.appId);
-      buttonLabel = "PROCEED TO TERMS";
+      buttonLabel = "PROCEED WITH APPLICATION";
     }
 
     return Container(

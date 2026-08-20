@@ -437,10 +437,10 @@ class _CollateralsState extends State<Collaterals> {
         appId: widget.appId,
         productId: widget.productId,
       );
-      buttonLabel = "CONTINUE TO DOCUMENTS";
+      buttonLabel = "PROCEED WITH APPLICATION";
     } else {
       destinationPage = LoanTermsConditions(appId: widget.appId);
-      buttonLabel = "PROCEED TO TERMS";
+      buttonLabel = "PROCEED WITH APPLICATION";
     }
 
     return Container(

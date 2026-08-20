@@ -339,7 +339,7 @@ class _LoanDocumentsState extends State<LoanDocuments> {
             );
           },
           child: const Text(
-            "Continue Application",
+            "PROCEED WITH APPLICATION",
             style: TextStyle(
               color: Colors.white,
               fontWeight: FontWeight.bold,
