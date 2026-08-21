@@ -337,7 +337,7 @@ class _LoanProductsState extends State<LoanProducts> {
                           borderRadius: BorderRadius.circular(100),
                         ),
                         child: Text(
-                          "${double.parse(product['interest_rate'].toString()).toStringAsFixed(2)}% p.a",
+                          "${double.parse(product['interest_rate'].toString()).toStringAsFixed(2)}% ${product['interest_key'] ?? "p.m"}",
                           style: const TextStyle(
                             color: AnansiColors.darkBlue,
                             fontWeight: FontWeight.w800,
