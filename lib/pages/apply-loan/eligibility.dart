@@ -115,7 +115,7 @@ class _LoanEligibilityState extends State<LoanEligibility> {
                     }, childCount: eligibilityChecks.length),
                   ),
           ),
-          const SliverPadding(padding: EdgeInsets.only(bottom: 80)),
+          const SliverPadding(padding: EdgeInsets.only(bottom: 100)),
         ],
       ),
       bottomSheet: _buildEligibilityActionDock(

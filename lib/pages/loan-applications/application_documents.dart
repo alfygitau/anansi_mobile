@@ -1,5 +1,3 @@
-import 'package:app_anansi_mobile/pages/apply-loan/add_loan_document.dart';
-import 'package:app_anansi_mobile/pages/apply-loan/loan_terms_conditions.dart';
 import 'package:app_anansi_mobile/pages/help&support/help_support.dart';
 import 'package:app_anansi_mobile/pages/loan-applications/add_application_document.dart';
 import 'package:app_anansi_mobile/pages/loan-applications/loan_application.dart';

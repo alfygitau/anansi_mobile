@@ -1,13 +1,9 @@
 import 'package:app_anansi_mobile/helpers/format_amount.dart';
-import 'package:app_anansi_mobile/pages/apply-loan/add_collateral.dart';
-import 'package:app_anansi_mobile/pages/apply-loan/loan_documents.dart';
-import 'package:app_anansi_mobile/pages/apply-loan/loan_terms_conditions.dart';
 import 'package:app_anansi_mobile/pages/help&support/help_support.dart';
 import 'package:app_anansi_mobile/pages/loan-applications/add_application_collateral.dart';
 import 'package:app_anansi_mobile/pages/loan-applications/loan_application.dart';
 import 'package:app_anansi_mobile/services/error_service.dart';
 import 'package:app_anansi_mobile/services/loan_application_service.dart';
-import 'package:app_anansi_mobile/services/loan_products_service.dart';
 import 'package:app_anansi_mobile/theme/app_theme.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';

@@ -179,7 +179,7 @@ class _AddLoanDetailsState extends State<AddLoanDetails> {
                 _buildInputField(
                   label: "Loan Amount",
                   hint: "Enter Amount",
-                  icon: CupertinoIcons.money_dollar,
+                  icon: CupertinoIcons.arrow_right_arrow_left,
                   focusNode: _amountFocus,
                   fieldKey: "amount",
                   controller: _amountController,
