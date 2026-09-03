@@ -1,3 +1,4 @@
+import 'package:app_anansi_mobile/constants/constants.dart';
 import 'package:app_anansi_mobile/helpers/errors.dart';
 import 'package:app_anansi_mobile/sdk/client.dart';
 import 'package:dio/dio.dart';
@@ -25,7 +26,7 @@ class NotificationService {
     try {
       final response = await _loanClient.get(
         '/notifications/in-app',
-        queryParameters: {"org_code": "BA208", "customer_id": customerId},
+        queryParameters: {"org_code": orgCode, "customer_id": customerId},
       );
       return (response, null);
     } on DioException catch (e) {

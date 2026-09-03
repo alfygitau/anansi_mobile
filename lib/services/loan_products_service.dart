@@ -1,3 +1,4 @@
+import 'package:app_anansi_mobile/constants/constants.dart';
 import 'package:app_anansi_mobile/helpers/errors.dart';
 import 'package:app_anansi_mobile/sdk/client.dart';
 import 'package:dio/dio.dart';
@@ -9,7 +10,7 @@ class LoanProductsService {
     try {
       final response = await _loanClient.get(
         '/loan-products',
-        queryParameters: {'loan_org_code': "BA208"},
+        queryParameters: {'loan_org_code': orgCode},
       );
       return (response, null);
     } on DioException catch (e) {

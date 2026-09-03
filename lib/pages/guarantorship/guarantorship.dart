@@ -639,7 +639,7 @@ class _GuarantorshipState extends State<Guarantorship> {
                             ),
                             _infoRow(
                               "Duration",
-                              "${loan['application']['loan_period'] ?? 0} days",
+                              "${loan['application']['loan_period'] ?? 0} Months",
                             ),
                             const Divider(height: 30, thickness: 0.5),
                             _infoRow(

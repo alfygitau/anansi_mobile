@@ -1,3 +1,4 @@
+import 'package:app_anansi_mobile/constants/constants.dart';
 import 'package:app_anansi_mobile/helpers/errors.dart';
 import 'package:app_anansi_mobile/sdk/client.dart';
 import 'package:dio/dio.dart';
@@ -12,7 +13,7 @@ class LoanApplicationService {
     try {
       final response = await _loanClient.get(
         '/loan-applications',
-        queryParameters: {'customer_id': customerId, 'loan_org_code': "BA208"},
+        queryParameters: {'customer_id': customerId, 'loan_org_code': orgCode},
       );
       return (response, null);
     } on DioException catch (e) {
@@ -30,7 +31,7 @@ class LoanApplicationService {
     try {
       final response = await _loanClient.get(
         '/loan-applications/my',
-        queryParameters: {'customer_id': customerId, 'loan_org_code': "BA208"},
+        queryParameters: {'customer_id': customerId, 'loan_org_code': orgCode},
       );
       return (response, null);
     } on DioException catch (e) {
@@ -96,7 +97,7 @@ class LoanApplicationService {
           'applied_amount': amount,
           'loan_period': duration,
           'loan_channel': "WEB",
-          'loan_org_code': "BA208",
+          'loan_org_code': orgCode,
           'loan_purpose': purpose,
           'currency': "KES",
         },

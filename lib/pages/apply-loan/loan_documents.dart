@@ -24,7 +24,7 @@ class _LoanDocumentsState extends State<LoanDocuments> {
   bool isFetching = false;
   List<Map<String, dynamic>> _attachedDocuments = [];
 
-  Future<void> fetchCollaterals() async {
+  Future<void> fetchDocuments() async {
     try {
       isFetching = true;
       final (response, errors) = await LoanApplicationService()
@@ -51,7 +51,7 @@ class _LoanDocumentsState extends State<LoanDocuments> {
   @override
   void initState() {
     super.initState();
-    fetchCollaterals();
+    fetchDocuments();
   }
 
   @override
