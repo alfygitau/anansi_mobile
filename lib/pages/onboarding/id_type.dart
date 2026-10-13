@@ -68,10 +68,7 @@ class _IdTypeState extends State<IdType> {
         HapticFeedback.lightImpact();
         Navigator.push(
           context,
-          MaterialPageRoute(
-            builder: (context) =>
-                IdDetails(frontFile: File(""), backFile: File("")),
-          ),
+          MaterialPageRoute(builder: (context) => IntroduceFrontOfId()),
         );
       }
     } finally {

@@ -174,7 +174,9 @@ class _IdBackPreviewState extends State<IdBackPreview> {
             fit: BoxFit.cover,
             errorBuilder: (context, error, stackTrace) => Container(
               color: Colors.grey.shade50,
-              child: const Icon(CupertinoIcons.photo, color: Colors.grey),
+              child: const Center(
+                child: Icon(CupertinoIcons.photo, color: Colors.grey, size: 32),
+              ),
             ),
           ),
         ),

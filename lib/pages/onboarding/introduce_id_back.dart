@@ -4,7 +4,6 @@ import 'package:app_anansi_mobile/pages/onboarding/introduce_id_front.dart';
 import 'package:app_anansi_mobile/theme/app_theme.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:app_anansi_mobile/theme/app_theme.dart';
 import 'package:image_picker/image_picker.dart';
 
 class IntroduceBackOfId extends StatefulWidget {
