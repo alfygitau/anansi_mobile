@@ -7,6 +7,7 @@ import 'package:app_anansi_mobile/services/secure_storage_service.dart';
 import 'package:app_anansi_mobile/theme/app_theme.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 
 class SelfiePreview extends StatefulWidget {
   final File imageFile;
@@ -44,6 +45,7 @@ class _SelfiePreviewState extends State<SelfiePreview> {
           message: errors[1],
         );
       } else if (response != null) {
+        HapticFeedback.lightImpact();
         Navigator.push(
           context,
           MaterialPageRoute(builder: (context) => const PersonalInformation()),
@@ -59,25 +61,69 @@ class _SelfiePreviewState extends State<SelfiePreview> {
     return Scaffold(
       backgroundColor: Colors.white,
       body: SafeArea(
-        child: Column(
-          children: [
-            Expanded(
-              child: SingleChildScrollView(
-                padding: const EdgeInsets.symmetric(horizontal: 24),
+        child: CustomScrollView(
+          physics: const BouncingScrollPhysics(),
+          slivers: [
+            // Pinned Header Bar
+            SliverAppBar(
+              pinned: true,
+              floating: false,
+              backgroundColor: Colors.white,
+              surfaceTintColor:
+                  Colors.transparent, // Prevents M3 scroll overlay tint
+              elevation: 0,
+              scrolledUnderElevation: 0,
+              automaticallyImplyLeading: false,
+              titleSpacing: 24,
+              centerTitle: false,
+              title: const Text(
+                "Verify Identity",
+                style: TextStyle(
+                  fontSize: 24,
+                  fontWeight: FontWeight.w900,
+                  color: AnansiColors.darkBlue,
+                  letterSpacing: -1.5,
+                ),
+              ),
+            ),
+
+            // Scrollable Body Content
+            SliverPadding(
+              padding: const EdgeInsets.symmetric(horizontal: 24),
+              sliver: SliverToBoxAdapter(
                 child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
+                    const SizedBox(height: 4),
                     _buildStepHeader(),
-                    const SizedBox(height: 22),
-                    _buildBiometricPreview(),
-                    const SizedBox(height: 22),
+                    const SizedBox(height: 24),
+                    Center(child: _buildBiometricPreview()),
+                    const SizedBox(height: 28),
+                    Text(
+                      "BEFORE YOU PROCEED",
+                      style: TextStyle(
+                        fontSize: 11,
+                        fontWeight: FontWeight.w900,
+                        letterSpacing: 1.5,
+                        color: AnansiColors.darkBlue.withValues(alpha: 0.4),
+                      ),
+                    ),
+                    const SizedBox(height: 10),
                     _buildVerificationChecklist(),
+                    const SizedBox(height: 120),
                   ],
                 ),
               ),
             ),
-            _buildActionDock(context),
           ],
         ),
+      ),
+
+      // Fixed Bottom Docked Actions
+      bottomSheet: Container(
+        padding: const EdgeInsets.fromLTRB(24, 16, 24, 32),
+        decoration: BoxDecoration(color: Colors.white.withValues(alpha: 0.95)),
+        child: _buildActionDock(context),
       ),
     );
   }
@@ -85,26 +131,24 @@ class _SelfiePreviewState extends State<SelfiePreview> {
   Widget _buildStepHeader() {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
-      mainAxisAlignment: MainAxisAlignment.start,
       children: [
         const Text(
-          "Verify Identity",
+          "Confirm Facial Scan",
           style: TextStyle(
+            fontSize: 18,
+            fontWeight: FontWeight.w800,
             color: AnansiColors.darkBlue,
-            fontSize: 28,
-            fontWeight: FontWeight.w900,
-            letterSpacing: -0.5,
+            letterSpacing: -0.6,
           ),
         ),
-        const SizedBox(height: 5),
+        const SizedBox(height: 8),
         Text(
-          "Please ensure your face is well-lit and centered within the frame. The system will compare this biometric scan against the portrait on your government-issued ID to securely finalize your identity verification.",
-          textAlign: TextAlign.start,
+          "Please ensure your face is well-lit and centered within the frame. This scan will be matched against your ID portrait to finalize verification.",
           style: TextStyle(
             color: Colors.grey.shade500,
-            fontSize: 15,
-            height: 1.6,
-            letterSpacing: 0.2,
+            fontSize: 14,
+            fontWeight: FontWeight.w400,
+            height: 1.5,
           ),
         ),
       ],
@@ -137,9 +181,23 @@ class _SelfiePreviewState extends State<SelfiePreview> {
               ),
             ],
           ),
-          child: ClipRRect(
-            borderRadius: BorderRadius.circular(110),
-            child: Image.file(widget.imageFile, fit: BoxFit.cover),
+          child: ClipOval(
+            child: Image.file(
+              widget.imageFile,
+              fit: BoxFit.cover,
+              errorBuilder: (context, error, stackTrace) {
+                return Container(
+                  color: Colors.grey.shade50,
+                  child: Center(
+                    child: Icon(
+                      CupertinoIcons.person_crop_circle_badge_exclam,
+                      color: Colors.grey.shade400,
+                      size: 48,
+                    ),
+                  ),
+                );
+              },
+            ),
           ),
         ),
         const Positioned(
@@ -157,42 +215,33 @@ class _SelfiePreviewState extends State<SelfiePreview> {
 
   Widget _buildVerificationChecklist() {
     return Container(
-      padding: const EdgeInsets.all(24),
+      padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: const Color(0xFFF9FAFB),
-        borderRadius: BorderRadius.circular(
-          28,
-        ), // More rounded for premium feel
-        border: Border.all(color: Colors.grey.shade100, width: 1.5),
+        borderRadius: BorderRadius.circular(24),
+        border: Border.all(color: const Color(0xFFE5E7EB), width: 1.5),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(
-            "QUALITY ASSESSMENT",
-            style: TextStyle(
-              fontSize: 10,
-              fontWeight: FontWeight.w900,
-              letterSpacing: 1.5,
-              color: Colors.grey.shade400,
-            ),
-          ),
-          const SizedBox(height: 20),
           _buildDetailedCheckItem(
-            title: "Focus & Alignment",
-            subtitle: "Face is centered and sharp with no motion blur.",
+            title: "Sharp Focus & Centered",
+            subtitle:
+                "Confirm your face is centered within the frame and free from motion blur.",
             icon: CupertinoIcons.scope,
           ),
           _buildDivider(),
           _buildDetailedCheckItem(
-            title: "Facial Expression",
-            subtitle: "Eyes are open and face is clearly recognizable.",
+            title: "Clear Facial Features",
+            subtitle:
+                "Ensure your eyes are open and no glasses, hats, or masks obscure your face.",
             icon: CupertinoIcons.eye,
           ),
           _buildDivider(),
           _buildDetailedCheckItem(
-            title: "Environmental Lighting",
-            subtitle: "No harsh shadows or overexposed highlights.",
+            title: "Balanced Lighting",
+            subtitle:
+                "Check that there are no strong backlights or deep shadows falling on your face.",
             icon: CupertinoIcons.brightness,
           ),
         ],
@@ -206,13 +255,13 @@ class _SelfiePreviewState extends State<SelfiePreview> {
     required IconData icon,
   }) {
     return Row(
-      crossAxisAlignment: CrossAxisAlignment.start,
+      crossAxisAlignment: CrossAxisAlignment.center,
       children: [
         Container(
-          padding: const EdgeInsets.all(8),
+          padding: const EdgeInsets.all(10),
           decoration: BoxDecoration(
-            color: const Color(0xFF17C6C6).withValues(alpha: 0.1),
-            borderRadius: BorderRadius.circular(10),
+            color: const Color(0xFF17C6C6).withValues(alpha: 0.08),
+            borderRadius: BorderRadius.circular(12),
           ),
           child: Icon(icon, color: const Color(0xFF17C6C6), size: 18),
         ),
@@ -241,11 +290,6 @@ class _SelfiePreviewState extends State<SelfiePreview> {
             ],
           ),
         ),
-        const Icon(
-          CupertinoIcons.checkmark_circle_fill,
-          color: Color(0xFF17C6C6),
-          size: 20,
-        ),
       ],
     );
   }
@@ -253,58 +297,73 @@ class _SelfiePreviewState extends State<SelfiePreview> {
   Widget _buildDivider() {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 16),
-      child: Divider(color: Colors.grey.shade200, height: 1, indent: 44),
+      child: Divider(color: Colors.grey.shade100, height: 1, indent: 48),
     );
   }
 
   Widget _buildActionDock(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.fromLTRB(24, 10, 24, 0),
-      decoration: BoxDecoration(color: Colors.white),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          ElevatedButton(
-            onPressed: _isLoading ? () {} : uploadFile,
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        SizedBox(
+          width: double.infinity,
+          height: 64,
+          child: ElevatedButton(
+            onPressed: _isLoading ? null : uploadFile,
             style: ElevatedButton.styleFrom(
               backgroundColor: AnansiColors.darkBlue,
-              minimumSize: const Size(double.infinity, 64),
+              foregroundColor: Colors.white,
+              disabledBackgroundColor: AnansiColors.darkBlue,
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(20),
               ),
               elevation: 0,
             ),
             child: _isLoading
-                ? const SizedBox(
-                    height: 20,
-                    width: 20,
-                    child: CupertinoActivityIndicator(color: Colors.white),
-                  )
-                : const Text(
-                    "SUBMIT IMAGE",
-                    style: TextStyle(
-                      fontWeight: FontWeight.w900,
-                      letterSpacing: 1.2,
-                      color: Colors.white,
-                    ),
+                ? const CupertinoActivityIndicator(color: Colors.white)
+                : const Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Text(
+                        "SUBMIT BIOMETRIC SCAN",
+                        style: TextStyle(
+                          fontWeight: FontWeight.w900,
+                          letterSpacing: 1.2,
+                          fontSize: 13,
+                        ),
+                      ),
+                      SizedBox(width: 10),
+                      Icon(Icons.arrow_forward_rounded, size: 18),
+                    ],
                   ),
           ),
-          const SizedBox(height: 12),
-          GestureDetector(
-            onTap: () => Navigator.pop(context),
-            behavior: HitTestBehavior.opaque,
-            child: Text(
-              "RETAKE SELFIE",
-              style: TextStyle(
-                color: Colors.grey,
-                fontWeight: FontWeight.w900,
-                fontSize: 12,
-                letterSpacing: 1.1,
+        ),
+        const SizedBox(height: 14),
+        GestureDetector(
+          onTap: () => Navigator.pop(context),
+          behavior: HitTestBehavior.opaque,
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Icon(
+                CupertinoIcons.refresh,
+                size: 14,
+                color: Colors.grey.shade400,
               ),
-            ),
+              const SizedBox(width: 8),
+              Text(
+                "RETAKE SELFIE",
+                style: TextStyle(
+                  color: Colors.grey.shade500,
+                  fontWeight: FontWeight.w900,
+                  fontSize: 11,
+                  letterSpacing: 1.2,
+                ),
+              ),
+            ],
           ),
-        ],
-      ),
+        ),
+      ],
     );
   }
 }

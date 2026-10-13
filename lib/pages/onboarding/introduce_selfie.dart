@@ -154,16 +154,16 @@ class _IntroduceSelfieState extends State<IntroduceSelfie> {
         alignment: Alignment.center,
         children: [
           Container(
-            width: 150,
-            height: 150,
+            width: 130,
+            height: 130,
             decoration: BoxDecoration(
               shape: BoxShape.circle,
               color: const Color(0xFF17C6C6).withValues(alpha: 0.03),
             ),
           ),
           Container(
-            width: 120,
-            height: 120,
+            width: 110,
+            height: 110,
             decoration: BoxDecoration(
               shape: BoxShape.circle,
               color: const Color(0xFF17C6C6).withValues(alpha: 0.05),
@@ -174,8 +174,8 @@ class _IntroduceSelfieState extends State<IntroduceSelfie> {
             ),
           ),
           Container(
-            width: 90,
-            height: 90,
+            width: 80,
+            height: 80,
             decoration: BoxDecoration(
               shape: BoxShape.circle,
               color: Colors.white,
