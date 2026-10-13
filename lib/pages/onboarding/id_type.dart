@@ -1,9 +1,5 @@
 import 'dart:convert';
-import 'dart:io';
 import 'package:app_anansi_mobile/pages/onboarding/introduce_id_front.dart';
-import 'package:app_anansi_mobile/pages/onboarding/introduce_selfie.dart';
-import 'package:app_anansi_mobile/pages/onboarding/personal_information.dart';
-import 'package:app_anansi_mobile/pages/onboarding/selfie_preview.dart';
 import 'package:app_anansi_mobile/services/error_service.dart';
 import 'package:app_anansi_mobile/services/onboarding_service.dart';
 import 'package:app_anansi_mobile/services/secure_storage_service.dart';
@@ -68,7 +64,7 @@ class _IdTypeState extends State<IdType> {
         HapticFeedback.lightImpact();
         Navigator.push(
           context,
-          MaterialPageRoute(builder: (context) => PersonalInformation()),
+          MaterialPageRoute(builder: (context) => IntroduceFrontOfId()),
         );
       }
     } finally {
