@@ -23,6 +23,7 @@ class IdDetails extends StatefulWidget {
 
 class _IdDetailsState extends State<IdDetails> {
   bool _isLoading = false;
+
   bool hasValidNames(Map<String, dynamic>? kycDetails) {
     if (kycDetails == null) return false;
     final String fullName = kycDetails['fullNames'] ?? '';
@@ -109,7 +110,7 @@ class _IdDetailsState extends State<IdDetails> {
   }
 
   Future<void> _updateCustomer() async {
-     final user = await getUser();
+    final user = await getUser();
     final (response, errors) = await OnboardingService().updateIdImages(
       id: user?['id'] ?? "",
       frontImage: widget.frontFile,
@@ -150,47 +151,68 @@ class _IdDetailsState extends State<IdDetails> {
     final String middleName = nameParts.length > 2
         ? nameParts.sublist(1, nameParts.length - 1).join(' ')
         : '';
+
     return Scaffold(
       backgroundColor: Colors.white,
       body: SafeArea(
-        child: Column(
-          children: [
-            Expanded(
-              child: SingleChildScrollView(
-                padding: const EdgeInsets.symmetric(horizontal: 24),
+        child: CustomScrollView(
+          physics: const BouncingScrollPhysics(),
+          slivers: [
+            // Pinned Header Bar
+            SliverAppBar(
+              pinned: true,
+              floating: false,
+              backgroundColor: Colors.white,
+              surfaceTintColor:
+                  Colors.transparent, // Prevents M3 scroll overlay tint
+              elevation: 0,
+              scrolledUnderElevation: 0,
+              automaticallyImplyLeading: false,
+              titleSpacing: 24,
+              centerTitle: false,
+              title: const Text(
+                "Verify Identity",
+                style: TextStyle(
+                  fontSize: 24,
+                  fontWeight: FontWeight.w900,
+                  color: AnansiColors.darkBlue,
+                  letterSpacing: -1.5,
+                ),
+              ),
+            ),
+            SliverPadding(
+              padding: const EdgeInsets.symmetric(horizontal: 24),
+              sliver: SliverToBoxAdapter(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    const Text(
-                      "Verify Identity",
-                      style: TextStyle(
-                        fontSize: 24,
-                        fontWeight: FontWeight.w900,
-                        color: AnansiColors.darkBlue,
-                        letterSpacing: -1.5,
-                      ),
-                    ),
-                    const SizedBox(height: 10),
+                    const SizedBox(height: 4),
                     _buildStepHeader(),
                     const SizedBox(height: 20),
                     _buildImageThumbnails(),
-                    const SizedBox(height: 20),
+                    const SizedBox(height: 24),
                     _buildSectionLabel("EXTRACTED INFORMATION"),
-                    const SizedBox(height: 16),
+                    const SizedBox(height: 14),
                     _buildDetailRow('ID Number', idNumber),
                     _buildDetailRow('First Name', firstName),
                     _buildDetailRow('Middle Name', middleName),
                     _buildDetailRow('Last Name', lastName),
                     _buildDetailRow('Gender', gender),
                     _buildDetailRow('Date of Birth', dob),
-                    const SizedBox(height: 20),
+                    const SizedBox(height: 100),
                   ],
                 ),
               ),
             ),
-            _buildActionDock(context),
           ],
         ),
+      ),
+
+      // Fixed Bottom Docked Actions
+      bottomSheet: Container(
+        padding: const EdgeInsets.fromLTRB(24, 16, 24, 32),
+        decoration: BoxDecoration(color: Colors.white.withValues(alpha: 0.95)),
+        child: _buildActionDock(context),
       ),
     );
   }
@@ -198,26 +220,29 @@ class _IdDetailsState extends State<IdDetails> {
   Widget _buildStepHeader() {
     final authProvider = context.watch<AuthProvider>();
     final kycData = authProvider.kycDetails;
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         const Text(
           "Confirm Details",
           style: TextStyle(
-            fontSize: 20,
-            fontWeight: FontWeight.w500,
-            letterSpacing: -0.5,
+            fontSize: 18,
+            fontWeight: FontWeight.w800,
+            color: AnansiColors.darkBlue,
+            letterSpacing: -0.6,
           ),
         ),
-        const SizedBox(height: 5),
+        const SizedBox(height: 8),
         Text(
           hasAllRequiredFields(kycData)
               ? "We've analyzed your document. Please verify that the details below exactly match your government ID."
               : "Some details were obscured during the scan. Please provide the missing information manually.",
           style: TextStyle(
             color: Colors.grey.shade500,
-            fontSize: 15,
-            height: 1.6,
+            fontSize: 14,
+            fontWeight: FontWeight.w400,
+            height: 1.5,
           ),
         ),
       ],
@@ -254,7 +279,23 @@ class _IdDetailsState extends State<IdDetails> {
             ),
             child: ClipRRect(
               borderRadius: BorderRadius.circular(18),
-              child: Image.file(url, fit: BoxFit.cover, width: double.infinity),
+              child: Image.file(
+                url,
+                fit: BoxFit.cover,
+                width: double.infinity,
+                errorBuilder: (context, error, stackTrace) {
+                  return Container(
+                    color: Colors.grey.shade50,
+                    child: const Center(
+                      child: Icon(
+                        CupertinoIcons.photo,
+                        color: Colors.grey,
+                        size: 32,
+                      ),
+                    ),
+                  );
+                },
+              ),
             ),
           ),
           const SizedBox(height: 10),
@@ -262,9 +303,9 @@ class _IdDetailsState extends State<IdDetails> {
             child: Text(
               label.toUpperCase(),
               style: TextStyle(
-                fontSize: 9,
+                fontSize: 10,
                 fontWeight: FontWeight.w900,
-                color: Colors.grey.shade400,
+                color: AnansiColors.darkBlue.withValues(alpha: 0.4),
                 letterSpacing: 1,
               ),
             ),
@@ -278,10 +319,10 @@ class _IdDetailsState extends State<IdDetails> {
     return Text(
       label,
       style: TextStyle(
-        fontSize: 10,
+        fontSize: 11,
         fontWeight: FontWeight.w900,
         letterSpacing: 1.5,
-        color: Colors.grey.shade400,
+        color: AnansiColors.darkBlue.withValues(alpha: 0.4),
       ),
     );
   }
@@ -298,7 +339,7 @@ class _IdDetailsState extends State<IdDetails> {
           color: isEmpty ? const Color(0xFFFFF8F8) : Colors.white,
           borderRadius: BorderRadius.circular(18),
           border: Border.all(
-            color: isEmpty ? Colors.red.shade100 : Colors.grey.shade100,
+            color: isEmpty ? Colors.red.shade100 : const Color(0xFFF1F5F9),
             width: 1.5,
           ),
           boxShadow: [
@@ -315,7 +356,7 @@ class _IdDetailsState extends State<IdDetails> {
             Container(
               padding: const EdgeInsets.all(8),
               decoration: BoxDecoration(
-                color: isEmpty ? Colors.red.shade50 : Colors.grey.shade100,
+                color: isEmpty ? Colors.red.shade50 : const Color(0xFFF1F5F9),
                 borderRadius: BorderRadius.circular(10),
               ),
               child: Icon(
@@ -359,78 +400,102 @@ class _IdDetailsState extends State<IdDetails> {
   Widget _buildActionDock(BuildContext context) {
     final authProvider = context.watch<AuthProvider>();
     final kycData = authProvider.kycDetails;
-    return Container(
-      padding: const EdgeInsets.fromLTRB(24, 10, 24, 5),
-      decoration: BoxDecoration(color: Colors.white),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          if (hasAllRequiredFields(kycData)) ...[
-            ElevatedButton(
-              onPressed: _isLoading ? () {} : _onContinue,
+
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        if (hasAllRequiredFields(kycData)) ...[
+          SizedBox(
+            width: double.infinity,
+            height: 64,
+            child: ElevatedButton(
+              onPressed: _isLoading ? null : _onContinue,
               style: ElevatedButton.styleFrom(
                 backgroundColor: AnansiColors.darkBlue,
-                disabledBackgroundColor: Colors.grey.shade200,
-                minimumSize: const Size(double.infinity, 64),
+                foregroundColor: Colors.white,
+                disabledBackgroundColor: AnansiColors.darkBlue,
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(20),
                 ),
                 elevation: 0,
               ),
               child: _isLoading
-                  ? const SizedBox(
-                      height: 20,
-                      width: 20,
-                      child: CupertinoActivityIndicator(color: Colors.white),
-                    )
-                  : const Text(
-                      "YES, DATA IS ACCURATE",
-                      style: TextStyle(
-                        fontWeight: FontWeight.w900,
-                        letterSpacing: 1.1,
-                        color: Colors.white,
-                      ),
+                  ? const CupertinoActivityIndicator(color: Colors.white)
+                  : const Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Text(
+                          "YES, DATA IS ACCURATE",
+                          style: TextStyle(
+                            fontWeight: FontWeight.w900,
+                            letterSpacing: 1.1,
+                            fontSize: 13,
+                          ),
+                        ),
+                        SizedBox(width: 10),
+                        Icon(Icons.arrow_forward_rounded, size: 18),
+                      ],
                     ),
             ),
-            const SizedBox(height: 12),
-            GestureDetector(
-              onTap: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (_) => const IntroduceFrontOfId()),
-                );
-              },
-              child: const Center(
-                child: Text(
+          ),
+          const SizedBox(height: 14),
+          GestureDetector(
+            onTap: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (_) => const IntroduceFrontOfId()),
+              );
+            },
+            behavior: HitTestBehavior.opaque,
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Icon(
+                  CupertinoIcons.refresh,
+                  size: 14,
+                  color: Colors.red.shade300,
+                ),
+                const SizedBox(width: 8),
+                const Text(
                   "RESCAN DOCUMENT",
                   style: TextStyle(
                     color: Color(0xFFFF5757),
                     fontWeight: FontWeight.w900,
-                    fontSize: 12,
+                    fontSize: 11,
                     letterSpacing: 1.1,
                   ),
                 ),
-              ),
+              ],
             ),
-          ] else ...[
-            GestureDetector(
-              onTap: () {
-                // Navigator.push(
-                //   context,
-                //   MaterialPageRoute(builder: (_) => const IntroduceFrontOfId()),
-                // );
+          ),
+        ] else ...[
+          SizedBox(
+            width: double.infinity,
+            height: 64,
+            child: ElevatedButton(
+              onPressed: () {
+                // Navigate to manual entry screen
               },
+              style: ElevatedButton.styleFrom(
+                backgroundColor: AnansiColors.darkBlue,
+                foregroundColor: Colors.white,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(20),
+                ),
+                elevation: 0,
+              ),
               child: const Text(
                 "COMPLETE MANUALLY",
                 style: TextStyle(
                   fontWeight: FontWeight.w900,
                   letterSpacing: 1.1,
+                  fontSize: 13,
                 ),
               ),
             ),
-          ],
+          ),
         ],
-      ),
+      ],
     );
   }
 }

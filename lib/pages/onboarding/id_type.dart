@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'dart:io';
 import 'package:app_anansi_mobile/pages/onboarding/id_back_preview.dart';
+import 'package:app_anansi_mobile/pages/onboarding/id_details.dart';
 import 'package:app_anansi_mobile/pages/onboarding/id_front_preview.dart';
 import 'package:app_anansi_mobile/pages/onboarding/introduce_id_front.dart';
 import 'package:app_anansi_mobile/services/error_service.dart';
@@ -68,7 +69,8 @@ class _IdTypeState extends State<IdType> {
         Navigator.push(
           context,
           MaterialPageRoute(
-            builder: (context) => IdFrontPreview(imageFile: File("")),
+            builder: (context) =>
+                IdDetails(frontFile: File(""), backFile: File("")),
           ),
         );
       }
