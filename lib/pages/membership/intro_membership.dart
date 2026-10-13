@@ -1,4 +1,5 @@
 import 'package:app_anansi_mobile/pages/membership/membership_details.dart';
+import 'package:app_anansi_mobile/theme/app_theme.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
@@ -11,8 +12,6 @@ class IntroMember extends StatefulWidget {
 }
 
 class _IntroMemberState extends State<IntroMember> {
-  bool _isLoading = false;
-
   String getFormattedCurrentDateTime() {
     final DateTime now = DateTime.now();
     final DateFormat formatter = DateFormat('yyyy-MM-dd HH:mm:ss');
@@ -31,58 +30,61 @@ class _IntroMemberState extends State<IntroMember> {
     return Scaffold(
       backgroundColor: Colors.white,
       body: SafeArea(
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 24),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              const SizedBox(height: 10),
-              _buildIconHeader(),
-              const SizedBox(height: 22),
-              _buildTextContent(),
-              const SizedBox(height: 20),
-              Expanded(
-                child: SingleChildScrollView(
-                  physics: const BouncingScrollPhysics(),
-                  child: Column(
-                    children: [
-                      _buildFeatureCard(
-                        icon: CupertinoIcons.sparkles,
-                        title: "Exclusive Rates",
-                        subtitle:
-                            "Access high-yield dividends and competitive loan interest rates designed for growth.",
-                      ),
-                      _buildFeatureCard(
-                        icon: CupertinoIcons.shield,
-                        title: "Secure Guarantorship",
-                        subtitle:
-                            "Leverage our community-driven trust system to secure credit without traditional collateral.",
-                      ),
-                      _buildFeatureCard(
-                        icon: CupertinoIcons.chart_bar_alt_fill,
-                        title: "Financial Insights",
-                        subtitle:
-                            "Detailed reporting on your contributions, shares, and wealth progression.",
-                      ),
-                    ],
-                  ),
+        child: CustomScrollView(
+          physics: const BouncingScrollPhysics(),
+          slivers: [
+            SliverPadding(
+              padding: const EdgeInsets.symmetric(horizontal: 24),
+              sliver: SliverToBoxAdapter(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const SizedBox(height: 24),
+                    _buildIconHeader(),
+                    const SizedBox(height: 22),
+                    _buildTextContent(),
+                    const SizedBox(height: 32),
+
+                    _buildFeatureCard(
+                      icon: CupertinoIcons.sparkles,
+                      title: "Exclusive Rates",
+                      subtitle:
+                          "Access high-yield dividends and competitive loan interest rates designed for growth.",
+                    ),
+                    _buildFeatureCard(
+                      icon: CupertinoIcons.shield,
+                      title: "Secure Guarantorship",
+                      subtitle:
+                          "Leverage our community-driven trust system to secure credit without traditional collateral.",
+                    ),
+                    _buildFeatureCard(
+                      icon: CupertinoIcons.chart_bar_alt_fill,
+                      title: "Financial Insights",
+                      subtitle:
+                          "Detailed reporting on your contributions, shares, and wealth progression.",
+                    ),
+                    const SizedBox(height: 12),
+                    _buildPaymentNotice(),
+                    const SizedBox(height: 100),
+                  ],
                 ),
               ),
-              _buildPaymentNotice(),
-              const SizedBox(height: 20),
-              _buildSubmitButton(),
-              const SizedBox(height: 20),
-            ],
-          ),
+            ),
+          ],
         ),
+      ),
+      bottomSheet: Container(
+        padding: const EdgeInsets.fromLTRB(24, 16, 24, 25),
+        decoration: BoxDecoration(color: Colors.white.withValues(alpha: 0.95)),
+        child: _buildSubmitButton(),
       ),
     );
   }
 
   Widget _buildIconHeader() {
     return Container(
-      height: 64,
-      width: 64,
+      height: 60,
+      width: 60,
       decoration: BoxDecoration(
         color: const Color(0xFFF1F4F8),
         borderRadius: BorderRadius.circular(20),
@@ -91,7 +93,7 @@ class _IntroMemberState extends State<IntroMember> {
         child: Icon(
           CupertinoIcons.checkmark_seal_fill,
           color: Color(0xFF17C6C6),
-          size: 32,
+          size: 28,
         ),
       ),
     );
@@ -102,19 +104,20 @@ class _IntroMemberState extends State<IntroMember> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         const Text(
-          'Join Anansi\nMembership',
+          'Setup Anansi Membership',
           style: TextStyle(
-            color: Color(0xFF0A2351),
-            fontSize: 32,
+            color: AnansiColors.darkBlue,
+            fontSize: 30,
             height: 1.1,
             fontWeight: FontWeight.w900,
+            letterSpacing: -1,
           ),
         ),
         const SizedBox(height: 16),
         Text(
           'Become a member today and start your journey toward financial freedom with Kenya\'s most modern Sacco community.',
           style: TextStyle(
-            color: Colors.grey.shade600,
+            color: Colors.grey.shade500,
             fontSize: 15,
             height: 1.5,
           ),
@@ -134,7 +137,7 @@ class _IntroMemberState extends State<IntroMember> {
       decoration: BoxDecoration(
         color: const Color(0xFFF8FAFC),
         borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: const Color(0xFFF1F4F8)),
+        border: Border.all(color: const Color(0xFFE2E8F0)),
       ),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.center,
@@ -156,7 +159,7 @@ class _IntroMemberState extends State<IntroMember> {
                   title,
                   style: const TextStyle(
                     fontWeight: FontWeight.w800,
-                    color: Color(0xFF0A2351),
+                    color: AnansiColors.darkBlue,
                     fontSize: 15,
                   ),
                 ),
@@ -164,7 +167,7 @@ class _IntroMemberState extends State<IntroMember> {
                 Text(
                   subtitle,
                   style: TextStyle(
-                    color: Colors.grey.shade600,
+                    color: Colors.grey.shade500,
                     fontSize: 13,
                     height: 1.4,
                   ),
@@ -181,10 +184,10 @@ class _IntroMemberState extends State<IntroMember> {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: const Color(0xFF0A2351).withValues(alpha: 0.03),
+        color: AnansiColors.darkBlue.withValues(alpha: 0.03),
         borderRadius: BorderRadius.circular(16),
         border: Border.all(
-          color: const Color(0xFF0A2351).withValues(alpha: 0.05),
+          color: AnansiColors.darkBlue.withValues(alpha: 0.05),
         ),
       ),
       child: Row(
@@ -192,7 +195,7 @@ class _IntroMemberState extends State<IntroMember> {
           const Icon(
             CupertinoIcons.creditcard,
             size: 20,
-            color: Color(0xFF0A2351),
+            color: AnansiColors.darkBlue,
           ),
           const SizedBox(width: 12),
           const Expanded(
@@ -200,7 +203,7 @@ class _IntroMemberState extends State<IntroMember> {
               "One-time joining fee",
               style: TextStyle(
                 fontSize: 13,
-                color: Color(0xFF0A2351),
+                color: AnansiColors.darkBlue,
                 fontWeight: FontWeight.w500,
               ),
             ),
@@ -209,7 +212,7 @@ class _IntroMemberState extends State<IntroMember> {
             "KES 1,000",
             style: TextStyle(
               fontWeight: FontWeight.w900,
-              color: Color(0xFF0A2351),
+              color: AnansiColors.darkBlue,
               fontSize: 15,
             ),
           ),
@@ -219,29 +222,40 @@ class _IntroMemberState extends State<IntroMember> {
   }
 
   Widget _buildSubmitButton() {
-    return SizedBox(
-      width: double.infinity,
-      height: 60,
-      child: ElevatedButton(
-        onPressed: _isLoading ? null : createSharesAccount,
-        style: ElevatedButton.styleFrom(
-          backgroundColor: const Color(0xFF0A2351),
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(18),
-          ),
-          elevation: 0,
-        ),
-        child: _isLoading
-            ? const CupertinoActivityIndicator(color: Colors.white)
-            : const Text(
-                'Setup Membership',
-                style: TextStyle(
-                  color: Colors.white,
-                  fontWeight: FontWeight.w900,
-                  fontSize: 16,
-                ),
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        SizedBox(
+          width: double.infinity,
+          height: 64,
+          child: ElevatedButton(
+            onPressed: createSharesAccount,
+            style: ElevatedButton.styleFrom(
+              backgroundColor: AnansiColors.darkBlue,
+              foregroundColor: Colors.white,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(20),
               ),
-      ),
+              elevation: 0,
+            ),
+            child: const Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Text(
+                  "SETUP MEMBERSHIP",
+                  style: TextStyle(
+                    fontWeight: FontWeight.w900,
+                    letterSpacing: 1.1,
+                    fontSize: 13,
+                  ),
+                ),
+                SizedBox(width: 10),
+                Icon(Icons.arrow_forward_rounded, size: 18),
+              ],
+            ),
+          ),
+        ),
+      ],
     );
   }
 }

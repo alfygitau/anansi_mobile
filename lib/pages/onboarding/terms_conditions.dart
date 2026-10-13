@@ -30,20 +30,19 @@ class _TermsConditionsState extends State<TermsConditions> {
 
   void _updateCustomer() async {
     final user = await getUser();
-    try {
-      final (response, errors) = await OnboardingService()
-          .updateCustomerStatuses(id: user?['id'] ?? "");
-      if (errors != null) {
-        ErrorService.showActionableError(
-          context,
-          title: errors[0],
-          message: errors[1],
-        );
-      } else if (response != null) {
-        HapticFeedback.lightImpact();
-        showSuccessSheet(context);
-      }
-    } finally {}
+    final (response, errors) = await OnboardingService().updateCustomerStatuses(
+      id: user?['id'] ?? "",
+    );
+    if (errors != null) {
+      ErrorService.showActionableError(
+        context,
+        title: errors[0],
+        message: errors[1],
+      );
+    } else if (response != null) {
+      HapticFeedback.lightImpact();
+      showSuccessSheet(context);
+    }
   }
 
   void _createProducts() async {
@@ -82,6 +81,32 @@ class _TermsConditionsState extends State<TermsConditions> {
         setState(() => _hasScrolledToBottom = true);
       }
     }
+  }
+
+  String _getFormattedDate() {
+    final now = DateTime.now();
+    const months = [
+      'January',
+      'February',
+      'March',
+      'April',
+      'May',
+      'June',
+      'July',
+      'August',
+      'September',
+      'October',
+      'November',
+      'December',
+    ];
+    return "${months[now.month - 1]} ${now.day}, ${now.year}";
+  }
+
+  String _generateReferenceId() {
+    final uniqueCode = DateTime.now().millisecondsSinceEpoch
+        .toRadixString(36)
+        .toUpperCase();
+    return "AN-$uniqueCode";
   }
 
   @override
@@ -405,6 +430,8 @@ class _TermsConditionsState extends State<TermsConditions> {
   }
 
   void showSuccessSheet(BuildContext context) {
+    final String signedDate = _getFormattedDate();
+    final String referenceId = _generateReferenceId();
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
@@ -462,11 +489,11 @@ class _TermsConditionsState extends State<TermsConditions> {
               ),
               child: Column(
                 children: [
-                  _buildDetailRow("Document", "General T&Cs v2.4"),
+                  _buildDetailRow("Document", "General T&Cs"),
                   const Divider(height: 24),
-                  _buildDetailRow("Signed On", "October 13, 2026"),
+                  _buildDetailRow("Signed On", signedDate),
                   const Divider(height: 24),
-                  _buildDetailRow("Reference", "AN-992-X"),
+                  _buildDetailRow("Reference", referenceId),
                 ],
               ),
             ),
