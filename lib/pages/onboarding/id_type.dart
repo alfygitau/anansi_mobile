@@ -1,8 +1,4 @@
 import 'dart:convert';
-import 'dart:io';
-import 'package:app_anansi_mobile/pages/onboarding/id_back_preview.dart';
-import 'package:app_anansi_mobile/pages/onboarding/id_details.dart';
-import 'package:app_anansi_mobile/pages/onboarding/id_front_preview.dart';
 import 'package:app_anansi_mobile/pages/onboarding/introduce_id_front.dart';
 import 'package:app_anansi_mobile/services/error_service.dart';
 import 'package:app_anansi_mobile/services/onboarding_service.dart';
