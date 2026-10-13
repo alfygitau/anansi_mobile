@@ -287,8 +287,7 @@ class _LoanProductsState extends State<LoanProducts> {
     required VoidCallback onTap,
     required VoidCallback onClick,
   }) {
-    final Color baseColor = const Color(0xFF6366F1);
-
+    final Color baseColor = AnansiColors.darkBlue;
     return GestureDetector(
       onTap: onClick,
       child: Container(

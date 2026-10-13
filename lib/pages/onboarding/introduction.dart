@@ -61,33 +61,37 @@ class _IntroductionState extends State<Introduction> {
         child: CustomScrollView(
           physics: const BouncingScrollPhysics(),
           slivers: [
-            // Elegant Header Section
+            SliverAppBar(
+              pinned: true,
+              floating: false,
+              backgroundColor: const Color(0xFFF8FAFC),
+              surfaceTintColor: Colors.transparent,
+              elevation: 0,
+              scrolledUnderElevation: 0,
+              automaticallyImplyLeading: false,
+              titleSpacing: 24,
+              centerTitle: false,
+              title: const Text(
+                "Onboarding",
+                style: TextStyle(
+                  fontSize: 24,
+                  fontWeight: FontWeight.w900,
+                  color: AnansiColors.darkBlue,
+                  letterSpacing: -1.2,
+                ),
+              ),
+            ),
             SliverToBoxAdapter(
               child: Padding(
-                padding: const EdgeInsets.fromLTRB(24, 10, 24, 32),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    const Text(
-                      "Onboarding",
-                      style: TextStyle(
-                        fontSize: 26,
-                        fontWeight: FontWeight.w900,
-                        color: AnansiColors.darkBlue,
-                        letterSpacing: -1.5,
-                      ),
-                    ),
-                    const SizedBox(height: 8),
-                    Text(
-                      "Complete these stages to activate your full membership benefits.",
-                      style: TextStyle(
-                        fontSize: 15,
-                        color: Colors.blueGrey.shade400,
-                        fontWeight: FontWeight.w500,
-                        height: 1.5,
-                      ),
-                    ),
-                  ],
+                padding: const EdgeInsets.fromLTRB(24, 0, 24, 24),
+                child: Text(
+                  "Complete these stages to activate your full membership benefits.",
+                  style: TextStyle(
+                    fontSize: 15,
+                    color: Colors.blueGrey.shade400,
+                    fontWeight: FontWeight.w500,
+                    height: 1.5,
+                  ),
                 ),
               ),
             ),
@@ -105,14 +109,13 @@ class _IntroductionState extends State<Introduction> {
             ),
 
             // Bottom spacing for the sticky-style button
-            const SliverToBoxAdapter(child: SizedBox(height: 120)),
+            const SliverToBoxAdapter(child: SizedBox(height: 80)),
           ],
         ),
       ),
-
       // Fixed Action Button for high conversion
       bottomSheet: Container(
-        padding: const EdgeInsets.fromLTRB(24, 16, 24, 40),
+        padding: const EdgeInsets.fromLTRB(24, 16, 24, 25),
         decoration: BoxDecoration(
           color: const Color(0xFFF8FAFC).withValues(alpha: 0.9),
           border: Border(top: BorderSide(color: Colors.grey.shade100)),
@@ -165,9 +168,9 @@ class _IntroductionState extends State<Introduction> {
       child: Column(
         children: [
           Padding(
-            padding: const EdgeInsets.all(24),
+            padding: const EdgeInsets.all(16),
             child: Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
+              crossAxisAlignment: CrossAxisAlignment.center,
               children: [
                 // 1. ICON DESIGN
                 Container(
@@ -176,9 +179,9 @@ class _IntroductionState extends State<Introduction> {
                     color: baseColor.withValues(alpha: 0.1),
                     borderRadius: BorderRadius.circular(24),
                   ),
-                  child: Icon(step['icon'], color: baseColor, size: 32),
+                  child: Icon(step['icon'], color: baseColor, size: 24),
                 ),
-                const SizedBox(width: 20),
+                const SizedBox(width: 12),
 
                 // 2. TEXT CONTENT
                 Expanded(
@@ -198,7 +201,7 @@ class _IntroductionState extends State<Introduction> {
                       Text(
                         step['subtitle'],
                         style: const TextStyle(
-                          fontSize: 20,
+                          fontSize: 16,
                           fontWeight: FontWeight.w900,
                           color: AnansiColors.darkBlue,
                           letterSpacing: -0.5,

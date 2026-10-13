@@ -125,6 +125,14 @@ class _RegisterState extends State<Register> {
     });
   }
 
+  void _validateInputs() {
+    _validateUsername(_usernameController.text);
+    _validateEmail(_emailController.text);
+    _validatePhone(_phoneController.text);
+    _validatePassword(_passwordController.text);
+    _validateConfirmPassword(_confirmPasswordController.text);
+  }
+
   @override
   void initState() {
     super.initState();
@@ -200,6 +208,11 @@ class _RegisterState extends State<Register> {
   }
 
   void createProfile() async {
+    _validateInputs();
+    if (!_isEverythingValid()) {
+      HapticFeedback.vibrate();
+      return;
+    }
     setState(() {
       _isLoading = true;
     });
@@ -279,14 +292,22 @@ class _RegisterState extends State<Register> {
     return Scaffold(
       backgroundColor: Colors.white,
       body: SafeArea(
-        child: SingleChildScrollView(
+        child: CustomScrollView(
           physics: const BouncingScrollPhysics(),
-          padding: const EdgeInsets.symmetric(horizontal: 24),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              SizedBox(height: 10),
-              const Text(
+          slivers: [
+            // Pinned Header Title
+            SliverAppBar(
+              pinned: true,
+              floating: false,
+              backgroundColor: Colors.white,
+              surfaceTintColor:
+                  Colors.transparent, // Prevents M3 tint when scrolling
+              elevation: 0,
+              scrolledUnderElevation: 0,
+              automaticallyImplyLeading: false,
+              titleSpacing: 24,
+              centerTitle: false,
+              title: const Text(
                 "Create & Verify Profile",
                 style: TextStyle(
                   fontSize: 24,
@@ -295,79 +316,99 @@ class _RegisterState extends State<Register> {
                   letterSpacing: -1.5,
                 ),
               ),
-              const SizedBox(height: 10),
-              Text(
-                "Create your Anansi profile today to manage your assets and track your financial progress.",
-                style: TextStyle(
-                  color: Colors.grey.shade500,
-                  fontSize: 15,
-                  height: 1.5,
-                  fontWeight: FontWeight.w400,
+            ),
+
+            // Scrollable Subtitle & Form Body
+            SliverPadding(
+              padding: const EdgeInsets.symmetric(horizontal: 24),
+              sliver: SliverToBoxAdapter(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const SizedBox(height: 4),
+                    Text(
+                      "Create your Anansi profile today to manage your assets and track your financial progress.",
+                      style: TextStyle(
+                        color: Colors.grey.shade500,
+                        fontSize: 15,
+                        height: 1.5,
+                        fontWeight: FontWeight.w400,
+                      ),
+                    ),
+                    const SizedBox(height: 20),
+                    _buildSectionLabel("PROFILE INFORMATION"),
+                    const SizedBox(height: 10),
+                    _buildInputField(
+                      label: "Username",
+                      hint: "Your unique username",
+                      controller: _usernameController,
+                      icon: Icons.person_2_outlined,
+                      fieldKey: "username",
+                      focusNode: _usernameFocus,
+                      keyboardType: TextInputType.text,
+                    ),
+                    const SizedBox(height: 16),
+                    _buildInputField(
+                      label: "Email Address",
+                      hint: "name@example.com",
+                      controller: _emailController,
+                      icon: Icons.alternate_email_rounded,
+                      fieldKey: "email",
+                      focusNode: _emailFocus,
+                      keyboardType: TextInputType.emailAddress,
+                    ),
+                    const SizedBox(height: 16),
+                    _buildInputField(
+                      label: "Phone Number",
+                      controller: _phoneController,
+                      hint: "e.g 0712345678",
+                      icon: CupertinoIcons.phone_fill,
+                      fieldKey: "mobile",
+                      focusNode: _mobileFocus,
+                      keyboardType: TextInputType.phone,
+                    ),
+                    const SizedBox(height: 26),
+                    _buildSectionLabel("SECURE YOUR PROFILE"),
+                    const SizedBox(height: 10),
+                    _buildPasswordField(
+                      label: "Create Password",
+                      controller: _passwordController,
+                      hint: "Enter your security key",
+                      icon: CupertinoIcons.lock_shield_fill,
+                      fieldKey: "password",
+                      focusNode: _passFocus,
+                      keyboardType: TextInputType.text,
+                    ),
+                    const SizedBox(height: 16),
+                    _buildPasswordField(
+                      label: "Confirm Password",
+                      controller: _confirmPasswordController,
+                      hint: "Repeat your security key",
+                      icon: CupertinoIcons.lock_shield_fill,
+                      fieldKey: "confirmPassword",
+                      focusNode: _confirmPassFocus,
+                      keyboardType: TextInputType.text,
+                    ),
+                    const SizedBox(height: 32),
+                    _buildAgreementSection(),
+                    const SizedBox(height: 100),
+                  ],
                 ),
               ),
-              SizedBox(height: 15),
-              _buildSectionLabel("PROFILE INFORMATION"),
-              const SizedBox(height: 10),
-              _buildInputField(
-                label: "Username",
-                hint: "Your unique username",
-                controller: _usernameController,
-                icon: Icons.person_2_outlined,
-                fieldKey: "username",
-                focusNode: _usernameFocus,
-                keyboardType: TextInputType.text,
-              ),
-              const SizedBox(height: 16),
-              _buildInputField(
-                label: "Email Address",
-                hint: "name@example.com",
-                controller: _emailController,
-                icon: Icons.alternate_email_rounded,
-                fieldKey: "email",
-                focusNode: _emailFocus,
-                keyboardType: TextInputType.emailAddress,
-              ),
-              const SizedBox(height: 16),
-              _buildInputField(
-                label: "Phone Number",
-                controller: _phoneController,
-                hint: "e.g 0712345678",
-                icon: CupertinoIcons.phone_fill,
-                fieldKey: "mobile",
-                focusNode: _mobileFocus,
-                keyboardType: TextInputType.phone,
-              ),
-              const SizedBox(height: 26),
-              _buildSectionLabel("SECURE YOUR PROFILE"),
-              const SizedBox(height: 10),
-              _buildPasswordField(
-                label: "Create Password",
-                controller: _passwordController,
-                hint: "Enter your security key",
-                icon: CupertinoIcons.lock_shield_fill,
-                fieldKey: "password",
-                focusNode: _passFocus,
-                keyboardType: TextInputType.text,
-              ),
-              const SizedBox(height: 16),
-              _buildPasswordField(
-                label: "Confirm Password",
-                controller: _confirmPasswordController,
-                hint: "Repeat your security key",
-                icon: CupertinoIcons.lock_shield_fill,
-                fieldKey: "confirmPassword",
-                focusNode: _confirmPassFocus,
-                keyboardType: TextInputType.text,
-              ),
-              const SizedBox(height: 32),
-              _buildAgreementSection(),
-              const SizedBox(height: 30),
-              _buildPremiumSubmit(canSubmit),
-              const SizedBox(height: 12),
-              _buildSignInFooter(),
-              const SizedBox(height: 24),
-            ],
-          ),
+            ),
+          ],
+        ),
+      ),
+      bottomSheet: Container(
+        padding: const EdgeInsets.fromLTRB(24, 16, 24, 24),
+        decoration: BoxDecoration(color: Colors.white.withValues(alpha: 0.95)),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            _buildPremiumSubmit(canSubmit),
+            const SizedBox(height: 5),
+            _buildSignInFooter(),
+          ],
         ),
       ),
     );
@@ -712,7 +753,7 @@ class _RegisterState extends State<Register> {
               TextSpan(
                 style: TextStyle(
                   color: Colors.blueGrey.shade400,
-                  fontSize: 12,
+                  fontSize: 13,
                   height: 1.4,
                 ),
                 children: [
@@ -741,12 +782,12 @@ class _RegisterState extends State<Register> {
   Widget _buildPremiumSubmit(bool isValid) {
     return ElevatedButton(
       // When isValid is false, onPressed is null, disabling the button
-      onPressed: isValid ? createProfile : null,
+      onPressed: _isLoading ? null : createProfile,
       style: ElevatedButton.styleFrom(
-        backgroundColor: AnansiColors.darkBlue,
+        backgroundColor: isValid ? AnansiColors.darkBlue : Colors.grey.shade300,
         foregroundColor: Colors.white,
         // This is the color used when onPressed is null
-        disabledBackgroundColor: Colors.grey.shade200,
+        disabledBackgroundColor: AnansiColors.darkBlue,
         // This is the text color when disabled
         disabledForegroundColor: Colors.grey.shade500,
         minimumSize: const Size(double.infinity, 64),

@@ -126,9 +126,7 @@ class _MyLoansState extends State<MyLoans> {
           SliverToBoxAdapter(child: _buildApplyLoanAction(context)),
 
           // 4. Section Header with Filter
-          SliverToBoxAdapter(child: _buildSectionHeader("Active Facilities")),
-
-          // 5. The Loans List
+          SliverToBoxAdapter(child: _buildSectionHeader("Loan Facilities")),
           _isLoading
               ? _buildLoansSkeletonList()
               : loans.isNotEmpty
@@ -585,52 +583,115 @@ class _MyLoansState extends State<MyLoans> {
     );
   }
 
-  Widget _buildLoanSummaryHero() {
+  Widget _buildLoanSummaryHero({
+    int total = 12,
+    int active = 3,
+    int overdue = 1,
+    int cleared = 8,
+  }) {
     return Container(
-      margin: const EdgeInsets.all(20),
-      padding: const EdgeInsets.all(24),
+      margin: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+      padding: const EdgeInsets.fromLTRB(16, 16, 16, 14),
       decoration: BoxDecoration(
-        gradient: const LinearGradient(
-          colors: [AnansiColors.darkBlue, Color(0xFF0F172A)],
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(24),
+        border: Border.all(
+          color: const Color(0xFFE2E8F0), // Slate 200 border
+          width: 1,
         ),
-        borderRadius: BorderRadius.circular(32),
         boxShadow: [
           BoxShadow(
-            color: AnansiColors.darkBlue.withValues(alpha: 0.2),
-            blurRadius: 20,
-            offset: const Offset(0, 10),
+            color: Colors.black.withValues(alpha: 0.05),
+            blurRadius: 16,
+            offset: const Offset(0, 6),
           ),
         ],
       ),
       child: Column(
+        mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text(
-            "Total Outstanding",
-            style: TextStyle(
-              color: Colors.white60,
-              fontSize: 12,
-              fontWeight: FontWeight.w600,
-            ),
+          // --- Header Row ---
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              const Text(
+                "Loan Summary",
+                style: TextStyle(
+                  color: Color(0xFF0F172A), // Slate 900
+                  fontSize: 15,
+                  fontWeight: FontWeight.w700,
+                  letterSpacing: 0.2,
+                ),
+              ),
+              Container(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 10,
+                  vertical: 4,
+                ),
+                decoration: BoxDecoration(
+                  color: const Color(0xFFF1F5F9), // Slate 100 pill
+                  borderRadius: BorderRadius.circular(20),
+                ),
+                child: Text(
+                  "$total Total",
+                  style: const TextStyle(
+                    color: Color(0xFF64748B), // Slate 500
+                    fontSize: 12,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+              ),
+            ],
           ),
-          const SizedBox(height: 8),
-          const Text(
-            "KES 142,500.00",
-            style: TextStyle(
-              color: Colors.white,
-              fontSize: 28,
-              fontWeight: FontWeight.w900,
-              letterSpacing: -1,
-            ),
-          ),
-          const SizedBox(height: 24),
+
+          const SizedBox(height: 12),
+
+          // --- Row 1: Total & Active ---
           Row(
             children: [
-              _summaryMiniStat("Next Repayment", "15 May"),
-              const SizedBox(width: 40),
-              _summaryMiniStat("Loan Limit", "KES 500k"),
+              Expanded(
+                child: _loanStatTile(
+                  label: "Total Loans",
+                  value: "$total",
+                  icon: CupertinoIcons.creditcard_fill,
+                  accentColor: const Color(0xFF2563EB), // Sapphire Blue
+                ),
+              ),
+              const SizedBox(width: 8),
+              Expanded(
+                child: _loanStatTile(
+                  label: "Active",
+                  value: "$active",
+                  icon: CupertinoIcons.arrow_2_circlepath_circle_fill,
+                  accentColor: const Color(0xFF059669), // Emerald Green
+                ),
+              ),
+            ],
+          ),
+
+          const SizedBox(height: 8),
+
+          // --- Row 2: Overdue & Cleared ---
+          Row(
+            children: [
+              Expanded(
+                child: _loanStatTile(
+                  label: "Overdue",
+                  value: "$overdue",
+                  icon: CupertinoIcons.exclamationmark_triangle_fill,
+                  accentColor: const Color(0xFFDC2626), // Crimson Red
+                ),
+              ),
+              const SizedBox(width: 8),
+              Expanded(
+                child: _loanStatTile(
+                  label: "Cleared",
+                  value: "$cleared",
+                  icon: CupertinoIcons.checkmark_seal_fill,
+                  accentColor: const Color(0xFF7C3AED), // Purple Accent
+                ),
+              ),
             ],
           ),
         ],
@@ -638,24 +699,64 @@ class _MyLoansState extends State<MyLoans> {
     );
   }
 
-  Widget _summaryMiniStat(String label, String value) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          label,
-          style: const TextStyle(color: Colors.white38, fontSize: 10),
+  Widget _loanStatTile({
+    required String label,
+    required String value,
+    required IconData icon,
+    required Color accentColor,
+  }) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+      decoration: BoxDecoration(
+        color: const Color(0xFFF8FAFC), // Slate 50 background fill
+        borderRadius: BorderRadius.circular(14),
+        border: Border.all(
+          color: const Color(0xFFE2E8F0), // Slate 200 border
         ),
-        const SizedBox(height: 4),
-        Text(
-          value,
-          style: const TextStyle(
-            color: Colors.white,
-            fontWeight: FontWeight.w800,
-            fontSize: 14,
+      ),
+      child: Row(
+        children: [
+          Container(
+            padding: const EdgeInsets.all(7),
+            decoration: BoxDecoration(
+              color: accentColor.withValues(alpha: 0.12),
+              shape: BoxShape.circle,
+            ),
+            child: Icon(icon, size: 16, color: accentColor),
           ),
-        ),
-      ],
+          const SizedBox(width: 8),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Text(
+                  value,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: const TextStyle(
+                    color: Color(0xFF0F172A), // Slate 900
+                    fontSize: 16,
+                    fontWeight: FontWeight.bold,
+                    height: 1.1,
+                  ),
+                ),
+                const SizedBox(height: 2),
+                Text(
+                  label,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: const TextStyle(
+                    color: Color(0xFF64748B), // Slate 500
+                    fontSize: 11,
+                    fontWeight: FontWeight.w500,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
     );
   }
 

@@ -70,14 +70,12 @@ class _LoginState extends State<Login> {
         password: _passwordController.text.trim(),
       );
       if (error != null) {
-
         ErrorService.showActionableError(
           context,
           title: error[0],
           message: error[1],
         );
       } else if (response != null) {
-        
         final responseInfo = response.data['data'];
         HapticFeedback.lightImpact();
         await storeUserInfo(responseInfo, context);
@@ -158,9 +156,10 @@ class _LoginState extends State<Login> {
   }
 
   void _replaceNavigate(BuildContext context, Widget page) {
-    Navigator.pushReplacement(
+    Navigator.pushAndRemoveUntil(
       context,
       MaterialPageRoute(builder: (context) => page),
+      (_) => false,
     );
   }
 
@@ -398,12 +397,12 @@ class _LoginState extends State<Login> {
         ],
       ),
       child: ElevatedButton(
-        onPressed: active ? login : null,
+        onPressed: _isLoading ? null : login,
         style: ElevatedButton.styleFrom(
-          backgroundColor: AnansiColors.darkBlue,
-          disabledBackgroundColor: _isLoading
+          backgroundColor: active
               ? AnansiColors.darkBlue
               : Colors.grey.shade300,
+          disabledBackgroundColor: AnansiColors.darkBlue,
           foregroundColor: Colors.white,
           disabledForegroundColor: Colors.white,
           shape: RoundedRectangleBorder(

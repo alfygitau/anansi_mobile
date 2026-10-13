@@ -367,76 +367,173 @@ class _LoanApplicationsState extends State<LoanApplications> {
     );
   }
 
-  Widget _buildApplicationSummary() {
+  Widget _buildApplicationSummary({
+    int total = 18,
+    int active = 12,
+    int inReview = 4,
+    int cancelled = 3,
+  }) {
     return Container(
-      margin: const EdgeInsets.all(20),
-      padding: const EdgeInsets.all(24),
+      margin: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+      padding: const EdgeInsets.fromLTRB(16, 16, 16, 14),
       decoration: BoxDecoration(
-        gradient: const LinearGradient(
-          colors: [AnansiColors.darkBlue, Color(0xFF0F172A)],
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(24),
+        border: Border.all(
+          color: const Color(0xFFE2E8F0), // Slate 200 border
+          width: 1,
         ),
-        borderRadius: BorderRadius.circular(28),
         boxShadow: [
           BoxShadow(
-            color: AnansiColors.darkBlue.withValues(alpha: 0.3),
-            blurRadius: 20,
-            offset: const Offset(0, 10),
+            color: Colors.black.withValues(alpha: 0.05),
+            blurRadius: 16,
+            offset: const Offset(0, 6),
           ),
         ],
       ),
-      child: Row(
-        mainAxisAlignment:
-            MainAxisAlignment.spaceBetween, // Better spacing for 3 items
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          _statItem("In Review", "2", CupertinoIcons.refresh_thick),
-          // The "Hero" Center Item: Focusing on what's available to the client
-          _statItem(
-            "Credit Limit",
-            "KES 500k",
-            CupertinoIcons.graph_square,
-            isHero: true,
+          // --- Header Row ---
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              const Text(
+                "Applications",
+                style: TextStyle(
+                  color: Color(0xFF0F172A), // Slate 900
+                  fontSize: 15,
+                  fontWeight: FontWeight.w700,
+                  letterSpacing: 0.2,
+                ),
+              ),
+              Container(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 10,
+                  vertical: 4,
+                ),
+                decoration: BoxDecoration(
+                  color: const Color(0xFFF1F5F9), // Slate 100 pill
+                  borderRadius: BorderRadius.circular(20),
+                ),
+                child: Text(
+                  "$total Total",
+                  style: const TextStyle(
+                    color: Color(0xFF64748B), // Slate 500
+                    fontSize: 12,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+              ),
+            ],
           ),
-          _statItem("Successful", "12", CupertinoIcons.checkmark_seal),
+
+          const SizedBox(height: 12),
+          Row(
+            children: [
+              Expanded(
+                child: _statTile(
+                  label: "Total Applications",
+                  value: "$total",
+                  icon: CupertinoIcons.doc_text_fill,
+                  accentColor: const Color(0xFF2563EB), // Sapphire Blue
+                ),
+              ),
+              const SizedBox(width: 8),
+              Expanded(
+                child: _statTile(
+                  label: "Active",
+                  value: "$active",
+                  icon: CupertinoIcons.checkmark_circle_fill,
+                  accentColor: const Color(0xFF059669), // Emerald Green
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 8),
+          Row(
+            children: [
+              Expanded(
+                child: _statTile(
+                  label: "In Review",
+                  value: "$inReview",
+                  icon: CupertinoIcons.clock_fill,
+                  accentColor: const Color(0xFFD97706), // Amber
+                ),
+              ),
+              const SizedBox(width: 8),
+              Expanded(
+                child: _statTile(
+                  label: "Cancelled",
+                  value: "$cancelled",
+                  icon: CupertinoIcons.xmark_circle_fill,
+                  accentColor: const Color(0xFFDC2626), // Crimson Red
+                ),
+              ),
+            ],
+          ),
         ],
       ),
     );
   }
 
-  Widget _statItem(
-    String label,
-    String value,
-    IconData icon, {
-    bool isHero = false,
+  Widget _statTile({
+    required String label,
+    required String value,
+    required IconData icon,
+    required Color accentColor,
   }) {
-    return Column(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        Icon(
-          icon,
-          color: isHero ? const Color(0xFF17C6C6) : Colors.white38,
-          size: isHero ? 24 : 18,
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+      decoration: BoxDecoration(
+        color: const Color(0xFFF8FAFC), // Slate 50 light fill
+        borderRadius: BorderRadius.circular(14),
+        border: Border.all(
+          color: const Color(0xFFE2E8F0), // Slate 200
         ),
-        const SizedBox(height: 8),
-        Text(
-          value,
-          style: TextStyle(
-            color: Colors.white,
-            fontWeight: FontWeight.w900,
-            fontSize: isHero ? 18 : 14,
-            letterSpacing: -0.5,
+      ),
+      child: Row(
+        children: [
+          Container(
+            padding: const EdgeInsets.all(7),
+            decoration: BoxDecoration(
+              color: accentColor.withValues(alpha: 0.12),
+              shape: BoxShape.circle,
+            ),
+            child: Icon(icon, size: 16, color: accentColor),
           ),
-        ),
-        Text(
-          label,
-          style: TextStyle(
-            color: isHero ? Colors.white70 : Colors.white38,
-            fontSize: 10,
-            fontWeight: FontWeight.w600,
+          const SizedBox(width: 8),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Text(
+                  value,
+                  style: const TextStyle(
+                    color: Color(0xFF0F172A), // Slate 900
+                    fontSize: 16,
+                    fontWeight: FontWeight.bold,
+                    height: 1.1,
+                  ),
+                ),
+                const SizedBox(height: 2),
+                Text(
+                  label,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: const TextStyle(
+                    color: Color(0xFF64748B), // Slate 500
+                    fontSize: 11,
+                    fontWeight: FontWeight.w500,
+                  ),
+                ),
+              ],
+            ),
           ),
-        ),
-      ],
+        ],
+      ),
     );
   }
 
