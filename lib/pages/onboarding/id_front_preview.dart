@@ -54,49 +54,68 @@ class _IdFrontPreviewState extends State<IdFrontPreview> {
     return Scaffold(
       backgroundColor: Colors.white,
       body: SafeArea(
-        child: Column(
-          children: [
-            Expanded(
-              child: SingleChildScrollView(
-                padding: const EdgeInsets.symmetric(horizontal: 24),
+        child: CustomScrollView(
+          physics: const BouncingScrollPhysics(),
+          slivers: [
+            // Pinned Header Bar
+            SliverAppBar(
+              pinned: true,
+              floating: false,
+              backgroundColor: Colors.white,
+              surfaceTintColor:
+                  Colors.transparent, // Prevents M3 scroll overlay tint
+              elevation: 0,
+              scrolledUnderElevation: 0,
+              automaticallyImplyLeading: false,
+              titleSpacing: 24,
+              centerTitle: false,
+              title: const Text(
+                "Verify Identity",
+                style: TextStyle(
+                  fontSize: 24,
+                  fontWeight: FontWeight.w900,
+                  color: AnansiColors.darkBlue,
+                  letterSpacing: -1.5,
+                ),
+              ),
+            ),
+            // Scrollable Content
+            SliverPadding(
+              padding: const EdgeInsets.symmetric(horizontal: 24),
+              sliver: SliverToBoxAdapter(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Align(
-                      alignment: Alignment.centerLeft,
-                      child: const Text(
-                        "Verify Identity",
-                        style: TextStyle(
-                          fontSize: 24,
-                          fontWeight: FontWeight.w900,
-                          color: AnansiColors.darkBlue,
-                          letterSpacing: -1.5,
-                        ),
-                      ),
-                    ),
+                    const SizedBox(height: 4),
                     _buildStepHeader(),
-                    const SizedBox(height: 10),
+                    const SizedBox(height: 20),
                     _buildImagePreview(),
-                    const SizedBox(height: 22),
+                    const SizedBox(height: 24),
                     Text(
                       "IMAGE QUALITY REPORT",
                       style: TextStyle(
-                        fontSize: 10,
+                        fontSize: 11,
                         fontWeight: FontWeight.w900,
                         letterSpacing: 1.5,
-                        color: Colors.grey.shade400,
+                        color: AnansiColors.darkBlue.withValues(alpha: 0.4),
                       ),
                     ),
-                    SizedBox(height: 8),
+                    const SizedBox(height: 10),
                     _buildChecklist(),
-                    const SizedBox(height: 32),
+
+                    // Clearance so checklist scrolls clear of the bottom sheet dock
+                    const SizedBox(height: 140),
                   ],
                 ),
               ),
             ),
-            _buildActionButtons(context),
           ],
         ),
+      ),
+      bottomSheet: Container(
+        padding: const EdgeInsets.fromLTRB(24, 16, 24, 32),
+        decoration: BoxDecoration(color: Colors.white.withValues(alpha: 0.95)),
+        child: _buildActionButtons(context),
       ),
     );
   }
@@ -108,17 +127,20 @@ class _IdFrontPreviewState extends State<IdFrontPreview> {
         const Text(
           "Confirm ID Capture",
           style: TextStyle(
-            fontSize: 20,
-            fontWeight: FontWeight.w500,
-            letterSpacing: -0.5,
+            fontSize: 18,
+            fontWeight: FontWeight.w800,
+            color: AnansiColors.darkBlue,
+            letterSpacing: -0.6,
           ),
         ),
+        const SizedBox(height: 8),
         Text(
           "Please confirm that you can read every detail on the ID clearly, including your name and ID number.",
           style: TextStyle(
             color: Colors.grey.shade500,
-            fontSize: 15,
-            height: 1.6,
+            fontSize: 14,
+            fontWeight: FontWeight.w400,
+            height: 1.5,
           ),
         ),
       ],
@@ -176,6 +198,94 @@ class _IdFrontPreviewState extends State<IdFrontPreview> {
     );
   }
 
+  Widget _buildChecklist() {
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: const Color(0xFFF9FAFB),
+        borderRadius: BorderRadius.circular(24),
+        border: Border.all(color: const Color(0xFFE5E7EB), width: 1.5),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          _buildDetailedCheckItem(
+            title: "Clear Barcode & Text",
+            subtitle:
+                "Confirm the barcode, MRZ strip, and numbers are sharp and free from glare or shadows.",
+            icon: CupertinoIcons.barcode_viewfinder,
+          ),
+          _buildDivider(),
+          _buildDetailedCheckItem(
+            title: "Matching Document Number",
+            subtitle:
+                "Check that the serial number on the back corresponds with the front side of your card.",
+            icon: CupertinoIcons.doc_on_doc,
+          ),
+          _buildDivider(),
+          _buildDetailedCheckItem(
+            title: "All Four Corners Visible",
+            subtitle:
+                "Make sure the entire card is within the frame and no fingers are covering document edges.",
+            icon: CupertinoIcons.viewfinder,
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildDetailedCheckItem({
+    required String title,
+    required String subtitle,
+    required IconData icon,
+  }) {
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.center,
+      children: [
+        Container(
+          padding: const EdgeInsets.all(10),
+          decoration: BoxDecoration(
+            color: const Color(0xFF17C6C6).withValues(alpha: 0.08),
+            borderRadius: BorderRadius.circular(12),
+          ),
+          child: Icon(icon, color: const Color(0xFF17C6C6), size: 18),
+        ),
+        const SizedBox(width: 16),
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                title,
+                style: const TextStyle(
+                  color: AnansiColors.darkBlue,
+                  fontWeight: FontWeight.w800,
+                  fontSize: 14,
+                ),
+              ),
+              const SizedBox(height: 4),
+              Text(
+                subtitle,
+                style: TextStyle(
+                  color: Colors.grey.shade500,
+                  fontSize: 12,
+                  height: 1.4,
+                ),
+              ),
+            ],
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildDivider() {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 16),
+      child: Divider(color: Colors.grey.shade100, height: 1, indent: 48),
+    );
+  }
+
   void showScanFailureSheet(BuildContext context) {
     showModalBottomSheet(
       context: context,
@@ -202,8 +312,8 @@ class _IdFrontPreviewState extends State<IdFrontPreview> {
             Container(
               width: 80,
               height: 80,
-              decoration: BoxDecoration(
-                color: const Color(0xFFFFE5E5),
+              decoration: const BoxDecoration(
+                color: Color(0xFFFFE5E5),
                 shape: BoxShape.circle,
               ),
               child: const Center(
@@ -261,7 +371,9 @@ class _IdFrontPreviewState extends State<IdFrontPreview> {
                 Navigator.pop(context);
                 Navigator.push(
                   context,
-                  MaterialPageRoute(builder: (context) => IntroduceFrontOfId()),
+                  MaterialPageRoute(
+                    builder: (context) => const IntroduceFrontOfId(),
+                  ),
                 );
               },
               style: ElevatedButton.styleFrom(
@@ -326,163 +438,69 @@ class _IdFrontPreviewState extends State<IdFrontPreview> {
     );
   }
 
-  Widget _buildChecklist() {
-    return Container(
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: const Color(0xFFF9FAFB),
-        borderRadius: BorderRadius.circular(28),
-        border: Border.all(color: const Color(0xFFE5E7EB), width: 1.5),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          _buildDetailedCheckItem(
-            title: "Facial Recognition",
-            subtitle:
-                "The portrait is sharp, well-lit, and matches biometric standards.",
-            icon: CupertinoIcons.person_crop_square,
-          ),
-          _buildDivider(),
-          _buildDetailedCheckItem(
-            title: "Optical Character Stability",
-            subtitle: "All identity numbers are crisp and machine-readable.",
-            icon: CupertinoIcons.viewfinder,
-          ),
-          _buildDivider(),
-          _buildDetailedCheckItem(
-            title: "Surface Glare Reduction",
-            subtitle:
-                "Anti-glare check passed; no reflections on the plastic lamination.",
-            icon: CupertinoIcons.sun_min,
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildDetailedCheckItem({
-    required String title,
-    required String subtitle,
-    required IconData icon,
-  }) {
-    return Row(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Container(
-          padding: const EdgeInsets.all(10),
-          decoration: BoxDecoration(
-            color: const Color(0xFF17C6C6).withValues(alpha: 0.08),
-            borderRadius: BorderRadius.circular(12),
-          ),
-          child: Icon(icon, color: const Color(0xFF17C6C6), size: 18),
-        ),
-        const SizedBox(width: 16),
-        Expanded(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                title,
-                style: const TextStyle(
-                  color: AnansiColors.darkBlue,
-                  fontWeight: FontWeight.w800,
-                  fontSize: 14,
-                ),
-              ),
-              const SizedBox(height: 4),
-              Text(
-                subtitle,
-                style: TextStyle(
-                  color: Colors.grey.shade500,
-                  fontSize: 12,
-                  height: 1.4,
-                ),
-              ),
-            ],
-          ),
-        ),
-        const Icon(
-          CupertinoIcons.checkmark_circle_fill,
-          color: Color(0xFF17C6C6),
-          size: 20,
-        ),
-      ],
-    );
-  }
-
-  Widget _buildDivider() {
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 16),
-      child: Divider(color: Colors.grey.shade100, height: 1, indent: 48),
-    );
-  }
-
   Widget _buildActionButtons(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.fromLTRB(24, 10, 24, 0),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        border: Border(top: BorderSide(color: Colors.grey.shade100)),
-      ),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          ElevatedButton(
-            // FIX: Dummy function () {} keeps button enabled/blue while loading
-            onPressed: _isLoading ? () {} : _extractIdDetails,
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        SizedBox(
+          width: double.infinity,
+          height: 64,
+          child: ElevatedButton(
+            onPressed: _isLoading ? null : _extractIdDetails,
             style: ElevatedButton.styleFrom(
               backgroundColor: AnansiColors.darkBlue,
-              disabledBackgroundColor:
-                  Colors.grey.shade200, // For the "inactive" state
-              minimumSize: const Size(double.infinity, 64),
+              foregroundColor: Colors.white,
+              disabledBackgroundColor: AnansiColors.darkBlue,
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(20),
               ),
               elevation: 0,
             ),
             child: _isLoading
-                ? const SizedBox(
-                    height: 20,
-                    width: 20,
-                    child: CupertinoActivityIndicator(color: Colors.white),
-                  )
-                : const Text(
-                    "SUBMIT FRONT SIDE",
-                    style: TextStyle(
-                      fontWeight: FontWeight.w900,
-                      letterSpacing: 1.2,
-                      color: Colors.white,
-                    ),
+                ? const CupertinoActivityIndicator(color: Colors.white)
+                : const Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Text(
+                        "SUBMIT FRONT SIDE",
+                        style: TextStyle(
+                          fontWeight: FontWeight.w900,
+                          letterSpacing: 1.2,
+                          fontSize: 13,
+                        ),
+                      ),
+                      SizedBox(width: 10),
+                      Icon(Icons.arrow_forward_rounded, size: 18),
+                    ],
                   ),
           ),
-          const SizedBox(height: 16),
-          GestureDetector(
-            onTap: () => Navigator.pop(context),
-            behavior: HitTestBehavior.opaque,
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Icon(
-                  CupertinoIcons.refresh,
-                  size: 14,
-                  color: Colors.grey.shade400,
+        ),
+        const SizedBox(height: 14),
+        GestureDetector(
+          onTap: () => Navigator.pop(context),
+          behavior: HitTestBehavior.opaque,
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Icon(
+                CupertinoIcons.refresh,
+                size: 14,
+                color: Colors.grey.shade400,
+              ),
+              const SizedBox(width: 8),
+              Text(
+                "RETAKE DOCUMENT SCAN",
+                style: TextStyle(
+                  color: Colors.grey.shade500,
+                  fontWeight: FontWeight.w900,
+                  fontSize: 11,
+                  letterSpacing: 1.2,
                 ),
-                const SizedBox(width: 8),
-                Text(
-                  "RETAKE DOCUMENT SCAN",
-                  style: TextStyle(
-                    color: Colors.grey.shade500,
-                    fontWeight: FontWeight.w900,
-                    fontSize: 11,
-                    letterSpacing: 1.2,
-                  ),
-                ),
-              ],
-            ),
+              ),
+            ],
           ),
-        ],
-      ),
+        ),
+      ],
     );
   }
 }

@@ -1,6 +1,7 @@
 import 'dart:io';
 import 'package:app_anansi_mobile/pages/onboarding/id_back_preview.dart';
 import 'package:app_anansi_mobile/pages/onboarding/introduce_id_front.dart';
+import 'package:app_anansi_mobile/theme/app_theme.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:app_anansi_mobile/theme/app_theme.dart';
@@ -51,47 +52,66 @@ class _IntroduceBackOfIdState extends State<IntroduceBackOfId> {
     return Scaffold(
       backgroundColor: Colors.white,
       body: SafeArea(
-        child: Column(
-          children: [
-            Expanded(
-              child: SingleChildScrollView(
-                padding: const EdgeInsets.symmetric(horizontal: 24),
+        child: CustomScrollView(
+          physics: const BouncingScrollPhysics(),
+          slivers: [
+            // Pinned Header Bar
+            SliverAppBar(
+              pinned: true,
+              floating: false,
+              backgroundColor: Colors.white,
+              surfaceTintColor:
+                  Colors.transparent, // Prevents M3 scroll overlay tint
+              elevation: 0,
+              scrolledUnderElevation: 0,
+              automaticallyImplyLeading: false,
+              titleSpacing: 24,
+              centerTitle: false,
+              title: const Text(
+                "Verify Identity",
+                style: TextStyle(
+                  fontSize: 24,
+                  fontWeight: FontWeight.w900,
+                  color: AnansiColors.darkBlue,
+                  letterSpacing: -1.5,
+                ),
+              ),
+            ),
+
+            // Scrollable Body Content
+            SliverPadding(
+              padding: const EdgeInsets.symmetric(horizontal: 24),
+              sliver: SliverToBoxAdapter(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    const SizedBox(height: 10),
-                    Align(
-                      alignment: Alignment.centerLeft,
-                      child: const Text(
-                        "Verify Identity",
-                        style: TextStyle(
-                          fontSize: 24,
-                          fontWeight: FontWeight.w900,
-                          color: AnansiColors.darkBlue,
-                          letterSpacing: -1.5,
-                        ),
-                      ),
-                    ),
+                    const SizedBox(height: 4),
+
+                    // Refined Subtitle Section
                     const Text(
                       "Capture ID (Back)",
                       style: TextStyle(
-                        fontSize: 20,
-                        fontWeight: FontWeight.w500,
-                        letterSpacing: -0.5,
+                        fontSize: 18,
+                        fontWeight: FontWeight.w800,
+                        color: AnansiColors.darkBlue,
+                        letterSpacing: -0.6,
                       ),
                     ),
-                    const SizedBox(height: 5),
+                    const SizedBox(height: 8),
                     Text(
                       "Now, please provide a clear scan of the back of your document. This is required to verify security features and the document serial number.",
                       style: TextStyle(
                         color: Colors.grey.shade500,
-                        fontSize: 15,
+                        fontSize: 14,
+                        fontWeight: FontWeight.w400,
                         height: 1.5,
                       ),
                     ),
-                    const SizedBox(height: 22),
+
+                    const SizedBox(height: 20),
                     _buildIdFramePreview(),
-                    const SizedBox(height: 22),
+                    const SizedBox(height: 24),
+
                     _buildRequirementItem(
                       icon: CupertinoIcons.barcode_viewfinder,
                       text: "Barcode Legibility",
@@ -110,15 +130,22 @@ class _IntroduceBackOfIdState extends State<IntroduceBackOfId> {
                       description:
                           "Avoid tilting the card too much; we need to verify the micro-print and security background patterns.",
                     ),
+                    const SizedBox(height: 12),
                     _buildSecurityNote(),
-                    const SizedBox(height: 20),
+                    const SizedBox(height: 100),
                   ],
                 ),
               ),
             ),
-            _buildCaptureButton(),
           ],
         ),
+      ),
+
+      // Fixed Bottom Docked Button
+      bottomSheet: Container(
+        padding: const EdgeInsets.fromLTRB(24, 16, 24, 25),
+        decoration: BoxDecoration(color: Colors.white.withValues(alpha: 0.95)),
+        child: _buildCaptureButton(),
       ),
     );
   }
@@ -139,7 +166,7 @@ class _IntroduceBackOfIdState extends State<IntroduceBackOfId> {
             height: 120,
             width: 120,
             decoration: BoxDecoration(
-              color: const Color(0xFF17C6C6).withValues(alpha: 0.05),
+              color: AnansiColors.darkBlue.withValues(alpha: 0.05),
               shape: BoxShape.circle,
             ),
           ),
@@ -153,7 +180,9 @@ class _IntroduceBackOfIdState extends State<IntroduceBackOfId> {
           ),
           Positioned.fill(
             child: CustomPaint(
-              painter: ViewfinderPainter(color: const Color(0xFF17C6C6)),
+              painter: ViewfinderPainter(
+                color: AnansiColors.darkBlue.withValues(alpha: 0.5),
+              ),
             ),
           ),
         ],
@@ -255,17 +284,14 @@ class _IntroduceBackOfIdState extends State<IntroduceBackOfId> {
   }
 
   Widget _buildCaptureButton() {
-    return Container(
-      padding: const EdgeInsets.fromLTRB(24, 10, 24, 0),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        border: Border(top: BorderSide(color: Colors.grey.shade100)),
-      ),
+    return SizedBox(
+      width: double.infinity,
+      height: 64,
       child: ElevatedButton(
         onPressed: _handleCapture,
         style: ElevatedButton.styleFrom(
           backgroundColor: AnansiColors.darkBlue,
-          minimumSize: const Size(double.infinity, 64),
+          foregroundColor: Colors.white,
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(20),
           ),
@@ -279,9 +305,11 @@ class _IntroduceBackOfIdState extends State<IntroduceBackOfId> {
               style: TextStyle(
                 fontWeight: FontWeight.w900,
                 letterSpacing: 1.2,
-                color: Colors.white,
+                fontSize: 13,
               ),
             ),
+            SizedBox(width: 10),
+            Icon(CupertinoIcons.camera_fill, size: 18),
           ],
         ),
       ),

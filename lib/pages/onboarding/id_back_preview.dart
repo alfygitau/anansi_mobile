@@ -57,73 +57,93 @@ class _IdBackPreviewState extends State<IdBackPreview> {
     return Scaffold(
       backgroundColor: Colors.white,
       body: SafeArea(
-        child: Column(
-          children: [
-            Expanded(
-              child: SingleChildScrollView(
-                padding: const EdgeInsets.symmetric(horizontal: 24),
+        child: CustomScrollView(
+          physics: const BouncingScrollPhysics(),
+          slivers: [
+            // Pinned Header Bar
+            SliverAppBar(
+              pinned: true,
+              floating: false,
+              backgroundColor: Colors.white,
+              surfaceTintColor:
+                  Colors.transparent, // Prevents M3 scroll overlay tint
+              elevation: 0,
+              scrolledUnderElevation: 0,
+              automaticallyImplyLeading: false,
+              titleSpacing: 24,
+              centerTitle: false,
+              title: const Text(
+                "Verify Identity",
+                style: TextStyle(
+                  fontSize: 24,
+                  fontWeight: FontWeight.w900,
+                  color: AnansiColors.darkBlue,
+                  letterSpacing: -1.5,
+                ),
+              ),
+            ),
+
+            // Scrollable Body Content
+            SliverPadding(
+              padding: const EdgeInsets.symmetric(horizontal: 24),
+              sliver: SliverToBoxAdapter(
                 child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Align(
-                      alignment: Alignment.centerLeft,
-                      child: const Text(
-                        "Verify Identity",
-                        style: TextStyle(
-                          fontSize: 24,
-                          fontWeight: FontWeight.w900,
-                          color: AnansiColors.darkBlue,
-                          letterSpacing: -1.5,
-                        ),
-                      ),
-                    ),
+                    const SizedBox(height: 4),
                     _buildStepHeader(),
-                    const SizedBox(height: 16),
+                    const SizedBox(height: 20),
                     _buildImagePreview(),
-                    const SizedBox(height: 22),
-                    Align(
-                      alignment: Alignment.centerLeft,
-                      child: Text(
-                        "DOCUMENT INTEGRITY CHECK",
-                        style: TextStyle(
-                          fontSize: 10,
-                          fontWeight: FontWeight.w900,
-                          letterSpacing: 1.5,
-                          color: Colors.grey.shade400,
-                        ),
+                    const SizedBox(height: 24),
+                    Text(
+                      "DOCUMENT INTEGRITY CHECK",
+                      style: TextStyle(
+                        fontSize: 11,
+                        fontWeight: FontWeight.w900,
+                        letterSpacing: 1.5,
+                        color: AnansiColors.darkBlue.withValues(alpha: 0.4),
                       ),
                     ),
-                    SizedBox(height: 8),
+                    const SizedBox(height: 10),
                     _buildChecklist(),
-                    const SizedBox(height: 32),
+                    const SizedBox(height: 140),
                   ],
                 ),
               ),
             ),
-            _buildActionButtons(context),
           ],
         ),
+      ),
+
+      // Fixed Bottom Docked Actions
+      bottomSheet: Container(
+        padding: const EdgeInsets.fromLTRB(24, 16, 24, 25),
+        decoration: BoxDecoration(color: Colors.white.withValues(alpha: 0.95)),
+        child: _buildActionButtons(context),
       ),
     );
   }
 
   Widget _buildStepHeader() {
     return Column(
-      mainAxisAlignment: MainAxisAlignment.start,
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         const Text(
           "Confirm Legibility",
           style: TextStyle(
-            fontSize: 20,
-            fontWeight: FontWeight.w500,
-            letterSpacing: -0.5,
+            fontSize: 18,
+            fontWeight: FontWeight.w800,
+            color: AnansiColors.darkBlue,
+            letterSpacing: -0.6,
           ),
         ),
+        const SizedBox(height: 8),
         Text(
           "The back of your ID contains critical security markers and barcodes. Please ensure these are not blurry or obscured.",
           style: TextStyle(
             color: Colors.grey.shade500,
-            fontSize: 15,
+            fontSize: 14,
+            fontWeight: FontWeight.w400,
             height: 1.5,
           ),
         ),
@@ -149,7 +169,14 @@ class _IdBackPreviewState extends State<IdBackPreview> {
         borderRadius: BorderRadius.circular(26),
         child: AspectRatio(
           aspectRatio: 1.6,
-          child: Image.file(widget.imageFile, fit: BoxFit.cover),
+          child: Image.file(
+            widget.imageFile,
+            fit: BoxFit.cover,
+            errorBuilder: (context, error, stackTrace) => Container(
+              color: Colors.grey.shade50,
+              child: const Icon(CupertinoIcons.photo, color: Colors.grey),
+            ),
+          ),
         ),
       ),
     );
@@ -160,29 +187,31 @@ class _IdBackPreviewState extends State<IdBackPreview> {
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: const Color(0xFFF9FAFB),
-        borderRadius: BorderRadius.circular(28),
+        borderRadius: BorderRadius.circular(24),
         border: Border.all(color: const Color(0xFFE5E7EB), width: 1.5),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           _buildDetailedCheckItem(
-            title: "Data Readability",
-            subtitle: "Barcode and MRZ zones are sharp and machine-readable.",
+            title: "Clear Barcode & Text",
+            subtitle:
+                "Confirm the barcode, MRZ strip, and numbers are sharp and free from glare or shadows.",
             icon: CupertinoIcons.barcode_viewfinder,
           ),
           _buildDivider(),
           _buildDetailedCheckItem(
-            title: "Cross-Reference Validation",
-            subtitle: "Serial numbers and identifiers match the primary side.",
+            title: "Matching Document Number",
+            subtitle:
+                "Check that the serial number on the back corresponds with the front side of your card.",
             icon: CupertinoIcons.doc_on_doc,
           ),
           _buildDivider(),
           _buildDetailedCheckItem(
-            title: "Edge Recognition",
+            title: "All Four Corners Visible",
             subtitle:
-                "All four corners of the document are within the focus area.",
-            icon: CupertinoIcons.layers_alt,
+                "Make sure the entire card is within the frame and no fingers are covering document edges.",
+            icon: CupertinoIcons.viewfinder,
           ),
         ],
       ),
@@ -195,7 +224,7 @@ class _IdBackPreviewState extends State<IdBackPreview> {
     required IconData icon,
   }) {
     return Row(
-      crossAxisAlignment: CrossAxisAlignment.start,
+      crossAxisAlignment: CrossAxisAlignment.center,
       children: [
         Container(
           padding: const EdgeInsets.all(10),
@@ -229,11 +258,6 @@ class _IdBackPreviewState extends State<IdBackPreview> {
               ),
             ],
           ),
-        ),
-        const Icon(
-          CupertinoIcons.checkmark_circle_fill,
-          color: Color(0xFF17C6C6),
-          size: 22,
         ),
       ],
     );
@@ -272,8 +296,8 @@ class _IdBackPreviewState extends State<IdBackPreview> {
             Container(
               width: 80,
               height: 80,
-              decoration: BoxDecoration(
-                color: const Color(0xFFFFE5E5),
+              decoration: const BoxDecoration(
+                color: Color(0xFFFFE5E5),
                 shape: BoxShape.circle,
               ),
               child: const Center(
@@ -400,72 +424,68 @@ class _IdBackPreviewState extends State<IdBackPreview> {
   }
 
   Widget _buildActionButtons(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.fromLTRB(24, 10, 24, 0),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: 0.04),
-            blurRadius: 20,
-            offset: const Offset(0, -10),
-          ),
-        ],
-      ),
-      child: Column(
-        children: [
-          ElevatedButton(
-            onPressed: _isLoading ? () {} : _extractIdDetails,
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        SizedBox(
+          width: double.infinity,
+          height: 64,
+          child: ElevatedButton(
+            onPressed: _isLoading ? null : _extractIdDetails,
             style: ElevatedButton.styleFrom(
               backgroundColor: AnansiColors.darkBlue,
               foregroundColor: Colors.white,
-              minimumSize: const Size(double.infinity, 64),
+              disabledBackgroundColor: AnansiColors.darkBlue,
               shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(18),
+                borderRadius: BorderRadius.circular(20),
               ),
               elevation: 0,
             ),
             child: _isLoading
-                ? const SizedBox(
-                    height: 20,
-                    width: 20,
-                    child: CupertinoActivityIndicator(color: Colors.white),
-                  )
-                : const Text(
-                    "SUBMIT BACK SIDE",
-                    style: TextStyle(
-                      fontWeight: FontWeight.w900,
-                      letterSpacing: 1.2,
-                    ),
+                ? const CupertinoActivityIndicator(color: Colors.white)
+                : const Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Text(
+                        "SUBMIT BACK SIDE",
+                        style: TextStyle(
+                          fontWeight: FontWeight.w900,
+                          letterSpacing: 1.2,
+                          fontSize: 13,
+                        ),
+                      ),
+                      SizedBox(width: 10),
+                      Icon(Icons.arrow_forward_rounded, size: 18),
+                    ],
                   ),
           ),
-          const SizedBox(height: 12),
-          GestureDetector(
-            onTap: () => Navigator.pop(context),
-            behavior: HitTestBehavior.opaque,
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Icon(
-                  CupertinoIcons.refresh,
-                  size: 14,
-                  color: Colors.grey.shade400,
+        ),
+        const SizedBox(height: 14),
+        GestureDetector(
+          onTap: () => Navigator.pop(context),
+          behavior: HitTestBehavior.opaque,
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Icon(
+                CupertinoIcons.refresh,
+                size: 14,
+                color: Colors.grey.shade400,
+              ),
+              const SizedBox(width: 8),
+              Text(
+                "RETAKE DOCUMENT SCAN",
+                style: TextStyle(
+                  color: Colors.grey.shade500,
+                  fontWeight: FontWeight.w900,
+                  fontSize: 11,
+                  letterSpacing: 1.2,
                 ),
-                const SizedBox(width: 8),
-                Text(
-                  "RETAKE DOCUMENT SCAN",
-                  style: TextStyle(
-                    color: Colors.grey.shade500,
-                    fontWeight: FontWeight.w900,
-                    fontSize: 11,
-                    letterSpacing: 1.2,
-                  ),
-                ),
-              ],
-            ),
+              ),
+            ],
           ),
-        ],
-      ),
+        ),
+      ],
     );
   }
 }

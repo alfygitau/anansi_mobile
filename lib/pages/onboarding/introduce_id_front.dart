@@ -48,51 +48,58 @@ class _IntroduceFrontOfIdState extends State<IntroduceFrontOfId> {
     return Scaffold(
       backgroundColor: Colors.white,
       body: SafeArea(
-        child: Column(
-          children: [
-            Expanded(
-              child: SingleChildScrollView(
-                padding: const EdgeInsets.symmetric(horizontal: 24),
+        child: CustomScrollView(
+          physics: const BouncingScrollPhysics(),
+          slivers: [
+            SliverAppBar(
+              pinned: true,
+              floating: false,
+              backgroundColor: Colors.white,
+              surfaceTintColor: Colors.transparent,
+              elevation: 0,
+              scrolledUnderElevation: 0,
+              automaticallyImplyLeading: false,
+              titleSpacing: 24,
+              centerTitle: false,
+              title: const Text(
+                "Verify Identity",
+                style: TextStyle(
+                  fontSize: 24,
+                  fontWeight: FontWeight.w900,
+                  color: AnansiColors.darkBlue,
+                  letterSpacing: -1.5,
+                ),
+              ),
+            ),
+            SliverPadding(
+              padding: const EdgeInsets.symmetric(horizontal: 24),
+              sliver: SliverToBoxAdapter(
                 child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    const SizedBox(height: 10),
-                    Align(
-                      alignment: Alignment.centerLeft,
-                      child: const Text(
-                        "Verify Identity",
-                        style: TextStyle(
-                          fontSize: 24,
-                          fontWeight: FontWeight.w900,
-                          color: AnansiColors.darkBlue,
-                          letterSpacing: -1.5,
-                        ),
+                    const SizedBox(height: 4),
+                    const Text(
+                      "Upload Your Identification",
+                      style: TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.w800,
+                        color: AnansiColors.darkBlue,
+                        letterSpacing: -0.6,
                       ),
                     ),
-                    Align(
-                      alignment: Alignment.centerLeft,
-                      child: const Text(
-                        "Upload Your Identification",
-                        textAlign: TextAlign.start,
-                        style: TextStyle(
-                          fontSize: 20,
-                          fontWeight: FontWeight.w500,
-                          letterSpacing: -0.5,
-                        ),
-                      ),
-                    ),
-                    const SizedBox(height: 5),
+                    const SizedBox(height: 8),
                     Text(
                       "The automated scan captures your document's security features to instantly authenticate your account and activate full banking privileges.",
-                      textAlign: TextAlign.start,
                       style: TextStyle(
                         color: Colors.grey.shade500,
-                        fontSize: 15,
+                        fontSize: 14,
+                        fontWeight: FontWeight.w400,
                         height: 1.5,
                       ),
                     ),
-                    const SizedBox(height: 15),
+                    const SizedBox(height: 20),
                     _buildIdFramePreview(),
-                    const SizedBox(height: 25),
+                    const SizedBox(height: 24),
                     _buildRequirementItem(
                       icon: CupertinoIcons.sun_max,
                       text: "Optimal Lighting Conditions",
@@ -103,7 +110,7 @@ class _IntroduceFrontOfIdState extends State<IntroduceFrontOfId> {
                       icon: CupertinoIcons.viewfinder,
                       text: "Precise Frame Alignment",
                       description:
-                          "Ensure the document is laid on a flat, dark surface. Align all four edges within the guide markers to allow for automated edge detection.",
+                          "Ensure the document is laid on a flat, dark surface. Align all four edges within the guide markers to automate detection.",
                     ),
                     _buildRequirementItem(
                       icon: CupertinoIcons.doc_text_search,
@@ -111,16 +118,25 @@ class _IntroduceFrontOfIdState extends State<IntroduceFrontOfId> {
                       description:
                           "Check that all text, serial numbers, and your portrait are sharp and in focus. Blurred images will fail our automated security verification.",
                     ),
-                    const SizedBox(height: 10),
+                    const SizedBox(height: 12),
                     _buildLegalDisclaimer(),
-                    const SizedBox(height: 20),
+                    const SizedBox(height: 100),
                   ],
                 ),
               ),
             ),
-            _buildCaptureButton(context),
           ],
         ),
+      ),
+      bottomSheet: Container(
+        padding: const EdgeInsets.fromLTRB(24, 16, 24, 32),
+        decoration: BoxDecoration(
+          color: Colors.white.withValues(alpha: 0.95),
+          border: Border(
+            top: BorderSide(color: Colors.grey.shade100, width: 1.5),
+          ),
+        ),
+        child: _buildCaptureButton(context),
       ),
     );
   }
@@ -141,7 +157,7 @@ class _IntroduceFrontOfIdState extends State<IntroduceFrontOfId> {
             height: 120,
             width: 120,
             decoration: BoxDecoration(
-              color: const Color(0xFF17C6C6).withValues(alpha: 0.05),
+              color: AnansiColors.darkBlue.withValues(alpha: 0.05),
               shape: BoxShape.circle,
             ),
           ),
@@ -155,7 +171,9 @@ class _IntroduceFrontOfIdState extends State<IntroduceFrontOfId> {
           ),
           Positioned.fill(
             child: CustomPaint(
-              painter: ViewfinderPainter(color: const Color(0xFF17C6C6)),
+              painter: ViewfinderPainter(
+                color: AnansiColors.darkBlue.withValues(alpha: 0.5),
+              ),
             ),
           ),
         ],
@@ -174,7 +192,6 @@ class _IntroduceFrontOfIdState extends State<IntroduceFrontOfId> {
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(20),
-        // Thin, crisp border for that "Institutional" feel
         border: Border.all(color: const Color(0xFFF1F5F9), width: 1.5),
         boxShadow: [
           BoxShadow(
@@ -187,22 +204,15 @@ class _IntroduceFrontOfIdState extends State<IntroduceFrontOfId> {
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
-          // The Refined Icon Anchor
           Container(
             padding: const EdgeInsets.all(12),
             decoration: BoxDecoration(
-              color: const Color(0xFFF1F5F9), // Slate 100
+              color: const Color(0xFFF1F5F9),
               borderRadius: BorderRadius.circular(14),
             ),
-            child: Icon(
-              icon,
-              color: AnansiColors.darkBlue, // Darker icon for more authority
-              size: 20,
-            ),
+            child: Icon(icon, color: AnansiColors.darkBlue, size: 20),
           ),
           const SizedBox(width: 16),
-
-          // Detailed Content
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -211,7 +221,7 @@ class _IntroduceFrontOfIdState extends State<IntroduceFrontOfId> {
                   text,
                   style: const TextStyle(
                     color: AnansiColors.darkBlue,
-                    fontWeight: FontWeight.w900, // Heavy weight for headlines
+                    fontWeight: FontWeight.w900,
                     fontSize: 15,
                     letterSpacing: -0.3,
                   ),
@@ -274,17 +284,14 @@ class _IntroduceFrontOfIdState extends State<IntroduceFrontOfId> {
   }
 
   Widget _buildCaptureButton(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.fromLTRB(24, 16, 24, 0),
-      decoration: BoxDecoration(color: Colors.white),
+    return SizedBox(
+      width: double.infinity,
+      height: 64,
       child: ElevatedButton(
-        onPressed: () async {
-          _continue();
-        },
+        onPressed: _continue,
         style: ElevatedButton.styleFrom(
           backgroundColor: AnansiColors.darkBlue,
           foregroundColor: Colors.white,
-          minimumSize: const Size(double.infinity, 64),
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(20),
           ),
@@ -295,8 +302,14 @@ class _IntroduceFrontOfIdState extends State<IntroduceFrontOfId> {
           children: [
             Text(
               "CONTINUE TO CAMERA",
-              style: TextStyle(fontWeight: FontWeight.w900, letterSpacing: 1.2),
+              style: TextStyle(
+                fontWeight: FontWeight.w900,
+                letterSpacing: 1.2,
+                fontSize: 13,
+              ),
             ),
+            SizedBox(width: 10),
+            Icon(CupertinoIcons.camera_fill, size: 18),
           ],
         ),
       ),
@@ -304,7 +317,6 @@ class _IntroduceFrontOfIdState extends State<IntroduceFrontOfId> {
   }
 }
 
-// Custom Painter for those premium viewfinder corners
 class ViewfinderPainter extends CustomPainter {
   final Color color;
   ViewfinderPainter({required this.color});

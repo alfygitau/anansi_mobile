@@ -1,4 +1,7 @@
 import 'dart:convert';
+import 'dart:io';
+import 'package:app_anansi_mobile/pages/onboarding/id_back_preview.dart';
+import 'package:app_anansi_mobile/pages/onboarding/id_front_preview.dart';
 import 'package:app_anansi_mobile/pages/onboarding/introduce_id_front.dart';
 import 'package:app_anansi_mobile/services/error_service.dart';
 import 'package:app_anansi_mobile/services/onboarding_service.dart';
@@ -34,6 +37,16 @@ class _IdTypeState extends State<IdType> {
   }
 
   Future<void> _updateCustomer() async {
+    if (!_isFormValid) {
+      HapticFeedback.vibrate();
+      ErrorService.showActionableError(
+        context,
+        title: 'Missing Field',
+        message:
+            "Ensure that both country of citizenship and National ID are selected!",
+      );
+      return;
+    }
     setState(() {
       _isLoading = true;
     });
@@ -54,7 +67,9 @@ class _IdTypeState extends State<IdType> {
         HapticFeedback.lightImpact();
         Navigator.push(
           context,
-          MaterialPageRoute(builder: (context) => const IntroduceFrontOfId()),
+          MaterialPageRoute(
+            builder: (context) => IdFrontPreview(imageFile: File("")),
+          ),
         );
       }
     } finally {
@@ -67,23 +82,35 @@ class _IdTypeState extends State<IdType> {
     return Scaffold(
       backgroundColor: Colors.white,
       body: SafeArea(
-        child: Column(
-          children: [
-            Expanded(
-              child: SingleChildScrollView(
-                padding: const EdgeInsets.symmetric(horizontal: 24),
+        child: CustomScrollView(
+          physics: const BouncingScrollPhysics(),
+          slivers: [
+            SliverAppBar(
+              pinned: true,
+              floating: false,
+              backgroundColor: Colors.white,
+              surfaceTintColor: Colors.transparent,
+              elevation: 0,
+              scrolledUnderElevation: 0,
+              automaticallyImplyLeading: false,
+              titleSpacing: 24,
+              centerTitle: false,
+              title: const Text(
+                "Verify Identity",
+                style: TextStyle(
+                  fontSize: 24,
+                  fontWeight: FontWeight.w900,
+                  color: AnansiColors.darkBlue,
+                  letterSpacing: -1.5,
+                ),
+              ),
+            ),
+            SliverPadding(
+              padding: const EdgeInsets.symmetric(horizontal: 24),
+              sliver: SliverToBoxAdapter(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    const Text(
-                      "Verify Identity",
-                      style: TextStyle(
-                        fontSize: 24,
-                        fontWeight: FontWeight.w900,
-                        color: AnansiColors.darkBlue,
-                        letterSpacing: -1.5,
-                      ),
-                    ),
                     _buildHeader(),
                     const SizedBox(height: 20),
                     _buildSectionLabel("CITIZENSHIP"),
@@ -103,18 +130,24 @@ class _IdTypeState extends State<IdType> {
                       subtitle: "Standard for Kenyan Citizens",
                       icon: CupertinoIcons.doc_text_viewfinder,
                     ),
+                    const SizedBox(height: 12),
                     _buildIdTypeTile(
                       type: "Passport",
                       subtitle: "International Travel Document",
                       icon: CupertinoIcons.globe,
                     ),
+                    const SizedBox(height: 100),
                   ],
                 ),
               ),
             ),
-            _buildContinueButton(),
           ],
         ),
+      ),
+      bottomSheet: Container(
+        padding: const EdgeInsets.fromLTRB(24, 16, 24, 25),
+        decoration: BoxDecoration(color: Colors.white.withValues(alpha: 0.95)),
+        child: _buildContinueButton(),
       ),
     );
   }
@@ -126,10 +159,10 @@ class _IdTypeState extends State<IdType> {
         const Text(
           "Type of Identification",
           style: TextStyle(
-            color: Colors.black,
-            fontSize: 20,
-            fontWeight: FontWeight.w500,
-            letterSpacing: -0.5,
+            color: AnansiColors.darkBlue,
+            fontSize: 18,
+            fontWeight: FontWeight.w800,
+            letterSpacing: -0.6,
           ),
         ),
         const SizedBox(height: 5),
@@ -213,8 +246,11 @@ class _IdTypeState extends State<IdType> {
                     color: Color(0xFF94A3B8),
                   ),
                 ),
-                // We use the hint/selectedItem to build your custom Row inside the button
-                hint: _buildDropdownRow(icon, "Select $label", isHint: true),
+                hint: _buildDropdownHintRow(
+                  icon,
+                  "Select $label",
+                  isHint: true,
+                ),
                 selectedItemBuilder: (context) {
                   return items.map((String item) {
                     return _buildDropdownRow(icon, item, isHint: false);
@@ -270,7 +306,50 @@ class _IdTypeState extends State<IdType> {
           child: Text(
             text,
             style: TextStyle(
-              fontSize: 16,
+              fontSize: 15,
+              fontWeight: FontWeight.w500,
+              color: isHint ? Colors.blueGrey.shade200 : Colors.black,
+              letterSpacing: 0.2,
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildDropdownHintRow(
+    IconData icon,
+    String text, {
+    required bool isHint,
+  }) {
+    return Row(
+      children: [
+        // Icon Anchor
+        Container(
+          width: 44,
+          height: 44,
+          decoration: BoxDecoration(
+            color: const Color(0xFFF8FAFC),
+            borderRadius: BorderRadius.circular(16),
+          ),
+          child: Icon(
+            icon,
+            size: 20,
+            color: AnansiColors.darkBlue.withValues(alpha: 0.4),
+          ),
+        ),
+        // Vertical Separator
+        Container(
+          height: 24,
+          width: 1.5,
+          margin: const EdgeInsets.symmetric(horizontal: 16),
+          color: const Color(0xFFE2E8F0),
+        ),
+        Expanded(
+          child: Text(
+            text,
+            style: TextStyle(
+              fontSize: 13,
               fontWeight: FontWeight.w500,
               color: isHint ? Colors.blueGrey.shade200 : Colors.black,
               letterSpacing: 0.2,
@@ -354,22 +433,22 @@ class _IdTypeState extends State<IdType> {
 
   Widget _buildContinueButton() {
     return Container(
-      padding: const EdgeInsets.fromLTRB(24, 16, 24, 10),
+      padding: const EdgeInsets.fromLTRB(0, 16, 0, 10),
       decoration: const BoxDecoration(color: Colors.white),
       child: ElevatedButton(
-        // LOGIC:
-        // 1. If loading -> stay enabled but do nothing () {}
-        // 2. If valid -> allow _updateCustomer
-        // 3. Otherwise -> disable (null)
-        onPressed: _isLoading ? () {} : (_isFormValid ? _updateCustomer : null),
+        onPressed: _isLoading ? null : _updateCustomer,
         style: ElevatedButton.styleFrom(
-          backgroundColor: AnansiColors.darkBlue,
-          disabledBackgroundColor: Colors.grey.shade200,
+          backgroundColor: _isFormValid
+              ? AnansiColors.darkBlue
+              : Colors.grey.shade300,
+          foregroundColor: Colors.white,
+          disabledBackgroundColor: AnansiColors.darkBlue,
+          disabledForegroundColor: Colors.grey.shade500,
           minimumSize: const Size(double.infinity, 64),
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(18),
           ),
-          elevation: (_isFormValid && !_isLoading) ? 4 : 0,
+          elevation: 0,
         ),
         child: _isLoading
             ? const SizedBox(

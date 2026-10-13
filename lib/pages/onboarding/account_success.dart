@@ -30,35 +30,43 @@ class _AccountSuccessState extends State<AccountSuccess> {
     return Scaffold(
       backgroundColor: Colors.white,
       body: SafeArea(
-        child: SingleChildScrollView(
-          child: Column(
-            children: [_buildCelebrationHeader(), _buildRoadmapContent()],
-          ),
+        child: CustomScrollView(
+          physics: const BouncingScrollPhysics(),
+          slivers: [
+            // Header Section
+            SliverToBoxAdapter(child: _buildCelebrationHeader()),
+            const SliverToBoxAdapter(child: SizedBox(height: 10)),
+            SliverToBoxAdapter(child: _buildRoadmapCards()),
+            const SliverToBoxAdapter(child: SizedBox(height: 100)),
+          ],
         ),
       ),
+
+      // Fixed bottom dock for the button and security footer
+      bottomSheet: _buildDockedBottomBar(),
     );
   }
 
   Widget _buildCelebrationHeader() {
     return Container(
       width: double.infinity,
-      padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 30),
+      padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 10),
       child: Column(
         children: [
           Stack(
             alignment: Alignment.center,
             children: [
               Container(
-                height: 110,
-                width: 110,
+                height: 90,
+                width: 90,
                 decoration: BoxDecoration(
                   shape: BoxShape.circle,
                   color: Colors.green.withValues(alpha: 0.05),
                 ),
               ),
               Container(
-                height: 75,
-                width: 75,
+                height: 60,
+                width: 60,
                 decoration: BoxDecoration(
                   color: Colors.white,
                   borderRadius: BorderRadius.circular(24),
@@ -98,16 +106,16 @@ class _AccountSuccessState extends State<AccountSuccess> {
                 fontSize: 15,
                 height: 1.5,
               ),
-              children: [
-                const TextSpan(text: "Your profile is ready, "),
+              children: const [
+                TextSpan(text: "Your profile is ready, "),
                 TextSpan(
                   text: "Alfy",
-                  style: const TextStyle(
+                  style: TextStyle(
                     color: Color(0xFF17C6C6),
                     fontWeight: FontWeight.w800,
                   ),
                 ),
-                const TextSpan(
+                TextSpan(
                   text:
                       ".\nYou're one step away from full institutional access.",
                 ),
@@ -119,7 +127,7 @@ class _AccountSuccessState extends State<AccountSuccess> {
     );
   }
 
-  Widget _buildRoadmapContent() {
+  Widget _buildRoadmapCards() {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 24),
       child: Column(
@@ -158,32 +166,6 @@ class _AccountSuccessState extends State<AccountSuccess> {
                 "Carefully review and digitally sign the SACCO Terms of Service and Privacy Framework. This formalizes your membership and secures your rights within the ecosystem.",
             isPrimary: false,
           ),
-          const SizedBox(height: 52),
-          _buildStartButton(),
-          const SizedBox(height: 30),
-          Center(
-            child: Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Icon(
-                  Icons.shield_outlined,
-                  size: 14,
-                  color: Colors.grey.shade400,
-                ),
-                const SizedBox(width: 8),
-                Text(
-                  "SECURED BY ANANSI PROTOCOLS",
-                  style: TextStyle(
-                    fontSize: 9,
-                    fontWeight: FontWeight.w800,
-                    color: Colors.grey.shade400,
-                    letterSpacing: 0.5,
-                  ),
-                ),
-              ],
-            ),
-          ),
-          const SizedBox(height: 24),
         ],
       ),
     );
@@ -259,18 +241,51 @@ class _AccountSuccessState extends State<AccountSuccess> {
     );
   }
 
+  Widget _buildDockedBottomBar() {
+    return Container(
+      padding: const EdgeInsets.fromLTRB(24, 16, 24, 25),
+      decoration: BoxDecoration(color: Colors.white.withValues(alpha: 0.95)),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          _buildStartButton(),
+          const SizedBox(height: 16),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Icon(
+                Icons.shield_outlined,
+                size: 14,
+                color: Colors.grey.shade400,
+              ),
+              const SizedBox(width: 8),
+              Text(
+                "SECURED BY ANANSI PROTOCOLS",
+                style: TextStyle(
+                  fontSize: 9,
+                  fontWeight: FontWeight.w800,
+                  color: Colors.grey.shade400,
+                  letterSpacing: 0.5,
+                ),
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+
   Widget _buildStartButton() {
     return SizedBox(
       width: double.infinity,
       height: 64,
       child: ElevatedButton(
-        onPressed: _isLoading ? () {} : _handleStart,
+        // Using null here correctly triggers your disabledBackgroundColor styling
+        onPressed: _isLoading ? null : _handleStart,
         style: ElevatedButton.styleFrom(
           backgroundColor: AnansiColors.darkBlue,
           foregroundColor: Colors.white,
-          // This is the color used when onPressed is null
-          disabledBackgroundColor: Colors.grey.shade200,
-          // This is the text color when disabled
+          disabledBackgroundColor: AnansiColors.darkBlue,
           disabledForegroundColor: Colors.grey.shade500,
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(18),
