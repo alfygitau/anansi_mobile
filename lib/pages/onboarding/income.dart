@@ -53,15 +53,20 @@ class _IncomeInformationState extends State<IncomeInformation> {
     });
   }
 
+  void validateInputs() {
+    _validateField('kra', _kraController.text);
+    _validateField('jobTitle', _occupationController.text);
+    _validateField('income', _incomeController.text);
+  }
+
   void _validateField(String key, String value) {
     String? error;
 
     switch (key) {
       case 'kra':
         final kraRegex = RegExp(r'^[A-Z]\d{9}[A-Z]$');
-        if (value.trim().isEmpty) {
-          error = "KRA PIN is required";
-        } else if (!kraRegex.hasMatch(value.toUpperCase())) {
+        if (value.trim().isNotEmpty &&
+            !kraRegex.hasMatch(value.toUpperCase())) {
           error = "Enter a valid KRA PIN (e.g., A123456789B)";
         }
         break;
@@ -80,7 +85,6 @@ class _IncomeInformationState extends State<IncomeInformation> {
         }
         break;
     }
-
     setState(() {
       formErrors[key] = error;
     });
@@ -94,6 +98,11 @@ class _IncomeInformationState extends State<IncomeInformation> {
   }
 
   Future<void> _updateCustomer() async {
+    validateInputs();
+    if (!isFinancialFormValid) {
+      HapticFeedback.vibrate();
+      return;
+    }
     setState(() {
       _isLoading = true;
     });
@@ -126,14 +135,13 @@ class _IncomeInformationState extends State<IncomeInformation> {
   }
 
   bool get isFinancialFormValid {
-    final bool kraReady = _kraController.text.trim().length == 11;
     final bool occupationReady = _occupationController.text.trim().isNotEmpty;
     final bool incomeReady = _incomeController.text.trim().isNotEmpty;
     final bool dropdownsReady =
         (employmentType != null &&
         !employmentType!.toLowerCase().contains('select'));
 
-    return kraReady && occupationReady && incomeReady && dropdownsReady;
+    return occupationReady && incomeReady && dropdownsReady;
   }
 
   @override
@@ -152,18 +160,44 @@ class _IncomeInformationState extends State<IncomeInformation> {
     return Scaffold(
       backgroundColor: Colors.white,
       body: SafeArea(
-        child: Column(
-          children: [
-            Expanded(
-              child: SingleChildScrollView(
-                padding: const EdgeInsets.symmetric(horizontal: 24),
+        child: CustomScrollView(
+          physics: const BouncingScrollPhysics(),
+          slivers: [
+            // Pinned Header Bar
+            SliverAppBar(
+              pinned: true,
+              floating: false,
+              backgroundColor: Colors.white,
+              surfaceTintColor:
+                  Colors.transparent, // Prevents M3 scroll overlay tint
+              elevation: 0,
+              scrolledUnderElevation: 0,
+              automaticallyImplyLeading: false,
+              titleSpacing: 24,
+              centerTitle: false,
+              title: const Text(
+                "Profile Information",
+                style: TextStyle(
+                  fontSize: 24,
+                  fontWeight: FontWeight.w900,
+                  color: AnansiColors.darkBlue,
+                  letterSpacing: -1.5,
+                ),
+              ),
+            ),
+
+            // Scrollable Body Content
+            SliverPadding(
+              padding: const EdgeInsets.symmetric(horizontal: 24),
+              sliver: SliverToBoxAdapter(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
+                    const SizedBox(height: 4),
                     _buildStepHeader(),
-                    const SizedBox(height: 22),
+                    const SizedBox(height: 24),
                     _buildSectionLabel("EMPLOYMENT STATUS"),
-                    const SizedBox(height: 16),
+                    const SizedBox(height: 14),
                     _buildDropdownField(
                       label: "Employment Type",
                       value: employmentType,
@@ -188,7 +222,7 @@ class _IncomeInformationState extends State<IncomeInformation> {
                     ),
                     const SizedBox(height: 32),
                     _buildSectionLabel("FINANCIAL PROFILE"),
-                    const SizedBox(height: 16),
+                    const SizedBox(height: 14),
                     _buildInputField(
                       label: "Monthly Income (KES)",
                       controller: _incomeController,
@@ -208,35 +242,48 @@ class _IncomeInformationState extends State<IncomeInformation> {
                       fieldKey: "kraPin",
                       keyboardType: TextInputType.text,
                     ),
-                    const SizedBox(height: 40),
+
+                    // Buffer space so fields clear the bottom dock on scroll
+                    const SizedBox(height: 140),
                   ],
                 ),
               ),
             ),
-            _buildActionDock(),
           ],
         ),
+      ),
+
+      // Fixed Bottom Action Dock
+      bottomSheet: Container(
+        padding: const EdgeInsets.fromLTRB(24, 16, 24, 25),
+        decoration: BoxDecoration(color: Colors.white.withValues(alpha: 0.95)),
+        child: _buildActionDock(),
       ),
     );
   }
 
   Widget _buildStepHeader() {
-    return const Column(
+    return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(
+        const Text(
           "Income Details",
           style: TextStyle(
+            fontSize: 18,
+            fontWeight: FontWeight.w800,
             color: AnansiColors.darkBlue,
-            fontSize: 24,
-            fontWeight: FontWeight.w900,
-            letterSpacing: -0.5,
+            letterSpacing: -0.6,
           ),
         ),
-        SizedBox(height: 12),
+        const SizedBox(height: 8),
         Text(
-          "Please provide your current income information. This data helps us establish your credit limit and ensures we offer financial products tailored to your repayment capability.",
-          style: TextStyle(color: Color(0xFF9E9E9E), fontSize: 15, height: 1.6),
+          "Please provide your income details to help us establish your credit limit and tailor financial products to your profile.",
+          style: TextStyle(
+            color: Colors.grey.shade500,
+            fontSize: 14,
+            fontWeight: FontWeight.w400,
+            height: 1.5,
+          ),
         ),
       ],
     );
@@ -245,11 +292,11 @@ class _IncomeInformationState extends State<IncomeInformation> {
   Widget _buildSectionLabel(String label) {
     return Text(
       label,
-      style: const TextStyle(
-        fontSize: 10,
+      style: TextStyle(
+        fontSize: 11,
         fontWeight: FontWeight.w900,
         letterSpacing: 1.5,
-        color: Color(0xFFBDBDBD),
+        color: AnansiColors.darkBlue.withValues(alpha: 0.4),
       ),
     );
   }
@@ -304,7 +351,9 @@ class _IncomeInformationState extends State<IncomeInformation> {
             border: Border.all(
               color: hasError
                   ? Colors.redAccent.withValues(alpha: 0.4)
-                  : (isFocused ? Color(0xFFE2E8F0) : const Color(0xFFE2E8F0)),
+                  : (isFocused
+                        ? const Color(0xFFE2E8F0)
+                        : const Color(0xFFE2E8F0)),
               width: 1.8,
             ),
           ),
@@ -340,7 +389,7 @@ class _IncomeInformationState extends State<IncomeInformation> {
                   controller: controller,
                   keyboardType: keyboardType,
                   style: const TextStyle(
-                    fontSize: 17,
+                    fontSize: 16,
                     fontWeight: FontWeight.w500,
                     letterSpacing: 0.2,
                   ),
@@ -415,7 +464,7 @@ class _IncomeInformationState extends State<IncomeInformation> {
           ),
         ),
         Container(
-          height: 64, // Fixed height to match text inputs perfectly
+          height: 64,
           decoration: BoxDecoration(
             color: Colors.white,
             borderRadius: BorderRadius.circular(22),
@@ -430,11 +479,10 @@ class _IncomeInformationState extends State<IncomeInformation> {
           ),
           child: DropdownButtonHideUnderline(
             child: ButtonTheme(
-              alignedDropdown:
-                  true, // This aligns the menu width with the button width
+              alignedDropdown: true,
               child: DropdownButton<String>(
                 value: hasValue ? value : null,
-                isExpanded: true, // Forces the content to span the Row
+                isExpanded: true,
                 dropdownColor: Colors.white,
                 borderRadius: BorderRadius.circular(22),
                 icon: const Padding(
@@ -445,7 +493,6 @@ class _IncomeInformationState extends State<IncomeInformation> {
                     color: Color(0xFF94A3B8),
                   ),
                 ),
-                // We use the hint/selectedItem to build your custom Row inside the button
                 hint: _buildDropdownRow(icon, "Select $label", isHint: true),
                 selectedItemBuilder: (context) {
                   return items.map((String item) {
@@ -473,11 +520,9 @@ class _IncomeInformationState extends State<IncomeInformation> {
     );
   }
 
-  // Helper to keep the Icon Anchor and Separator consistent
   Widget _buildDropdownRow(IconData icon, String text, {required bool isHint}) {
     return Row(
       children: [
-        // Icon Anchor
         Container(
           width: 44,
           height: 44,
@@ -491,7 +536,6 @@ class _IncomeInformationState extends State<IncomeInformation> {
             color: AnansiColors.darkBlue.withValues(alpha: 0.4),
           ),
         ),
-        // Vertical Separator
         Container(
           height: 24,
           width: 1.5,
@@ -514,50 +558,41 @@ class _IncomeInformationState extends State<IncomeInformation> {
   }
 
   Widget _buildActionDock() {
-    // Logic:
-    // 1. If loading, give it an empty function to keep it blue/active.
-    // 2. If not loading but form is invalid, give it null (turns it grey).
-    // 3. Otherwise, give it the update function.
-    final VoidCallback? action = _isLoading
-        ? () {}
-        : (isFinancialFormValid ? _updateCustomer : null);
+    final VoidCallback? action = _isLoading ? null : _updateCustomer;
 
-    return Container(
-      padding: const EdgeInsets.fromLTRB(24, 16, 24, 12),
-      decoration: const BoxDecoration(
-        color: Colors.white,
-        border: Border(top: BorderSide(color: Color(0xFFF1F4F8), width: 1)),
-      ),
+    return SizedBox(
+      width: double.infinity,
+      height: 64,
       child: ElevatedButton(
         onPressed: action,
         style: ElevatedButton.styleFrom(
-          backgroundColor: AnansiColors.darkBlue,
+          backgroundColor: isFinancialFormValid
+              ? AnansiColors.darkBlue
+              : Colors.grey.shade300,
           foregroundColor: Colors.white,
-          // Shows grey when the form is actually invalid
-          disabledBackgroundColor: Colors.grey.shade200,
+          disabledBackgroundColor: AnansiColors.darkBlue,
           disabledForegroundColor: Colors.grey.shade500,
-          minimumSize: const Size(double.infinity, 64),
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(20),
           ),
           elevation: 0,
         ),
         child: _isLoading
-            ? const SizedBox(
-                height: 24,
-                width: 24,
-                child: CupertinoActivityIndicator(color: Colors.white),
-              )
-            : Text(
-                "SAVE AND CONTINUE",
-                style: TextStyle(
-                  fontWeight: FontWeight.w900,
-                  letterSpacing: 1.1,
-                  // Text is white if the button is clickable OR currently loading
-                  color: isFinancialFormValid || _isLoading
-                      ? Colors.white
-                      : Colors.grey.shade500,
-                ),
+            ? const CupertinoActivityIndicator(color: Colors.white)
+            : const Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Text(
+                    "SAVE AND CONTINUE",
+                    style: TextStyle(
+                      fontWeight: FontWeight.w900,
+                      letterSpacing: 1.1,
+                      fontSize: 13,
+                    ),
+                  ),
+                  SizedBox(width: 10),
+                  Icon(Icons.arrow_forward_rounded, size: 18),
+                ],
               ),
       ),
     );

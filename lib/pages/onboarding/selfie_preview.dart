@@ -118,8 +118,6 @@ class _SelfiePreviewState extends State<SelfiePreview> {
           ],
         ),
       ),
-
-      // Fixed Bottom Docked Actions
       bottomSheet: Container(
         padding: const EdgeInsets.fromLTRB(24, 16, 24, 32),
         decoration: BoxDecoration(color: Colors.white.withValues(alpha: 0.95)),

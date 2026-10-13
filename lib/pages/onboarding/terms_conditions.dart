@@ -95,75 +95,109 @@ class _TermsConditionsState extends State<TermsConditions> {
     return Scaffold(
       backgroundColor: Colors.white,
       body: SafeArea(
-        child: Column(
+        child: Stack(
           children: [
-            Expanded(
-              child: Stack(
-                children: [
-                  SingleChildScrollView(
-                    controller: _scrollController,
-                    padding: const EdgeInsets.fromLTRB(24, 10, 24, 20),
+            CustomScrollView(
+              controller: _scrollController,
+              physics: const BouncingScrollPhysics(),
+              slivers: [
+                // Pinned Header Bar
+                SliverAppBar(
+                  pinned: true,
+                  floating: false,
+                  backgroundColor: Colors.white,
+                  surfaceTintColor:
+                      Colors.transparent, // Prevents M3 scroll overlay tint
+                  elevation: 0,
+                  scrolledUnderElevation: 0,
+                  automaticallyImplyLeading: false,
+                  titleSpacing: 24,
+                  centerTitle: false,
+                  title: const Text(
+                    "Terms and Conditions",
+                    style: TextStyle(
+                      fontSize: 24,
+                      fontWeight: FontWeight.w900,
+                      color: AnansiColors.darkBlue,
+                      letterSpacing: -1.5,
+                    ),
+                  ),
+                ),
+
+                // Scrollable Content
+                SliverPadding(
+                  padding: const EdgeInsets.symmetric(horizontal: 24),
+                  sliver: SliverToBoxAdapter(
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
+                        const SizedBox(height: 4),
                         _buildPageIntro(),
-                        const SizedBox(height: 32),
+                        const SizedBox(height: 24),
 
                         _buildLegalSection(
                           "1. Introduction",
-                          "ANANSI SACCO is a member-based Savings and Credit Cooperative (SACCO) providing financial services to its members, including shares, savings, and digital credit facilities.",
+                          "ANANSI SACCO is a member-governed cooperative providing shares, savings, and digital credit services.",
                           items: [
-                            "The platform is operated by Anansi Technology Limited.",
-                            "Access is restricted to registered and verified members only.",
+                            "Platform operations are managed by Anansi Technology Limited.",
+                            "Access is limited exclusively to verified active members.",
                           ],
                         ),
+
                         _buildLegalSection(
                           "2. Membership & Eligibility",
-                          "By using this application, you warrant that you are at least 18 years of age and possess the legal capacity to enter into binding financial contracts in Kenya.",
+                          "By continuing, you confirm that you are at least 18 years of age and legally qualified to enter binding financial contracts in Kenya.",
                           items: [
-                            "Information provided must be truthful and accurate.",
-                            "Anansi reserves the right to terminate accounts with false data.",
+                            "All submitted identity and financial data must be accurate.",
+                            "Accounts containing fraudulent records are subject to immediate closure.",
                           ],
                         ),
 
                         _buildLegalSection(
                           "3. Security & Liability",
-                          "You are solely responsible for the confidentiality of your login credentials and any transactions performed under your profile.",
+                          "You hold exclusive responsibility for safeguarding your login keys and authorizing actions performed under your credentials.",
                         ),
 
+                        const SizedBox(height: 8),
                         _buildContactCard(),
-                        const SizedBox(
-                          height: 100,
-                        ), // Buffer for the button dock
+
+                        // Buffer space so the contact card clears the docked button
+                        const SizedBox(height: 140),
                       ],
                     ),
                   ),
-                  if (!_hasScrolledToBottom)
-                    Positioned(
-                      bottom: 0,
-                      left: 0,
-                      right: 0,
-                      child: Container(
-                        height: 60,
-                        decoration: BoxDecoration(
-                          gradient: LinearGradient(
-                            begin: Alignment.topCenter,
-                            end: Alignment.bottomCenter,
-                            colors: [
-                              Colors.white.withValues(alpha: 0),
-                              Colors.white.withValues(alpha: 0.9),
-                            ],
-                          ),
-                        ),
+                ),
+              ],
+            ),
+
+            // Scroll Cue Gradient
+            if (!_hasScrolledToBottom)
+              Positioned(
+                bottom: 0,
+                left: 0,
+                right: 0,
+                child: IgnorePointer(
+                  child: Container(
+                    height: 50,
+                    decoration: BoxDecoration(
+                      gradient: LinearGradient(
+                        begin: Alignment.topCenter,
+                        end: Alignment.bottomCenter,
+                        colors: [
+                          Colors.white.withValues(alpha: 0),
+                          Colors.white.withValues(alpha: 0.9),
+                        ],
                       ),
                     ),
-                ],
+                  ),
+                ),
               ),
-            ),
-            _buildActionDock(),
           ],
         ),
       ),
+
+      // Fixed Bottom Docked Actions
+      bottomSheet: _buildActionDock(),
     );
   }
 
@@ -172,21 +206,22 @@ class _TermsConditionsState extends State<TermsConditions> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         const Text(
-          "Terms and Conditions",
+          "Membership Agreement",
           style: TextStyle(
+            fontSize: 18,
+            fontWeight: FontWeight.w800,
             color: AnansiColors.darkBlue,
-            fontSize: 24,
-            fontWeight: FontWeight.w900,
-            letterSpacing: -0.5,
+            letterSpacing: -0.6,
           ),
         ),
-        const SizedBox(height: 12),
+        const SizedBox(height: 8),
         Text(
-          "Please review the General Terms & Conditions governing the ANANSI SACCO financial ecosystem. Your acceptance constitutes a legal agreement between you and the SACCO.",
+          "Please review the core terms governing your ANANSI SACCO membership. Acceptance establishes your legal rights within the cooperative.",
           style: TextStyle(
-            color: Colors.grey.shade600,
-            fontSize: 15,
-            height: 1.6,
+            color: Colors.grey.shade500,
+            fontSize: 14,
+            fontWeight: FontWeight.w400,
+            height: 1.5,
           ),
         ),
       ],
@@ -203,7 +238,7 @@ class _TermsConditionsState extends State<TermsConditions> {
             title.toUpperCase(),
             style: const TextStyle(
               color: Color(0xFF17C6C6),
-              fontWeight: FontWeight.w800,
+              fontWeight: FontWeight.w900,
               fontSize: 11,
               letterSpacing: 1.2,
             ),
@@ -214,21 +249,21 @@ class _TermsConditionsState extends State<TermsConditions> {
             style: TextStyle(
               color: Colors.grey.shade800,
               fontSize: 14,
-              height: 1.6,
+              height: 1.5,
               fontWeight: FontWeight.w500,
             ),
           ),
           if (items != null) ...[
-            const SizedBox(height: 12),
+            const SizedBox(height: 10),
             ...items.map(
               (item) => Padding(
                 padding: const EdgeInsets.only(left: 8, bottom: 8),
                 child: Row(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Padding(
-                      padding: const EdgeInsets.only(top: 6),
-                      child: const Icon(
+                    const Padding(
+                      padding: EdgeInsets.only(top: 6),
+                      child: Icon(
                         Icons.circle,
                         size: 6,
                         color: Color(0xFF17C6C6),
@@ -260,22 +295,22 @@ class _TermsConditionsState extends State<TermsConditions> {
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
         color: const Color(0xFFF9FAFB),
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: Colors.grey.shade200),
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(color: const Color(0xFFE5E7EB), width: 1.5),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text(
+          Text(
             "QUERIES & SUPPORT",
             style: TextStyle(
               fontWeight: FontWeight.w900,
-              fontSize: 10,
-              color: AnansiColors.darkBlue,
-              letterSpacing: 1,
+              fontSize: 11,
+              color: AnansiColors.darkBlue.withValues(alpha: 0.5),
+              letterSpacing: 1.2,
             ),
           ),
-          const SizedBox(height: 12),
+          const SizedBox(height: 14),
           _contactRow(CupertinoIcons.mail, "anansisacco@gmail.com"),
           _contactRow(CupertinoIcons.phone, "+254 750 633 766"),
           _contactRow(CupertinoIcons.location, "Ngong Lane Plaza, Nairobi"),
@@ -286,10 +321,10 @@ class _TermsConditionsState extends State<TermsConditions> {
 
   Widget _contactRow(IconData icon, String text) {
     return Padding(
-      padding: const EdgeInsets.only(bottom: 8),
+      padding: const EdgeInsets.only(bottom: 10),
       child: Row(
         children: [
-          Icon(icon, size: 14, color: const Color(0xFF17C6C6)),
+          Icon(icon, size: 15, color: const Color(0xFF17C6C6)),
           const SizedBox(width: 12),
           Text(
             text,
@@ -306,21 +341,12 @@ class _TermsConditionsState extends State<TermsConditions> {
 
   Widget _buildActionDock() {
     final VoidCallback? action = _isLoading
-        ? () {}
+        ? null
         : (_hasScrolledToBottom ? _createProducts : null);
 
     return Container(
-      padding: const EdgeInsets.fromLTRB(24, 10, 24, 30),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: 0.05),
-            blurRadius: 20,
-            offset: const Offset(0, -4),
-          ),
-        ],
-      ),
+      padding: const EdgeInsets.fromLTRB(24, 16, 24, 32),
+      decoration: BoxDecoration(color: Colors.white.withValues(alpha: 0.95)),
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
@@ -328,44 +354,50 @@ class _TermsConditionsState extends State<TermsConditions> {
             Padding(
               padding: const EdgeInsets.only(bottom: 12),
               child: Text(
-                "Please scroll to read the full agreement",
+                "Scroll to bottom to review complete agreement",
                 style: TextStyle(
                   color: Colors.grey.shade400,
                   fontSize: 11,
-                  fontWeight: FontWeight.bold,
+                  fontWeight: FontWeight.w800,
                   letterSpacing: 0.5,
                 ),
               ),
             ),
-          ElevatedButton(
-            onPressed: action,
-            style: ElevatedButton.styleFrom(
-              backgroundColor: AnansiColors.darkBlue,
-              foregroundColor: Colors.white,
-              disabledBackgroundColor: Colors.grey.shade200,
-              minimumSize: const Size(double.infinity, 64),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(20),
+          SizedBox(
+            width: double.infinity,
+            height: 64,
+            child: ElevatedButton(
+              onPressed: action,
+              style: ElevatedButton.styleFrom(
+                backgroundColor: AnansiColors.darkBlue,
+                foregroundColor: Colors.white,
+                disabledBackgroundColor: _isLoading
+                    ? AnansiColors.darkBlue
+                    : Colors.grey.shade200,
+                disabledForegroundColor: Colors.grey.shade500,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(20),
+                ),
+                elevation: 0,
               ),
-              elevation: 0,
-              splashFactory: _isLoading ? NoSplash.splashFactory : null,
-            ),
-            child: _isLoading
-                ? const SizedBox(
-                    height: 24,
-                    width: 24,
-                    child: CupertinoActivityIndicator(color: Colors.white),
-                  )
-                : Text(
-                    "ACCEPT & FINISH",
-                    style: TextStyle(
-                      fontWeight: FontWeight.w900,
-                      letterSpacing: 1.1,
-                      color: _hasScrolledToBottom
-                          ? Colors.white
-                          : Colors.grey.shade400,
+              child: _isLoading
+                  ? const CupertinoActivityIndicator(color: Colors.white)
+                  : const Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Text(
+                          "ACCEPT & FINISH",
+                          style: TextStyle(
+                            fontWeight: FontWeight.w900,
+                            letterSpacing: 1.1,
+                            fontSize: 13,
+                          ),
+                        ),
+                        SizedBox(width: 10),
+                        Icon(Icons.arrow_forward_rounded, size: 18),
+                      ],
                     ),
-                  ),
+            ),
           ),
         ],
       ),
@@ -432,7 +464,7 @@ class _TermsConditionsState extends State<TermsConditions> {
                 children: [
                   _buildDetailRow("Document", "General T&Cs v2.4"),
                   const Divider(height: 24),
-                  _buildDetailRow("Signed On", "April 24, 2026"),
+                  _buildDetailRow("Signed On", "October 13, 2026"),
                   const Divider(height: 24),
                   _buildDetailRow("Reference", "AN-992-X"),
                 ],

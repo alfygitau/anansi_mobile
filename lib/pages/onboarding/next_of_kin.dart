@@ -66,6 +66,11 @@ class _NextOfKinState extends State<NextOfKin> {
   }
 
   Future<void> submitKin() async {
+    _validateInputs();
+    if (!isNextOfKinValid) {
+      HapticFeedback.vibrate();
+      return;
+    }
     setState(() {
       _isLoading = true;
     });
@@ -162,6 +167,13 @@ class _NextOfKinState extends State<NextOfKin> {
     });
   }
 
+  void _validateInputs() {
+    _validateField('name', _fullNameController.text);
+    _validateField('relationship', _relationshipController.text);
+    _validateField('phone', _phoneNumberController.text);
+    _validateField('location', _locationController.text);
+  }
+
   bool get isNextOfKinValid {
     final bool nameReady = _fullNameController.text.trim().length >= 3;
     final bool dobReady = _dobController.text.trim().isNotEmpty;
@@ -178,23 +190,63 @@ class _NextOfKinState extends State<NextOfKin> {
   }
 
   @override
+  void dispose() {
+    _nameFocus.dispose();
+    _relationshipFocus.dispose();
+    _phoneFocus.dispose();
+    _locationFocus.dispose();
+    _fullNameController.dispose();
+    _dobController.dispose();
+    _relationshipController.dispose();
+    _phoneNumberController.dispose();
+    _locationController.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.white,
       body: SafeArea(
-        child: Column(
-          children: [
-            Expanded(
-              child: SingleChildScrollView(
-                padding: const EdgeInsets.symmetric(horizontal: 24),
+        child: CustomScrollView(
+          physics: const BouncingScrollPhysics(),
+          slivers: [
+            // Pinned Header Bar
+            SliverAppBar(
+              pinned: true,
+              floating: false,
+              backgroundColor: Colors.white,
+              surfaceTintColor:
+                  Colors.transparent, // Prevents M3 scroll overlay tint
+              elevation: 0,
+              scrolledUnderElevation: 0,
+              automaticallyImplyLeading: false,
+              titleSpacing: 24,
+              centerTitle: false,
+              title: const Text(
+                "Profile Information",
+                style: TextStyle(
+                  fontSize: 24,
+                  fontWeight: FontWeight.w900,
+                  color: AnansiColors.darkBlue,
+                  letterSpacing: -1.5,
+                ),
+              ),
+            ),
+
+            // Scrollable Body Content
+            SliverPadding(
+              padding: const EdgeInsets.symmetric(horizontal: 24),
+              sliver: SliverToBoxAdapter(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
+                    const SizedBox(height: 4),
                     _buildStepHeader(),
-                    const SizedBox(height: 22),
+                    const SizedBox(height: 24),
 
                     _buildSectionLabel("KIN IDENTIFICATION"),
-                    const SizedBox(height: 16),
+                    const SizedBox(height: 14),
                     _buildInputField(
                       label: "Full Name",
                       controller: _fullNameController,
@@ -217,7 +269,7 @@ class _NextOfKinState extends State<NextOfKin> {
 
                     const SizedBox(height: 32),
                     _buildSectionLabel("CONTACT & LOGISTICS"),
-                    const SizedBox(height: 16),
+                    const SizedBox(height: 14),
                     _buildInputField(
                       label: "Phone Number",
                       controller: _phoneNumberController,
@@ -239,35 +291,46 @@ class _NextOfKinState extends State<NextOfKin> {
                     ),
                     const SizedBox(height: 16),
                     _buildDateSelector(),
-                    const SizedBox(height: 40),
+                    const SizedBox(height: 100),
                   ],
                 ),
               ),
             ),
-            _buildActionDock(),
           ],
         ),
+      ),
+
+      // Fixed Bottom Action Dock
+      bottomSheet: Container(
+        padding: const EdgeInsets.fromLTRB(24, 16, 24, 25),
+        decoration: BoxDecoration(color: Colors.white.withValues(alpha: 0.95)),
+        child: _buildActionDock(),
       ),
     );
   }
 
   Widget _buildStepHeader() {
-    return const Column(
+    return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(
+        const Text(
           "Next of Kin",
           style: TextStyle(
+            fontSize: 18,
+            fontWeight: FontWeight.w800,
             color: AnansiColors.darkBlue,
-            fontSize: 24,
-            fontWeight: FontWeight.w900,
-            letterSpacing: -0.5,
+            letterSpacing: -0.6,
           ),
         ),
-        SizedBox(height: 12),
+        const SizedBox(height: 8),
         Text(
-          "To ensure the security of your account and your membership safety, we require information about your next of kin. This data remains strictly confidential and is only accessed during emergency protocols.",
-          style: TextStyle(color: Color(0xFF9E9E9E), fontSize: 15, height: 1.6),
+          "Please designate an emergency contact to secure your account and support beneficiary protocols.",
+          style: TextStyle(
+            color: Colors.grey.shade500,
+            fontSize: 14,
+            fontWeight: FontWeight.w400,
+            height: 1.5,
+          ),
         ),
       ],
     );
@@ -276,11 +339,11 @@ class _NextOfKinState extends State<NextOfKin> {
   Widget _buildSectionLabel(String label) {
     return Text(
       label,
-      style: const TextStyle(
-        fontSize: 10,
+      style: TextStyle(
+        fontSize: 11,
         fontWeight: FontWeight.w900,
         letterSpacing: 1.5,
-        color: Color(0xFFBDBDBD),
+        color: AnansiColors.darkBlue.withValues(alpha: 0.4),
       ),
     );
   }
@@ -335,7 +398,7 @@ class _NextOfKinState extends State<NextOfKin> {
             border: Border.all(
               color: hasError
                   ? Colors.redAccent.withValues(alpha: 0.4)
-                  : (isFocused ? Color(0xFFE2E8F0) : const Color(0xFFE2E8F0)),
+                  : const Color(0xFFE2E8F0),
               width: 1.8,
             ),
           ),
@@ -427,7 +490,7 @@ class _NextOfKinState extends State<NextOfKin> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Padding(
-          padding: const EdgeInsets.only(left: 8, bottom: 10),
+          padding: const EdgeInsets.only(left: 8, bottom: 8),
           child: Text(
             "DATE OF BIRTH",
             style: TextStyle(
@@ -510,44 +573,41 @@ class _NextOfKinState extends State<NextOfKin> {
   }
 
   Widget _buildActionDock() {
-    final VoidCallback? action = _isLoading
-        ? () {}
-        : (isNextOfKinValid ? submitKin : null);
+    final VoidCallback? action = _isLoading ? null : submitKin;
 
-    return Container(
-      padding: const EdgeInsets.fromLTRB(24, 16, 24, 12),
-      decoration: const BoxDecoration(
-        color: Colors.white,
-        border: Border(top: BorderSide(color: Color(0xFFF1F4F8), width: 1)),
-      ),
+    return SizedBox(
+      width: double.infinity,
+      height: 64,
       child: ElevatedButton(
         onPressed: action,
         style: ElevatedButton.styleFrom(
-          backgroundColor: AnansiColors.darkBlue,
+          backgroundColor: isNextOfKinValid
+              ? AnansiColors.darkBlue
+              : Colors.grey.shade300,
           foregroundColor: Colors.white,
-          disabledBackgroundColor: Colors.grey.shade200,
+          disabledBackgroundColor: AnansiColors.darkBlue,
           disabledForegroundColor: Colors.grey.shade500,
-          minimumSize: const Size(double.infinity, 64),
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(20),
           ),
           elevation: 0,
         ),
         child: _isLoading
-            ? const SizedBox(
-                height: 24,
-                width: 24,
-                child: CupertinoActivityIndicator(color: Colors.white),
-              )
-            : Text(
-                "FINALIZE REGISTRATION",
-                style: TextStyle(
-                  fontWeight: FontWeight.w900,
-                  letterSpacing: 1.1,
-                  color: isNextOfKinValid || _isLoading
-                      ? Colors.white
-                      : Colors.grey.shade500,
-                ),
+            ? const CupertinoActivityIndicator(color: Colors.white)
+            : const Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Text(
+                    "FINALIZE REGISTRATION",
+                    style: TextStyle(
+                      fontWeight: FontWeight.w900,
+                      letterSpacing: 1.1,
+                      fontSize: 13,
+                    ),
+                  ),
+                  SizedBox(width: 10),
+                  Icon(Icons.arrow_forward_rounded, size: 18),
+                ],
               ),
       ),
     );

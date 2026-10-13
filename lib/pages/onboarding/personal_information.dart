@@ -107,7 +107,6 @@ class _PersonalInformationState extends State<PersonalInformation> {
   }
 
   bool get isFormValid {
-    // 1. Check Kenya Requirements
     if (selectedCountry == 'Kenya') {
       return _physicalAddressController.text.trim().isNotEmpty &&
           (selectedCounty != null &&
@@ -116,7 +115,6 @@ class _PersonalInformationState extends State<PersonalInformation> {
               !selectedSubCounty!.toLowerCase().contains('select'));
     }
 
-    // 2. Check US Requirements
     if (selectedCountry == 'United States') {
       return _addressOneController.text.trim().isNotEmpty &&
           _addressTwoController.text.trim().isNotEmpty &&
@@ -127,7 +125,6 @@ class _PersonalInformationState extends State<PersonalInformation> {
               !selectedState!.toLowerCase().contains('select'));
     }
 
-    // 3. Fallback (Button remains disabled if no country matches)
     return false;
   }
 
@@ -137,40 +134,43 @@ class _PersonalInformationState extends State<PersonalInformation> {
     fetchCounties();
     fetchStates();
 
-    // Physical Address / General Address
     _addressFocus.addListener(() {
       if (!_addressFocus.hasFocus) {
         _validateField('address', _physicalAddressController.text);
       }
     });
 
-    // Address Line 1
     _addressOneFocus.addListener(() {
       if (!_addressOneFocus.hasFocus) {
         _validateField('address_one', _addressOneController.text);
       }
     });
 
-    // Address Line 2 (Usually optional, but good to have the listener)
     _addressTwoFocus.addListener(() {
       if (!_addressTwoFocus.hasFocus) {
         _validateField('address_two', _addressTwoController.text);
       }
     });
 
-    // City
     _cityFocus.addListener(() {
       if (!_cityFocus.hasFocus) {
         _validateField('city', _cityController.text);
       }
     });
 
-    // Zip Code
     _zipCodeFocus.addListener(() {
       if (!_zipCodeFocus.hasFocus) {
         _validateField('zip_code', _zipCodeController.text);
       }
     });
+  }
+
+  void _validateEverything() {
+    _validateField('address', _physicalAddressController.text);
+    _validateField('address_one', _addressOneController.text);
+    _validateField('address_two', _addressTwoController.text);
+    _validateField('city', _cityController.text);
+    _validateField('zip_code', _zipCodeController.text);
   }
 
   Future<void> fetchCounties() async {
@@ -233,19 +233,17 @@ class _PersonalInformationState extends State<PersonalInformation> {
           ? _subCounties.first
           : 'Select subcounty';
     });
-    _validateField('state', value);
+    _validateField('county', value);
   }
 
   @override
   void dispose() {
-    // Dispose Controllers
     _physicalAddressController.dispose();
     _addressOneController.dispose();
     _addressTwoController.dispose();
     _cityController.dispose();
     _zipCodeController.dispose();
 
-    // Dispose FocusNodes
     _addressFocus.dispose();
     _addressOneFocus.dispose();
     _addressTwoFocus.dispose();
@@ -263,6 +261,11 @@ class _PersonalInformationState extends State<PersonalInformation> {
   }
 
   Future<void> createAddress() async {
+    _validateEverything();
+    if (!isFormValid) {
+      HapticFeedback.vibrate();
+      return;
+    }
     setState(() {
       _loading = true;
     });
@@ -297,153 +300,186 @@ class _PersonalInformationState extends State<PersonalInformation> {
 
   @override
   Widget build(BuildContext context) {
+    if (_isLoading) {
+      return const Scaffold(
+        backgroundColor: Colors.white,
+        body: VerifyEmailShimmer(),
+      );
+    }
+
     return Scaffold(
       backgroundColor: Colors.white,
-      body: _isLoading
-          ? VerifyEmailShimmer()
-          : SafeArea(
-              child: Column(
-                children: [
-                  Expanded(
-                    child: SingleChildScrollView(
-                      padding: const EdgeInsets.symmetric(horizontal: 24),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          const SizedBox(height: 10),
-                          _buildStepHeader(),
-                          const SizedBox(height: 32),
-                          _buildSectionLabel("RESIDENCY DETAILS"),
-                          const SizedBox(height: 16),
-                          _buildDropdownField(
-                            label: "Country of Residence",
-                            value: selectedCountry,
-                            items: ['Kenya', 'United States'],
-                            icon: CupertinoIcons.globe,
-                            onChanged: (val) {
-                              setState(() => selectedCountry = val);
-                              _validateField('country', val ?? '');
-                            },
-                          ),
-
-                          const SizedBox(height: 24),
-                          _buildSectionLabel("LOCATION DETAILS"),
-                          const SizedBox(height: 16),
-
-                          if (selectedCountry == 'Kenya') ...[
-                            _buildDropdownField(
-                              label: "County",
-                              value: selectedCounty,
-                              items: _counties,
-                              icon: CupertinoIcons.map_pin_ellipse,
-                              onChanged: _changeCounty,
-                            ),
-                            const SizedBox(height: 20),
-                            _buildDropdownField(
-                              label: "Sub-County",
-                              value: selectedSubCounty,
-                              items: _subCounties,
-                              icon: Icons.location_city,
-                              onChanged: (val) {
-                                setState(() => selectedSubCounty = val);
-                                _validateField('sub-county', val ?? '');
-                              },
-                            ),
-                            const SizedBox(height: 20),
-                            _buildInputField(
-                              label: "Physical Address",
-                              controller: _physicalAddressController,
-                              hint: "e.g Apartment, House No, Street",
-                              icon: CupertinoIcons.house,
-                              focusNode: _addressFocus,
-                              fieldKey: "address",
-                              keyboardType: TextInputType.text,
-                            ),
-                          ] else ...[
-                            _buildInputField(
-                              label: "Address Line 1",
-                              controller: _addressOneController,
-                              hint: "Street address or P.O. Box",
-                              icon: CupertinoIcons.house,
-                              focusNode: _addressOneFocus,
-                              fieldKey: "address_one",
-                              keyboardType: TextInputType.text,
-                            ),
-                            const SizedBox(height: 20),
-                            _buildInputField(
-                              label: "Address Line 2",
-                              controller: _addressTwoController,
-                              hint: "Apartment, suite, unit, building",
-                              icon: CupertinoIcons.info_circle,
-                              focusNode: _addressTwoFocus,
-                              fieldKey: "address_two",
-                              keyboardType: TextInputType.text,
-                            ),
-                            const SizedBox(height: 20),
-                            _buildDropdownField(
-                              label: "State",
-                              value: selectedState,
-                              items: _states,
-                              icon: CupertinoIcons.map,
-                              onChanged: (val) {
-                                setState(() => selectedState = val);
-                                _validateField('state', val ?? '');
-                              },
-                            ),
-                            const SizedBox(height: 20),
-                            _buildInputField(
-                              label: "City",
-                              controller: _cityController,
-                              hint: "Enter your city",
-                              icon: CupertinoIcons.location,
-                              focusNode: _cityFocus,
-                              fieldKey: "city",
-                              keyboardType: TextInputType.text,
-                            ),
-                            const SizedBox(height: 20),
-                            _buildInputField(
-                              label: "Zip Code",
-                              controller: _zipCodeController,
-                              hint: "Enter your zip code",
-                              icon: CupertinoIcons.location,
-                              focusNode: _zipCodeFocus,
-                              fieldKey: "zip_code",
-                              keyboardType: TextInputType.number,
-                            ),
-                          ],
-                          const SizedBox(height: 20),
-                        ],
-                      ),
-                    ),
-                  ),
-                  _buildActionDock(),
-                ],
+      body: SafeArea(
+        child: CustomScrollView(
+          physics: const BouncingScrollPhysics(),
+          slivers: [
+            // Pinned Header Bar
+            SliverAppBar(
+              pinned: true,
+              floating: false,
+              backgroundColor: Colors.white,
+              surfaceTintColor: Colors.transparent,
+              elevation: 0,
+              scrolledUnderElevation: 0,
+              automaticallyImplyLeading: false,
+              titleSpacing: 24,
+              centerTitle: false,
+              title: const Text(
+                "Profile Information",
+                style: TextStyle(
+                  fontSize: 24,
+                  fontWeight: FontWeight.w900,
+                  color: AnansiColors.darkBlue,
+                  letterSpacing: -1.5,
+                ),
               ),
             ),
+
+            // Scrollable Form Content
+            SliverPadding(
+              padding: const EdgeInsets.symmetric(horizontal: 24),
+              sliver: SliverToBoxAdapter(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const SizedBox(height: 4),
+                    _buildStepHeader(),
+                    const SizedBox(height: 24),
+                    _buildSectionLabel("RESIDENCY DETAILS"),
+                    const SizedBox(height: 14),
+                    _buildDropdownField(
+                      label: "Country of Residence",
+                      value: selectedCountry,
+                      items: ['Kenya', 'United States'],
+                      icon: CupertinoIcons.globe,
+                      onChanged: (val) {
+                        setState(() => selectedCountry = val);
+                        _validateField('country', val ?? '');
+                      },
+                    ),
+                    const SizedBox(height: 24),
+                    _buildSectionLabel("LOCATION DETAILS"),
+                    const SizedBox(height: 14),
+                    if (selectedCountry == 'Kenya') ...[
+                      _buildDropdownField(
+                        label: "County",
+                        value: selectedCounty,
+                        items: _counties,
+                        icon: CupertinoIcons.map_pin_ellipse,
+                        onChanged: _changeCounty,
+                      ),
+                      const SizedBox(height: 16),
+                      _buildDropdownField(
+                        label: "Sub-County",
+                        value: selectedSubCounty,
+                        items: _subCounties,
+                        icon: Icons.location_city,
+                        onChanged: (val) {
+                          setState(() => selectedSubCounty = val);
+                          _validateField('sub-county', val ?? '');
+                        },
+                      ),
+                      const SizedBox(height: 16),
+                      _buildInputField(
+                        label: "Physical Address",
+                        controller: _physicalAddressController,
+                        hint: "e.g Apartment, House No, Street",
+                        icon: CupertinoIcons.house,
+                        focusNode: _addressFocus,
+                        fieldKey: "address",
+                        keyboardType: TextInputType.text,
+                      ),
+                    ] else ...[
+                      _buildInputField(
+                        label: "Address Line 1",
+                        controller: _addressOneController,
+                        hint: "Street address or P.O. Box",
+                        icon: CupertinoIcons.house,
+                        focusNode: _addressOneFocus,
+                        fieldKey: "address_one",
+                        keyboardType: TextInputType.text,
+                      ),
+                      const SizedBox(height: 16),
+                      _buildInputField(
+                        label: "Address Line 2",
+                        controller: _addressTwoController,
+                        hint: "Apartment, suite, unit, building",
+                        icon: CupertinoIcons.info_circle,
+                        focusNode: _addressTwoFocus,
+                        fieldKey: "address_two",
+                        keyboardType: TextInputType.text,
+                      ),
+                      const SizedBox(height: 16),
+                      _buildDropdownField(
+                        label: "State",
+                        value: selectedState,
+                        items: _states,
+                        icon: CupertinoIcons.map,
+                        onChanged: (val) {
+                          setState(() => selectedState = val);
+                          _validateField('state', val ?? '');
+                        },
+                      ),
+                      const SizedBox(height: 16),
+                      _buildInputField(
+                        label: "City",
+                        controller: _cityController,
+                        hint: "Enter your city",
+                        icon: CupertinoIcons.location,
+                        focusNode: _cityFocus,
+                        fieldKey: "city",
+                        keyboardType: TextInputType.text,
+                      ),
+                      const SizedBox(height: 16),
+                      _buildInputField(
+                        label: "Zip Code",
+                        controller: _zipCodeController,
+                        hint: "Enter your zip code",
+                        icon: CupertinoIcons.location,
+                        focusNode: _zipCodeFocus,
+                        fieldKey: "zip_code",
+                        keyboardType: TextInputType.number,
+                      ),
+                    ],
+                    const SizedBox(height: 100),
+                  ],
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+
+      // Fixed Bottom Action Dock
+      bottomSheet: Container(
+        padding: const EdgeInsets.fromLTRB(24, 16, 24, 25),
+        decoration: BoxDecoration(color: Colors.white.withValues(alpha: 0.95)),
+        child: _buildActionDock(),
+      ),
     );
   }
 
   Widget _buildStepHeader() {
-    return const Column(
+    return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(
-          "Profile Information",
+        const Text(
+          "Residential Address",
           style: TextStyle(
+            fontSize: 18,
+            fontWeight: FontWeight.w800,
             color: AnansiColors.darkBlue,
-            fontSize: 24,
-            fontWeight: FontWeight.w900,
-            letterSpacing: -0.5,
+            letterSpacing: -0.6,
           ),
         ),
-        SizedBox(height: 5),
+        const SizedBox(height: 8),
         Text(
-          "To ensure a secure and compliant experience, we require your current residential address. This information allows us to verify your regional eligibility for specific Anansi loan products, facilitate official legal communication, and maintain the integrity of our credit assessment process in accordance with local financial regulations.",
+          "Please provide your current physical address to establish regional eligibility and comply with financial regulations.",
           style: TextStyle(
-            color: Color(0xFF9E9E9E),
-            fontSize: 15,
-            height: 1.6,
-            letterSpacing: 0.1,
+            color: Colors.grey.shade500,
+            fontSize: 14,
+            fontWeight: FontWeight.w400,
+            height: 1.5,
           ),
         ),
       ],
@@ -454,10 +490,10 @@ class _PersonalInformationState extends State<PersonalInformation> {
     return Text(
       label,
       style: TextStyle(
-        fontSize: 10,
+        fontSize: 11,
         fontWeight: FontWeight.w900,
         letterSpacing: 1.5,
-        color: Colors.grey.shade400,
+        color: AnansiColors.darkBlue.withValues(alpha: 0.4),
       ),
     );
   }
@@ -512,7 +548,7 @@ class _PersonalInformationState extends State<PersonalInformation> {
             border: Border.all(
               color: hasError
                   ? Colors.redAccent.withValues(alpha: 0.4)
-                  : (isFocused ? Color(0xFFE2E8F0) : const Color(0xFFE2E8F0)),
+                  : const Color(0xFFE2E8F0),
               width: 1.8,
             ),
           ),
@@ -623,7 +659,7 @@ class _PersonalInformationState extends State<PersonalInformation> {
           ),
         ),
         Container(
-          height: 64, // Fixed height to match text inputs perfectly
+          height: 64,
           decoration: BoxDecoration(
             color: Colors.white,
             borderRadius: BorderRadius.circular(22),
@@ -638,11 +674,10 @@ class _PersonalInformationState extends State<PersonalInformation> {
           ),
           child: DropdownButtonHideUnderline(
             child: ButtonTheme(
-              alignedDropdown:
-                  true, // This aligns the menu width with the button width
+              alignedDropdown: true,
               child: DropdownButton<String>(
                 value: hasValue ? value : null,
-                isExpanded: true, // Forces the content to span the Row
+                isExpanded: true,
                 dropdownColor: Colors.white,
                 borderRadius: BorderRadius.circular(22),
                 icon: const Padding(
@@ -653,7 +688,6 @@ class _PersonalInformationState extends State<PersonalInformation> {
                     color: Color(0xFF94A3B8),
                   ),
                 ),
-                // We use the hint/selectedItem to build your custom Row inside the button
                 hint: _buildDropdownRow(icon, "Select $label", isHint: true),
                 selectedItemBuilder: (context) {
                   return items.map((String item) {
@@ -681,11 +715,9 @@ class _PersonalInformationState extends State<PersonalInformation> {
     );
   }
 
-  // Helper to keep the Icon Anchor and Separator consistent
   Widget _buildDropdownRow(IconData icon, String text, {required bool isHint}) {
     return Row(
       children: [
-        // Icon Anchor
         Container(
           width: 44,
           height: 44,
@@ -699,7 +731,6 @@ class _PersonalInformationState extends State<PersonalInformation> {
             color: AnansiColors.darkBlue.withValues(alpha: 0.4),
           ),
         ),
-        // Vertical Separator
         Container(
           height: 24,
           width: 1.5,
@@ -722,46 +753,41 @@ class _PersonalInformationState extends State<PersonalInformation> {
   }
 
   Widget _buildActionDock() {
-    final VoidCallback? action = _loading
-        ? () {}
-        : (isFormValid ? createAddress : null);
+    final VoidCallback? action = _loading ? null : createAddress;
 
-    return Container(
-      padding: const EdgeInsets.fromLTRB(24, 16, 24, 12),
-      decoration: const BoxDecoration(
-        color: Colors.white,
-        border: Border(top: BorderSide(color: Color(0xFFF1F4F8), width: 1)),
-      ),
+    return SizedBox(
+      width: double.infinity,
+      height: 64,
       child: ElevatedButton(
         onPressed: action,
         style: ElevatedButton.styleFrom(
-          backgroundColor: AnansiColors.darkBlue,
+          backgroundColor: isFormValid
+              ? AnansiColors.darkBlue
+              : Colors.grey.shade300,
           foregroundColor: Colors.white,
-          // The background when the form is invalid (not loading)
-          disabledBackgroundColor: Colors.grey.shade200,
+          disabledBackgroundColor: AnansiColors.darkBlue,
           disabledForegroundColor: Colors.grey.shade500,
-          minimumSize: const Size(double.infinity, 64),
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(20),
           ),
           elevation: 0,
         ),
         child: _loading
-            ? const SizedBox(
-                height: 24, // Increased slightly for visibility
-                width: 24,
-                child: CupertinoActivityIndicator(color: Colors.white),
-              )
-            : Text(
-                "SAVE AND CONTINUE",
-                style: TextStyle(
-                  fontWeight: FontWeight.w900,
-                  letterSpacing: 1.1,
-                  // Text stays white if valid OR loading
-                  color: isFormValid || _loading
-                      ? Colors.white
-                      : Colors.grey.shade500,
-                ),
+            ? const CupertinoActivityIndicator(color: Colors.white)
+            : const Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Text(
+                    "SAVE AND CONTINUE",
+                    style: TextStyle(
+                      fontWeight: FontWeight.w900,
+                      letterSpacing: 1.1,
+                      fontSize: 13,
+                    ),
+                  ),
+                  SizedBox(width: 10),
+                  Icon(Icons.arrow_forward_rounded, size: 18),
+                ],
               ),
       ),
     );
