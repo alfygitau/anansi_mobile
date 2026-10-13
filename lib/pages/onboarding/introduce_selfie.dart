@@ -19,7 +19,7 @@ class _IntroduceSelfieState extends State<IntroduceSelfie> {
     try {
       final XFile? photo = await _picker.pickImage(
         source: ImageSource.camera,
-        preferredCameraDevice: CameraDevice.rear,
+        preferredCameraDevice: CameraDevice.front,
         imageQuality: 90,
       );
       if (photo != null) {
@@ -48,28 +48,41 @@ class _IntroduceSelfieState extends State<IntroduceSelfie> {
     return Scaffold(
       backgroundColor: Colors.white,
       body: SafeArea(
-        child: Column(
-          children: [
-            Expanded(
-              child: SingleChildScrollView(
-                padding: const EdgeInsets.symmetric(horizontal: 24),
+        child: CustomScrollView(
+          physics: const BouncingScrollPhysics(),
+          slivers: [
+            SliverAppBar(
+              pinned: true,
+              floating: false,
+              backgroundColor: Colors.white,
+              surfaceTintColor:
+                  Colors.transparent, // Prevents M3 scroll overlay tint
+              elevation: 0,
+              scrolledUnderElevation: 0,
+              automaticallyImplyLeading: false,
+              titleSpacing: 24,
+              centerTitle: false,
+              title: const Text(
+                "Verify Identity",
+                style: TextStyle(
+                  fontSize: 24,
+                  fontWeight: FontWeight.w900,
+                  color: AnansiColors.darkBlue,
+                  letterSpacing: -1.5,
+                ),
+              ),
+            ),
+            SliverPadding(
+              padding: const EdgeInsets.symmetric(horizontal: 24),
+              sliver: SliverToBoxAdapter(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    const Text(
-                      "Verify Identity",
-                      style: TextStyle(
-                        fontSize: 24,
-                        fontWeight: FontWeight.w900,
-                        color: AnansiColors.darkBlue,
-                        letterSpacing: -1.5,
-                      ),
-                    ),
-                    const SizedBox(height: 5),
+                    const SizedBox(height: 4),
                     _buildStepHeader(),
-                    const SizedBox(height: 10),
-                    _buildLivenessIllustration(),
                     const SizedBox(height: 20),
+                    _buildLivenessIllustration(),
+                    const SizedBox(height: 10),
                     _buildRequirementItem(
                       icon: CupertinoIcons.sun_max,
                       text: "Optimal Lighting",
@@ -88,15 +101,22 @@ class _IntroduceSelfieState extends State<IntroduceSelfie> {
                       description:
                           "Hold your phone at eye level and keep a neutral expression until the scan is complete.",
                     ),
+                    const SizedBox(height: 12),
                     _buildPrivacyDisclaimer(),
-                    const SizedBox(height: 22),
+                    const SizedBox(height: 100),
                   ],
                 ),
               ),
             ),
-            _buildActionDock(context),
           ],
         ),
+      ),
+
+      // Fixed Bottom Docked Action
+      bottomSheet: Container(
+        padding: const EdgeInsets.fromLTRB(24, 16, 24, 25),
+        decoration: BoxDecoration(color: Colors.white.withValues(alpha: 0.95)),
+        child: _buildActionDock(context),
       ),
     );
   }
@@ -108,17 +128,20 @@ class _IntroduceSelfieState extends State<IntroduceSelfie> {
         const Text(
           "Face Verification",
           style: TextStyle(
-            fontSize: 20,
-            fontWeight: FontWeight.w500,
-            letterSpacing: -0.5,
+            fontSize: 18,
+            fontWeight: FontWeight.w800,
+            color: AnansiColors.darkBlue,
+            letterSpacing: -0.6,
           ),
         ),
+        const SizedBox(height: 8),
         Text(
           "To secure your account, we need to perform a quick liveness check. This ensures that you are a real person and matches you to your identification.",
           style: TextStyle(
             color: Colors.grey.shade500,
-            fontSize: 15,
-            height: 1.6,
+            fontSize: 14,
+            fontWeight: FontWeight.w400,
+            height: 1.5,
           ),
         ),
       ],
@@ -204,7 +227,6 @@ class _IntroduceSelfieState extends State<IntroduceSelfie> {
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(20),
-        // Thin, crisp border for that "Institutional" feel
         border: Border.all(color: const Color(0xFFF1F5F9), width: 1.5),
         boxShadow: [
           BoxShadow(
@@ -217,22 +239,15 @@ class _IntroduceSelfieState extends State<IntroduceSelfie> {
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
-          // The Refined Icon Anchor
           Container(
             padding: const EdgeInsets.all(12),
             decoration: BoxDecoration(
-              color: const Color(0xFFF1F5F9), // Slate 100
+              color: const Color(0xFFF1F5F9),
               borderRadius: BorderRadius.circular(14),
             ),
-            child: Icon(
-              icon,
-              color: AnansiColors.darkBlue, // Darker icon for more authority
-              size: 20,
-            ),
+            child: Icon(icon, color: AnansiColors.darkBlue, size: 20),
           ),
           const SizedBox(width: 16),
-
-          // Detailed Content
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -241,7 +256,7 @@ class _IntroduceSelfieState extends State<IntroduceSelfie> {
                   text,
                   style: const TextStyle(
                     color: AnansiColors.darkBlue,
-                    fontWeight: FontWeight.w900, // Heavy weight for headlines
+                    fontWeight: FontWeight.w900,
                     fontSize: 15,
                     letterSpacing: -0.3,
                   ),
@@ -295,7 +310,7 @@ class _IntroduceSelfieState extends State<IntroduceSelfie> {
           ),
           const SizedBox(height: 8),
           Text(
-            "By continuing, you consent to HELACRED LIMITED processing your facial biometric data to verify your identity. Data is encrypted and managed according to the Data Protection Act (2019).",
+            "By continuing, you consent to HELACRED LIMITED processing your facial biometric data to verify your identity. Data is encrypted and managed according to the Data Protection Act.",
             style: TextStyle(
               fontSize: 11,
               color: Colors.grey.shade600,
@@ -308,16 +323,14 @@ class _IntroduceSelfieState extends State<IntroduceSelfie> {
   }
 
   Widget _buildActionDock(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.fromLTRB(24, 10, 24, 0),
-      decoration: BoxDecoration(color: Colors.white),
+    return SizedBox(
+      width: double.infinity,
+      height: 64,
       child: ElevatedButton(
-        onPressed: () {
-          _continue();
-        },
+        onPressed: _continue,
         style: ElevatedButton.styleFrom(
           backgroundColor: AnansiColors.darkBlue,
-          minimumSize: const Size(double.infinity, 64),
+          foregroundColor: Colors.white,
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(20),
           ),
@@ -331,9 +344,11 @@ class _IntroduceSelfieState extends State<IntroduceSelfie> {
               style: TextStyle(
                 fontWeight: FontWeight.w900,
                 letterSpacing: 1.2,
-                color: Colors.white,
+                fontSize: 13,
               ),
             ),
+            SizedBox(width: 10),
+            Icon(CupertinoIcons.camera_fill, size: 18),
           ],
         ),
       ),

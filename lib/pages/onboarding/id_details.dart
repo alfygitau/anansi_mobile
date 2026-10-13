@@ -158,20 +158,18 @@ class _IdDetailsState extends State<IdDetails> {
         child: CustomScrollView(
           physics: const BouncingScrollPhysics(),
           slivers: [
-            // Pinned Header Bar
             SliverAppBar(
               pinned: true,
               floating: false,
               backgroundColor: Colors.white,
-              surfaceTintColor:
-                  Colors.transparent, // Prevents M3 scroll overlay tint
+              surfaceTintColor: Colors.transparent,
               elevation: 0,
               scrolledUnderElevation: 0,
               automaticallyImplyLeading: false,
               titleSpacing: 24,
               centerTitle: false,
               title: const Text(
-                "Verify Identity",
+                "Review Identity",
                 style: TextStyle(
                   fontSize: 24,
                   fontWeight: FontWeight.w900,
