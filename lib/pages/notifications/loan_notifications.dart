@@ -79,7 +79,7 @@ class _LoanNotificationsState extends State<LoanNotifications> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFF8FAFC),
+      backgroundColor:  ThemeColors.background,
       body: CustomScrollView(
         slivers: [
           _buildAppBar(context),
@@ -111,7 +111,7 @@ class _LoanNotificationsState extends State<LoanNotifications> {
                     child: const Text(
                       "Mark all as read",
                       style: TextStyle(
-                        color: Color(0xFF17C6C6),
+                        color: AnansiColors.accentCyan,
                         fontSize: 12,
                         fontWeight: FontWeight.w700,
                         height: 1,
@@ -285,7 +285,7 @@ class _LoanNotificationsState extends State<LoanNotifications> {
   Widget _buildAppBar(BuildContext context) {
     return SliverAppBar(
       pinned: true,
-      backgroundColor: const Color(0xFFF8FAFC).withValues(alpha: 0.9),
+      backgroundColor:  ThemeColors.background.withValues(alpha: 0.9),
       elevation: 0,
       centerTitle: true,
       leadingWidth: 64,
@@ -342,7 +342,7 @@ class _LoanNotificationsState extends State<LoanNotifications> {
     switch (item['title']) {
       case "transaction":
         icon = CupertinoIcons.arrow_up_right_circle_fill;
-        color = const Color(0xFF17C6C6);
+        color =  AnansiColors.accentCyan;
         actionText = "Guarantor response received";
         break;
       case "security":
@@ -503,7 +503,7 @@ class _LoanNotificationsState extends State<LoanNotifications> {
     switch (type) {
       case "transaction":
         icon = CupertinoIcons.arrow_up_right_circle_fill;
-        color = const Color(0xFF17C6C6);
+        color =  AnansiColors.accentCyan;
         break;
       case "security":
         icon = CupertinoIcons.shield_fill;

@@ -81,7 +81,7 @@ class _ApplicationCollateralsState extends State<ApplicationCollaterals> {
   Widget build(BuildContext context) {
     final items = collaterals;
     return Scaffold(
-      backgroundColor: const Color(0xFFF8FAFC),
+      backgroundColor: ThemeColors.background,
       body: CustomScrollView(
         slivers: [
           _buildAppBar(context),
@@ -115,7 +115,7 @@ class _ApplicationCollateralsState extends State<ApplicationCollaterals> {
     required VoidCallback onView,
     required Future<void> Function() onDelete,
   }) {
-    const Color primaryColor = Color(0xFF074073);
+    const Color primaryColor = AnansiColors.darkBlue;
     final String status = item['status']?.toString() ?? "Pending";
     final bool isEditable =
         status.toLowerCase().trim() == "pending" ||
@@ -159,7 +159,7 @@ class _ApplicationCollateralsState extends State<ApplicationCollaterals> {
                     Container(
                       padding: const EdgeInsets.all(16),
                       decoration: BoxDecoration(
-                        color: const Color(0xFFF8FAFC),
+                        color: ThemeColors.background,
                         borderRadius: BorderRadius.circular(20),
                         border: Border.all(color: const Color(0xFFF1F5F9)),
                       ),
@@ -628,7 +628,7 @@ class _ApplicationCollateralsState extends State<ApplicationCollaterals> {
     return SliverAppBar(
       pinned: true,
       floating: true,
-      backgroundColor: const Color(0xFFF8FAFC).withValues(alpha: 0.9),
+      backgroundColor: ThemeColors.background.withValues(alpha: 0.9),
       elevation: 0,
       centerTitle: true,
       leadingWidth: 64,

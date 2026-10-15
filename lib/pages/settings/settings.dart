@@ -41,7 +41,7 @@ class _SettingsState extends State<Settings> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFF8FAFC),
+      backgroundColor: ThemeColors.background,
       drawer: Navigation(
         activePageRoute: AnansiRoutes.settings,
         onRouteSelected: (String targetNamedRoute) {
@@ -73,7 +73,7 @@ class _SettingsState extends State<Settings> {
                 onTap: () => _toggleBiometrics(!_biometricsEnabled),
                 toggle: CupertinoSwitch(
                   value: _biometricsEnabled,
-                  activeTrackColor: const Color(0xFF042159),
+                  activeTrackColor: AnansiColors.logoBg,
                   onChanged: (val) => _toggleBiometrics(val),
                 ),
               ),
@@ -166,7 +166,7 @@ class _SettingsState extends State<Settings> {
   Widget _buildAppBar() {
     return SliverAppBar(
       pinned: true,
-      backgroundColor: const Color(0xFFF8FAFC).withValues(alpha: 0.95),
+      backgroundColor: ThemeColors.background.withValues(alpha: 0.95),
       elevation: 0,
       centerTitle: true,
       title: Column(
@@ -271,10 +271,10 @@ class _SettingsState extends State<Settings> {
                   Container(
                     padding: const EdgeInsets.all(10),
                     decoration: BoxDecoration(
-                      color: const Color(0xFF042159).withValues(alpha: 0.06),
+                      color: AnansiColors.logoBg.withValues(alpha: 0.06),
                       borderRadius: BorderRadius.circular(12),
                     ),
-                    child: Icon(icon, color: const Color(0xFF042159), size: 22),
+                    child: Icon(icon, color: AnansiColors.logoBg, size: 22),
                   ),
                   const SizedBox(width: 16),
                   Expanded(
@@ -311,7 +311,7 @@ class _SettingsState extends State<Settings> {
                       trailingText,
                       style: const TextStyle(
                         fontWeight: FontWeight.bold,
-                        color: Color(0xFF042159),
+                        color: AnansiColors.logoBg,
                       ),
                     )
                   else

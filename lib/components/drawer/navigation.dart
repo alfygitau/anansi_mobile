@@ -6,8 +6,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 
-// ⚡ Unified Type Definition for Application Page Routes
-
 class Navigation extends StatefulWidget {
   final String activePageRoute;
   final Function(String namedRoute) onRouteSelected;
@@ -45,7 +43,6 @@ class _NavigationState extends State<Navigation> {
       ),
       child: Column(
         children: [
-          // ====== HEADER LAYER BLOCK ======
           Padding(
             padding: EdgeInsets.fromLTRB(20, topSafeArea + 20, 20, 16),
             child: Column(
@@ -128,7 +125,7 @@ class _NavigationState extends State<Navigation> {
                         AnansiRoutes.applications, // Updated from savings route
                   ),
                   _buildDrawerItem(
-                    title: "Loan Facilities",
+                    title: "My Loans",
                     icon: CupertinoIcons
                         .briefcase, // Institutional asset/facility portfolio
                     targetPageRoute: AnansiRoutes.loans,
@@ -187,7 +184,7 @@ class _NavigationState extends State<Navigation> {
           Container(
             padding: EdgeInsets.fromLTRB(20, 16, 20, 16 + bottomSafeArea),
             decoration: const BoxDecoration(
-              color: Color(0xFFF8FAFC),
+              color: ThemeColors.background,
               border: Border(top: BorderSide(color: Color(0xFFF1F5F9))),
               borderRadius: BorderRadius.only(bottomRight: Radius.circular(24)),
             ),

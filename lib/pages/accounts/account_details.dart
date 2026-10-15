@@ -98,7 +98,7 @@ class _AccountDetailsState extends State<AccountDetails> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFF8FAFC),
+      backgroundColor: ThemeColors.background,
       body: CustomScrollView(
         physics: const BouncingScrollPhysics(),
         slivers: [
@@ -150,7 +150,7 @@ class _AccountDetailsState extends State<AccountDetails> {
     return SliverAppBar(
       pinned: true,
       floating: true,
-      backgroundColor: const Color(0xFFF8FAFC).withValues(alpha: 0.9),
+      backgroundColor: ThemeColors.background.withValues(alpha: 0.9),
       elevation: 0,
       centerTitle: true,
       leadingWidth: 64,
@@ -345,7 +345,7 @@ class _AccountDetailsState extends State<AccountDetails> {
                           width: 8,
                           height: 8,
                           decoration: const BoxDecoration(
-                            color: Color(0xFF17C6C6),
+                            color: AnansiColors.accentCyan,
                             shape: BoxShape.circle,
                           ),
                         ),
@@ -433,7 +433,7 @@ class _AccountDetailsState extends State<AccountDetails> {
                               const SizedBox(width: 8),
                               const Icon(
                                 CupertinoIcons.doc_on_doc,
-                                color: Color(0xFF17C6C6),
+                                color: AnansiColors.accentCyan,
                                 size: 14,
                               ),
                             ],
@@ -543,7 +543,7 @@ class _AccountDetailsState extends State<AccountDetails> {
                       ),
                       label: const Text("Start Saving"),
                       style: TextButton.styleFrom(
-                        foregroundColor: const Color(0xFF17C6C6),
+                        foregroundColor: AnansiColors.accentCyan,
                         padding: const EdgeInsets.symmetric(
                           horizontal: 16,
                           vertical: 8,
@@ -571,7 +571,7 @@ class _AccountDetailsState extends State<AccountDetails> {
             ? _buildActionItem(
                 label: "Save",
                 icon: CupertinoIcons.arrow_down_circle_fill,
-                backgroundColor: const Color(0xFF17C6C6),
+                backgroundColor: AnansiColors.accentCyan,
                 contentColor: Colors.white,
                 onTap: () {
                   Navigator.push(
@@ -586,7 +586,7 @@ class _AccountDetailsState extends State<AccountDetails> {
             : _buildActionItem(
                 label: "Buy Shares",
                 icon: Icons.pie_chart_rounded,
-                backgroundColor: const Color(0xFF17C6C6),
+                backgroundColor: AnansiColors.accentCyan,
                 contentColor: Colors.white,
                 onTap: () {
                   Navigator.push(
@@ -805,17 +805,17 @@ class _AccountDetailsState extends State<AccountDetails> {
     return Container(
       padding: const EdgeInsets.all(24),
       decoration: BoxDecoration(
-        color: const Color(0xFF17C6C6).withValues(alpha: 0.05),
+        color: AnansiColors.accentCyan.withValues(alpha: 0.05),
         borderRadius: BorderRadius.circular(28),
         border: Border.all(
-          color: const Color(0xFF17C6C6).withValues(alpha: 0.1),
+          color: AnansiColors.accentCyan.withValues(alpha: 0.1),
         ),
       ),
       child: Row(
         children: [
           const Icon(
             CupertinoIcons.shield_fill,
-            color: Color(0xFF17C6C6),
+            color: AnansiColors.accentCyan,
             size: 32,
           ),
           const SizedBox(width: 20),
@@ -829,7 +829,7 @@ class _AccountDetailsState extends State<AccountDetails> {
                     fontWeight: FontWeight.w900,
                     fontSize: 11,
                     letterSpacing: 1,
-                    color: Color(0xFF17C6C6),
+                    color: AnansiColors.accentCyan,
                   ),
                 ),
                 const SizedBox(height: 4),
@@ -934,7 +934,7 @@ class _AccountDetailsState extends State<AccountDetails> {
             Container(
               padding: const EdgeInsets.all(20),
               decoration: BoxDecoration(
-                color: const Color(0xFFF8FAFC),
+                color: ThemeColors.background,
                 borderRadius: BorderRadius.circular(24),
                 border: Border.all(color: const Color(0xFFF1F5F9)),
               ),

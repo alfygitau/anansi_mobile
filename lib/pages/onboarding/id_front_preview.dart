@@ -251,10 +251,10 @@ class _IdFrontPreviewState extends State<IdFrontPreview> {
         Container(
           padding: const EdgeInsets.all(10),
           decoration: BoxDecoration(
-            color: const Color(0xFF17C6C6).withValues(alpha: 0.08),
+            color: AnansiColors.accentCyan.withValues(alpha: 0.08),
             borderRadius: BorderRadius.circular(12),
           ),
-          child: Icon(icon, color: const Color(0xFF17C6C6), size: 18),
+          child: Icon(icon, color: AnansiColors.accentCyan, size: 18),
         ),
         const SizedBox(width: 16),
         Expanded(

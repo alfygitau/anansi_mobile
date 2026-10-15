@@ -60,7 +60,7 @@ class _LoanProductsState extends State<LoanProducts> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFF8FAFC),
+      backgroundColor: ThemeColors.background,
       drawer: Navigation(
         activePageRoute: AnansiRoutes.products,
         onRouteSelected: (String targetNamedRoute) {
@@ -72,7 +72,7 @@ class _LoanProductsState extends State<LoanProducts> {
         slivers: [
           SliverAppBar(
             pinned: true,
-            backgroundColor: const Color(0xFFF8FAFC).withValues(alpha: 0.9),
+            backgroundColor: ThemeColors.background.withValues(alpha: 0.9),
             elevation: 0,
             centerTitle: true,
             leadingWidth:
@@ -244,7 +244,7 @@ class _LoanProductsState extends State<LoanProducts> {
               Container(
                 padding: const EdgeInsets.all(20),
                 decoration: BoxDecoration(
-                  color: const Color(0xFFF8FAFC),
+                  color: ThemeColors.background,
                   shape: BoxShape.circle,
                   border: Border.all(
                     color: const Color(0xFFF1F5F9),
@@ -393,7 +393,7 @@ class _LoanProductsState extends State<LoanProducts> {
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
               decoration: BoxDecoration(
-                color: const Color(0xFFF8FAFC),
+                color: ThemeColors.background,
                 borderRadius: const BorderRadius.vertical(
                   bottom: Radius.circular(32),
                 ),
@@ -642,7 +642,7 @@ class _LoanProductsState extends State<LoanProducts> {
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
             decoration: BoxDecoration(
-              color: const Color(0xFFF8FAFC),
+              color: ThemeColors.background,
               borderRadius: const BorderRadius.vertical(
                 bottom: Radius.circular(32),
               ),

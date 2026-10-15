@@ -24,6 +24,12 @@ class MyLoans extends StatefulWidget {
 class _MyLoansState extends State<MyLoans> {
   List<Map<String, dynamic>> loans = [];
   bool _isLoading = false;
+  ({int active, int cleared, int overdue, int total}) summary = (
+    active: 0,
+    cleared: 0,
+    overdue: 0,
+    total: 0,
+  );
 
   Future<Map<String, dynamic>?> getUser() async {
     String? userJson = await SecureStorageService().read('user');
@@ -51,11 +57,43 @@ class _MyLoansState extends State<MyLoans> {
           loans = List<Map<String, dynamic>>.from(
             responseInfo['loan_data'] ?? [],
           );
+          summary = getLoanStats(
+            List<Map<String, dynamic>>.from(responseInfo['loan_data'] ?? []),
+          );
         });
       }
     } finally {
       if (mounted) setState(() => _isLoading = false);
     }
+  }
+
+  ({int active, int cleared, int overdue, int total}) getLoanStats(
+    List<Map<String, dynamic>> loans,
+  ) {
+    int active = 0;
+    int overdue = 0;
+    int cleared = 0;
+
+    for (final app in loans) {
+      final status = (app['loan_status'] ?? '')
+          .toString()
+          .toLowerCase()
+          .trim();
+
+      if (status == 'active') {
+        active++;
+      } else if (status.contains('pending')) {
+        overdue++;
+      } else if (status.contains('cleared')) {
+        cleared++;
+      }
+    }
+    return (
+      active: active,
+      overdue: overdue,
+      cleared: cleared,
+      total: loans.length,
+    );
   }
 
   Color _getStatusColor(String? status) {
@@ -107,7 +145,7 @@ class _MyLoansState extends State<MyLoans> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFF8FAFC),
+      backgroundColor: ThemeColors.background,
       drawer: Navigation(
         activePageRoute: AnansiRoutes.loans,
         onRouteSelected: (String targetNamedRoute) {
@@ -204,7 +242,7 @@ class _MyLoansState extends State<MyLoans> {
               Container(
                 padding: const EdgeInsets.all(20),
                 decoration: BoxDecoration(
-                  color: const Color(0xFFF8FAFC),
+                  color: ThemeColors.background,
                   shape: BoxShape.circle,
                   border: Border.all(
                     color: const Color(0xFFF1F5F9),
@@ -247,7 +285,7 @@ class _MyLoansState extends State<MyLoans> {
     return SliverAppBar(
       pinned: true,
       floating: true,
-      backgroundColor: const Color(0xFFF8FAFC).withValues(alpha: 0.9),
+      backgroundColor: ThemeColors.background.withValues(alpha: 0.9),
       elevation: 0,
       centerTitle: true,
       leadingWidth: 64,
@@ -417,7 +455,7 @@ class _MyLoansState extends State<MyLoans> {
                   vertical: 18,
                 ),
                 decoration: BoxDecoration(
-                  color: const Color(0xFFF8FAFC),
+                  color: ThemeColors.background,
                   borderRadius: BorderRadius.circular(20),
                 ),
                 child: Row(
@@ -583,12 +621,7 @@ class _MyLoansState extends State<MyLoans> {
     );
   }
 
-  Widget _buildLoanSummaryHero({
-    int total = 12,
-    int active = 3,
-    int overdue = 1,
-    int cleared = 8,
-  }) {
+  Widget _buildLoanSummaryHero() {
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
       padding: const EdgeInsets.fromLTRB(16, 16, 16, 14),
@@ -634,7 +667,7 @@ class _MyLoansState extends State<MyLoans> {
                   borderRadius: BorderRadius.circular(20),
                 ),
                 child: Text(
-                  "$total Total",
+                  "${summary.total} Total",
                   style: const TextStyle(
                     color: Color(0xFF64748B), // Slate 500
                     fontSize: 12,
@@ -653,16 +686,16 @@ class _MyLoansState extends State<MyLoans> {
               Expanded(
                 child: _loanStatTile(
                   label: "Total Loans",
-                  value: "$total",
+                  value: "${summary.total}",
                   icon: CupertinoIcons.creditcard_fill,
-                  accentColor: const Color(0xFF2563EB), // Sapphire Blue
+                  accentColor: AnansiColors.primary, // Sapphire Blue
                 ),
               ),
               const SizedBox(width: 8),
               Expanded(
                 child: _loanStatTile(
                   label: "Active",
-                  value: "$active",
+                  value: "${summary.active}",
                   icon: CupertinoIcons.arrow_2_circlepath_circle_fill,
                   accentColor: const Color(0xFF059669), // Emerald Green
                 ),
@@ -678,7 +711,7 @@ class _MyLoansState extends State<MyLoans> {
               Expanded(
                 child: _loanStatTile(
                   label: "Overdue",
-                  value: "$overdue",
+                  value: "${summary.overdue}",
                   icon: CupertinoIcons.exclamationmark_triangle_fill,
                   accentColor: const Color(0xFFDC2626), // Crimson Red
                 ),
@@ -687,7 +720,7 @@ class _MyLoansState extends State<MyLoans> {
               Expanded(
                 child: _loanStatTile(
                   label: "Cleared",
-                  value: "$cleared",
+                  value: "${summary.cleared}",
                   icon: CupertinoIcons.checkmark_seal_fill,
                   accentColor: const Color(0xFF7C3AED), // Purple Accent
                 ),
@@ -708,7 +741,7 @@ class _MyLoansState extends State<MyLoans> {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
       decoration: BoxDecoration(
-        color: const Color(0xFFF8FAFC), // Slate 50 background fill
+        color: ThemeColors.background, // Slate 50 background fill
         borderRadius: BorderRadius.circular(14),
         border: Border.all(
           color: const Color(0xFFE2E8F0), // Slate 200 border
@@ -928,7 +961,7 @@ class _MyLoansState extends State<MyLoans> {
             margin: const EdgeInsets.symmetric(horizontal: 16),
             padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 18),
             decoration: BoxDecoration(
-              color: const Color(0xFFF8FAFC),
+              color: ThemeColors.background,
               borderRadius: BorderRadius.circular(20),
             ),
             child: Row(

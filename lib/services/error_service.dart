@@ -105,7 +105,7 @@ class ErrorService {
               style: const TextStyle(
                 fontWeight: FontWeight.w900,
                 fontSize: 20,
-                color: Color(0xFF0A2351),
+                color: ThemeColors.primary,
               ),
             ),
             const SizedBox(height: 12),
@@ -125,7 +125,7 @@ class ErrorService {
               child: ElevatedButton(
                 onPressed: () => Navigator.pop(context),
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: const Color(0xFF0A2351),
+                  backgroundColor: ThemeColors.primary,
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(16),
                   ),

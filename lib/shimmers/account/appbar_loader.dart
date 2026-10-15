@@ -1,10 +1,11 @@
+import 'package:app_anansi_mobile/theme/app_theme.dart';
 import 'package:flutter/material.dart';
 
 Widget buildAppBarSkeleton() {
   return SliverAppBar(
     pinned: true,
     floating: true,
-    backgroundColor: const Color(0xFFF8FAFC).withValues(alpha: 0.9),
+    backgroundColor:  ThemeColors.background.withValues(alpha: 0.9),
     elevation: 0,
     centerTitle: true,
     leadingWidth: 64,
@@ -56,9 +57,9 @@ Widget buildAppBarSkeleton() {
 
 // Helper for the "bone" of the skeleton
 Widget _buildSkeletonBox({
-  required double width, 
-  required double height, 
-  required double radius
+  required double width,
+  required double height,
+  required double radius,
 }) {
   return Container(
     width: width,

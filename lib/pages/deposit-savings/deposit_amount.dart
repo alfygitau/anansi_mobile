@@ -106,14 +106,15 @@ class _DepositAmountState extends State<DepositAmount> {
   void dispose() {
     _amountController.dispose();
     _phoneController.dispose();
+    _amountFocus.dispose();
+    _phoneFocus.dispose();
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFF8FAFC),
-
+      backgroundColor: ThemeColors.background,
       body: CustomScrollView(
         slivers: [
           _buildAppBar(),
@@ -164,7 +165,7 @@ class _DepositAmountState extends State<DepositAmount> {
                     message:
                         "Your current daily deposit limit is KES 300,000.00.",
                     icon: CupertinoIcons.shield_lefthalf_fill,
-                    baseColor: const Color(0xFF17C6C6),
+                    baseColor: AnansiColors.accentCyan,
                   ),
                   const SizedBox(height: 12),
                   _buildPremiumDisclaimer(
@@ -200,7 +201,7 @@ class _DepositAmountState extends State<DepositAmount> {
     return SliverAppBar(
       pinned: true,
       floating: true,
-      backgroundColor: const Color(0xFFF8FAFC).withValues(alpha: 0.9),
+      backgroundColor: ThemeColors.background.withValues(alpha: 0.9),
       elevation: 0,
       centerTitle: true,
       leadingWidth: 64,
@@ -371,7 +372,7 @@ class _DepositAmountState extends State<DepositAmount> {
                 decoration: BoxDecoration(
                   color: isFocused
                       ? AnansiColors.darkBlue
-                      : const Color(0xFFF8FAFC),
+                      : ThemeColors.background,
                   borderRadius: BorderRadius.circular(16),
                 ),
                 child: Icon(

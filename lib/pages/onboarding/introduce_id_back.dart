@@ -256,14 +256,14 @@ class _IntroduceBackOfIdState extends State<IntroduceBackOfId> {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: const Color(0xFF17C6C6).withValues(alpha: 0.05),
+        color: AnansiColors.accentCyan.withValues(alpha: 0.05),
         borderRadius: BorderRadius.circular(16),
       ),
       child: Row(
         children: [
           const Icon(
             CupertinoIcons.lock_shield_fill,
-            color: Color(0xFF17C6C6),
+            color: AnansiColors.accentCyan,
             size: 16,
           ),
           const SizedBox(width: 12),

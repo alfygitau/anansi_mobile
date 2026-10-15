@@ -1,4 +1,7 @@
+import 'package:app_anansi_mobile/helpers/format_amount.dart';
 import 'package:app_anansi_mobile/pages/membership/membership_details.dart';
+import 'package:app_anansi_mobile/services/error_service.dart';
+import 'package:app_anansi_mobile/services/membership_service.dart';
 import 'package:app_anansi_mobile/theme/app_theme.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -12,17 +15,50 @@ class IntroMember extends StatefulWidget {
 }
 
 class _IntroMemberState extends State<IntroMember> {
+  Map<String, dynamic> settings = {};
+  bool isLoading = false;
   String getFormattedCurrentDateTime() {
     final DateTime now = DateTime.now();
     final DateFormat formatter = DateFormat('yyyy-MM-dd HH:mm:ss');
     return formatter.format(now);
   }
 
-  Future<void> createSharesAccount() async {
+  Future<void> startMembership() async {
     Navigator.push(
       context,
-      MaterialPageRoute(builder: (context) => const MembershipDetails()),
+      MaterialPageRoute(
+        builder: (context) =>
+            MembershipDetails(amount: settings['membership_fee'] ?? "0"),
+      ),
     );
+  }
+
+  void _membershipFees() async {
+    try {
+      setState(() {
+        isLoading = true;
+      });
+      final (response, error) = await MembershipService().membershipFees();
+      if (error != null) {
+        ErrorService.showActionableError(
+          context,
+          title: error[0],
+          message: error[1],
+        );
+      } else if (response != null) {
+        setState(() {
+          settings = response.data['data'] ?? {};
+        });
+      }
+    } finally {
+      if (mounted) setState(() => isLoading = false);
+    }
+  }
+
+  @override
+  void initState() {
+    _membershipFees();
+    super.initState();
   }
 
   @override
@@ -92,7 +128,7 @@ class _IntroMemberState extends State<IntroMember> {
       child: const Center(
         child: Icon(
           CupertinoIcons.checkmark_seal_fill,
-          color: Color(0xFF17C6C6),
+          color: AnansiColors.accentCyan,
           size: 28,
         ),
       ),
@@ -135,7 +171,7 @@ class _IntroMemberState extends State<IntroMember> {
       margin: const EdgeInsets.only(bottom: 16),
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: const Color(0xFFF8FAFC),
+        color: ThemeColors.background,
         borderRadius: BorderRadius.circular(20),
         border: Border.all(color: const Color(0xFFE2E8F0)),
       ),
@@ -148,7 +184,7 @@ class _IntroMemberState extends State<IntroMember> {
               color: Colors.white,
               borderRadius: BorderRadius.circular(12),
             ),
-            child: Icon(icon, color: const Color(0xFF17C6C6), size: 20),
+            child: Icon(icon, color: AnansiColors.accentCyan, size: 20),
           ),
           const SizedBox(width: 16),
           Expanded(
@@ -208,8 +244,8 @@ class _IntroMemberState extends State<IntroMember> {
               ),
             ),
           ),
-          const Text(
-            "KES 1,000",
+          Text(
+            formatAmount(settings['membership_fee'] ?? "0"),
             style: TextStyle(
               fontWeight: FontWeight.w900,
               color: AnansiColors.darkBlue,
@@ -229,7 +265,7 @@ class _IntroMemberState extends State<IntroMember> {
           width: double.infinity,
           height: 64,
           child: ElevatedButton(
-            onPressed: createSharesAccount,
+            onPressed: startMembership,
             style: ElevatedButton.styleFrom(
               backgroundColor: AnansiColors.darkBlue,
               foregroundColor: Colors.white,

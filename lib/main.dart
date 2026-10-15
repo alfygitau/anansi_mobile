@@ -12,6 +12,7 @@ import 'package:app_anansi_mobile/pages/statements/statements.dart';
 import 'package:app_anansi_mobile/pages/welcome/welcome.dart';
 import 'package:app_anansi_mobile/services/route_service.dart';
 import 'package:app_anansi_mobile/state/auth_provider.dart';
+import 'package:app_anansi_mobile/theme/app_theme.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
@@ -77,7 +78,7 @@ class MyApp extends StatelessWidget {
         AnansiRoutes.notifications: (context) => const Notifications(),
       },
       theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(seedColor: const Color(0xFF042159)),
+        colorScheme: ColorScheme.fromSeed(seedColor: AnansiColors.logoBg),
         textTheme: GoogleFonts.outfitTextTheme(Theme.of(context).textTheme),
       ),
       home: const SplashScreen(),

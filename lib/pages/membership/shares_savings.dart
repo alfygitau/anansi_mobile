@@ -276,7 +276,7 @@ class SharesSavingsState extends State<SharesSavings> {
           const Icon(
             Icons.info_outline_rounded,
             size: 14,
-            color: Color(0xFF17C6C6),
+            color: AnansiColors.accentCyan,
           ),
           const SizedBox(width: 6),
           Text(
@@ -284,7 +284,7 @@ class SharesSavingsState extends State<SharesSavings> {
             style: const TextStyle(
               fontSize: 12,
               fontWeight: FontWeight.w700,
-              color: Color(0xFF17C6C6),
+              color: AnansiColors.accentCyan,
             ),
           ),
         ],
@@ -356,7 +356,7 @@ class SharesSavingsState extends State<SharesSavings> {
                 decoration: BoxDecoration(
                   color: isFocused
                       ? AnansiColors.darkBlue
-                      : const Color(0xFFF8FAFC),
+                      : ThemeColors.background,
                   borderRadius: BorderRadius.circular(16),
                 ),
                 child: Icon(
@@ -470,7 +470,7 @@ class SharesSavingsState extends State<SharesSavings> {
           const Text(
             "Register, Deposit & Invest",
             style: TextStyle(
-              color: Color(0xFF0A2351),
+              color: ThemeColors.primary,
               fontWeight: FontWeight.w900,
               fontSize: 15,
             ),
@@ -513,7 +513,7 @@ class SharesSavingsState extends State<SharesSavings> {
       ),
       child: IconButton(
         padding: EdgeInsets.zero,
-        icon: Icon(icon, size: 18, color: const Color(0xFF0A2351)),
+        icon: Icon(icon, size: 18, color: ThemeColors.primary),
         onPressed: onTap,
       ),
     );
@@ -523,10 +523,10 @@ class SharesSavingsState extends State<SharesSavings> {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: const Color(0xFF17C6C6).withValues(alpha: 0.05),
+        color: AnansiColors.accentCyan.withValues(alpha: 0.05),
         borderRadius: BorderRadius.circular(16),
         border: Border.all(
-          color: const Color(0xFF17C6C6).withValues(alpha: 0.1),
+          color: AnansiColors.accentCyan.withValues(alpha: 0.1),
           width: 1,
         ),
       ),
@@ -535,7 +535,7 @@ class SharesSavingsState extends State<SharesSavings> {
         children: [
           Icon(
             CupertinoIcons.info_circle_fill,
-            color: const Color(0xFF17C6C6),
+            color: AnansiColors.accentCyan,
             size: 18,
           ),
           const SizedBox(width: 12),
@@ -548,7 +548,7 @@ class SharesSavingsState extends State<SharesSavings> {
                   style: TextStyle(
                     fontSize: 11,
                     fontWeight: FontWeight.w900,
-                    color: Color(0xFF0A2351),
+                    color: ThemeColors.primary,
                     letterSpacing: 0.5,
                   ),
                 ),
@@ -597,7 +597,7 @@ class SharesSavingsState extends State<SharesSavings> {
         child: ElevatedButton(
           onPressed: action,
           style: ElevatedButton.styleFrom(
-            backgroundColor: const Color(0xFF0A2351),
+            backgroundColor: ThemeColors.primary,
             foregroundColor: Colors.white,
             // Color when isInvestmentFormValid is false
             disabledBackgroundColor: Colors.grey.shade200,

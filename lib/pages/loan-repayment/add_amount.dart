@@ -63,7 +63,7 @@ class _AddAmountState extends State<AddAmount> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFF8FAFC),
+      backgroundColor:  ThemeColors.background,
       bottomSheet: _buildBottomActionButton(),
       body: CustomScrollView(
         slivers: [
@@ -341,7 +341,7 @@ class _AddAmountState extends State<AddAmount> {
     return Container(
       height: 64,
       decoration: BoxDecoration(
-        color: const Color(0xFFF8FAFC),
+        color:  ThemeColors.background,
         borderRadius: BorderRadius.circular(20),
         border: Border.all(color: const Color(0xFFEAECEF), width: 1.5),
       ),

@@ -6,7 +6,8 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
 class MembershipDetails extends StatefulWidget {
-  const MembershipDetails({super.key});
+  final String amount;
+  const MembershipDetails({super.key, required this.amount});
 
   @override
   State<MembershipDetails> createState() => _MembershipDetailsState();
@@ -15,7 +16,7 @@ class MembershipDetails extends StatefulWidget {
 class _MembershipDetailsState extends State<MembershipDetails> {
   final TextEditingController _mobileController = TextEditingController();
   final TextEditingController _amountController = TextEditingController(
-    text: "1,000.00",
+    text: "0.0",
   );
   final FocusNode _phoneFocus = FocusNode();
   final FocusNode _feeFocus = FocusNode();
@@ -41,15 +42,11 @@ class _MembershipDetailsState extends State<MembershipDetails> {
   }
 
   bool get isPhoneValid {
-    // 1. Remove all spaces, dashes, and the + sign for testing
     final cleanPhone = _mobileController.text.trim().replaceAll(
       RegExp(r'[\s\-\+]'),
       '',
     );
-
-    // 2. Kenyan RegEx: Starts with 07, 01, 2547, or 2541 followed by 8 digits
     final RegExp kenyanRegex = RegExp(r'^(?:254|0)(7|1)[0-9]{8}$');
-
     return kenyanRegex.hasMatch(cleanPhone);
   }
 
@@ -64,7 +61,7 @@ class _MembershipDetailsState extends State<MembershipDetails> {
   void initState() {
     super.initState();
     _initializeInfo();
-
+    _amountController.text = widget.amount;
     _phoneFocus.addListener(() {
       if (!_phoneFocus.hasFocus) {
         _validateField('phone', _mobileController.text);
@@ -77,6 +74,13 @@ class _MembershipDetailsState extends State<MembershipDetails> {
     setState(() {
       user = myUser;
     });
+  }
+
+  @override
+  void dispose() {
+    _phoneFocus.dispose();
+    _feeFocus.dispose();
+    super.dispose();
   }
 
   @override
@@ -155,7 +159,7 @@ class _MembershipDetailsState extends State<MembershipDetails> {
           const Text(
             "Setup Membership",
             style: TextStyle(
-              color: Color(0xFF0A2351),
+              color: ThemeColors.primary,
               fontWeight: FontWeight.w900,
               fontSize: 15,
             ),
@@ -186,7 +190,7 @@ class _MembershipDetailsState extends State<MembershipDetails> {
             icon: const Icon(
               CupertinoIcons.back,
               size: 18,
-              color: Color(0xFF0A2351),
+              color: ThemeColors.primary,
             ),
             onPressed: () => Navigator.pop(context),
           ),
@@ -215,7 +219,7 @@ class _MembershipDetailsState extends State<MembershipDetails> {
         ),
         child: IconButton(
           padding: EdgeInsets.zero,
-          icon: Icon(icon, size: 18, color: const Color(0xFF0A2351)),
+          icon: Icon(icon, size: 18, color: ThemeColors.primary),
           onPressed: onTap,
         ),
       ),
@@ -246,7 +250,7 @@ class _MembershipDetailsState extends State<MembershipDetails> {
         borderRadius: BorderRadius.circular(24),
         boxShadow: [
           BoxShadow(
-            color: const Color(0xFF0A2351).withValues(alpha: 0.03),
+            color: ThemeColors.primary.withValues(alpha: 0.03),
             blurRadius: 15,
             offset: const Offset(0, 5),
           ),
@@ -271,7 +275,7 @@ class _MembershipDetailsState extends State<MembershipDetails> {
   Widget _buildSummaryRow(IconData icon, String label, String value) {
     return Row(
       children: [
-        Icon(icon, size: 16, color: const Color(0xFF17C6C6)),
+        Icon(icon, size: 16, color: AnansiColors.accentCyan),
         const SizedBox(width: 12),
         Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -288,7 +292,7 @@ class _MembershipDetailsState extends State<MembershipDetails> {
               value,
               style: const TextStyle(
                 fontSize: 14,
-                color: Color(0xFF0A2351),
+                color: ThemeColors.primary,
                 fontWeight: FontWeight.w800,
               ),
             ),
@@ -306,7 +310,7 @@ class _MembershipDetailsState extends State<MembershipDetails> {
         style: const TextStyle(
           fontSize: 10,
           fontWeight: FontWeight.w900,
-          color: Color(0xFF17C6C6),
+          color: AnansiColors.accentCyan,
           letterSpacing: 1.5,
         ),
       ),
@@ -317,14 +321,14 @@ class _MembershipDetailsState extends State<MembershipDetails> {
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        color: const Color(0xFF0A2351).withValues(alpha: 0.04),
+        color: ThemeColors.primary.withValues(alpha: 0.04),
         borderRadius: BorderRadius.circular(20),
       ),
       child: Column(
         children: [
           const Icon(
             CupertinoIcons.shield_lefthalf_fill,
-            color: Color(0xFF0A2351),
+            color: ThemeColors.primary,
             size: 24,
           ),
           const SizedBox(height: 12),
@@ -332,7 +336,7 @@ class _MembershipDetailsState extends State<MembershipDetails> {
             "Sacco Compliance Notice",
             style: TextStyle(
               fontWeight: FontWeight.w900,
-              color: Color(0xFF0A2351),
+              color: ThemeColors.primary,
               fontSize: 13,
             ),
           ),
@@ -373,7 +377,7 @@ class _MembershipDetailsState extends State<MembershipDetails> {
         child: ElevatedButton(
           onPressed: action,
           style: ElevatedButton.styleFrom(
-            backgroundColor: const Color(0xFF0A2351),
+            backgroundColor: ThemeColors.primary,
             // Background color when the button is disabled
             disabledBackgroundColor: Colors.grey.shade200,
             shape: RoundedRectangleBorder(
@@ -459,7 +463,7 @@ class _MembershipDetailsState extends State<MembershipDetails> {
                 decoration: BoxDecoration(
                   color: isFocused
                       ? AnansiColors.darkBlue
-                      : const Color(0xFFF8FAFC),
+                      : ThemeColors.background,
                   borderRadius: BorderRadius.circular(16),
                 ),
                 child: Icon(

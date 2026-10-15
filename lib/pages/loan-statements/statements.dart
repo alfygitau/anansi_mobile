@@ -102,7 +102,7 @@ class _LoanStatementsState extends State<LoanStatements> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFF8FAFC),
+      backgroundColor: ThemeColors.background,
       drawer: Navigation(
         activePageRoute: AnansiRoutes.loanstatements,
         onRouteSelected: (String targetNamedRoute) {
@@ -286,7 +286,7 @@ class _LoanStatementsState extends State<LoanStatements> {
                   child: Icon(
                     isLoan ? CupertinoIcons.folder : CupertinoIcons.creditcard,
                     color: isLoan
-                        ? const Color(0xFF2563EB)
+                        ? AnansiColors.primary
                         : const Color(0xFF16A34A),
                     size: 22,
                   ),
@@ -335,7 +335,7 @@ class _LoanStatementsState extends State<LoanStatements> {
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
             decoration: const BoxDecoration(
-              color: Color(0xFFF8FAFC),
+              color: ThemeColors.background,
               borderRadius: BorderRadius.only(
                 bottomLeft: Radius.circular(23),
                 bottomRight: Radius.circular(23),
@@ -440,7 +440,7 @@ class _LoanStatementsState extends State<LoanStatements> {
   Widget _buildAppBar() {
     return SliverAppBar(
       pinned: true,
-      backgroundColor: const Color(0xFFF8FAFC).withValues(alpha: 0.9),
+      backgroundColor: ThemeColors.background.withValues(alpha: 0.9),
       elevation: 0,
       centerTitle: true,
       leadingWidth: 64,

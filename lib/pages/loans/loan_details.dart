@@ -272,7 +272,7 @@ class _LoanDetailsState extends State<LoanDetails> {
         _buildActionItem(
           label: "Transactions",
           icon: Icons.sync,
-          backgroundColor: const Color(0xFF17C6C6),
+          backgroundColor: AnansiColors.accentCyan,
           contentColor: Colors.white,
           onTap: () {
             Navigator.push(
@@ -386,12 +386,12 @@ class _LoanDetailsState extends State<LoanDetails> {
         gradient: const LinearGradient(
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
-          colors: [Color(0xFF0A2351), Color(0xFF152E5F)],
+          colors: [ThemeColors.primary, Color(0xFF152E5F)],
         ),
         borderRadius: BorderRadius.circular(35),
         boxShadow: [
           BoxShadow(
-            color: const Color(0xFF0A2351).withValues(alpha: 0.15),
+            color: ThemeColors.primary.withValues(alpha: 0.15),
             blurRadius: 30,
             offset: const Offset(0, 15),
           ),
@@ -407,7 +407,7 @@ class _LoanDetailsState extends State<LoanDetails> {
               Text(
                 productName,
                 style: const TextStyle(
-                  color: Color(0xFF17C6C6), // Anansi Teal
+                  color: AnansiColors.accentCyan, // Anansi Teal
                   fontSize: 10,
                   fontWeight: FontWeight.w900,
                   letterSpacing: 1.8,
@@ -491,7 +491,7 @@ class _LoanDetailsState extends State<LoanDetails> {
               Text(
                 "$progressPercent%",
                 style: const TextStyle(
-                  color: Color(0xFF17C6C6),
+                  color: AnansiColors.accentCyan,
                   fontWeight: FontWeight.w900,
                 ),
               ),
@@ -507,7 +507,7 @@ class _LoanDetailsState extends State<LoanDetails> {
               ), // Dynamically safely driven now!
               minHeight: 8,
               backgroundColor: Colors.white.withValues(alpha: 0.1),
-              valueColor: const AlwaysStoppedAnimation(Color(0xFF17C6C6)),
+              valueColor: const AlwaysStoppedAnimation(AnansiColors.accentCyan),
             ),
           ),
           const SizedBox(height: 16),
@@ -561,10 +561,10 @@ class _LoanDetailsState extends State<LoanDetails> {
       child: Container(
         padding: const EdgeInsets.all(24),
         decoration: BoxDecoration(
-          color: const Color(0xFF17C6C6).withValues(alpha: 0.05),
+          color: AnansiColors.accentCyan.withValues(alpha: 0.05),
           borderRadius: BorderRadius.circular(24),
           border: Border.all(
-            color: const Color(0xFF17C6C6).withValues(alpha: 0.1),
+            color: AnansiColors.accentCyan.withValues(alpha: 0.1),
           ),
         ),
         child: Column(
@@ -733,7 +733,7 @@ class _LoanDetailsState extends State<LoanDetails> {
                                     : null,
                                 color: isPaid
                                     ? Colors.grey
-                                    : const Color(0xFF0A2351),
+                                    : ThemeColors.primary,
                               ),
                             ),
                             const SizedBox(height: 2),
@@ -765,7 +765,7 @@ class _LoanDetailsState extends State<LoanDetails> {
                             const Text(
                               "SUCCESS",
                               style: TextStyle(
-                                color: Color(0xFF17C6C6),
+                                color: AnansiColors.accentCyan,
                                 fontSize: 9,
                                 fontWeight: FontWeight.w900,
                                 letterSpacing: 0.5,
@@ -792,14 +792,14 @@ class _LoanDetailsState extends State<LoanDetails> {
       height: 32,
       decoration: BoxDecoration(
         color: isPaid
-            ? const Color(0xFF17C6C6).withValues(alpha: 0.1)
-            : const Color(0xFFF8FAFC),
+            ? AnansiColors.accentCyan.withValues(alpha: 0.1)
+            : ThemeColors.background,
         shape: BoxShape.circle,
       ),
       child: Icon(
         isPaid ? CupertinoIcons.checkmark_seal_fill : CupertinoIcons.calendar,
         size: 16,
-        color: isPaid ? const Color(0xFF17C6C6) : Colors.grey.shade400,
+        color: isPaid ? AnansiColors.accentCyan : Colors.grey.shade400,
       ),
     );
   }
@@ -861,7 +861,7 @@ class _LoanDetailsState extends State<LoanDetails> {
           );
         },
         style: ElevatedButton.styleFrom(
-          backgroundColor: const Color(0xFF0A2351),
+          backgroundColor: ThemeColors.primary,
           minimumSize: const Size(double.infinity, 64),
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(20),

@@ -122,6 +122,8 @@ class _SharesAmountState extends State<SharesAmount> {
   void dispose() {
     _amountController.dispose();
     _phoneController.dispose();
+    _amountFocus.dispose();
+    _phoneFocus.dispose();
     super.dispose();
   }
 
@@ -179,7 +181,7 @@ class _SharesAmountState extends State<SharesAmount> {
                     message:
                         "Dividends are calculated based on your weighted average shareholding throughout the fiscal year.",
                     icon: CupertinoIcons.graph_circle_fill,
-                    baseColor: const Color(0xFF17C6C6),
+                    baseColor: AnansiColors.accentCyan,
                   ),
 
                   const SizedBox(height: 32),
@@ -210,10 +212,10 @@ class _SharesAmountState extends State<SharesAmount> {
       margin: const EdgeInsets.only(top: 12),
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: const Color(0xFF17C6C6).withValues(alpha: 0.05),
+        color: AnansiColors.accentCyan.withValues(alpha: 0.05),
         borderRadius: BorderRadius.circular(20),
         border: Border.all(
-          color: const Color(0xFF17C6C6).withValues(alpha: 0.1),
+          color: AnansiColors.accentCyan.withValues(alpha: 0.1),
         ),
       ),
       child: Row(
@@ -232,7 +234,7 @@ class _SharesAmountState extends State<SharesAmount> {
             style: GoogleFonts.robotoMono(
               fontWeight: FontWeight.w900,
               fontSize: 14,
-              color: const Color(0xFF17C6C6),
+              color: AnansiColors.accentCyan,
             ),
           ),
         ],
@@ -398,7 +400,7 @@ class _SharesAmountState extends State<SharesAmount> {
                 decoration: BoxDecoration(
                   color: isFocused
                       ? AnansiColors.darkBlue
-                      : const Color(0xFFF8FAFC),
+                      : ThemeColors.background,
                   borderRadius: BorderRadius.circular(16),
                 ),
                 child: Icon(

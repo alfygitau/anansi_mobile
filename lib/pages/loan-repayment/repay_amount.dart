@@ -98,7 +98,7 @@ class _RepayAmountState extends State<RepayAmount> {
     final paymentOptions = _getPaymentOptions();
 
     return Scaffold(
-      backgroundColor: const Color(0xFFF8FAFC),
+      backgroundColor: ThemeColors.background,
       bottomNavigationBar: _buildBottomActionButton(),
       body: CustomScrollView(
         slivers: [

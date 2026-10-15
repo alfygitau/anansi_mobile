@@ -129,7 +129,7 @@ class _EditAddressPageState extends State<EditAddressPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFF8FAFC),
+      backgroundColor: ThemeColors.background,
       body: CustomScrollView(
         physics: const BouncingScrollPhysics(),
         slivers: [
@@ -273,7 +273,7 @@ class _EditAddressPageState extends State<EditAddressPage> {
         style: const TextStyle(
           fontSize: 11,
           fontWeight: FontWeight.w900,
-          color: Color(0xFF17C6C6),
+          color: AnansiColors.accentCyan,
           letterSpacing: 1.5,
         ),
       ),
@@ -313,7 +313,7 @@ class _EditAddressPageState extends State<EditAddressPage> {
         child: ElevatedButton(
           onPressed: _isLoading ? () {} : _editAddress,
           style: ElevatedButton.styleFrom(
-            backgroundColor: const Color(0xFF0A2351),
+            backgroundColor: ThemeColors.primary,
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(18),
             ),
@@ -397,7 +397,7 @@ class _EditAddressPageState extends State<EditAddressPage> {
                 decoration: BoxDecoration(
                   color: isFocused
                       ? AnansiColors.darkBlue
-                      : const Color(0xFFF8FAFC),
+                      : ThemeColors.background,
                   borderRadius: BorderRadius.circular(16),
                 ),
                 child: Icon(
@@ -562,7 +562,7 @@ class _EditAddressPageState extends State<EditAddressPage> {
           width: 44,
           height: 44,
           decoration: BoxDecoration(
-            color: const Color(0xFFF8FAFC),
+            color: ThemeColors.background,
             borderRadius: BorderRadius.circular(16),
           ),
           child: Icon(

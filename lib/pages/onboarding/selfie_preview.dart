@@ -162,7 +162,7 @@ class _SelfiePreviewState extends State<SelfiePreview> {
           height: 280,
           decoration: BoxDecoration(
             shape: BoxShape.circle,
-            color: const Color(0xFF17C6C6).withValues(alpha: 0.05),
+            color: AnansiColors.accentCyan.withValues(alpha: 0.05),
           ),
         ),
         Container(
@@ -170,7 +170,7 @@ class _SelfiePreviewState extends State<SelfiePreview> {
           height: 250,
           decoration: BoxDecoration(
             shape: BoxShape.circle,
-            border: Border.all(color: const Color(0xFF17C6C6), width: 3),
+            border: Border.all(color: AnansiColors.accentCyan, width: 3),
             boxShadow: [
               BoxShadow(
                 color: AnansiColors.darkBlue.withValues(alpha: 0.15),
@@ -203,7 +203,7 @@ class _SelfiePreviewState extends State<SelfiePreview> {
           left: 10,
           child: Icon(
             CupertinoIcons.viewfinder,
-            color: Color(0xFF17C6C6),
+            color: AnansiColors.accentCyan,
             size: 40,
           ),
         ),
@@ -258,10 +258,10 @@ class _SelfiePreviewState extends State<SelfiePreview> {
         Container(
           padding: const EdgeInsets.all(10),
           decoration: BoxDecoration(
-            color: const Color(0xFF17C6C6).withValues(alpha: 0.08),
+            color: AnansiColors.accentCyan.withValues(alpha: 0.08),
             borderRadius: BorderRadius.circular(12),
           ),
-          child: Icon(icon, color: const Color(0xFF17C6C6), size: 18),
+          child: Icon(icon, color: AnansiColors.accentCyan, size: 18),
         ),
         const SizedBox(width: 16),
         Expanded(

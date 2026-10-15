@@ -44,7 +44,9 @@ class _ManualEntryState extends State<ManualEntry> {
       lastDate: DateTime.now(),
       builder: (context, child) => Theme(
         data: Theme.of(context).copyWith(
-          colorScheme: const ColorScheme.light(primary: Color(0xFF17C6C6)),
+          colorScheme: const ColorScheme.light(
+            primary: AnansiColors.accentCyan,
+          ),
         ),
         child: child!,
       ),
@@ -73,7 +75,7 @@ class _ManualEntryState extends State<ManualEntry> {
                       style: TextStyle(
                         fontSize: 24,
                         fontWeight: FontWeight.w900,
-                        color: Color(0xFF0A2351),
+                        color: ThemeColors.primary,
                       ),
                     ),
                     const SizedBox(height: 8),
@@ -248,7 +250,7 @@ class _ManualEntryState extends State<ManualEntry> {
           width: 44,
           height: 44,
           decoration: BoxDecoration(
-            color: const Color(0xFFF8FAFC),
+            color: ThemeColors.background,
             borderRadius: BorderRadius.circular(16),
           ),
           child: Icon(
@@ -319,7 +321,7 @@ class _ManualEntryState extends State<ManualEntry> {
                   width: 44,
                   height: 44,
                   decoration: BoxDecoration(
-                    color: const Color(0xFFF8FAFC),
+                    color: ThemeColors.background,
                     borderRadius: BorderRadius.circular(16),
                   ),
                   child: const Icon(
@@ -403,7 +405,7 @@ class _ManualEntryState extends State<ManualEntry> {
       child: ElevatedButton(
         onPressed: action,
         style: ElevatedButton.styleFrom(
-          backgroundColor: const Color(0xFF0A2351),
+          backgroundColor: ThemeColors.primary,
           disabledBackgroundColor: Colors.grey.shade200,
           minimumSize: const Size(double.infinity, 64),
           shape: RoundedRectangleBorder(
@@ -488,7 +490,7 @@ class _ManualEntryState extends State<ManualEntry> {
                 decoration: BoxDecoration(
                   color: isFocused
                       ? AnansiColors.darkBlue
-                      : const Color(0xFFF8FAFC),
+                      : ThemeColors.background,
                   borderRadius: BorderRadius.circular(16),
                 ),
                 child: Icon(

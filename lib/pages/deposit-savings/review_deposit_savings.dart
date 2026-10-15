@@ -77,7 +77,7 @@ class _ReviewDepositSavingsState extends State<ReviewDepositSavings> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFF8FAFC),
+      backgroundColor: ThemeColors.background,
       body: CustomScrollView(
         slivers: [
           _buildAppBar(),
@@ -110,7 +110,7 @@ class _ReviewDepositSavingsState extends State<ReviewDepositSavings> {
                     message:
                         "A prompt will appear on your Safaricom line. Do not share your M-PESA PIN with anyone.",
                     icon: CupertinoIcons.device_phone_portrait,
-                    color: const Color(0xFF17C6C6),
+                    color: AnansiColors.accentCyan,
                   ),
                   const SizedBox(height: 12),
                   _buildDetailedDisclaimer(
@@ -212,7 +212,7 @@ class _ReviewDepositSavingsState extends State<ReviewDepositSavings> {
     return SliverAppBar(
       pinned: true,
       floating: true,
-      backgroundColor: const Color(0xFFF8FAFC).withValues(alpha: 0.9),
+      backgroundColor: ThemeColors.background.withValues(alpha: 0.9),
       elevation: 0,
       centerTitle: true,
       leadingWidth: 64,
@@ -359,7 +359,7 @@ class _ReviewDepositSavingsState extends State<ReviewDepositSavings> {
       child: Row(
         children: [
           if (icon != null) ...[
-            Icon(icon, size: 14, color: const Color(0xFF17C6C6)),
+            Icon(icon, size: 14, color: AnansiColors.accentCyan),
             const SizedBox(width: 8),
           ],
           Text(

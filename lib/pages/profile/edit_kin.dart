@@ -137,7 +137,7 @@ class _EditNextOfKinState extends State<EditNextOfKin> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFF8FAFC),
+      backgroundColor:  ThemeColors.background,
       body: CustomScrollView(
         physics: const BouncingScrollPhysics(),
         slivers: [
@@ -217,7 +217,7 @@ class _EditNextOfKinState extends State<EditNextOfKin> {
   Widget _buildAppBar() {
     return SliverAppBar(
       pinned: true,
-      backgroundColor: const Color(0xFFF8FAFC).withValues(alpha: 0.95),
+      backgroundColor:  ThemeColors.background.withValues(alpha: 0.95),
       elevation: 0,
       centerTitle: true,
       title: Column(
@@ -276,7 +276,7 @@ class _EditNextOfKinState extends State<EditNextOfKin> {
         style: const TextStyle(
           fontSize: 11,
           fontWeight: FontWeight.w900,
-          color: Color(0xFF17C6C6),
+          color: AnansiColors.accentCyan,
           letterSpacing: 1.5,
         ),
       ),
@@ -316,7 +316,7 @@ class _EditNextOfKinState extends State<EditNextOfKin> {
         child: ElevatedButton(
           onPressed: _isLoading ? () {} : _editOfKin,
           style: ElevatedButton.styleFrom(
-            backgroundColor: const Color(0xFF0A2351),
+            backgroundColor:  ThemeColors.primary,
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(18),
             ),
@@ -399,7 +399,7 @@ class _EditNextOfKinState extends State<EditNextOfKin> {
                 decoration: BoxDecoration(
                   color: isFocused
                       ? AnansiColors.darkBlue
-                      : const Color(0xFFF8FAFC),
+                      :  ThemeColors.background,
                   borderRadius: BorderRadius.circular(16),
                 ),
                 child: Icon(

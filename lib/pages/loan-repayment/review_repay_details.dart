@@ -87,7 +87,7 @@ class _ReviewRepayDetailsState extends State<ReviewRepayDetails> {
     final int currentYear = DateTime.now().year;
 
     return Scaffold(
-      backgroundColor: const Color(0xFFF8FAFC),
+      backgroundColor: ThemeColors.background,
       bottomNavigationBar: _buildBottomActionButton(context),
       body: CustomScrollView(
         slivers: [

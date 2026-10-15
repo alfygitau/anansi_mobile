@@ -48,7 +48,11 @@ class _ChangeEmailState extends State<ChangeEmail> {
     return pattern.hasMatch(_emailController.text) && _errorMessage == null;
   }
 
-  Future<void> _handleUpdate() async {}
+  Future<void> _handleUpdate() async {
+    try {} finally {
+      if (mounted) setState(() => _isLoading = false);
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -88,6 +92,38 @@ class _ChangeEmailState extends State<ChangeEmail> {
           ),
         ],
       ),
+    );
+  }
+
+  Widget _buildSubmitButton() {
+    final bool valid = _isButtonEnabled;
+    return ElevatedButton(
+      onPressed: (valid && !_isLoading) ? _handleUpdate : null,
+      style: ElevatedButton.styleFrom(
+        backgroundColor: AnansiColors.darkBlue,
+        disabledBackgroundColor: Colors.grey.shade200,
+        minimumSize: const Size(double.infinity, 72),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(28)),
+        elevation: valid ? 8 : 0,
+        shadowColor: const Color(0xFF0F172A).withValues(alpha: 0.3),
+      ),
+      child: _isLoading
+          ? const CupertinoActivityIndicator(color: Colors.white)
+          : Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: const [
+                Text(
+                  "CHANGE EMAIL",
+                  style: TextStyle(
+                    fontWeight: FontWeight.w900,
+                    letterSpacing: 2,
+                    color: Colors.white,
+                  ),
+                ),
+                SizedBox(width: 12),
+                Icon(CupertinoIcons.arrow_right, size: 18, color: Colors.white),
+              ],
+            ),
     );
   }
 
@@ -207,7 +243,7 @@ class _ChangeEmailState extends State<ChangeEmail> {
                 decoration: BoxDecoration(
                   color: isFocused
                       ? AnansiColors.darkBlue
-                      : const Color(0xFFF8FAFC),
+                      : ThemeColors.background,
                   borderRadius: BorderRadius.circular(16),
                 ),
                 child: Icon(
@@ -281,43 +317,11 @@ class _ChangeEmailState extends State<ChangeEmail> {
     );
   }
 
-  Widget _buildSubmitButton() {
-    final bool valid = _isButtonEnabled;
-    return ElevatedButton(
-      onPressed: (valid && !_isLoading) ? _handleUpdate : null,
-      style: ElevatedButton.styleFrom(
-        backgroundColor: AnansiColors.darkBlue,
-        disabledBackgroundColor: Colors.grey.shade200,
-        minimumSize: const Size(double.infinity, 72),
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(28)),
-        elevation: valid ? 8 : 0,
-        shadowColor: const Color(0xFF0F172A).withValues(alpha: 0.3),
-      ),
-      child: _isLoading
-          ? const CupertinoActivityIndicator(color: Colors.white)
-          : Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: const [
-                Text(
-                  "CHANGE EMAIL",
-                  style: TextStyle(
-                    fontWeight: FontWeight.w900,
-                    letterSpacing: 2,
-                    color: Colors.white,
-                  ),
-                ),
-                SizedBox(width: 12),
-                Icon(CupertinoIcons.arrow_right, size: 18, color: Colors.white),
-              ],
-            ),
-    );
-  }
-
   Widget _buildSecurityProtocolCard() {
     return Container(
       padding: const EdgeInsets.all(28),
       decoration: BoxDecoration(
-        color: const Color(0xFFF8FAFC),
+        color: ThemeColors.background,
         borderRadius: BorderRadius.circular(32),
         border: Border.all(color: const Color(0xFFF1F5F9)),
       ),
@@ -329,12 +333,12 @@ class _ChangeEmailState extends State<ChangeEmail> {
               Container(
                 padding: const EdgeInsets.all(8),
                 decoration: BoxDecoration(
-                  color: const Color(0xFF17C6C6).withValues(alpha: 0.1),
+                  color: AnansiColors.accentCyan.withValues(alpha: 0.1),
                   borderRadius: BorderRadius.circular(10),
                 ),
                 child: const Icon(
                   CupertinoIcons.shield_lefthalf_fill,
-                  color: Color(0xFF17C6C6),
+                  color: AnansiColors.accentCyan,
                   size: 20,
                 ),
               ),

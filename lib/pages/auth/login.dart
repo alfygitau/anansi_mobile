@@ -261,7 +261,7 @@ class _LoginState extends State<Login> {
                         child: const Text(
                           "Forgot Password?",
                           style: TextStyle(
-                            color: Color(0xFF17C6C6),
+                            color: AnansiColors.accentCyan,
                             fontWeight: FontWeight.w700,
                             fontSize: 13,
                           ),
@@ -325,7 +325,7 @@ class _LoginState extends State<Login> {
                 ),
               ],
             ),
-            child: Icon(displayIcon, size: 28, color: const Color(0xFF042159)),
+            child: Icon(displayIcon, size: 28, color:  AnansiColors.logoBg),
           ),
         );
       },
@@ -353,7 +353,7 @@ class _LoginState extends State<Login> {
             child: Text(
               "A",
               style: TextStyle(
-                color: Color(0xFF17C6C6),
+                color: AnansiColors.accentCyan,
                 fontSize: 24,
                 fontWeight: FontWeight.w900,
               ),
@@ -509,7 +509,7 @@ class _LoginState extends State<Login> {
                 decoration: BoxDecoration(
                   color: isFocused
                       ? AnansiColors.darkBlue
-                      : const Color(0xFFF8FAFC),
+                      :  ThemeColors.background,
                   borderRadius: BorderRadius.circular(16),
                 ),
                 child: Icon(
@@ -649,7 +649,7 @@ class _LoginState extends State<Login> {
                 decoration: BoxDecoration(
                   color: isFocused
                       ? AnansiColors.darkBlue
-                      : const Color(0xFFF8FAFC),
+                      :  ThemeColors.background,
                   borderRadius: BorderRadius.circular(16),
                 ),
                 child: Icon(
@@ -751,7 +751,7 @@ class _LoginState extends State<Login> {
           Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              const Icon(Icons.security, size: 14, color: Color(0xFF17C6C6)),
+              const Icon(Icons.security, size: 14, color: AnansiColors.accentCyan),
               const SizedBox(width: 8),
               Text(
                 "SECURED BY ANANSI PROTOCOLS",

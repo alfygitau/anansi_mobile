@@ -208,7 +208,7 @@ class _AddGuarantorsState extends State<AddGuarantors> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFF8FAFC),
+      backgroundColor: ThemeColors.background,
       body: CustomScrollView(
         slivers: [
           _buildAppBar(),
@@ -298,7 +298,7 @@ class _AddGuarantorsState extends State<AddGuarantors> {
       margin: const EdgeInsets.only(bottom: 12),
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: const Color(0xFFF8FAFC), // Matches bg-slate-50
+        color: ThemeColors.background, // Matches bg-slate-50
         borderRadius: BorderRadius.circular(16), // Matches rounded-2xl
         border: Border.all(
           color: const Color(0xFFE2E8F0), // Matches border-slate-200
@@ -441,7 +441,7 @@ class _AddGuarantorsState extends State<AddGuarantors> {
         const Text(
           "Guarantee Coverage",
           style: TextStyle(
-            color: Color(0xFF0A2351),
+            color: ThemeColors.primary,
             fontSize: 28,
             fontWeight: FontWeight.w900,
             letterSpacing: -0.5,
@@ -465,7 +465,7 @@ class _AddGuarantorsState extends State<AddGuarantors> {
     return SliverAppBar(
       pinned: true,
       floating: true,
-      backgroundColor: const Color(0xFFF8FAFC).withValues(alpha: 0.9),
+      backgroundColor: ThemeColors.background.withValues(alpha: 0.9),
       elevation: 0,
       centerTitle: true,
       leadingWidth: 64,
@@ -604,7 +604,7 @@ class _AddGuarantorsState extends State<AddGuarantors> {
         margin: const EdgeInsets.only(bottom: 12),
         padding: const EdgeInsets.all(16), // Matches p-4
         decoration: BoxDecoration(
-          color: const Color(0xFFF8FAFC), // Matches bg-slate-50
+          color: ThemeColors.background, // Matches bg-slate-50
           borderRadius: BorderRadius.circular(16), // Matches rounded-2xl
           border: Border.all(
             color: const Color(0xFFE2E8F0), // Matches border-slate-200
@@ -819,7 +819,7 @@ class _AddGuarantorsState extends State<AddGuarantors> {
                 onProceed(destinationPage);
               },
         style: ElevatedButton.styleFrom(
-          backgroundColor: const Color(0xFF0A2351),
+          backgroundColor: ThemeColors.primary,
           disabledBackgroundColor: const Color(
             0xFF0A2351,
           ).withValues(alpha: 0.7),
@@ -858,7 +858,7 @@ class _AddGuarantorsState extends State<AddGuarantors> {
         border: Border.all(color: const Color(0xFFF1F4F8), width: 1.5),
         boxShadow: [
           BoxShadow(
-            color: const Color(0xFF0A2351).withValues(alpha: 0.02),
+            color: ThemeColors.primary.withValues(alpha: 0.02),
             blurRadius: 30,
             offset: const Offset(0, 15),
           ),
@@ -898,10 +898,10 @@ class _AddGuarantorsState extends State<AddGuarantors> {
                     }
                   : null,
               style: ElevatedButton.styleFrom(
-                backgroundColor: const Color(0xFF0A2351),
+                backgroundColor: ThemeColors.primary,
                 foregroundColor: Colors.white,
                 disabledBackgroundColor: adding
-                    ? const Color(0xFF0A2351).withValues(alpha: 0.7)
+                    ? ThemeColors.primary.withValues(alpha: 0.7)
                     : Colors.grey.shade300,
                 disabledForegroundColor: adding
                     ? Colors.white
@@ -1074,7 +1074,7 @@ class _AddGuarantorsState extends State<AddGuarantors> {
                 decoration: BoxDecoration(
                   color: isFocused
                       ? AnansiColors.darkBlue
-                      : const Color(0xFFF8FAFC),
+                      : ThemeColors.background,
                   borderRadius: BorderRadius.circular(16),
                 ),
                 child: Icon(

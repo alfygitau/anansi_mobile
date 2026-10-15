@@ -130,12 +130,12 @@ class _OtpTypeState extends State<OtpType> {
         Container(
           padding: const EdgeInsets.all(12),
           decoration: BoxDecoration(
-            color: const Color(0xFF074073).withValues(alpha: 0.05),
+            color: AnansiColors.darkBlue.withValues(alpha: 0.05),
             borderRadius: BorderRadius.circular(16),
           ),
           child: Icon(
             CupertinoIcons.lock_shield,
-            color: const Color(0xFF074073),
+            color: AnansiColors.darkBlue,
             size: 28,
           ),
         ),
@@ -145,7 +145,7 @@ class _OtpTypeState extends State<OtpType> {
           style: const TextStyle(
             fontSize: 28,
             fontWeight: FontWeight.w900,
-            color: Color(0xFF074073),
+            color: AnansiColors.darkBlue,
             letterSpacing: -0.8,
           ),
         ),
@@ -168,7 +168,7 @@ class _OtpTypeState extends State<OtpType> {
         margin: const EdgeInsets.only(bottom: 16),
         padding: const EdgeInsets.all(20),
         decoration: BoxDecoration(
-          color: isSelected ? Colors.white : const Color(0xFFF8FAFC),
+          color: isSelected ? Colors.white : ThemeColors.background,
           borderRadius: BorderRadius.circular(24),
           border: Border.all(
             color: isSelected ? AnansiColors.darkBlue : const Color(0xFFE2E8F0),

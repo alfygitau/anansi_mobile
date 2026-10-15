@@ -56,7 +56,7 @@ class _IntroductionState extends State<Introduction> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFF8FAFC),
+      backgroundColor: ThemeColors.background,
       body: SafeArea(
         child: CustomScrollView(
           physics: const BouncingScrollPhysics(),
@@ -64,7 +64,7 @@ class _IntroductionState extends State<Introduction> {
             SliverAppBar(
               pinned: true,
               floating: false,
-              backgroundColor: const Color(0xFFF8FAFC),
+              backgroundColor: ThemeColors.background,
               surfaceTintColor: Colors.transparent,
               elevation: 0,
               scrolledUnderElevation: 0,
@@ -117,7 +117,7 @@ class _IntroductionState extends State<Introduction> {
       bottomSheet: Container(
         padding: const EdgeInsets.fromLTRB(24, 16, 24, 25),
         decoration: BoxDecoration(
-          color: const Color(0xFFF8FAFC).withValues(alpha: 0.9),
+          color: ThemeColors.background.withValues(alpha: 0.9),
           border: Border(top: BorderSide(color: Colors.grey.shade100)),
         ),
         child: SizedBox(
@@ -219,7 +219,7 @@ class _IntroductionState extends State<Introduction> {
           Container(
             padding: const EdgeInsets.all(24),
             decoration: BoxDecoration(
-              color: const Color(0xFFF8FAFC),
+              color: ThemeColors.background,
               borderRadius: const BorderRadius.vertical(
                 bottom: Radius.circular(32),
               ),

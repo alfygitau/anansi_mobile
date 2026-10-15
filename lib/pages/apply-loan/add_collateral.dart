@@ -111,7 +111,7 @@ class _AddCollateralState extends State<AddCollateral> {
     FilePickerResult? result = await FilePicker.pickFiles(
       type: FileType.custom,
       allowedExtensions: ['pdf', 'doc', 'docx', 'jpg'],
-      allowMultiple: true
+      allowMultiple: true,
     );
     if (result != null) {
       setState(() {
@@ -282,7 +282,7 @@ class _AddCollateralState extends State<AddCollateral> {
     return SliverAppBar(
       pinned: true,
       floating: true,
-      backgroundColor: const Color(0xFFF8FAFC).withValues(alpha: 0.9),
+      backgroundColor: ThemeColors.background.withValues(alpha: 0.9),
       elevation: 0,
       centerTitle: true,
       leadingWidth: 64,
@@ -574,7 +574,7 @@ class _AddCollateralState extends State<AddCollateral> {
                 decoration: BoxDecoration(
                   color: isFocused
                       ? AnansiColors.darkBlue
-                      : const Color(0xFFF8FAFC),
+                      : ThemeColors.background,
                   borderRadius: BorderRadius.circular(16),
                 ),
                 child: Icon(
@@ -752,7 +752,7 @@ class _AddCollateralState extends State<AddCollateral> {
   }
 
   Widget categoryCard(BuildContext context) {
-    const Color primaryColor = Color(0xFF074073);
+    const Color primaryColor = AnansiColors.darkBlue;
     final bool hasCategoryError = formErrors['category'] != null;
 
     return Column(

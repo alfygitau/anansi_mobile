@@ -204,7 +204,7 @@ class _ResetPasswordState extends State<ResetPassword> {
                       ? null
                       : (_isLoading ? () {} : _handleReset),
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: const Color(0xFF074073),
+                    backgroundColor:  AnansiColors.darkBlue,
                     disabledBackgroundColor: const Color(0xFFF1F4F8),
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(20),
@@ -240,12 +240,12 @@ class _ResetPasswordState extends State<ResetPassword> {
         Container(
           padding: const EdgeInsets.all(12),
           decoration: BoxDecoration(
-            color: const Color(0xFF074073).withValues(alpha: 0.05),
+            color:  AnansiColors.darkBlue.withValues(alpha: 0.05),
             borderRadius: BorderRadius.circular(16),
           ),
           child: const Icon(
             CupertinoIcons.shield_fill,
-            color: Color(0xFF074073),
+            color: AnansiColors.darkBlue,
             size: 28,
           ),
         ),
@@ -255,7 +255,7 @@ class _ResetPasswordState extends State<ResetPassword> {
           style: TextStyle(
             fontSize: 28,
             fontWeight: FontWeight.w900,
-            color: Color(0xFF074073),
+            color: AnansiColors.darkBlue,
             letterSpacing: -0.5,
           ),
         ),
@@ -276,7 +276,7 @@ class _ResetPasswordState extends State<ResetPassword> {
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        color: const Color(0xFFF8FAFC),
+        color:  ThemeColors.background,
         borderRadius: BorderRadius.circular(24),
         border: Border.all(color: const Color(0xFFF1F4F8)),
       ),
@@ -288,7 +288,7 @@ class _ResetPasswordState extends State<ResetPassword> {
             style: TextStyle(
               fontSize: 10,
               fontWeight: FontWeight.w900,
-              color: Color(0xFF074073),
+              color: AnansiColors.darkBlue,
               letterSpacing: 1.1,
             ),
           ),
@@ -352,7 +352,7 @@ class _ResetPasswordState extends State<ResetPassword> {
             decoration: BoxDecoration(
               shape: BoxShape.circle,
               color: isMet
-                  ? const Color(0xFF17C6C6).withValues(alpha: 0.1)
+                  ?  AnansiColors.accentCyan.withValues(alpha: 0.1)
                   : Colors.transparent,
             ),
             child: Icon(
@@ -360,7 +360,7 @@ class _ResetPasswordState extends State<ResetPassword> {
                   ? CupertinoIcons.checkmark_circle_fill
                   : CupertinoIcons.circle,
               size: 16,
-              color: isMet ? const Color(0xFF17C6C6) : Colors.grey.shade300,
+              color: isMet ?  AnansiColors.accentCyan : Colors.grey.shade300,
             ),
           ),
           const SizedBox(width: 12),
@@ -369,7 +369,7 @@ class _ResetPasswordState extends State<ResetPassword> {
             style: TextStyle(
               fontSize: 12,
               fontWeight: isMet ? FontWeight.w700 : FontWeight.w500,
-              color: isMet ? const Color(0xFF074073) : Colors.grey.shade500,
+              color: isMet ?  AnansiColors.darkBlue : Colors.grey.shade500,
             ),
           ),
         ],
@@ -446,7 +446,7 @@ class _ResetPasswordState extends State<ResetPassword> {
                 decoration: BoxDecoration(
                   color: isFocused
                       ? AnansiColors.darkBlue
-                      : const Color(0xFFF8FAFC),
+                      :  ThemeColors.background,
                   borderRadius: BorderRadius.circular(16),
                 ),
                 child: Icon(
@@ -612,7 +612,7 @@ class _ResetPasswordState extends State<ResetPassword> {
                 decoration: BoxDecoration(
                   color: isFocused
                       ? AnansiColors.darkBlue
-                      : const Color(0xFFF8FAFC),
+                      :  ThemeColors.background,
                   borderRadius: BorderRadius.circular(16),
                 ),
                 child: Icon(
@@ -731,13 +731,13 @@ class _ResetPasswordState extends State<ResetPassword> {
                   width: 80,
                   height: 80,
                   decoration: BoxDecoration(
-                    color: const Color(0xFF17C6C6).withValues(alpha: 0.1),
+                    color:  AnansiColors.accentCyan.withValues(alpha: 0.1),
                     shape: BoxShape.circle,
                   ),
                   child: const Center(
                     child: Icon(
                       CupertinoIcons.checkmark_seal_fill,
-                      color: Color(0xFF17C6C6),
+                      color: AnansiColors.accentCyan,
                       size: 40,
                     ),
                   ),
@@ -748,7 +748,7 @@ class _ResetPasswordState extends State<ResetPassword> {
                   style: TextStyle(
                     fontSize: 24,
                     fontWeight: FontWeight.w900,
-                    color: Color(0xFF074073),
+                    color: AnansiColors.darkBlue,
                     letterSpacing: -0.5,
                   ),
                 ),
@@ -769,7 +769,7 @@ class _ResetPasswordState extends State<ResetPassword> {
                     vertical: 12,
                   ),
                   decoration: BoxDecoration(
-                    color: const Color(0xFFF8FAFC),
+                    color:  ThemeColors.background,
                     borderRadius: BorderRadius.circular(16),
                   ),
                   child: Row(
@@ -803,7 +803,7 @@ class _ResetPasswordState extends State<ResetPassword> {
                       ).pushNamedAndRemoveUntil('/login', (route) => false);
                     },
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: const Color(0xFF074073),
+                      backgroundColor:  AnansiColors.darkBlue,
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(20),
                       ),

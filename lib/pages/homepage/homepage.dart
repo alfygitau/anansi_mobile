@@ -246,7 +246,7 @@ class _HomepageState extends State<Homepage> {
 
     bool shouldShowProgress = currentShares < targetShares;
     return Scaffold(
-      backgroundColor: const Color(0xFFF8FAFC),
+      backgroundColor: ThemeColors.background,
       drawer: Navigation(
         activePageRoute: AnansiRoutes.dashboard,
         onRouteSelected: (String targetNamedRoute) {
@@ -641,7 +641,7 @@ class _HomepageState extends State<Homepage> {
               Container(
                 padding: const EdgeInsets.all(20),
                 decoration: BoxDecoration(
-                  color: const Color(0xFFF8FAFC),
+                  color: ThemeColors.background,
                   shape: BoxShape.circle,
                   border: Border.all(
                     color: const Color(0xFFF1F5F9),
@@ -719,7 +719,7 @@ class _HomepageState extends State<Homepage> {
       width: double.infinity,
       padding: const EdgeInsets.symmetric(vertical: 40, horizontal: 24),
       decoration: BoxDecoration(
-        color: const Color(0xFFF8FAFC),
+        color: ThemeColors.background,
         borderRadius: BorderRadius.circular(32),
         border: Border.all(color: const Color(0xFFF1F4F8)),
       ),
@@ -769,7 +769,7 @@ class _HomepageState extends State<Homepage> {
             icon: const Icon(CupertinoIcons.refresh, size: 16),
             label: const Text("Refresh Records"),
             style: TextButton.styleFrom(
-              foregroundColor: const Color(0xFF17C6C6),
+              foregroundColor: AnansiColors.accentCyan,
               textStyle: const TextStyle(fontWeight: FontWeight.w700),
             ),
           ),
@@ -855,7 +855,7 @@ class _HomepageState extends State<Homepage> {
             margin: const EdgeInsets.symmetric(horizontal: 16),
             padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 18),
             decoration: BoxDecoration(
-              color: const Color(0xFFF8FAFC),
+              color: ThemeColors.background,
               borderRadius: BorderRadius.circular(20),
             ),
             child: Row(
@@ -954,7 +954,7 @@ class _HomepageState extends State<Homepage> {
       pinned: true,
       floating: true,
       snap: true,
-      backgroundColor: const Color(0xFFF8FAFC).withValues(alpha: 0.9),
+      backgroundColor: ThemeColors.background.withValues(alpha: 0.9),
       surfaceTintColor: Colors.transparent,
       elevation: 0,
       centerTitle: true,
@@ -1228,7 +1228,7 @@ class _HomepageState extends State<Homepage> {
                   style: const TextStyle(
                     fontWeight: FontWeight.w700,
                     fontSize: 11,
-                    color: Color(0xFF17C6C6),
+                    color: AnansiColors.accentCyan,
                   ),
                 ),
             ],
@@ -1304,13 +1304,13 @@ class _HomepageState extends State<Homepage> {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
       decoration: BoxDecoration(
-        color: const Color(0xFF17C6C6).withValues(alpha: 0.1),
+        color: AnansiColors.accentCyan.withValues(alpha: 0.1),
         borderRadius: BorderRadius.circular(20),
       ),
       child: Text(
         "${(percentage * 100).toInt()}%",
         style: const TextStyle(
-          color: Color(0xFF17C6C6),
+          color: AnansiColors.accentCyan,
           fontWeight: FontWeight.w900,
           fontSize: 12,
         ),
@@ -1335,12 +1335,12 @@ class _HomepageState extends State<Homepage> {
           width: (300 * percentage),
           decoration: BoxDecoration(
             gradient: const LinearGradient(
-              colors: [AnansiColors.darkBlue, Color(0xFF17C6C6)],
+              colors: [AnansiColors.darkBlue, AnansiColors.accentCyan],
             ),
             borderRadius: BorderRadius.circular(20),
             boxShadow: [
               BoxShadow(
-                color: const Color(0xFF17C6C6).withValues(alpha: 0.4),
+                color: AnansiColors.accentCyan.withValues(alpha: 0.4),
                 blurRadius: 10,
                 offset: const Offset(0, 4),
               ),
@@ -1534,7 +1534,7 @@ class _HomepageState extends State<Homepage> {
                   vertical: 18,
                 ),
                 decoration: BoxDecoration(
-                  color: const Color(0xFFF8FAFC),
+                  color: ThemeColors.background,
                   borderRadius: BorderRadius.circular(20),
                 ),
                 child: Row(

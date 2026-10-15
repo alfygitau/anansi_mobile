@@ -95,7 +95,7 @@ class _ReviewInvestDetailsState extends State<ReviewInvestDetails> {
     final double sharesCount = shares / sharePrice;
 
     return Scaffold(
-      backgroundColor: const Color(0xFFF8FAFC),
+      backgroundColor: ThemeColors.background,
       body: SafeArea(
         child: CustomScrollView(
           slivers: [
@@ -172,7 +172,7 @@ class _ReviewInvestDetailsState extends State<ReviewInvestDetails> {
                                 _buildAttributeRow(
                                   "Total Payable",
                                   formatAmount(total),
-                                  color: const Color(0xFF17C6C6),
+                                  color: AnansiColors.accentCyan,
                                 ),
                               ],
                             ),
@@ -188,7 +188,7 @@ class _ReviewInvestDetailsState extends State<ReviewInvestDetails> {
                       message:
                           "A prompt will appear on your Safaricom line. Do not share your M-PESA PIN with anyone.",
                       icon: CupertinoIcons.device_phone_portrait,
-                      color: const Color(0xFF17C6C6),
+                      color: AnansiColors.accentCyan,
                     ),
                     const SizedBox(height: 12),
                     _buildDetailedDisclaimer(
@@ -276,7 +276,7 @@ class _ReviewInvestDetailsState extends State<ReviewInvestDetails> {
     return SliverAppBar(
       pinned: true,
       floating: true,
-      backgroundColor: const Color(0xFFF8FAFC).withValues(alpha: 0.9),
+      backgroundColor: ThemeColors.background.withValues(alpha: 0.9),
       elevation: 0,
       centerTitle: true,
       leadingWidth: 64,

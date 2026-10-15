@@ -262,7 +262,7 @@ class _TermsConditionsState extends State<TermsConditions> {
           Text(
             title.toUpperCase(),
             style: const TextStyle(
-              color: Color(0xFF17C6C6),
+              color: AnansiColors.accentCyan,
               fontWeight: FontWeight.w900,
               fontSize: 11,
               letterSpacing: 1.2,
@@ -291,7 +291,7 @@ class _TermsConditionsState extends State<TermsConditions> {
                       child: Icon(
                         Icons.circle,
                         size: 6,
-                        color: Color(0xFF17C6C6),
+                        color: AnansiColors.accentCyan,
                       ),
                     ),
                     const SizedBox(width: 12),
@@ -349,7 +349,7 @@ class _TermsConditionsState extends State<TermsConditions> {
       padding: const EdgeInsets.only(bottom: 10),
       child: Row(
         children: [
-          Icon(icon, size: 15, color: const Color(0xFF17C6C6)),
+          Icon(icon, size: 15, color: AnansiColors.accentCyan),
           const SizedBox(width: 12),
           Text(
             text,
@@ -483,7 +483,7 @@ class _TermsConditionsState extends State<TermsConditions> {
             Container(
               padding: const EdgeInsets.all(16),
               decoration: BoxDecoration(
-                color: const Color(0xFFF8FAFC),
+                color: ThemeColors.background,
                 borderRadius: BorderRadius.circular(16),
                 border: Border.all(color: const Color(0xFFF1F4F8)),
               ),

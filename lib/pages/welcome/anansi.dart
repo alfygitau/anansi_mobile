@@ -1,5 +1,6 @@
 import 'package:app_anansi_mobile/pages/auth/login.dart';
 import 'package:app_anansi_mobile/pages/onboarding/introduction.dart';
+import 'package:app_anansi_mobile/pages/onboarding/verify_pin.dart';
 import 'package:app_anansi_mobile/theme/app_theme.dart';
 import 'package:flutter/material.dart';
 
@@ -45,7 +46,7 @@ class _WelcomeState extends State<Welcome> {
                           child: Text(
                             "A",
                             style: TextStyle(
-                              color: Color(0xFF17C6C6),
+                              color: AnansiColors.accentCyan,
                               fontSize: 22,
                               fontWeight: FontWeight.w900,
                             ),
@@ -81,7 +82,7 @@ class _WelcomeState extends State<Welcome> {
                     width: 60,
                     decoration: BoxDecoration(
                       gradient: const LinearGradient(
-                        colors: [Color(0xFF17C6C6), Colors.transparent],
+                        colors: [AnansiColors.accentCyan, Colors.transparent],
                       ),
                       borderRadius: BorderRadius.circular(1),
                     ),
@@ -101,7 +102,7 @@ class _WelcomeState extends State<Welcome> {
                     text: "Sign In",
                     onPressed: () => Navigator.push(
                       context,
-                      MaterialPageRoute(builder: (context) => const Login()),
+                      MaterialPageRoute(builder: (context) => const VerifyPin()),
                     ),
                   ),
                   const SizedBox(height: 16),
@@ -136,11 +137,11 @@ class _WelcomeState extends State<Welcome> {
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(16),
         gradient: const LinearGradient(
-          colors: [Color(0xFF17C6C6), Color(0xFF12A5A5)],
+          colors: [AnansiColors.accentCyan, Color(0xFF12A5A5)],
         ),
         boxShadow: [
           BoxShadow(
-            color: const Color(0xFF17C6C6).withValues(alpha: 0.3),
+            color:  AnansiColors.accentCyan.withValues(alpha: 0.3),
             blurRadius: 20,
             offset: const Offset(0, 10),
           ),

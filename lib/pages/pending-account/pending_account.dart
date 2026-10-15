@@ -127,7 +127,7 @@ class _PendingAccountState extends State<PendingAccount> {
       margin: const EdgeInsets.only(bottom: 12),
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: isDone ? const Color(0xFFF0FDF4) : const Color(0xFFF8FAFC),
+        color: isDone ? const Color(0xFFF0FDF4) : ThemeColors.background,
         borderRadius: BorderRadius.circular(16),
         border: Border.all(
           color: isDone ? const Color(0xFFBBF7D0) : const Color(0xFFE2E8F0),

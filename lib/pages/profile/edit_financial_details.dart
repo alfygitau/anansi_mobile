@@ -81,7 +81,7 @@ class _EditFinancialsPageState extends State<EditFinancialsPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFF8FAFC),
+      backgroundColor: ThemeColors.background,
       body: CustomScrollView(
         physics: const BouncingScrollPhysics(),
         slivers: [
@@ -224,7 +224,7 @@ class _EditFinancialsPageState extends State<EditFinancialsPage> {
         style: const TextStyle(
           fontSize: 11,
           fontWeight: FontWeight.w900,
-          color: Color(0xFF17C6C6),
+          color: AnansiColors.accentCyan,
           letterSpacing: 1.5,
         ),
       ),
@@ -235,17 +235,17 @@ class _EditFinancialsPageState extends State<EditFinancialsPage> {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: const Color(0xFF17C6C6).withValues(alpha: 0.05),
+        color: AnansiColors.accentCyan.withValues(alpha: 0.05),
         borderRadius: BorderRadius.circular(16),
         border: Border.all(
-          color: const Color(0xFF17C6C6).withValues(alpha: 0.1),
+          color: AnansiColors.accentCyan.withValues(alpha: 0.1),
         ),
       ),
       child: const Row(
         children: [
           Icon(
             CupertinoIcons.info_circle_fill,
-            color: Color(0xFF17C6C6),
+            color: AnansiColors.accentCyan,
             size: 20,
           ),
           SizedBox(width: 12),
@@ -254,7 +254,7 @@ class _EditFinancialsPageState extends State<EditFinancialsPage> {
               "Your financial data is encrypted and used only for credit scoring and Sacco compliance.",
               style: TextStyle(
                 fontSize: 12,
-                color: Color(0xFF0A2351),
+                color: ThemeColors.primary,
                 height: 1.4,
               ),
             ),
@@ -274,7 +274,7 @@ class _EditFinancialsPageState extends State<EditFinancialsPage> {
         child: ElevatedButton(
           onPressed: _isLoading ? () {} : _editFinance,
           style: ElevatedButton.styleFrom(
-            backgroundColor: const Color(0xFF0A2351),
+            backgroundColor: ThemeColors.primary,
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(18),
             ),
@@ -356,7 +356,7 @@ class _EditFinancialsPageState extends State<EditFinancialsPage> {
                 decoration: BoxDecoration(
                   color: isFocused
                       ? AnansiColors.darkBlue
-                      : const Color(0xFFF8FAFC),
+                      : ThemeColors.background,
                   borderRadius: BorderRadius.circular(16),
                 ),
                 child: Icon(
@@ -520,7 +520,7 @@ class _EditFinancialsPageState extends State<EditFinancialsPage> {
           width: 44,
           height: 44,
           decoration: BoxDecoration(
-            color: const Color(0xFFF8FAFC),
+            color: ThemeColors.background,
             borderRadius: BorderRadius.circular(16),
           ),
           child: Icon(

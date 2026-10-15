@@ -50,7 +50,7 @@ class _GuaranteeAmountState extends State<GuaranteeAmount> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFF8FAFC),
+      backgroundColor:  ThemeColors.background,
       body: Column(
         children: [
           Expanded(
@@ -98,7 +98,7 @@ class _GuaranteeAmountState extends State<GuaranteeAmount> {
     return SliverAppBar(
       pinned: true,
       floating: true,
-      backgroundColor: const Color(0xFFF8FAFC).withValues(alpha: 0.9),
+      backgroundColor:  ThemeColors.background.withValues(alpha: 0.9),
       elevation: 0,
       centerTitle: true,
       leadingWidth: 64,
@@ -250,7 +250,7 @@ class _GuaranteeAmountState extends State<GuaranteeAmount> {
                 decoration: BoxDecoration(
                   color: isFocused
                       ? AnansiColors.darkBlue
-                      : const Color(0xFFF8FAFC),
+                      :  ThemeColors.background,
                   borderRadius: BorderRadius.circular(16),
                 ),
                 child: Icon(

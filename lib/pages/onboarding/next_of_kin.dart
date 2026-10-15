@@ -47,7 +47,9 @@ class _NextOfKinState extends State<NextOfKin> {
       lastDate: DateTime.now(),
       builder: (context, child) => Theme(
         data: Theme.of(context).copyWith(
-          colorScheme: const ColorScheme.light(primary: Color(0xFF17C6C6)),
+          colorScheme: const ColorScheme.light(
+            primary: AnansiColors.accentCyan,
+          ),
         ),
         child: child!,
       ),
@@ -411,7 +413,7 @@ class _NextOfKinState extends State<NextOfKin> {
                 decoration: BoxDecoration(
                   color: isFocused
                       ? AnansiColors.darkBlue
-                      : const Color(0xFFF8FAFC),
+                      : ThemeColors.background,
                   borderRadius: BorderRadius.circular(16),
                 ),
                 child: Icon(
@@ -524,7 +526,7 @@ class _NextOfKinState extends State<NextOfKin> {
                   width: 44,
                   height: 44,
                   decoration: BoxDecoration(
-                    color: const Color(0xFFF8FAFC),
+                    color: ThemeColors.background,
                     borderRadius: BorderRadius.circular(16),
                   ),
                   child: const Icon(

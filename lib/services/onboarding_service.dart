@@ -111,6 +111,41 @@ class OnboardingService {
     }
   }
 
+  Future<(Response?, List<String>?)> verifyPin({required String kraPin}) async {
+    try {
+      final response = await _secureClient.patch(
+        '/kyc-validation/kra-pin',
+        data: {"number": kraPin},
+      );
+      return (response, null);
+    } on DioException catch (e) {
+      final apiException = ApiException();
+      final errorMessages = apiException.getExceptionMessage(e);
+      return (null, errorMessages);
+    } catch (e) {
+      return (null, ["Authentication Error!", "An unknown error occurred."]);
+    }
+  }
+
+  Future<(Response?, List<String>?)> updateKraPin({
+    required String id,
+    required String kraPin,
+  }) async {
+    try {
+      final response = await _secureClient.patch(
+        '/customer/$id',
+        data: {"kraPin": kraPin},
+      );
+      return (response, null);
+    } on DioException catch (e) {
+      final apiException = ApiException();
+      final errorMessages = apiException.getExceptionMessage(e);
+      return (null, errorMessages);
+    } catch (e) {
+      return (null, ["Authentication Error!", "An unknown error occurred."]);
+    }
+  }
+
   Future<(Response?, List<String>?)> updateIdentity({
     required String id,
     required String firstName,
@@ -242,7 +277,6 @@ class OnboardingService {
     required String id,
     required String countryOfResidence,
     required String employmentType,
-    required String kra,
     required String jobTitle,
     required String income,
   }) async {
@@ -253,7 +287,6 @@ class OnboardingService {
           "onboarding_stage": "nextOfKin",
           "country_of_residence": countryOfResidence,
           "employment_type": employmentType,
-          "kraPin": kra,
           "occupation": jobTitle,
           "income_range": income,
         },

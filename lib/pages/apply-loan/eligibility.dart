@@ -1,5 +1,4 @@
 import 'dart:convert';
-
 import 'package:app_anansi_mobile/helpers/format_amount.dart';
 import 'package:app_anansi_mobile/pages/apply-loan/add_loan_details.dart';
 import 'package:app_anansi_mobile/pages/help&support/help_support.dart';
@@ -69,7 +68,7 @@ class _LoanEligibilityState extends State<LoanEligibility> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFF8FAFC),
+      backgroundColor: ThemeColors.background,
       body: CustomScrollView(
         physics: const BouncingScrollPhysics(),
         slivers: [
@@ -89,7 +88,7 @@ class _LoanEligibilityState extends State<LoanEligibility> {
               child: Text(
                 "ELIGIBILITY CHECKLIST",
                 style: TextStyle(
-                  color: const Color(0xFF0A2351).withValues(
+                  color: ThemeColors.primary.withValues(
                     alpha: 0.5,
                   ), // Matches your primary deep blue with a subtle label opacity
                   fontWeight: FontWeight.w900,
@@ -327,12 +326,12 @@ class _LoanEligibilityState extends State<LoanEligibility> {
       margin: const EdgeInsets.all(20),
       padding: const EdgeInsets.all(28),
       decoration: BoxDecoration(
-        color: const Color(0xFF0A2351),
+        color: ThemeColors.primary,
         borderRadius: BorderRadius.circular(35),
         gradient: const LinearGradient(
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
-          colors: [Color(0xFF0A2351), Color(0xFF1B3C73)],
+          colors: [ThemeColors.primary, Color(0xFF1B3C73)],
         ),
       ),
       child: Column(
@@ -340,7 +339,7 @@ class _LoanEligibilityState extends State<LoanEligibility> {
           const Text(
             "YOUR BORROWING CAPACITY",
             style: TextStyle(
-              color: Color(0xFF17C6C6),
+              color: AnansiColors.accentCyan,
               fontWeight: FontWeight.w900,
               fontSize: 10,
               letterSpacing: 1.5,
@@ -416,7 +415,7 @@ class _LoanEligibilityState extends State<LoanEligibility> {
 
     // 4. Determine thematic accent colors
     Color iconColor = isMet
-        ? const Color(0xFF17C6C6)
+        ? AnansiColors.accentCyan
         : (isWarning ? Colors.orange : Colors.orange);
 
     return Container(
@@ -457,7 +456,7 @@ class _LoanEligibilityState extends State<LoanEligibility> {
                         overflow: TextOverflow.ellipsis,
                         style: const TextStyle(
                           fontWeight: FontWeight.w900,
-                          color: Color(0xFF0A2351),
+                          color: ThemeColors.primary,
                           fontSize: 14,
                         ),
                       ),
@@ -513,7 +512,7 @@ class _LoanEligibilityState extends State<LoanEligibility> {
         Text(
           label,
           style: TextStyle(
-            color: Colors.white.withOpacity(0.4),
+            color: Colors.white.withValues(alpha: 0.4),
             fontSize: 9,
             fontWeight: FontWeight.w700,
           ),
@@ -552,7 +551,7 @@ class _LoanEligibilityState extends State<LoanEligibility> {
             : null, // Disabled if not qualified
         style: ElevatedButton.styleFrom(
           backgroundColor: isQualified
-              ? const Color(0xFF0A2351)
+              ? ThemeColors.primary
               : Colors.grey.shade300,
           minimumSize: const Size(double.infinity, 64),
           shape: RoundedRectangleBorder(

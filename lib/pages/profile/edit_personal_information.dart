@@ -47,7 +47,7 @@ class _EditPersonalInformationState extends State<EditPersonalInformation> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFF8FAFC),
+      backgroundColor: ThemeColors.background,
       body: CustomScrollView(
         physics: const BouncingScrollPhysics(),
         slivers: [
@@ -64,7 +64,7 @@ class _EditPersonalInformationState extends State<EditPersonalInformation> {
                   icon: CupertinoIcons.person,
                   fieldKey: "firstName",
                   focusNode: FocusNode(),
-                  readonly: true
+                  readonly: true,
                 ),
                 const SizedBox(height: 16),
                 _buildInputField(
@@ -74,7 +74,7 @@ class _EditPersonalInformationState extends State<EditPersonalInformation> {
                   icon: CupertinoIcons.person_crop_rectangle,
                   fieldKey: "middleName",
                   focusNode: FocusNode(),
-                  readonly: true
+                  readonly: true,
                 ),
                 const SizedBox(height: 16),
                 _buildInputField(
@@ -84,7 +84,7 @@ class _EditPersonalInformationState extends State<EditPersonalInformation> {
                   icon: CupertinoIcons.person_2,
                   fieldKey: "lastName",
                   focusNode: FocusNode(),
-                  readonly: true
+                  readonly: true,
                 ),
                 const SizedBox(height: 16),
                 _buildInputField(
@@ -94,7 +94,7 @@ class _EditPersonalInformationState extends State<EditPersonalInformation> {
                   icon: CupertinoIcons.doc_plaintext,
                   fieldKey: "idNumber",
                   focusNode: FocusNode(),
-                  readonly: true
+                  readonly: true,
                 ),
 
                 const SizedBox(height: 32),
@@ -106,7 +106,7 @@ class _EditPersonalInformationState extends State<EditPersonalInformation> {
                   icon: CupertinoIcons.mail,
                   fieldKey: "email",
                   focusNode: FocusNode(),
-                  readonly: true
+                  readonly: true,
                 ),
                 const SizedBox(height: 16),
                 _buildInputField(
@@ -116,7 +116,7 @@ class _EditPersonalInformationState extends State<EditPersonalInformation> {
                   icon: CupertinoIcons.phone,
                   fieldKey: "mobile",
                   focusNode: FocusNode(),
-                  readonly: true
+                  readonly: true,
                 ),
                 const SizedBox(height: 16),
 
@@ -152,7 +152,7 @@ class _EditPersonalInformationState extends State<EditPersonalInformation> {
       icon: CupertinoIcons.calendar,
       fieldKey: "dob",
       focusNode: FocusNode(),
-      readonly: true
+      readonly: true,
     );
   }
 
@@ -313,7 +313,7 @@ class _EditPersonalInformationState extends State<EditPersonalInformation> {
                 decoration: BoxDecoration(
                   color: isFocused
                       ? AnansiColors.darkBlue
-                      : const Color(0xFFF8FAFC),
+                      : ThemeColors.background,
                   borderRadius: BorderRadius.circular(16),
                 ),
                 child: Icon(
@@ -407,7 +407,7 @@ class _EditPersonalInformationState extends State<EditPersonalInformation> {
             // Save logic
           },
           style: ElevatedButton.styleFrom(
-            backgroundColor: const Color(0xFF0A2351),
+            backgroundColor: ThemeColors.primary,
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(18),
             ),
@@ -518,7 +518,7 @@ class _EditPersonalInformationState extends State<EditPersonalInformation> {
           width: 44,
           height: 44,
           decoration: BoxDecoration(
-            color: const Color(0xFFF8FAFC),
+            color: ThemeColors.background,
             borderRadius: BorderRadius.circular(16),
           ),
           child: Icon(

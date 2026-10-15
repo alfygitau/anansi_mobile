@@ -98,7 +98,7 @@ class _LoanApplicationState extends State<LoanApplication> {
         .toLowerCase()
         .trim();
     return Scaffold(
-      backgroundColor: const Color(0xFFF8FAFC),
+      backgroundColor: ThemeColors.background,
       body: CustomScrollView(
         physics: const BouncingScrollPhysics(),
         slivers: [
@@ -149,7 +149,7 @@ class _LoanApplicationState extends State<LoanApplication> {
               subtitle: "Add or check status of your 2 required guarantors",
               icon: CupertinoIcons.person_3_fill,
               iconBgColor: const Color(0xFFEFF6FF),
-              iconColor: const Color(0xFF2563EB), // Blue
+              iconColor: AnansiColors.primary, // Blue
               onTap: () {
                 Navigator.push(
                   context,
@@ -175,7 +175,13 @@ class _LoanApplicationState extends State<LoanApplication> {
               iconBgColor: const Color(0xFFFDF2F8),
               iconColor: const Color(0xFFDB2777), // Pink/Crimson
               onTap: () {
-                Navigator.push(context, MaterialPageRoute(builder: (context) => ApplicationCollaterals(appId: widget.appId)));
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) =>
+                        ApplicationCollaterals(appId: widget.appId),
+                  ),
+                );
               },
             ),
 
@@ -191,7 +197,13 @@ class _LoanApplicationState extends State<LoanApplication> {
               iconBgColor: const Color(0xFFECFDF5),
               iconColor: const Color(0xFF059669), // Emerald Green
               onTap: () {
-                Navigator.push(context, MaterialPageRoute(builder: (context) => ApplicationDocuments(appId: widget.appId)));
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) =>
+                        ApplicationDocuments(appId: widget.appId),
+                  ),
+                );
               },
             ),
         ],
@@ -379,7 +391,7 @@ class _LoanApplicationState extends State<LoanApplication> {
         gradient: const LinearGradient(
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
-          colors: [Color(0xFF0A2351), Color(0xFF1A3A7A)],
+          colors: [ThemeColors.primary, Color(0xFF1A3A7A)],
         ),
       ),
       child: ClipRRect(
@@ -581,7 +593,7 @@ class _LoanApplicationState extends State<LoanApplication> {
         gradient: const LinearGradient(
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
-          colors: [Color(0xFF0A2351), Color(0xFF1A3A7A)],
+          colors: [ThemeColors.primary, Color(0xFF1A3A7A)],
         ),
       ),
       child: ClipRRect(
@@ -826,7 +838,7 @@ class _LoanApplicationState extends State<LoanApplication> {
                         style: TextStyle(
                           fontWeight: FontWeight.w900,
                           fontSize: 14,
-                          color: isDone ? Colors.grey : const Color(0xFF0A2351),
+                          color: isDone ? Colors.grey : ThemeColors.primary,
                           decoration: isDone
                               ? TextDecoration.lineThrough
                               : null,
@@ -902,7 +914,7 @@ class _LoanApplicationState extends State<LoanApplication> {
                 style: TextStyle(
                   fontWeight: FontWeight.w900,
                   fontSize: 16,
-                  color: Color(0xFF0A2351),
+                  color: ThemeColors.primary,
                 ),
               ),
               const SizedBox(height: 6),
@@ -1034,9 +1046,9 @@ class _LoanApplicationState extends State<LoanApplication> {
   // --- HELPER LOGIC ---
 
   Color _getRequirementColor(bool isDone, bool isPending) {
-    if (isDone) return const Color(0xFF17C6C6); // Anansi Teal
+    if (isDone) return AnansiColors.accentCyan; // Anansi Teal
     if (isPending) return const Color(0xFFFFB300); // Amber
-    return const Color(0xFF0A2351); // Navy
+    return ThemeColors.primary; // Navy
   }
 
   Widget _buildMiniStatus(String status, bool isDone, bool isPending) {
@@ -1194,7 +1206,7 @@ class _LoanApplicationState extends State<LoanApplication> {
       child: ElevatedButton(
         onPressed: () {},
         style: ElevatedButton.styleFrom(
-          backgroundColor: const Color(0xFF0A2351),
+          backgroundColor: ThemeColors.primary,
           minimumSize: const Size(double.infinity, 64),
           elevation: 0,
           shape: RoundedRectangleBorder(

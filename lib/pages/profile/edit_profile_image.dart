@@ -83,7 +83,7 @@ class _EditProfilePicturePageState extends State<EditProfilePicturePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFF8FAFC),
+      backgroundColor: ThemeColors.background,
       body: CustomScrollView(
         physics: const BouncingScrollPhysics(),
         slivers: [
@@ -211,7 +211,7 @@ class _EditProfilePicturePageState extends State<EditProfilePicturePage> {
           shape: BoxShape.circle,
           boxShadow: [
             BoxShadow(
-              color: const Color(0xFF0A2351).withValues(alpha: 0.1),
+              color: ThemeColors.primary.withValues(alpha: 0.1),
               blurRadius: 30,
               offset: const Offset(0, 10),
             ),
@@ -257,7 +257,7 @@ class _EditProfilePicturePageState extends State<EditProfilePicturePage> {
       style: const TextStyle(
         fontSize: 11,
         fontWeight: FontWeight.w900,
-        color: Color(0xFF17C6C6),
+        color: AnansiColors.accentCyan,
         letterSpacing: 2.0,
       ),
     );
@@ -283,10 +283,10 @@ class _EditProfilePicturePageState extends State<EditProfilePicturePage> {
             Container(
               padding: const EdgeInsets.all(12),
               decoration: BoxDecoration(
-                color: const Color(0xFF17C6C6).withValues(alpha: 0.08),
+                color: AnansiColors.accentCyan.withValues(alpha: 0.08),
                 borderRadius: BorderRadius.circular(14),
               ),
-              child: Icon(icon, size: 20, color: const Color(0xFF17C6C6)),
+              child: Icon(icon, size: 20, color: AnansiColors.accentCyan),
             ),
             const SizedBox(width: 16),
             Expanded(
@@ -297,7 +297,7 @@ class _EditProfilePicturePageState extends State<EditProfilePicturePage> {
                     label,
                     style: const TextStyle(
                       fontWeight: FontWeight.w700,
-                      color: Color(0xFF0A2351),
+                      color: ThemeColors.primary,
                       fontSize: 16,
                     ),
                   ),
@@ -335,7 +335,7 @@ class _EditProfilePicturePageState extends State<EditProfilePicturePage> {
             children: [
               Icon(
                 CupertinoIcons.checkmark_shield_fill,
-                color: Color(0xFF17C6C6),
+                color: AnansiColors.accentCyan,
                 size: 18,
               ),
               SizedBox(width: 8),
@@ -343,7 +343,7 @@ class _EditProfilePicturePageState extends State<EditProfilePicturePage> {
                 "Compliance & Verification",
                 style: TextStyle(
                   fontWeight: FontWeight.w800,
-                  color: Color(0xFF0A2351),
+                  color: ThemeColors.primary,
                   fontSize: 13,
                 ),
               ),
@@ -418,7 +418,7 @@ class _EditProfilePicturePageState extends State<EditProfilePicturePage> {
         child: ElevatedButton(
           onPressed: (_image != null && !_isUploading) ? _saveChanges : null,
           style: ElevatedButton.styleFrom(
-            backgroundColor: const Color(0xFF0A2351),
+            backgroundColor: ThemeColors.primary,
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(18),
             ),

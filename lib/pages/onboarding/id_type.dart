@@ -281,7 +281,7 @@ class _IdTypeState extends State<IdType> {
           width: 44,
           height: 44,
           decoration: BoxDecoration(
-            color: const Color(0xFFF8FAFC),
+            color: ThemeColors.background,
             borderRadius: BorderRadius.circular(16),
           ),
           child: Icon(
@@ -324,7 +324,7 @@ class _IdTypeState extends State<IdType> {
           width: 44,
           height: 44,
           decoration: BoxDecoration(
-            color: const Color(0xFFF8FAFC),
+            color: ThemeColors.background,
             borderRadius: BorderRadius.circular(16),
           ),
           child: Icon(
@@ -371,13 +371,13 @@ class _IdTypeState extends State<IdType> {
           color: isSelected ? const Color(0xFFE0F7F6) : Colors.white,
           borderRadius: BorderRadius.circular(20),
           border: Border.all(
-            color: isSelected ? const Color(0xFF17C6C6) : Colors.grey.shade100,
+            color: isSelected ? AnansiColors.accentCyan : Colors.grey.shade100,
             width: isSelected ? 2 : 1,
           ),
           boxShadow: [
             if (isSelected)
               BoxShadow(
-                color: const Color(0xFF17C6C6).withValues(alpha: 0.1),
+                color: AnansiColors.accentCyan.withValues(alpha: 0.1),
                 blurRadius: 10,
                 offset: const Offset(0, 4),
               ),
@@ -388,7 +388,7 @@ class _IdTypeState extends State<IdType> {
             Icon(
               icon,
               color: isSelected
-                  ? const Color(0xFF17C6C6)
+                  ? AnansiColors.accentCyan
                   : AnansiColors.darkBlue.withValues(alpha: 0.4),
               size: 28,
             ),
@@ -417,7 +417,7 @@ class _IdTypeState extends State<IdType> {
             if (isSelected)
               const Icon(
                 CupertinoIcons.checkmark_circle_fill,
-                color: Color(0xFF17C6C6),
+                color: AnansiColors.accentCyan,
                 size: 20,
               ),
           ],

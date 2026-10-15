@@ -261,7 +261,7 @@ class _VerifyEmailState extends State<VerifyEmail> {
               const Text(
                 "You want to change your email?",
                 style: TextStyle(
-                  color: Color(0xFF17C6C6),
+                  color: AnansiColors.accentCyan,
                   fontSize: 13,
                   fontWeight: FontWeight.w700,
                   decoration: TextDecoration.none,
@@ -271,7 +271,7 @@ class _VerifyEmailState extends State<VerifyEmail> {
               Icon(
                 CupertinoIcons.create,
                 size: 14,
-                color: const Color(0xFF17C6C6).withValues(alpha: 0.8),
+                color: AnansiColors.accentCyan.withValues(alpha: 0.8),
               ),
             ],
           ),
@@ -306,7 +306,7 @@ class _VerifyEmailState extends State<VerifyEmail> {
                 child: const Text(
                   "Resend Code",
                   style: TextStyle(
-                    color: Color(0xFF17C6C6),
+                    color: AnansiColors.accentCyan,
                     fontWeight: FontWeight.w800,
                     fontSize: 13,
                   ),
@@ -320,7 +320,7 @@ class _VerifyEmailState extends State<VerifyEmail> {
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        color: const Color(0xFFF8FAFC),
+        color: ThemeColors.background,
         borderRadius: BorderRadius.circular(24),
         border: Border.all(color: const Color(0xFFF1F4F8)),
       ),

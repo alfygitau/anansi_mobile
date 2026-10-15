@@ -51,7 +51,7 @@ class _ApplicationGuarantorsState extends State<ApplicationGuarantors> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFF8FAFC),
+      backgroundColor: ThemeColors.background,
       body: CustomScrollView(
         physics: const BouncingScrollPhysics(
           parent: AlwaysScrollableScrollPhysics(),
@@ -229,7 +229,7 @@ class _ApplicationGuarantorsState extends State<ApplicationGuarantors> {
                   height: 36,
                   alignment: Alignment.center,
                   decoration: BoxDecoration(
-                    color: const Color(0xFFF8FAFC), // bg-slate-50
+                    color: ThemeColors.background, // bg-slate-50
                     borderRadius: BorderRadius.circular(12), // rounded-xl
                     border: Border.all(
                       color: const Color(0xFFF1F5F9),
@@ -238,7 +238,7 @@ class _ApplicationGuarantorsState extends State<ApplicationGuarantors> {
                   child: Text(
                     initial,
                     style: const TextStyle(
-                      color: Color(0xFF0A2351), // text-[#0A2351]
+                      color: ThemeColors.primary, // text-[#0A2351]
                       fontWeight: FontWeight.bold, // font-bold
                       fontSize: 12, // text-xs
                     ),

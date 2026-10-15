@@ -19,7 +19,7 @@ class _ViewRequestState extends State<ViewRequest> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFF8FAFC),
+      backgroundColor:  ThemeColors.background,
       body: Column(
         children: [
           Expanded(
@@ -100,7 +100,7 @@ class _ViewRequestState extends State<ViewRequest> {
     return SliverAppBar(
       pinned: true,
       floating: true,
-      backgroundColor: const Color(0xFFF8FAFC).withValues(alpha: 0.9),
+      backgroundColor:  ThemeColors.background.withValues(alpha: 0.9),
       elevation: 0,
       centerTitle: true,
       leadingWidth: 64,

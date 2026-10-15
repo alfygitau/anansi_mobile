@@ -563,7 +563,7 @@ class _GuarantorshipState extends State<Guarantorship> {
       builder: (context) => Container(
         height: MediaQuery.of(context).size.height * 0.7,
         decoration: const BoxDecoration(
-          color: Color(0xFFF8FAFC),
+          color: ThemeColors.background,
           borderRadius: BorderRadius.vertical(top: Radius.circular(40)),
         ),
         child: Stack(
@@ -669,8 +669,8 @@ class _GuarantorshipState extends State<Guarantorship> {
                     begin: Alignment.topCenter,
                     end: Alignment.bottomCenter,
                     colors: [
-                      const Color(0xFFF8FAFC).withValues(alpha: 0),
-                      const Color(0xFFF8FAFC),
+                      ThemeColors.background.withValues(alpha: 0),
+                      ThemeColors.background,
                     ],
                   ),
                 ),

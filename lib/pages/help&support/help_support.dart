@@ -90,7 +90,7 @@ class _HelpSupportState extends State<HelpSupport> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFF8FAFC),
+      backgroundColor:  ThemeColors.background,
       drawer: Navigation(
         activePageRoute: AnansiRoutes.dashboard,
         onRouteSelected: (String targetNamedRoute) {

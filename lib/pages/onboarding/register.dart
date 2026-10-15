@@ -490,7 +490,7 @@ class _RegisterState extends State<Register> {
                 decoration: BoxDecoration(
                   color: isFocused
                       ? AnansiColors.darkBlue
-                      : const Color(0xFFF8FAFC),
+                      : ThemeColors.background,
                   borderRadius: BorderRadius.circular(16),
                 ),
                 child: Icon(
@@ -631,7 +631,7 @@ class _RegisterState extends State<Register> {
                 decoration: BoxDecoration(
                   color: isFocused
                       ? AnansiColors.darkBlue
-                      : const Color(0xFFF8FAFC),
+                      : ThemeColors.background,
                   borderRadius: BorderRadius.circular(16),
                 ),
                 child: Icon(
@@ -1029,7 +1029,7 @@ class _RegisterState extends State<Register> {
                     width: 6,
                     height: 6,
                     decoration: const BoxDecoration(
-                      color: Color(0xFF17C6C6),
+                      color: AnansiColors.accentCyan,
                       shape: BoxShape.circle,
                     ),
                   ),

@@ -87,7 +87,7 @@ class _AwaitLoanStkPushState extends State<AwaitLoanStkPush>
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFF8FAFC),
+      backgroundColor: ThemeColors.background,
       body: SafeArea(
         child: Center(
           child: SingleChildScrollView(
@@ -490,12 +490,12 @@ class _AwaitLoanStkPushState extends State<AwaitLoanStkPush>
               width: 80,
               height: 80,
               decoration: BoxDecoration(
-                color: const Color(0xFF17C6C6).withValues(alpha: 0.1),
+                color: AnansiColors.accentCyan.withValues(alpha: 0.1),
                 shape: BoxShape.circle,
               ),
               child: const Icon(
                 CupertinoIcons.check_mark_circled_solid,
-                color: Color(0xFF17C6C6),
+                color: AnansiColors.accentCyan,
                 size: 50,
               ),
             ),
@@ -505,7 +505,7 @@ class _AwaitLoanStkPushState extends State<AwaitLoanStkPush>
               style: TextStyle(
                 fontSize: 22,
                 fontWeight: FontWeight.w900,
-                color: Color(0xFF074073),
+                color: AnansiColors.darkBlue,
                 letterSpacing: -0.5,
               ),
             ),
@@ -531,7 +531,7 @@ class _AwaitLoanStkPushState extends State<AwaitLoanStkPush>
                   );
                 },
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: const Color(0xFF074073),
+                  backgroundColor: AnansiColors.darkBlue,
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(16),
                   ),
@@ -599,7 +599,7 @@ class _AwaitLoanStkPushState extends State<AwaitLoanStkPush>
               style: TextStyle(
                 fontSize: 22,
                 fontWeight: FontWeight.w900,
-                color: Color(0xFF074073),
+                color: AnansiColors.darkBlue,
               ),
             ),
             const SizedBox(height: 12),
@@ -649,7 +649,7 @@ class _AwaitLoanStkPushState extends State<AwaitLoanStkPush>
                     },
                     style: ElevatedButton.styleFrom(
                       minimumSize: const Size(double.infinity, 56),
-                      backgroundColor: const Color(0xFF074073),
+                      backgroundColor: AnansiColors.darkBlue,
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(16),
                       ),

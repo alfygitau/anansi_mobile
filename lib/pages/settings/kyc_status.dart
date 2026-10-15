@@ -14,7 +14,7 @@ class _KycStatusState extends State<KycStatus> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Color(0xFFF8FAFC),
+      backgroundColor: ThemeColors.background,
       appBar: _buildAppBar(context),
       body: SafeArea(
         child: SingleChildScrollView(
@@ -99,7 +99,7 @@ class _KycStatusState extends State<KycStatus> {
     return Container(
       margin: const EdgeInsets.only(bottom: 16),
       decoration: BoxDecoration(
-        color: const Color(0xFFF8FAFC),
+        color:  ThemeColors.background,
         borderRadius: BorderRadius.circular(24),
         border: Border.all(
           color: isActionable
@@ -198,7 +198,7 @@ class _KycStatusState extends State<KycStatus> {
   AppBar _buildAppBar(BuildContext context) {
     return AppBar(
       // Match your existing background and glassmorphism style
-      backgroundColor: const Color(0xFFF8FAFC).withValues(alpha: 0.95),
+      backgroundColor:  ThemeColors.background.withValues(alpha: 0.95),
       elevation: 0,
       centerTitle: true,
       title: Column(
@@ -233,7 +233,7 @@ class _KycStatusState extends State<KycStatus> {
         width: 38,
         height: 38,
         decoration: BoxDecoration(
-          color: Color(0xFFF8FAFC),
+          color: ThemeColors.background,
           shape: BoxShape.circle,
           border: Border.all(color: Colors.grey.shade200),
         ),

@@ -11,10 +11,7 @@ import 'package:app_anansi_mobile/theme/app_theme.dart';
 
 class AddApplicationCollateral extends StatefulWidget {
   final String appId;
-  const AddApplicationCollateral({
-    super.key,
-    required this.appId,
-  });
+  const AddApplicationCollateral({super.key, required this.appId});
 
   @override
   State<AddApplicationCollateral> createState() =>
@@ -145,8 +142,7 @@ class _AddApplicationCollateralState extends State<AddApplicationCollateral> {
         Navigator.pushReplacement(
           context,
           MaterialPageRoute(
-            builder: (context) =>
-                ApplicationCollaterals(appId: widget.appId),
+            builder: (context) => ApplicationCollaterals(appId: widget.appId),
           ),
         );
       }
@@ -281,7 +277,7 @@ class _AddApplicationCollateralState extends State<AddApplicationCollateral> {
     return SliverAppBar(
       pinned: true,
       floating: true,
-      backgroundColor: const Color(0xFFF8FAFC).withValues(alpha: 0.9),
+      backgroundColor: ThemeColors.background.withValues(alpha: 0.9),
       elevation: 0,
       centerTitle: true,
       leadingWidth: 64,
@@ -573,7 +569,7 @@ class _AddApplicationCollateralState extends State<AddApplicationCollateral> {
                 decoration: BoxDecoration(
                   color: isFocused
                       ? AnansiColors.darkBlue
-                      : const Color(0xFFF8FAFC),
+                      : ThemeColors.background,
                   borderRadius: BorderRadius.circular(16),
                 ),
                 child: Icon(
@@ -751,7 +747,7 @@ class _AddApplicationCollateralState extends State<AddApplicationCollateral> {
   }
 
   Widget categoryCard(BuildContext context) {
-    const Color primaryColor = Color(0xFF074073);
+    const Color primaryColor = AnansiColors.darkBlue;
     final bool hasCategoryError = formErrors['category'] != null;
 
     return Column(

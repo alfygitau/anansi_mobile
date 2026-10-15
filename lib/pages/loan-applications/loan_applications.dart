@@ -24,6 +24,12 @@ class LoanApplications extends StatefulWidget {
 
 class _LoanApplicationsState extends State<LoanApplications> {
   List<Map<String, dynamic>> applications = [];
+  ({int active, int cancelled, int inReview, int total}) summary = (
+    active: 0,
+    cancelled: 0,
+    inReview: 0,
+    total: 0,
+  );
   bool _loading = false;
 
   Future<Map<String, dynamic>?> getUser() async {
@@ -51,6 +57,9 @@ class _LoanApplicationsState extends State<LoanApplications> {
           applications = List<Map<String, dynamic>>.from(
             responseInfo['applications'] ?? [],
           );
+          summary = getLoanStats(
+            List<Map<String, dynamic>>.from(responseInfo['applications'] ?? []),
+          );
         });
       }
     } finally {
@@ -65,6 +74,36 @@ class _LoanApplicationsState extends State<LoanApplications> {
     );
   }
 
+  ({int active, int inReview, int cancelled, int total}) getLoanStats(
+    List<Map<String, dynamic>> applications,
+  ) {
+    int active = 0;
+    int inReview = 0;
+    int cancelled = 0;
+
+    for (final app in applications) {
+      final status = (app['status_label'] ?? '')
+          .toString()
+          .toLowerCase()
+          .trim();
+
+      if (status == 'disbursed') {
+        active++;
+      } else if (status.contains('pending')) {
+        inReview++;
+      } else if (status.contains('cancel')) {
+        cancelled++;
+      }
+    }
+
+    return (
+      active: active,
+      inReview: inReview,
+      cancelled: cancelled,
+      total: applications.length,
+    );
+  }
+
   @override
   void initState() {
     super.initState();
@@ -74,7 +113,7 @@ class _LoanApplicationsState extends State<LoanApplications> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFF8FAFC),
+      backgroundColor: ThemeColors.background,
       drawer: Navigation(
         activePageRoute: AnansiRoutes.applications,
         onRouteSelected: (String targetNamedRoute) {
@@ -84,7 +123,11 @@ class _LoanApplicationsState extends State<LoanApplications> {
       body: CustomScrollView(
         slivers: [
           _buildAppBar(),
-          SliverToBoxAdapter(child: _buildApplicationSummary()),
+          SliverToBoxAdapter(
+            child: _loading
+                ? _buildApplicationSummarySkeleton()
+                : _buildApplicationSummary(),
+          ),
           SliverToBoxAdapter(child: _buildApplyLoanAction(context)),
           SliverToBoxAdapter(child: _buildSectionHeader("Application History")),
           _loading
@@ -164,7 +207,7 @@ class _LoanApplicationsState extends State<LoanApplications> {
               Container(
                 padding: const EdgeInsets.all(20),
                 decoration: BoxDecoration(
-                  color: const Color(0xFFF8FAFC),
+                  color: ThemeColors.background,
                   shape: BoxShape.circle,
                   border: Border.all(
                     color: const Color(0xFFF1F5F9),
@@ -207,7 +250,7 @@ class _LoanApplicationsState extends State<LoanApplications> {
     return SliverAppBar(
       pinned: true,
       floating: true,
-      backgroundColor: const Color(0xFFF8FAFC).withValues(alpha: 0.9),
+      backgroundColor: ThemeColors.background.withValues(alpha: 0.9),
       elevation: 0,
       centerTitle: true,
       leadingWidth: 64,
@@ -367,12 +410,7 @@ class _LoanApplicationsState extends State<LoanApplications> {
     );
   }
 
-  Widget _buildApplicationSummary({
-    int total = 18,
-    int active = 12,
-    int inReview = 4,
-    int cancelled = 3,
-  }) {
+  Widget _buildApplicationSummary() {
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
       padding: const EdgeInsets.fromLTRB(16, 16, 16, 14),
@@ -418,7 +456,7 @@ class _LoanApplicationsState extends State<LoanApplications> {
                   borderRadius: BorderRadius.circular(20),
                 ),
                 child: Text(
-                  "$total Total",
+                  "${summary.total} Total",
                   style: const TextStyle(
                     color: Color(0xFF64748B), // Slate 500
                     fontSize: 12,
@@ -435,16 +473,16 @@ class _LoanApplicationsState extends State<LoanApplications> {
               Expanded(
                 child: _statTile(
                   label: "Total Applications",
-                  value: "$total",
+                  value: "${summary.total}",
                   icon: CupertinoIcons.doc_text_fill,
-                  accentColor: const Color(0xFF2563EB), // Sapphire Blue
+                  accentColor: AnansiColors.primary, // Sapphire Blue
                 ),
               ),
               const SizedBox(width: 8),
               Expanded(
                 child: _statTile(
                   label: "Active",
-                  value: "$active",
+                  value: "${summary.active}",
                   icon: CupertinoIcons.checkmark_circle_fill,
                   accentColor: const Color(0xFF059669), // Emerald Green
                 ),
@@ -457,7 +495,7 @@ class _LoanApplicationsState extends State<LoanApplications> {
               Expanded(
                 child: _statTile(
                   label: "In Review",
-                  value: "$inReview",
+                  value: "${summary.inReview}",
                   icon: CupertinoIcons.clock_fill,
                   accentColor: const Color(0xFFD97706), // Amber
                 ),
@@ -466,7 +504,7 @@ class _LoanApplicationsState extends State<LoanApplications> {
               Expanded(
                 child: _statTile(
                   label: "Cancelled",
-                  value: "$cancelled",
+                  value: "${summary.cancelled}",
                   icon: CupertinoIcons.xmark_circle_fill,
                   accentColor: const Color(0xFFDC2626), // Crimson Red
                 ),
@@ -487,7 +525,7 @@ class _LoanApplicationsState extends State<LoanApplications> {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
       decoration: BoxDecoration(
-        color: const Color(0xFFF8FAFC), // Slate 50 light fill
+        color: ThemeColors.background, // Slate 50 light fill
         borderRadius: BorderRadius.circular(14),
         border: Border.all(
           color: const Color(0xFFE2E8F0), // Slate 200
@@ -560,7 +598,7 @@ class _LoanApplicationsState extends State<LoanApplications> {
                 width: 24,
                 height: 3,
                 decoration: BoxDecoration(
-                  color: const Color(0xFF17C6C6),
+                  color: AnansiColors.accentCyan,
                   borderRadius: BorderRadius.circular(2),
                 ),
               ),
@@ -841,6 +879,137 @@ Widget _buildApplicationSkeletonItem() {
           ],
         ),
       ],
+    ),
+  );
+}
+
+Widget _buildApplicationSummarySkeleton() {
+  const baseColor = Color(0xFFE2E8F0); // Slate 200
+  const highlightColor = Color(0xFFF8FAFC); // Slate 50
+
+  return Container(
+    margin: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+    padding: const EdgeInsets.fromLTRB(16, 16, 16, 14),
+    decoration: BoxDecoration(
+      color: Colors.white,
+      borderRadius: BorderRadius.circular(24),
+      border: Border.all(color: const Color(0xFFE2E8F0), width: 1),
+      boxShadow: [
+        BoxShadow(
+          color: Colors.black.withValues(alpha: 0.05),
+          blurRadius: 16,
+          offset: const Offset(0, 6),
+        ),
+      ],
+    ),
+    child: Column(
+      mainAxisSize: MainAxisSize.min,
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        // --- Header Row Skeleton ---
+        Shimmer.fromColors(
+          baseColor: baseColor,
+          highlightColor: highlightColor,
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              // Title placeholder
+              Container(
+                width: 100,
+                height: 16,
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(6),
+                ),
+              ),
+              // Pill badge placeholder
+              Container(
+                width: 65,
+                height: 22,
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(20),
+                ),
+              ),
+            ],
+          ),
+        ),
+
+        const SizedBox(height: 12),
+
+        // --- Row 1 ---
+        Row(
+          children: [
+            Expanded(child: _statTileSkeleton(baseColor, highlightColor)),
+            const SizedBox(width: 8),
+            Expanded(child: _statTileSkeleton(baseColor, highlightColor)),
+          ],
+        ),
+
+        const SizedBox(height: 8),
+
+        // --- Row 2 ---
+        Row(
+          children: [
+            Expanded(child: _statTileSkeleton(baseColor, highlightColor)),
+            const SizedBox(width: 8),
+            Expanded(child: _statTileSkeleton(baseColor, highlightColor)),
+          ],
+        ),
+      ],
+    ),
+  );
+}
+
+Widget _statTileSkeleton(Color baseColor, Color highlightColor) {
+  return Container(
+    padding: const EdgeInsets.all(12),
+    decoration: BoxDecoration(
+      color: const Color(0xFFF8FAFC), // Preserves Slate 50 tile background
+      borderRadius: BorderRadius.circular(16),
+      border: Border.all(color: const Color(0xFFF1F5F9)),
+    ),
+    child: Shimmer.fromColors(
+      baseColor: baseColor,
+      highlightColor: highlightColor,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              // Icon circle placeholder
+              Container(
+                width: 26,
+                height: 26,
+                decoration: const BoxDecoration(
+                  color: Colors.white,
+                  shape: BoxShape.circle,
+                ),
+              ),
+              // Value number placeholder
+              Container(
+                width: 28,
+                height: 18,
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(4),
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 10),
+          // Label placeholder
+          Container(
+            width: 76,
+            height: 10,
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(4),
+            ),
+          ),
+        ],
+      ),
     ),
   );
 }

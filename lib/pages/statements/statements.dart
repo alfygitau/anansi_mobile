@@ -86,7 +86,7 @@ class _StatementsState extends State<Statements> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFF8FAFC),
+      backgroundColor: ThemeColors.background,
       drawer: Navigation(
         activePageRoute: AnansiRoutes.statements,
         onRouteSelected: (String targetNamedRoute) {
@@ -339,7 +339,7 @@ class _StatementsState extends State<Statements> {
                   child: Icon(
                     isLoan ? CupertinoIcons.shield : CupertinoIcons.creditcard,
                     color: isLoan
-                        ? const Color(0xFF2563EB)
+                        ? AnansiColors.primary
                         : const Color(0xFF16A34A),
                     size: 22,
                   ),
@@ -388,7 +388,7 @@ class _StatementsState extends State<Statements> {
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
             decoration: const BoxDecoration(
-              color: Color(0xFFF8FAFC),
+              color: ThemeColors.background,
               borderRadius: BorderRadius.only(
                 bottomLeft: Radius.circular(23),
                 bottomRight: Radius.circular(23),
@@ -521,7 +521,7 @@ class _StatementsState extends State<Statements> {
   Widget _buildAppBar() {
     return SliverAppBar(
       pinned: true,
-      backgroundColor: const Color(0xFFF8FAFC).withValues(alpha: 0.9),
+      backgroundColor: ThemeColors.background.withValues(alpha: 0.9),
       elevation: 0,
       centerTitle: true,
       leadingWidth: 64,
@@ -613,7 +613,7 @@ class _StatementsState extends State<Statements> {
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
             decoration: const BoxDecoration(
-              color: Color(0xFFF8FAFC),
+              color: ThemeColors.background,
               borderRadius: BorderRadius.only(
                 bottomLeft: Radius.circular(23),
                 bottomRight: Radius.circular(23),
@@ -708,7 +708,7 @@ class _StatementsState extends State<Statements> {
               width: 80,
               height: 80,
               decoration: const BoxDecoration(
-                color: Color(0xFFF8FAFC),
+                color: ThemeColors.background,
                 shape: BoxShape.circle,
               ),
               child: const Center(
@@ -759,7 +759,7 @@ class _StatementsState extends State<Statements> {
                 ),
               ),
               style: TextButton.styleFrom(
-                foregroundColor: const Color(0xFF2563EB),
+                foregroundColor: AnansiColors.primary,
                 backgroundColor: const Color(0xFFEFF6FF),
                 padding: const EdgeInsets.symmetric(
                   horizontal: 20,
@@ -1121,7 +1121,7 @@ class _StatementsState extends State<Statements> {
           width: 44,
           height: 44,
           decoration: BoxDecoration(
-            color: const Color(0xFFF8FAFC),
+            color: ThemeColors.background,
             borderRadius: BorderRadius.circular(16),
           ),
           child: Icon(

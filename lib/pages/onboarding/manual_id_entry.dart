@@ -129,7 +129,7 @@ class _IdManualFillState extends State<IdManualFill> {
                   child: Text(
                     "A",
                     style: TextStyle(
-                      color: Color(0xFF17C6C6),
+                      color: AnansiColors.accentCyan,
                       fontSize: 20,
                       fontWeight: FontWeight.w900,
                     ),
@@ -205,7 +205,7 @@ class _IdManualFillState extends State<IdManualFill> {
         child: Text(
           title.toUpperCase(),
           style: const TextStyle(
-            color: Color(0xFF17C6C6),
+            color: AnansiColors.accentCyan,
             fontWeight: FontWeight.w800,
             fontSize: 11,
             letterSpacing: 1.2,
@@ -242,10 +242,10 @@ class _IdManualFillState extends State<IdManualFill> {
           Container(
             padding: const EdgeInsets.all(10),
             decoration: BoxDecoration(
-              color: const Color(0xFF17C6C6).withValues(alpha: 0.08),
+              color: AnansiColors.accentCyan.withValues(alpha: 0.08),
               borderRadius: BorderRadius.circular(12),
             ),
-            child: Icon(icon, size: 18, color: const Color(0xFF17C6C6)),
+            child: Icon(icon, size: 18, color: AnansiColors.accentCyan),
           ),
           const SizedBox(width: 16),
           Expanded(
@@ -362,10 +362,10 @@ class _IdManualFillState extends State<IdManualFill> {
         Container(
           padding: const EdgeInsets.all(10),
           decoration: BoxDecoration(
-            color: const Color(0xFF17C6C6).withValues(alpha: 0.08),
+            color: AnansiColors.accentCyan.withValues(alpha: 0.08),
             borderRadius: BorderRadius.circular(10),
           ),
-          child: Icon(icon, size: 18, color: const Color(0xFF17C6C6)),
+          child: Icon(icon, size: 18, color: AnansiColors.accentCyan),
         ),
         const SizedBox(width: 16),
         Expanded(
@@ -456,7 +456,7 @@ class _IdManualFillState extends State<IdManualFill> {
             width: 24,
             child: Checkbox(
               value: dontKnowDob,
-              activeColor: const Color(0xFF17C6C6),
+              activeColor: AnansiColors.accentCyan,
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(4),
               ),
@@ -534,10 +534,10 @@ class _IdManualFillState extends State<IdManualFill> {
   Widget _buildIconBadge(IconData icon) => Container(
     padding: const EdgeInsets.all(10),
     decoration: BoxDecoration(
-      color: const Color(0xFF17C6C6).withValues(alpha: 0.08),
+      color: AnansiColors.accentCyan.withValues(alpha: 0.08),
       borderRadius: BorderRadius.circular(12),
     ),
-    child: Icon(icon, size: 18, color: const Color(0xFF17C6C6)),
+    child: Icon(icon, size: 18, color: AnansiColors.accentCyan),
   );
 
   TextStyle _labelStyle() => const TextStyle(

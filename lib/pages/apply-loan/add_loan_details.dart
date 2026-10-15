@@ -160,7 +160,7 @@ class _AddLoanDetailsState extends State<AddLoanDetails> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFF8FAFC),
+      backgroundColor: ThemeColors.background,
       body: CustomScrollView(
         physics: const BouncingScrollPhysics(),
         slivers: [
@@ -213,7 +213,7 @@ class _AddLoanDetailsState extends State<AddLoanDetails> {
     return SliverAppBar(
       pinned: true,
       floating: true,
-      backgroundColor: const Color(0xFFF8FAFC).withValues(alpha: 0.9),
+      backgroundColor: ThemeColors.background.withValues(alpha: 0.9),
       elevation: 0,
       centerTitle: true,
       leadingWidth: 64,
@@ -383,7 +383,7 @@ class _AddLoanDetailsState extends State<AddLoanDetails> {
                 decoration: BoxDecoration(
                   color: isFocused
                       ? AnansiColors.darkBlue
-                      : const Color(0xFFF8FAFC),
+                      : ThemeColors.background,
                   borderRadius: BorderRadius.circular(16),
                 ),
                 child: Icon(
@@ -488,7 +488,7 @@ class _AddLoanDetailsState extends State<AddLoanDetails> {
               children: [
                 _buildCircularIcon(
                   CupertinoIcons.shield_lefthalf_fill,
-                  const Color(0xFF0A2351),
+                  ThemeColors.primary,
                 ),
                 const SizedBox(width: 16),
                 Column(
@@ -497,7 +497,7 @@ class _AddLoanDetailsState extends State<AddLoanDetails> {
                     Text(
                       "LOAN PRODUCT",
                       style: TextStyle(
-                        color: Color(0xFF17C6C6),
+                        color: AnansiColors.accentCyan,
                         fontSize: 9,
                         fontWeight: FontWeight.w900,
                         letterSpacing: 1.2,
@@ -506,7 +506,7 @@ class _AddLoanDetailsState extends State<AddLoanDetails> {
                     Text(
                       loanProduct['product_name'] ?? "Unknown",
                       style: TextStyle(
-                        color: Color(0xFF0A2351),
+                        color: ThemeColors.primary,
                         fontSize: 17,
                         fontWeight: FontWeight.w900,
                       ),
@@ -520,7 +520,7 @@ class _AddLoanDetailsState extends State<AddLoanDetails> {
             margin: EdgeInsets.symmetric(horizontal: 20),
             padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 24),
             decoration: BoxDecoration(
-              color: Color(0xFFF8FAFC),
+              color: ThemeColors.background,
               borderRadius: BorderRadius.circular(20),
               border: Border.symmetric(
                 horizontal: BorderSide(color: Color(0xFFF1F4F8)),
@@ -754,7 +754,7 @@ class _AddLoanDetailsState extends State<AddLoanDetails> {
             Text(
               value,
               style: const TextStyle(
-                color: Color(0xFF0A2351),
+                color: ThemeColors.primary,
                 fontSize: 18,
                 fontWeight: FontWeight.w900,
               ),
@@ -802,7 +802,7 @@ class _AddLoanDetailsState extends State<AddLoanDetails> {
               "${safeValue.toInt()} Months",
               style: const TextStyle(
                 fontWeight: FontWeight.w900,
-                color: Color(0xFF0A2351),
+                color: ThemeColors.primary,
               ),
             ),
             Text(
@@ -820,10 +820,10 @@ class _AddLoanDetailsState extends State<AddLoanDetails> {
         SliderTheme(
           data: SliderThemeData(
             overlayShape: const RoundSliderOverlayShape(overlayRadius: 0.0),
-            activeTrackColor: const Color(0xFF0A2351),
+            activeTrackColor: ThemeColors.primary,
             inactiveTrackColor: const Color(0xFFF1F4F8),
-            thumbColor: const Color(0xFF17C6C6),
-            overlayColor: const Color(0xFF17C6C6).withValues(alpha: 0.2),
+            thumbColor: AnansiColors.accentCyan,
+            overlayColor: AnansiColors.accentCyan.withValues(alpha: 0.2),
           ),
           child: Slider(
             value: safeValue,
@@ -852,7 +852,7 @@ class _AddLoanDetailsState extends State<AddLoanDetails> {
               margin: const EdgeInsets.only(right: 8),
               padding: const EdgeInsets.symmetric(vertical: 16),
               decoration: BoxDecoration(
-                color: isSelected ? const Color(0xFF17C6C6) : Colors.white,
+                color: isSelected ? AnansiColors.accentCyan : Colors.white,
                 borderRadius: BorderRadius.circular(16),
                 border: Border.all(
                   color: isSelected
@@ -864,7 +864,7 @@ class _AddLoanDetailsState extends State<AddLoanDetails> {
                 child: Text(
                   opt,
                   style: TextStyle(
-                    color: isSelected ? Colors.white : const Color(0xFF0A2351),
+                    color: isSelected ? Colors.white : ThemeColors.primary,
                     fontWeight: FontWeight.w900,
                     fontSize: 12,
                   ),
@@ -974,7 +974,7 @@ class _AddLoanDetailsState extends State<AddLoanDetails> {
                 onCreateApplication(destinationBuilder);
               },
         style: ElevatedButton.styleFrom(
-          backgroundColor: const Color(0xFF0A2351),
+          backgroundColor: ThemeColors.primary,
           disabledBackgroundColor: const Color(
             0xFF0A2351,
           ).withValues(alpha: 0.7),

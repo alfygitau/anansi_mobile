@@ -158,7 +158,7 @@ class _IntroduceSelfieState extends State<IntroduceSelfie> {
             height: 130,
             decoration: BoxDecoration(
               shape: BoxShape.circle,
-              color: const Color(0xFF17C6C6).withValues(alpha: 0.03),
+              color: AnansiColors.accentCyan.withValues(alpha: 0.03),
             ),
           ),
           Container(
@@ -166,9 +166,9 @@ class _IntroduceSelfieState extends State<IntroduceSelfie> {
             height: 110,
             decoration: BoxDecoration(
               shape: BoxShape.circle,
-              color: const Color(0xFF17C6C6).withValues(alpha: 0.05),
+              color: AnansiColors.accentCyan.withValues(alpha: 0.05),
               border: Border.all(
-                color: const Color(0xFF17C6C6).withValues(alpha: 0.1),
+                color: AnansiColors.accentCyan.withValues(alpha: 0.1),
                 width: 1,
               ),
             ),
@@ -181,7 +181,7 @@ class _IntroduceSelfieState extends State<IntroduceSelfie> {
               color: Colors.white,
               boxShadow: [
                 BoxShadow(
-                  color: const Color(0xFF17C6C6).withValues(alpha: 0.2),
+                  color: AnansiColors.accentCyan.withValues(alpha: 0.2),
                   blurRadius: 20,
                   spreadRadius: 2,
                 ),
@@ -206,7 +206,7 @@ class _IntroduceSelfieState extends State<IntroduceSelfie> {
               ),
               child: const Icon(
                 CupertinoIcons.viewfinder,
-                color: Color(0xFF17C6C6),
+                color: AnansiColors.accentCyan,
                 size: 20,
               ),
             ),

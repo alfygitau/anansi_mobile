@@ -7,7 +7,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:google_fonts/google_fonts.dart';
 
-
 class InvestAmount extends StatefulWidget {
   const InvestAmount({super.key});
 
@@ -126,12 +125,11 @@ class InvestAmountState extends State<InvestAmount> {
     return userMap;
   }
 
-  void _prefillUserData() async{
+  void _prefillUserData() async {
     final user = await getUser();
     if (user != null && user['mobileno'] != null) {
       setState(() {
-        _mobileController.text =
-            user['mobileno'] ?? "".toString();
+        _mobileController.text = user['mobileno'] ?? "".toString();
         _validateField('phone');
       });
     }
@@ -154,13 +152,16 @@ class InvestAmountState extends State<InvestAmount> {
     _amountController.dispose();
     _mobileController.dispose();
     _sharesController.dispose();
+    _amountFocus.dispose();
+    _phoneFocus.dispose();
+    _sharesFocus.dispose();
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFF8FAFC),
+      backgroundColor: ThemeColors.background,
       body: CustomScrollView(
         slivers: [
           buildAppBar(context),
@@ -272,7 +273,7 @@ class InvestAmountState extends State<InvestAmount> {
     return SliverAppBar(
       pinned: true,
       floating: true,
-      backgroundColor: const Color(0xFFF8FAFC).withValues(alpha: 0.9),
+      backgroundColor: ThemeColors.background.withValues(alpha: 0.9),
       elevation: 0,
       centerTitle: true,
       leadingWidth: 64,
@@ -475,7 +476,7 @@ class InvestAmountState extends State<InvestAmount> {
                 decoration: BoxDecoration(
                   color: isFocused
                       ? AnansiColors.darkBlue
-                      : const Color(0xFFF8FAFC),
+                      : ThemeColors.background,
                   borderRadius: BorderRadius.circular(16),
                 ),
                 child: Icon(
@@ -553,10 +554,10 @@ class InvestAmountState extends State<InvestAmount> {
       margin: const EdgeInsets.only(top: 12),
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: const Color(0xFF17C6C6).withValues(alpha: 0.05),
+        color: AnansiColors.accentCyan.withValues(alpha: 0.05),
         borderRadius: BorderRadius.circular(20),
         border: Border.all(
-          color: const Color(0xFF17C6C6).withValues(alpha: 0.1),
+          color: AnansiColors.accentCyan.withValues(alpha: 0.1),
         ),
       ),
       child: Row(
@@ -575,7 +576,7 @@ class InvestAmountState extends State<InvestAmount> {
             style: GoogleFonts.robotoMono(
               fontWeight: FontWeight.w900,
               fontSize: 14,
-              color: const Color(0xFF17C6C6),
+              color: AnansiColors.accentCyan,
             ),
           ),
         ],
@@ -632,7 +633,11 @@ class InvestAmountState extends State<InvestAmount> {
       child: const Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Icon(CupertinoIcons.shield_fill, color: Color(0xFF17C6C6), size: 18),
+          Icon(
+            CupertinoIcons.shield_fill,
+            color: AnansiColors.accentCyan,
+            size: 18,
+          ),
           SizedBox(width: 12),
           Expanded(
             child: Text(

@@ -1,9 +1,11 @@
 import 'dart:convert';
 import 'dart:math';
+import 'package:app_anansi_mobile/helpers/format_amount.dart';
 import 'package:app_anansi_mobile/pages/membership/await_stk_membership.dart';
 import 'package:app_anansi_mobile/services/error_service.dart';
 import 'package:app_anansi_mobile/services/membership_service.dart';
 import 'package:app_anansi_mobile/services/secure_storage_service.dart';
+import 'package:app_anansi_mobile/theme/app_theme.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/services.dart';
@@ -12,7 +14,6 @@ class ReviewMembership extends StatefulWidget {
   final double savingsAmount;
   final double sharesAmount;
   final String phoneNumber;
-  final double registrationFee = 1000.0;
 
   const ReviewMembership({
     super.key,
@@ -28,6 +29,9 @@ class ReviewMembership extends StatefulWidget {
 class _ReviewMembershipState extends State<ReviewMembership> {
   final double sharePrice = 1000.0;
   bool _isLoading = false;
+  bool isLoading = false;
+  Map<String, dynamic> settings = {};
+  String registrationFee = "0";
 
   String generateAlphaNumericId([int length = 8]) {
     const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
@@ -44,6 +48,29 @@ class _ReviewMembershipState extends State<ReviewMembership> {
     if (userJson == null) return null;
     Map<String, dynamic> userMap = jsonDecode(userJson);
     return userMap;
+  }
+
+  void _membershipFees() async {
+    try {
+      setState(() {
+        isLoading = true;
+      });
+      final (response, error) = await MembershipService().membershipFees();
+      if (error != null) {
+        ErrorService.showActionableError(
+          context,
+          title: error[0],
+          message: error[1],
+        );
+      } else if (response != null) {
+        setState(() {
+          settings = response.data['data'] ?? {};
+          registrationFee = response.data['data']['membership_fee'] ?? "0";
+        });
+      }
+    } finally {
+      if (mounted) setState(() => isLoading = false);
+    }
   }
 
   void _payMembership() async {
@@ -81,14 +108,19 @@ class _ReviewMembershipState extends State<ReviewMembership> {
   }
 
   @override
+  void initState() {
+    _membershipFees();
+    super.initState();
+  }
+
+  @override
   Widget build(BuildContext context) {
-    // Calculation includes the mandatory registration fee
     final double subtotal = widget.savingsAmount + widget.sharesAmount;
-    final double totalPayable = subtotal + widget.registrationFee;
+    final double totalPayable = subtotal + double.parse(registrationFee);
     final double sharesCount = widget.sharesAmount / sharePrice;
 
     return Scaffold(
-      backgroundColor: const Color(0xFFF8FAFC),
+      backgroundColor: ThemeColors.background,
       body: SafeArea(
         child: CustomScrollView(
           physics: const BouncingScrollPhysics(),
@@ -113,7 +145,7 @@ class _ReviewMembershipState extends State<ReviewMembership> {
                       message:
                           "A secure prompt will appear on your Safaricom device. Enter your M-PESA PIN to finalize.",
                       icon: CupertinoIcons.shield_lefthalf_fill,
-                      color: const Color(0xFF17C6C6),
+                      color: AnansiColors.accentCyan,
                     ),
                     const SizedBox(height: 12),
                     _buildInfoTile(
@@ -121,7 +153,7 @@ class _ReviewMembershipState extends State<ReviewMembership> {
                       message:
                           "Your registration fee is a one-time capital contribution. This transaction is non-reversible.",
                       icon: CupertinoIcons.lock_shield_fill,
-                      color: const Color(0xFF0A2351),
+                      color: ThemeColors.primary,
                     ),
                   ],
                 ),
@@ -161,15 +193,15 @@ class _ReviewMembershipState extends State<ReviewMembership> {
             _buildDivider(),
             _buildAttributeRow(
               "Registration Fee",
-              "KES ${widget.registrationFee.toStringAsFixed(2)}",
+              formatAmount(registrationFee),
             ),
             _buildAttributeRow(
               "Savings Deposit",
-              "KES ${widget.savingsAmount.toStringAsFixed(2)}",
+              formatAmount(widget.savingsAmount),
             ),
             _buildAttributeRow(
               "Shares Capital",
-              "KES ${widget.sharesAmount.toStringAsFixed(2)}",
+              formatAmount(widget.sharesAmount),
             ),
             _buildAttributeRow(
               "Units Allocated",
@@ -193,7 +225,7 @@ class _ReviewMembershipState extends State<ReviewMembership> {
                   style: TextStyle(
                     fontSize: 14,
                     fontWeight: FontWeight.w900,
-                    color: Color(0xFF0A2351),
+                    color: ThemeColors.primary,
                   ),
                 ),
                 Text(
@@ -201,7 +233,7 @@ class _ReviewMembershipState extends State<ReviewMembership> {
                   style: const TextStyle(
                     fontSize: 18,
                     fontWeight: FontWeight.w900,
-                    color: Color(0xFF17C6C6),
+                    color: AnansiColors.accentCyan,
                   ),
                 ),
               ],
@@ -215,7 +247,7 @@ class _ReviewMembershipState extends State<ReviewMembership> {
   Widget _buildAppBar(BuildContext context) {
     return SliverAppBar(
       pinned: true,
-      backgroundColor: const Color(0xFFF8FAFC).withValues(alpha: 0.95),
+      backgroundColor: ThemeColors.background.withValues(alpha: 0.95),
       elevation: 0,
       centerTitle: true,
       leadingWidth: 64,
@@ -225,7 +257,7 @@ class _ReviewMembershipState extends State<ReviewMembership> {
           const Text(
             "Review Membership",
             style: TextStyle(
-              color: Color(0xFF0A2351),
+              color: ThemeColors.primary,
               fontWeight: FontWeight.w900,
               fontSize: 15,
             ),
@@ -268,7 +300,7 @@ class _ReviewMembershipState extends State<ReviewMembership> {
       ),
       child: IconButton(
         padding: EdgeInsets.zero,
-        icon: Icon(icon, size: 18, color: const Color(0xFF0A2351)),
+        icon: Icon(icon, size: 18, color: ThemeColors.primary),
         onPressed: onTap,
       ),
     );
@@ -283,7 +315,7 @@ class _ReviewMembershipState extends State<ReviewMembership> {
           style: TextStyle(
             fontSize: 24,
             fontWeight: FontWeight.w900,
-            color: Color(0xFF0A2351),
+            color: ThemeColors.primary,
           ),
         ),
         Text(
@@ -378,7 +410,7 @@ class _ReviewMembershipState extends State<ReviewMembership> {
           Text(
             value,
             style: TextStyle(
-              color: const Color(0xFF0A2351),
+              color: ThemeColors.primary,
               fontSize: 13,
               fontWeight: isBold ? FontWeight.w900 : FontWeight.w700,
             ),
@@ -413,7 +445,7 @@ class _ReviewMembershipState extends State<ReviewMembership> {
       child: ElevatedButton(
         onPressed: _isLoading ? () {} : _payMembership,
         style: ElevatedButton.styleFrom(
-          backgroundColor: const Color(0xFF0A2351),
+          backgroundColor: ThemeColors.primary,
           minimumSize: const Size(double.infinity, 60),
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(20),

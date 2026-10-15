@@ -182,7 +182,7 @@ class _ChangePhoneNumberState extends State<ChangePhoneNumber> {
             boxShadow: [
               BoxShadow(
                 color: isFocused
-                    ? const Color(0xFF17C6C6).withValues(alpha: 0.08)
+                    ? AnansiColors.accentCyan.withValues(alpha: 0.08)
                     : Colors.black.withValues(alpha: 0.02),
                 blurRadius: 12,
                 offset: const Offset(0, 4),
@@ -304,7 +304,7 @@ class _ChangePhoneNumberState extends State<ChangePhoneNumber> {
     return Container(
       padding: const EdgeInsets.all(28),
       decoration: BoxDecoration(
-        color: const Color(0xFFF8FAFC),
+        color: ThemeColors.background,
         borderRadius: BorderRadius.circular(32),
         border: Border.all(color: const Color(0xFFF1F5F9)),
       ),
@@ -315,7 +315,7 @@ class _ChangePhoneNumberState extends State<ChangePhoneNumber> {
             children: [
               const Icon(
                 CupertinoIcons.device_phone_portrait,
-                color: Color(0xFF17C6C6),
+                color: AnansiColors.accentCyan,
                 size: 20,
               ),
               const SizedBox(width: 12),

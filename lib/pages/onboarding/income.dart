@@ -1,5 +1,5 @@
 import 'dart:convert';
-import 'package:app_anansi_mobile/pages/onboarding/next_of_kin.dart';
+import 'package:app_anansi_mobile/pages/onboarding/verify_pin.dart';
 import 'package:app_anansi_mobile/services/error_service.dart';
 import 'package:app_anansi_mobile/services/onboarding_service.dart';
 import 'package:app_anansi_mobile/services/secure_storage_service.dart';
@@ -17,7 +17,6 @@ class IncomeInformation extends StatefulWidget {
 
 class _IncomeInformationState extends State<IncomeInformation> {
   String? employmentType;
-  final TextEditingController _kraController = TextEditingController();
   final TextEditingController _occupationController = TextEditingController();
   final TextEditingController _incomeController = TextEditingController();
   bool _isLoading = false;
@@ -34,12 +33,6 @@ class _IncomeInformationState extends State<IncomeInformation> {
   void initState() {
     super.initState();
 
-    _kraFocus.addListener(() {
-      if (!_kraFocus.hasFocus) {
-        _validateField('kra', _kraController.text);
-      }
-    });
-
     _jobTitleFocus.addListener(() {
       if (!_jobTitleFocus.hasFocus) {
         _validateField('occupation', _occupationController.text);
@@ -54,7 +47,6 @@ class _IncomeInformationState extends State<IncomeInformation> {
   }
 
   void validateInputs() {
-    _validateField('kra', _kraController.text);
     _validateField('jobTitle', _occupationController.text);
     _validateField('income', _incomeController.text);
   }
@@ -112,7 +104,6 @@ class _IncomeInformationState extends State<IncomeInformation> {
         id: user?['id'] ?? "",
         countryOfResidence: "Kenya",
         employmentType: employmentType ?? "",
-        kra: _kraController.text.trim(),
         jobTitle: _occupationController.text.trim(),
         income: _incomeController.text.trim(),
       );
@@ -126,7 +117,7 @@ class _IncomeInformationState extends State<IncomeInformation> {
         HapticFeedback.lightImpact();
         Navigator.push(
           context,
-          MaterialPageRoute(builder: (context) => const NextOfKin()),
+          MaterialPageRoute(builder: (context) => const VerifyPin()),
         );
       }
     } finally {
@@ -149,7 +140,6 @@ class _IncomeInformationState extends State<IncomeInformation> {
     _kraFocus.dispose();
     _jobTitleFocus.dispose();
     _incomeFocus.dispose();
-    _kraController.dispose();
     _occupationController.dispose();
     _incomeController.dispose();
     super.dispose();
@@ -233,18 +223,7 @@ class _IncomeInformationState extends State<IncomeInformation> {
                       keyboardType: TextInputType.number,
                     ),
                     const SizedBox(height: 16),
-                    _buildInputField(
-                      label: "KRA PIN (Optional)",
-                      controller: _kraController,
-                      hint: "e.g. A012345678X",
-                      icon: CupertinoIcons.doc_text_search,
-                      focusNode: _kraFocus,
-                      fieldKey: "kraPin",
-                      keyboardType: TextInputType.text,
-                    ),
-
-                    // Buffer space so fields clear the bottom dock on scroll
-                    const SizedBox(height: 140),
+                    const SizedBox(height: 100),
                   ],
                 ),
               ),
@@ -366,7 +345,7 @@ class _IncomeInformationState extends State<IncomeInformation> {
                 decoration: BoxDecoration(
                   color: isFocused
                       ? AnansiColors.darkBlue
-                      : const Color(0xFFF8FAFC),
+                      : ThemeColors.background,
                   borderRadius: BorderRadius.circular(16),
                 ),
                 child: Icon(
@@ -527,7 +506,7 @@ class _IncomeInformationState extends State<IncomeInformation> {
           width: 44,
           height: 44,
           decoration: BoxDecoration(
-            color: const Color(0xFFF8FAFC),
+            color: ThemeColors.background,
             borderRadius: BorderRadius.circular(16),
           ),
           child: Icon(

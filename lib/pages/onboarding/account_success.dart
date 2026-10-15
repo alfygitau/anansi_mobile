@@ -111,7 +111,7 @@ class _AccountSuccessState extends State<AccountSuccess> {
                 TextSpan(
                   text: "Alfy",
                   style: TextStyle(
-                    color: Color(0xFF17C6C6),
+                    color: AnansiColors.accentCyan,
                     fontWeight: FontWeight.w800,
                   ),
                 ),
@@ -198,14 +198,14 @@ class _AccountSuccessState extends State<AccountSuccess> {
             width: 44,
             decoration: BoxDecoration(
               color: isPrimary
-                  ? const Color(0xFF17C6C6).withValues(alpha: 0.1)
+                  ?  AnansiColors.accentCyan.withValues(alpha: 0.1)
                   : Colors.grey.shade50,
               borderRadius: BorderRadius.circular(14),
             ),
             child: Icon(
               icon,
               color: isPrimary
-                  ? const Color(0xFF17C6C6)
+                  ?  AnansiColors.accentCyan
                   : AnansiColors.darkBlue.withValues(alpha: 0.4),
               size: 22,
             ),

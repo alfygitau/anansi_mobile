@@ -57,7 +57,7 @@ class _LoanProductState extends State<LoanProduct> {
   Widget build(BuildContext context) {
     if (_isLoading && loanProduct.isEmpty) {
       return const Scaffold(
-        backgroundColor: Color(0xFFF8FAFC),
+        backgroundColor: ThemeColors.background,
         body: Center(
           child: CircularProgressIndicator.adaptive(strokeWidth: 2.5),
         ),
@@ -89,7 +89,7 @@ class _LoanProductState extends State<LoanProduct> {
         0.0;
 
     return Scaffold(
-      backgroundColor: const Color(0xFFF8FAFC),
+      backgroundColor: ThemeColors.background,
       bottomNavigationBar: _buildBottomActionButton(),
       body: RefreshIndicator(
         onRefresh: getLoanProduct,
@@ -378,7 +378,7 @@ class _LoanProductState extends State<LoanProduct> {
     return SliverAppBar(
       pinned: true,
       floating: true,
-      backgroundColor: const Color(0xFFF8FAFC).withValues(alpha: 0.9),
+      backgroundColor: ThemeColors.background.withValues(alpha: 0.9),
       elevation: 0,
       scrolledUnderElevation: 0,
       centerTitle: true,

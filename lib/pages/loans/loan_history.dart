@@ -51,7 +51,7 @@ class _LoanHistoryState extends State<LoanHistory> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFF8FAFC),
+      backgroundColor: ThemeColors.background,
       body: CustomScrollView(
         physics: const BouncingScrollPhysics(),
         slivers: [
@@ -137,7 +137,7 @@ class _LoanHistoryState extends State<LoanHistory> {
   Widget _buildAppBar() {
     return SliverAppBar(
       pinned: true,
-      backgroundColor: const Color(0xFFF8FAFC).withValues(alpha: 0.95),
+      backgroundColor: ThemeColors.background.withValues(alpha: 0.95),
       elevation: 0,
       centerTitle: true,
       title: Column(
@@ -421,7 +421,7 @@ class _LoanHistoryState extends State<LoanHistory> {
               Container(
                 padding: const EdgeInsets.all(20),
                 decoration: BoxDecoration(
-                  color: const Color(0xFFF8FAFC),
+                  color: ThemeColors.background,
                   shape: BoxShape.circle,
                   border: Border.all(
                     color: const Color(0xFFF1F5F9),

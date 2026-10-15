@@ -1,5 +1,6 @@
 import 'package:app_anansi_mobile/pages/membership/review_membership.dart';
 import 'package:app_anansi_mobile/pages/membership/shares_savings.dart';
+import 'package:app_anansi_mobile/theme/app_theme.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
@@ -56,7 +57,7 @@ class _RegisterInvestState extends State<RegisterInvest> {
                   style: TextStyle(
                     fontSize: 24,
                     fontWeight: FontWeight.w900,
-                    color: Color(0xFF0A2351),
+                    color: ThemeColors.primary,
                     height: 1.2,
                   ),
                 ),
@@ -93,7 +94,7 @@ class _RegisterInvestState extends State<RegisterInvest> {
           const Text(
             "Setup Membership",
             style: TextStyle(
-              color: Color(0xFF0A2351),
+              color: ThemeColors.primary,
               fontWeight: FontWeight.w900,
               fontSize: 15,
             ),
@@ -144,7 +145,7 @@ class _RegisterInvestState extends State<RegisterInvest> {
       ),
       child: IconButton(
         padding: EdgeInsets.zero,
-        icon: Icon(icon, size: 18, color: const Color(0xFF0A2351)),
+        icon: Icon(icon, size: 18, color: ThemeColors.primary),
         onPressed: onTap,
       ),
     );
@@ -159,7 +160,7 @@ class _RegisterInvestState extends State<RegisterInvest> {
         border: Border.all(color: Colors.white),
         boxShadow: [
           BoxShadow(
-            color: const Color(0xFF0A2351).withValues(alpha: 0.06),
+            color: ThemeColors.primary.withValues(alpha: 0.06),
             blurRadius: 30,
             offset: const Offset(0, 12),
           ),
@@ -173,7 +174,7 @@ class _RegisterInvestState extends State<RegisterInvest> {
             subtitle:
                 "Save up to KES 150 in M-PESA charges by processing shares and savings in a single push.",
             badgeText: "SAVINGS",
-            badgeColor: const Color(0xFF17C6C6),
+            badgeColor: AnansiColors.accentCyan,
           ),
           _buildCustomDivider(),
           _buildDetailedBenefitRow(
@@ -191,7 +192,7 @@ class _RegisterInvestState extends State<RegisterInvest> {
             subtitle:
                 "Increase your loan limit by 3x. Your savings act as security for future credit.",
             badgeText: "BOOST",
-            badgeColor: const Color(0xFF0A2351),
+            badgeColor: ThemeColors.primary,
           ),
         ],
       ),
@@ -231,7 +232,7 @@ class _RegisterInvestState extends State<RegisterInvest> {
                       title,
                       style: const TextStyle(
                         fontWeight: FontWeight.w900,
-                        color: Color(0xFF0A2351),
+                        color: ThemeColors.primary,
                         fontSize: 15,
                         letterSpacing: -0.3,
                       ),
@@ -304,7 +305,7 @@ class _RegisterInvestState extends State<RegisterInvest> {
             child: ElevatedButton(
               onPressed: () => _toBuyShares(context),
               style: ElevatedButton.styleFrom(
-                backgroundColor: const Color(0xFF0A2351),
+                backgroundColor: ThemeColors.primary,
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(16),
                 ),

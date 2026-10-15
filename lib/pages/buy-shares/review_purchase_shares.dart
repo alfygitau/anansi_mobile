@@ -137,7 +137,7 @@ class _ReviewPurchaseSharesState extends State<ReviewPurchaseShares> {
                     message:
                         "An STK push will be sent to ${widget.phone}. Enter your PIN to complete the purchase.",
                     icon: CupertinoIcons.device_phone_portrait,
-                    color: const Color(0xFF17C6C6),
+                    color: AnansiColors.accentCyan,
                   ),
                   const SizedBox(height: 40),
                   _buildConfirmButton(),
@@ -172,7 +172,7 @@ class _ReviewPurchaseSharesState extends State<ReviewPurchaseShares> {
             padding: const EdgeInsets.symmetric(vertical: 20),
             width: double.infinity,
             decoration: BoxDecoration(
-              color: const Color(0xFF17C6C6).withValues(alpha: 0.05),
+              color: AnansiColors.accentCyan.withValues(alpha: 0.05),
               borderRadius: const BorderRadius.vertical(
                 top: Radius.circular(22),
               ),
@@ -184,7 +184,7 @@ class _ReviewPurchaseSharesState extends State<ReviewPurchaseShares> {
                   style: TextStyle(
                     fontSize: 10,
                     fontWeight: FontWeight.w900,
-                    color: const Color(0xFF17C6C6),
+                    color: AnansiColors.accentCyan,
                     letterSpacing: 1.5,
                   ),
                 ),

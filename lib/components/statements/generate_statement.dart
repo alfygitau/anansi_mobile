@@ -408,7 +408,7 @@ Widget _buildDropdownRow(IconData icon, String text, {required bool isHint}) {
         width: 44,
         height: 44,
         decoration: BoxDecoration(
-          color: const Color(0xFFF8FAFC),
+          color: ThemeColors.background,
           borderRadius: BorderRadius.circular(16),
         ),
         child: Icon(

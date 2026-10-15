@@ -164,7 +164,7 @@ class _ForgetIdentityState extends State<ForgetIdentity> {
                   ? null
                   : (_isLoading ? () {} : _handleSubmit),
               style: ElevatedButton.styleFrom(
-                backgroundColor: const Color(0xFF074073),
+                backgroundColor: AnansiColors.darkBlue,
                 disabledBackgroundColor: Colors.grey.shade300,
                 disabledForegroundColor: Colors.grey.shade500,
                 foregroundColor: Colors.white,
@@ -196,14 +196,14 @@ class _ForgetIdentityState extends State<ForgetIdentity> {
         Container(
           padding: const EdgeInsets.all(12),
           decoration: BoxDecoration(
-            color: const Color(0xFF074073).withValues(alpha: 0.05),
+            color: AnansiColors.darkBlue.withValues(alpha: 0.05),
             borderRadius: BorderRadius.circular(16),
           ),
           child: Icon(
             isEmail
                 ? CupertinoIcons.lock_shield
                 : CupertinoIcons.device_phone_portrait,
-            color: const Color(0xFF074073),
+            color: AnansiColors.darkBlue,
             size: 28,
           ),
         ),
@@ -213,7 +213,7 @@ class _ForgetIdentityState extends State<ForgetIdentity> {
           style: const TextStyle(
             fontSize: 28,
             fontWeight: FontWeight.w900,
-            color: Color(0xFF074073),
+            color: AnansiColors.darkBlue,
             letterSpacing: -0.8,
           ),
         ),
@@ -284,7 +284,7 @@ class _ForgetIdentityState extends State<ForgetIdentity> {
                 decoration: BoxDecoration(
                   color: isFocused
                       ? AnansiColors.darkBlue
-                      : const Color(0xFFF8FAFC),
+                      : ThemeColors.background,
                   borderRadius: BorderRadius.circular(16),
                 ),
                 child: Icon(
@@ -361,7 +361,7 @@ class _ForgetIdentityState extends State<ForgetIdentity> {
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        color: const Color(0xFFF8FAFC),
+        color: ThemeColors.background,
         borderRadius: BorderRadius.circular(24),
         border: Border.all(color: const Color(0xFFF1F4F8)),
       ),
@@ -373,7 +373,7 @@ class _ForgetIdentityState extends State<ForgetIdentity> {
             style: TextStyle(
               fontSize: 11,
               fontWeight: FontWeight.w900,
-              color: Color(0xFF074073),
+              color: AnansiColors.darkBlue,
               letterSpacing: 1.2,
             ),
           ),
