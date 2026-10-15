@@ -74,9 +74,12 @@ class _ForgetIdentityState extends State<ForgetIdentity> {
       _isLoading = true;
     });
     try {
-      final (response, errors) = await RecoveryService().forgetEmail(
-        email: _controller.text.trim(),
-      );
+      final bool isEmail = widget.method == "email";
+      final (response, errors) = isEmail
+          ? await RecoveryService().forgetEmail(email: _controller.text.trim())
+          : await RecoveryService().forgetMobile(
+              phoneNumber: _controller.text.trim(),
+            );
       if (errors != null) {
         ErrorService.showActionableError(
           context,
