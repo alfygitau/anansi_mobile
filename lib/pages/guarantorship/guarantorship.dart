@@ -504,13 +504,19 @@ class _GuarantorshipState extends State<Guarantorship> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(
-                    title,
-                    style: const TextStyle(
-                      fontWeight: FontWeight.bold,
-                      fontSize: 14,
-                      color: AnansiColors.darkBlue,
-                    ),
+                  Row(
+                    children: [
+                      Text(
+                        title,
+                        style: const TextStyle(
+                          fontWeight: FontWeight.bold,
+                          fontSize: 14,
+                          color: AnansiColors.darkBlue,
+                        ),
+                      ),
+                      const SizedBox(width: 10),
+                      trailing,
+                    ],
                   ),
                   const SizedBox(height: 4),
                   Text(
@@ -531,7 +537,6 @@ class _GuarantorshipState extends State<Guarantorship> {
                 ],
               ),
             ),
-            trailing,
           ],
         ),
       ),
