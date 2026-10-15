@@ -389,9 +389,7 @@ class _RegisterState extends State<Register> {
                       focusNode: _confirmPassFocus,
                       keyboardType: TextInputType.text,
                     ),
-                    const SizedBox(height: 32),
-                    _buildAgreementSection(),
-                    const SizedBox(height: 100),
+                    const SizedBox(height: 20),
                   ],
                 ),
               ),
@@ -399,7 +397,7 @@ class _RegisterState extends State<Register> {
           ],
         ),
       ),
-      bottomSheet: Container(
+      bottomNavigationBar: Container(
         padding: const EdgeInsets.fromLTRB(24, 16, 24, 24),
         decoration: BoxDecoration(color: Colors.white.withValues(alpha: 0.95)),
         child: Column(

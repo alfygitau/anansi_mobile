@@ -223,7 +223,6 @@ class _IncomeInformationState extends State<IncomeInformation> {
                       keyboardType: TextInputType.number,
                     ),
                     const SizedBox(height: 16),
-                    const SizedBox(height: 100),
                   ],
                 ),
               ),
@@ -231,9 +230,7 @@ class _IncomeInformationState extends State<IncomeInformation> {
           ],
         ),
       ),
-
-      // Fixed Bottom Action Dock
-      bottomSheet: Container(
+      bottomNavigationBar: Container(
         padding: const EdgeInsets.fromLTRB(24, 16, 24, 25),
         decoration: BoxDecoration(color: Colors.white.withValues(alpha: 0.95)),
         child: _buildActionDock(),

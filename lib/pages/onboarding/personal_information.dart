@@ -441,7 +441,6 @@ class _PersonalInformationState extends State<PersonalInformation> {
                         keyboardType: TextInputType.number,
                       ),
                     ],
-                    const SizedBox(height: 100),
                   ],
                 ),
               ),
@@ -449,9 +448,7 @@ class _PersonalInformationState extends State<PersonalInformation> {
           ],
         ),
       ),
-
-      // Fixed Bottom Action Dock
-      bottomSheet: Container(
+      bottomNavigationBar: Container(
         padding: const EdgeInsets.fromLTRB(24, 16, 24, 25),
         decoration: BoxDecoration(color: Colors.white.withValues(alpha: 0.95)),
         child: _buildActionDock(),

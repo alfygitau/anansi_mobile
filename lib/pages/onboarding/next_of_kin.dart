@@ -293,7 +293,7 @@ class _NextOfKinState extends State<NextOfKin> {
                     ),
                     const SizedBox(height: 16),
                     _buildDateSelector(),
-                    const SizedBox(height: 100),
+                    const SizedBox(height: 16),
                   ],
                 ),
               ),
@@ -301,9 +301,7 @@ class _NextOfKinState extends State<NextOfKin> {
           ],
         ),
       ),
-
-      // Fixed Bottom Action Dock
-      bottomSheet: Container(
+      bottomNavigationBar: Container(
         padding: const EdgeInsets.fromLTRB(24, 16, 24, 25),
         decoration: BoxDecoration(color: Colors.white.withValues(alpha: 0.95)),
         child: _buildActionDock(),
