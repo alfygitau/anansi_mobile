@@ -1,3 +1,9 @@
+import 'package:app_anansi_mobile/components/drawer/navigation.dart';
+import 'package:app_anansi_mobile/helpers/format_amount.dart';
+import 'package:app_anansi_mobile/main.dart';
+import 'package:app_anansi_mobile/services/account_service.dart';
+import 'package:app_anansi_mobile/services/error_service.dart';
+import 'package:app_anansi_mobile/services/membership_service.dart';
 import 'package:app_anansi_mobile/theme/app_theme.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -5,18 +11,60 @@ import 'package:flutter/services.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 class Refer extends StatefulWidget {
-  final String referralCode;
-
-  const Refer({
-    super.key,
-    this.referralCode = "ANANSI-8924",
-  });
+  const Refer({super.key});
 
   @override
   State<Refer> createState() => _ReferState();
 }
 
 class _ReferState extends State<Refer> {
+  bool isLoading = false;
+  String referalCode = "";
+  String referalFee = "";
+
+  void _myReferralFees() async {
+    try {
+      setState(() {
+        isLoading = true;
+      });
+      final (response, error) = await MembershipService().membershipFees();
+      if (error != null) {
+        ErrorService.showActionableError(
+          context,
+          title: error[0],
+          message: error[1],
+        );
+      } else if (response != null) {
+        setState(() {
+          referalFee = response.data['data']['reward_per_referral'] ?? "0";
+        });
+      }
+    } finally {
+      if (mounted) setState(() => isLoading = false);
+    }
+  }
+
+  Future<void> fetchCustomerDetails() async {
+    isLoading = true;
+    try {
+      final (response, errors) = await AccountService().customerDetails();
+      if (errors != null) {
+        ErrorService.showActionableError(
+          context,
+          title: errors[0],
+          message: errors[1],
+        );
+      } else if (response != null) {
+        final responseInfo = response.data['data'];
+        setState(() {
+          referalCode = responseInfo['referral_code'] ?? "";
+        });
+      }
+    } finally {
+      if (mounted) setState(() => isLoading = false);
+    }
+  }
+
   void _copyToClipboard(String code) {
     Clipboard.setData(ClipboardData(text: code));
     HapticFeedback.lightImpact();
@@ -53,6 +101,13 @@ class _ReferState extends State<Refer> {
       );
   }
 
+  @override
+  void initState() {
+    fetchCustomerDetails();
+    _myReferralFees();
+    super.initState();
+  }
+
   Future<void> _shareToWhatsApp(String code) async {
     final String message = Uri.encodeComponent(
       "Join me on Anansi SACCO and grow your wealth! Use my referral code *$code* when signing up: https://anansi.co.ke/join?ref=$code",
@@ -86,6 +141,12 @@ class _ReferState extends State<Refer> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: ThemeColors.background,
+      drawer: Navigation(
+        activePageRoute: AnansiRoutes.refer,
+        onRouteSelected: (String targetNamedRoute) {
+          Navigator.pushReplacementNamed(context, targetNamedRoute);
+        },
+      ),
       body: CustomScrollView(
         physics: const BouncingScrollPhysics(),
         slivers: [
@@ -131,9 +192,31 @@ class _ReferState extends State<Refer> {
           letterSpacing: -0.5,
         ),
       ),
-      leading: _buildCircledIcon(
-        icon: CupertinoIcons.back,
-        onTap: () => Navigator.pop(context),
+      leading: Center(
+        child: Container(
+          width: 38,
+          height: 38,
+          decoration: BoxDecoration(
+            color: Colors.white,
+            shape: BoxShape.circle,
+            border: Border.all(color: Colors.grey.shade200),
+          ),
+          child: Builder(
+            builder: (nestedContext) {
+              return IconButton(
+                padding: EdgeInsets.zero,
+                icon: const Icon(
+                  CupertinoIcons.square_grid_2x2,
+                  size: 20,
+                  color: AnansiColors.darkBlue,
+                ),
+                onPressed: () {
+                  Scaffold.of(nestedContext).openDrawer();
+                },
+              );
+            },
+          ),
+        ),
       ),
       actions: [
         Padding(
@@ -162,35 +245,6 @@ class _ReferState extends State<Refer> {
           ),
         ),
       ],
-    );
-  }
-
-  Widget _buildCircledIcon({
-    required IconData icon,
-    required VoidCallback onTap,
-  }) {
-    return Center(
-      child: Container(
-        width: 38,
-        height: 38,
-        decoration: BoxDecoration(
-          color: Colors.white,
-          shape: BoxShape.circle,
-          border: Border.all(color: Colors.grey.shade200),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withValues(alpha: 0.03),
-              blurRadius: 6,
-              offset: const Offset(0, 2),
-            ),
-          ],
-        ),
-        child: IconButton(
-          padding: EdgeInsets.zero,
-          icon: Icon(icon, size: 18, color: AnansiColors.darkBlue),
-          onPressed: onTap,
-        ),
-      ),
     );
   }
 
@@ -247,8 +301,8 @@ class _ReferState extends State<Refer> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const Text(
-                  "Earn KES 300.00",
+                Text(
+                  formatAmount(referalFee),
                   style: TextStyle(
                     fontSize: 18,
                     fontWeight: FontWeight.w900,
@@ -314,7 +368,7 @@ class _ReferState extends State<Refer> {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Text(
-                  widget.referralCode,
+                  referalCode,
                   style: const TextStyle(
                     fontFamily: 'monospace',
                     fontSize: 19,
@@ -324,7 +378,7 @@ class _ReferState extends State<Refer> {
                   ),
                 ),
                 ElevatedButton.icon(
-                  onPressed: () => _copyToClipboard(widget.referralCode),
+                  onPressed: () => _copyToClipboard(referalCode),
                   icon: const Icon(CupertinoIcons.doc_on_doc, size: 14),
                   label: const Text(
                     "COPY",
@@ -338,7 +392,10 @@ class _ReferState extends State<Refer> {
                     backgroundColor: AnansiColors.darkBlue,
                     foregroundColor: Colors.white,
                     elevation: 0,
-                    padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 14,
+                      vertical: 10,
+                    ),
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(12),
                     ),
@@ -357,7 +414,7 @@ class _ReferState extends State<Refer> {
                   icon: Icons.chat_bubble_outline_rounded,
                   label: "WhatsApp",
                   accentColor: const Color(0xFF25D366),
-                  onTap: () => _shareToWhatsApp(widget.referralCode),
+                  onTap: () => _shareToWhatsApp(referalCode),
                 ),
               ),
               const SizedBox(width: 12),
@@ -366,7 +423,7 @@ class _ReferState extends State<Refer> {
                   icon: CupertinoIcons.mail,
                   label: "Email",
                   accentColor: AnansiColors.darkBlue,
-                  onTap: () => _shareViaEmail(widget.referralCode),
+                  onTap: () => _shareViaEmail(referalCode),
                 ),
               ),
             ],
@@ -434,19 +491,22 @@ class _ReferState extends State<Refer> {
           _buildStepRow(
             stepNumber: "1",
             title: "Invite your friend",
-            description: "Just share your code with friends, family, or colleagues.",
+            description:
+                "Just share your code with friends, family, or colleagues.",
             isLast: false,
           ),
           _buildStepRow(
             stepNumber: "2",
             title: "They pay registration fee",
-            description: "They complete onboarding by paying the KES 1,500.00 registration fee.",
+            description:
+                "They complete onboarding by paying the registration fee.",
             isLast: false,
           ),
           _buildStepRow(
             stepNumber: "3",
             title: "Earn a reward",
-            description: "You earn KES 300.00 directly credited to your active FOSA account.",
+            description:
+                "You earn ${formatAmount(referalFee)} directly credited to your active Savings account.",
             isLast: true,
           ),
         ],
