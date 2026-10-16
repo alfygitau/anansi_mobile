@@ -177,6 +177,11 @@ class _NavigationState extends State<Navigation> {
                     icon: CupertinoIcons.person_circle,
                     targetPageRoute: AnansiRoutes.profile,
                   ),
+                  _buildDrawerItem(
+                    title: "Refer a Friend",
+                    icon: CupertinoIcons.person_add,
+                    targetPageRoute: AnansiRoutes.refer,
+                  ),
                 ],
               ),
             ),

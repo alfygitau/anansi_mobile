@@ -52,6 +52,7 @@ class AnansiRoutes {
   static const String profile = '/profile';
   static const String products = '/products';
   static const String notifications = '/notifications';
+  static const String refer = '/refer';
 }
 
 class MyApp extends StatelessWidget {
@@ -76,6 +77,7 @@ class MyApp extends StatelessWidget {
         AnansiRoutes.profile: (context) => const Profile(),
         AnansiRoutes.settings: (context) => const Settings(),
         AnansiRoutes.notifications: (context) => const Notifications(),
+        AnansiRoutes.refer: (context) => const Notifications(),
       },
       theme: ThemeData(
         colorScheme: ColorScheme.fromSeed(seedColor: AnansiColors.logoBg),

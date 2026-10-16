@@ -85,5 +85,10 @@
     <!-- Microphone Access -->
     <key>NSMicrophoneUsageDescription</key>
     <string>This app requires microphone access when recording video attachments for identity verification.</string>
+	<key>LSApplicationQueriesSchemes</key>
+	<array>
+	<string>sms</string>
+	<string>tel</string>
+	</array>
 </dict>
 </plist>

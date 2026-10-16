@@ -16,7 +16,7 @@ class _IntroductionState extends State<Introduction> {
       "title": "Create Profile",
       "subtitle": "Set up your secure digital vault",
       "icon": CupertinoIcons.person_crop_circle_fill,
-      "color": const Color(0xFF3B82F6),
+      "color": AnansiColors.darkBlue,
       "processDescription":
           "You'll provide your primary contact details and set a strong, encrypted password to secure your future funds.",
       "resultDescription":
@@ -26,7 +26,7 @@ class _IntroductionState extends State<Introduction> {
       "title": "Verify Identity",
       "subtitle": "Validate your membership status",
       "icon": CupertinoIcons.shield_fill,
-      "color": const Color(0xFF8B5CF6),
+      "color": AnansiColors.darkBlue,
       "processDescription":
           "Our AI-powered system will perform a biometric scan of your ID and verify your presence via a quick 3D face map.",
       "resultDescription":
@@ -36,7 +36,7 @@ class _IntroductionState extends State<Introduction> {
       "title": "Additional Info",
       "subtitle": "Customizing your financial path",
       "icon": CupertinoIcons.doc_text_fill,
-      "color": const Color(0xFFF59E0B),
+      "color": AnansiColors.darkBlue,
       "processDescription":
           "Tell us about your financial goals and your next of kin to ensure your assets are always protected and managed.",
       "resultDescription":
@@ -46,7 +46,7 @@ class _IntroductionState extends State<Introduction> {
       "title": "Membership",
       "subtitle": "Finalize your official entry",
       "icon": CupertinoIcons.star_fill,
-      "color": const Color(0xFF10B981),
+      "color": AnansiColors.darkBlue,
       "processDescription":
           "A one-time registration fee is processed via M-PESA to activate your share capital and voting rights in the SACCO.",
       "resultDescription":

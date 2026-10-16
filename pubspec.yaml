@@ -26,6 +26,7 @@ dependencies:
   sentry_flutter: ^9.18.0
   path_provider: ^2.1.6
   open_filex: ^4.7.0
+  url_launcher: ^6.3.3
 
 dev_dependencies:
   flutter_test:
