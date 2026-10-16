@@ -596,66 +596,56 @@ class _AllAccountsState extends State<AllAccounts> {
                   height: 1,
                 ),
               ),
-
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
-                  Row(
-                    crossAxisAlignment: CrossAxisAlignment.center,
-                    textBaseline: TextBaseline.alphabetic,
-                    children: [
-                      Text(
-                        isBalanceHidden ? "KES ••••••" : balance,
-                        style: TextStyle(
-                          fontSize: 28,
-                          fontWeight: FontWeight.w500,
-                          color: isSavingsAccount
-                              ? Colors.white
-                              : AnansiColors.darkBlue,
-                          letterSpacing: -0.5,
-                        ),
+                  Text(
+                    isBalanceHidden ? "KES ••••••" : balance,
+                    style: TextStyle(
+                      fontSize: 28,
+                      fontWeight: FontWeight.w500,
+                      color: isSavingsAccount
+                          ? Colors.white
+                          : AnansiColors.darkBlue,
+                      letterSpacing: -0.5,
+                    ),
+                  ),
+                  const SizedBox(width: 12),
+                  Container(
+                    width: 28,
+                    height: 28,
+                    decoration: BoxDecoration(
+                      color: isSavingsAccount
+                          ? Colors.white.withValues(alpha: 0.12)
+                          : const Color(0xFFF1F3F5),
+                      shape: BoxShape.circle,
+                    ),
+                    child: IconButton(
+                      icon: Icon(
+                        isBalanceHidden
+                            ? Icons.visibility_off_outlined
+                            : Icons.visibility_outlined,
+                        size: 13,
+                        color: isSavingsAccount
+                            ? Colors.white
+                            : Colors.grey[600],
                       ),
-                      const SizedBox(width: 12),
-
-                      // THE FIX: Enclose view toggle button inside a clean circular background wrapper
-                      Container(
-                        width: 28,
-                        height: 28,
-                        decoration: BoxDecoration(
-                          color: isSavingsAccount
-                              ? Colors.white.withValues(alpha: 0.12)
-                              : const Color(0xFFF1F3F5),
-                          shape: BoxShape.circle,
-                        ),
-                        child: IconButton(
-                          icon: Icon(
-                            isBalanceHidden
-                                ? Icons.visibility_off_outlined
-                                : Icons.visibility_outlined,
-                            size: 13,
-                            color: isSavingsAccount
-                                ? Colors.white
-                                : Colors.grey[600],
-                          ),
-                          constraints: const BoxConstraints(),
-                          padding: EdgeInsets.zero,
-                          onPressed: () {
-                            final String key = accountShiftKey(
-                              accountNumber,
-                              productName,
-                            );
-                            setState(() {
-                              if (isBalanceHidden) {
-                                _hiddenBalances.remove(key);
-                              } else {
-                                _hiddenBalances.add(key);
-                              }
-                            });
-                          },
-                        ),
-                      ),
-                    ],
+                      constraints: const BoxConstraints(),
+                      padding: EdgeInsets.zero,
+                      onPressed: () {
+                        final String key = accountShiftKey(
+                          accountNumber,
+                          productName,
+                        );
+                        setState(() {
+                          if (isBalanceHidden) {
+                            _hiddenBalances.remove(key);
+                          } else {
+                            _hiddenBalances.add(key);
+                          }
+                        });
+                      },
+                    ),
                   ),
                 ],
               ),
