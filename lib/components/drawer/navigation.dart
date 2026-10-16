@@ -174,7 +174,7 @@ class _NavigationState extends State<Navigation> {
                   ),
                   _buildDrawerItem(
                     title: "Profile",
-                    icon: CupertinoIcons.settings,
+                    icon: CupertinoIcons.person_circle,
                     targetPageRoute: AnansiRoutes.profile,
                   ),
                 ],

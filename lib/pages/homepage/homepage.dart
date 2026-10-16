@@ -1027,7 +1027,6 @@ class _HomepageState extends State<Homepage> {
           child: Center(
             child: _buildGlassActionButton(
               icon: CupertinoIcons.bell,
-              hasNotification: true,
               onTap: () {
                 Navigator.push(
                   context,
@@ -1044,7 +1043,6 @@ class _HomepageState extends State<Homepage> {
           child: Center(
             child: _buildGlassActionButton(
               icon: CupertinoIcons.person,
-              hasNotification: false,
               onTap: () {
                 Navigator.push(
                   context,
@@ -1060,7 +1058,6 @@ class _HomepageState extends State<Homepage> {
 
   Widget _buildGlassActionButton({
     required IconData icon,
-    required bool hasNotification,
     required VoidCallback onTap,
   }) {
     return Stack(
@@ -1080,20 +1077,6 @@ class _HomepageState extends State<Homepage> {
             onPressed: onTap,
           ),
         ),
-        if (hasNotification)
-          Positioned(
-            right: 2,
-            top: 2,
-            child: Container(
-              width: 10,
-              height: 10,
-              decoration: BoxDecoration(
-                color: const Color(0xFFEF4444),
-                shape: BoxShape.circle,
-                border: Border.all(color: Colors.white, width: 2),
-              ),
-            ),
-          ),
       ],
     );
   }
