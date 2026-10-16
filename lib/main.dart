@@ -7,6 +7,7 @@ import 'package:app_anansi_mobile/pages/loan-statements/statements.dart';
 import 'package:app_anansi_mobile/pages/loans/loans.dart';
 import 'package:app_anansi_mobile/pages/notifications/notifications.dart';
 import 'package:app_anansi_mobile/pages/profile/profile.dart';
+import 'package:app_anansi_mobile/pages/refer/refer.dart';
 import 'package:app_anansi_mobile/pages/settings/settings.dart';
 import 'package:app_anansi_mobile/pages/statements/statements.dart';
 import 'package:app_anansi_mobile/pages/welcome/welcome.dart';
@@ -77,7 +78,7 @@ class MyApp extends StatelessWidget {
         AnansiRoutes.profile: (context) => const Profile(),
         AnansiRoutes.settings: (context) => const Settings(),
         AnansiRoutes.notifications: (context) => const Notifications(),
-        AnansiRoutes.refer: (context) => const Notifications(),
+        AnansiRoutes.refer: (context) => const Refer(),
       },
       theme: ThemeData(
         colorScheme: ColorScheme.fromSeed(seedColor: AnansiColors.logoBg),

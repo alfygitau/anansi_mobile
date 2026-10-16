@@ -99,11 +99,8 @@ class _ReferState extends State<Refer> {
                   const SizedBox(height: 12),
                   _buildHeroCard(),
                   const SizedBox(height: 20),
-
-                  // Referral Code Container & Share Triggers
                   _buildCodeCard(),
-                  const SizedBox(height: 28),
-
+                  const SizedBox(height: 20),
                   _buildSectionHeader("HOW IT WORKS"),
                   const SizedBox(height: 14),
                   _buildHowItWorksTimeline(),
@@ -321,7 +318,7 @@ class _ReferState extends State<Refer> {
                   style: const TextStyle(
                     fontFamily: 'monospace',
                     fontSize: 19,
-                    fontWeight: FontWeight.w900,
+                    fontWeight: FontWeight.w500,
                     letterSpacing: 2.0,
                     color: AnansiColors.darkBlue,
                   ),
