@@ -1,10 +1,10 @@
 import 'package:app_anansi_mobile/helpers/format_amount.dart';
 import 'package:app_anansi_mobile/helpers/format_short_date.dart';
 import 'package:app_anansi_mobile/pages/help&support/help_support.dart';
-import 'package:app_anansi_mobile/pages/loan-products/loan_products.dart';
 import 'package:app_anansi_mobile/pages/loan-repayment/repay_amount.dart';
 import 'package:app_anansi_mobile/pages/loan-statements/statements.dart';
 import 'package:app_anansi_mobile/pages/loans/loan_history.dart';
+import 'package:app_anansi_mobile/pages/loans/penalties.dart';
 import 'package:app_anansi_mobile/services/error_service.dart';
 import 'package:app_anansi_mobile/services/loan_service.dart';
 import 'package:app_anansi_mobile/theme/app_theme.dart';
@@ -298,14 +298,16 @@ class _LoanDetailsState extends State<LoanDetails> {
         ),
         const SizedBox(width: 12),
         _buildActionItem(
-          label: "Products",
-          icon: Icons.grid_view_rounded,
+          label: "Penalties",
+          icon: CupertinoIcons.exclamationmark_triangle_fill,
           backgroundColor: Colors.white,
           contentColor: AnansiColors.darkBlue,
           onTap: () {
             Navigator.push(
               context,
-              MaterialPageRoute(builder: (context) => LoanProducts()),
+              MaterialPageRoute(
+                builder: (context) => LoanPenalties(loanId: loan['id'] ?? ""),
+              ),
             );
           },
         ),

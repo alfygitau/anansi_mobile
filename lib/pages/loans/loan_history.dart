@@ -1,5 +1,6 @@
 import 'package:app_anansi_mobile/helpers/format_amount.dart';
 import 'package:app_anansi_mobile/helpers/format_time.dart';
+import 'package:app_anansi_mobile/pages/help&support/help_support.dart';
 import 'package:app_anansi_mobile/services/error_service.dart';
 import 'package:app_anansi_mobile/services/loan_service.dart';
 import 'package:app_anansi_mobile/theme/app_theme.dart';
@@ -58,7 +59,7 @@ class _LoanHistoryState extends State<LoanHistory> {
           _buildAppBar(),
           SliverToBoxAdapter(
             child: Padding(
-              padding: const EdgeInsets.only(left: 16, top: 8),
+              padding: const EdgeInsets.only(left: 16, top: 10, bottom: 5),
               child: Text(
                 "RECENT LOAN ACTIVITY",
                 style: TextStyle(
@@ -71,7 +72,7 @@ class _LoanHistoryState extends State<LoanHistory> {
             ),
           ),
           SliverPadding(
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+            padding: const EdgeInsets.symmetric(horizontal: 16),
             sliver: _isLoading
                 ? _buildTransactionsSkeletonList()
                 : loanHistory.isNotEmpty
@@ -162,6 +163,38 @@ class _LoanHistoryState extends State<LoanHistory> {
         ],
       ),
       leading: _buildCircleBackBtn(),
+      actions: [
+        Padding(
+          padding: const EdgeInsets.only(right: 16),
+          child: Center(
+            child: Container(
+              width: 38,
+              height: 38,
+              decoration: BoxDecoration(
+                color: Colors.white,
+                shape: BoxShape.circle,
+                border: Border.all(color: Colors.grey.shade100),
+              ),
+              child: IconButton(
+                padding: EdgeInsets.zero,
+                icon: const Icon(
+                  CupertinoIcons.question_circle,
+                  size: 18,
+                  color: AnansiColors.darkBlue,
+                ),
+                onPressed: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => const HelpSupport(),
+                    ),
+                  );
+                },
+              ),
+            ),
+          ),
+        ),
+      ],
     );
   }
 
@@ -396,7 +429,7 @@ class _LoanHistoryState extends State<LoanHistory> {
           false, // Allows content to scale to viewport size without breaking scroll
       child: Padding(
         // 4 horizontal + 20 from parent SliverPadding = 24 total padding alignment
-        padding: const EdgeInsets.fromLTRB(4, 16, 4, 24),
+        padding: const EdgeInsets.fromLTRB(4, 7, 4, 24),
         child: Container(
           width: double.infinity, // Forces full horizontal growth
           padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 40),

@@ -57,9 +57,11 @@ class _LoanTermsConditionsState extends State<LoanTermsConditions> {
         );
       } else if (response != null) {
         if (mounted) {
-          Navigator.push(
+          showLoanSuccessSheet(
             context,
-            MaterialPageRoute(builder: (context) => LoanApplications()),
+            referenceNumber:
+                "LN-${DateTime.now().millisecondsSinceEpoch.toString().substring(7)}",
+            amount: "KES 150,000",
           );
         }
       }
@@ -303,6 +305,221 @@ class _LoanTermsConditionsState extends State<LoanTermsConditions> {
           ),
         ],
       ),
+    );
+  }
+
+  void showLoanSuccessSheet(
+    BuildContext context, {
+    String? referenceNumber,
+    String? amount,
+  }) {
+    showModalBottomSheet(
+      context: context,
+      isDismissible: false,
+      enableDrag: false,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (BuildContext sheetContext) {
+        return PopScope(
+          canPop: false,
+          child: Container(
+            padding: const EdgeInsets.fromLTRB(24, 28, 24, 24),
+            decoration: const BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.only(
+                topLeft: Radius.circular(32),
+                topRight: Radius.circular(32),
+              ),
+            ),
+            child: SafeArea(
+              top: false,
+              child: SingleChildScrollView(
+                physics: const BouncingScrollPhysics(),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    // Success Icon Anchor
+                    Container(
+                      width: 76,
+                      height: 76,
+                      decoration: BoxDecoration(
+                        color: const Color(0xFF059669).withValues(alpha: 0.12),
+                        shape: BoxShape.circle,
+                      ),
+                      child: const Center(
+                        child: Icon(
+                          CupertinoIcons.checkmark_seal_fill,
+                          color: Color(0xFF059669), // Emerald Green
+                          size: 40,
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: 22),
+                    // Header
+                    const Text(
+                      "Application Submitted!",
+                      textAlign: TextAlign.center,
+                      style: TextStyle(
+                        fontSize: 22,
+                        fontWeight: FontWeight.w900,
+                        color: AnansiColors.darkBlue,
+                        letterSpacing: -0.5,
+                      ),
+                    ),
+                    const SizedBox(height: 10),
+                    // Description
+                    Text(
+                      "Your loan application has been received and routed for appraisal and guarantor review. You will receive milestone notifications via SMS.",
+                      textAlign: TextAlign.center,
+                      style: TextStyle(
+                        fontSize: 14,
+                        color: Colors.grey.shade600,
+                        height: 1.5,
+                        fontWeight: FontWeight.w400,
+                      ),
+                    ),
+                    const SizedBox(height: 24),
+                    // Application Metadata Card
+                    Container(
+                      padding: const EdgeInsets.all(16),
+                      decoration: BoxDecoration(
+                        color: ThemeColors.background,
+                        borderRadius: BorderRadius.circular(20),
+                        border: Border.all(
+                          color: const Color(0xFFE2E8F0),
+                          width: 1,
+                        ),
+                      ),
+                      child: Column(
+                        children: [
+                          if (amount != null && amount.isNotEmpty) ...[
+                            _buildReceiptRow(
+                              "Requested Amount",
+                              amount,
+                              isBold: true,
+                            ),
+                            const Padding(
+                              padding: EdgeInsets.symmetric(vertical: 10),
+                              child: Divider(
+                                height: 1,
+                                color: Color(0xFFE2E8F0),
+                              ),
+                            ),
+                          ],
+                          if (referenceNumber != null &&
+                              referenceNumber.isNotEmpty) ...[
+                            _buildReceiptRow("Reference No.", referenceNumber),
+                            const Padding(
+                              padding: EdgeInsets.symmetric(vertical: 10),
+                              child: Divider(
+                                height: 1,
+                                color: Color(0xFFE2E8F0),
+                              ),
+                            ),
+                          ],
+                          _buildReceiptRow(
+                            "Initial Status",
+                            "Pending Review",
+                            customValueWidget: Container(
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 10,
+                                vertical: 4,
+                              ),
+                              decoration: BoxDecoration(
+                                color: const Color(0xFFFEF3C7), // Amber 100
+                                borderRadius: BorderRadius.circular(12),
+                              ),
+                              child: const Text(
+                                "Pending Review",
+                                style: TextStyle(
+                                  color: Color(0xFFD97706), // Amber 600
+                                  fontSize: 12,
+                                  fontWeight: FontWeight.w700,
+                                ),
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    const SizedBox(height: 28),
+                    SizedBox(
+                      width: double.infinity,
+                      height: 62,
+                      child: ElevatedButton(
+                        onPressed: () {
+                          Navigator.of(context).pushAndRemoveUntil(
+                            MaterialPageRoute(
+                              builder: (context) => const LoanApplications(),
+                            ),
+                            (Route<dynamic> route) => false,
+                          );
+                        },
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: AnansiColors.darkBlue,
+                          foregroundColor: Colors.white,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(20),
+                          ),
+                          elevation: 0,
+                        ),
+                        child: const Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Text(
+                              "VIEW APPLICATIONS",
+                              style: TextStyle(
+                                fontWeight: FontWeight.w900,
+                                letterSpacing: 1.1,
+                                fontSize: 14,
+                              ),
+                            ),
+                            SizedBox(width: 10),
+                            Icon(Icons.arrow_forward_rounded, size: 18),
+                          ],
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: 10),
+                  ],
+                ),
+              ),
+            ),
+          ),
+        );
+      },
+    );
+  }
+
+  Widget _buildReceiptRow(
+    String label,
+    String value, {
+    bool isBold = false,
+    Widget? customValueWidget,
+  }) {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: [
+        Text(
+          label,
+          style: TextStyle(
+            fontSize: 13,
+            fontWeight: FontWeight.w500,
+            color: Colors.grey.shade600,
+          ),
+        ),
+        if (customValueWidget != null)
+          customValueWidget
+        else
+          Text(
+            value,
+            style: TextStyle(
+              fontSize: 13.5,
+              fontWeight: isBold ? FontWeight.w800 : FontWeight.w600,
+              color: AnansiColors.darkBlue,
+            ),
+          ),
+      ],
     );
   }
 }

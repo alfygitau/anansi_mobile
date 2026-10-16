@@ -150,6 +150,7 @@ class _SettingsState extends State<Settings> {
                 title: "Privacy Policy",
                 onTap: () {},
               ),
+              SizedBox(height: 40,)
             ]),
           ),
         ],
@@ -185,6 +186,38 @@ class _SettingsState extends State<Settings> {
         ],
       ),
       leading: _buildCircleBackBtn(),
+      actions: [
+        Padding(
+          padding: const EdgeInsets.only(right: 16),
+          child: Center(
+            child: Container(
+              width: 38,
+              height: 38,
+              decoration: BoxDecoration(
+                color: Colors.white,
+                shape: BoxShape.circle,
+                border: Border.all(color: Colors.grey.shade100),
+              ),
+              child: IconButton(
+                padding: EdgeInsets.zero,
+                icon: const Icon(
+                  CupertinoIcons.question_circle,
+                  size: 18,
+                  color: AnansiColors.darkBlue,
+                ),
+                onPressed: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => const HelpSupport(),
+                    ),
+                  );
+                },
+              ),
+            ),
+          ),
+        ),
+      ],
     );
   }
 

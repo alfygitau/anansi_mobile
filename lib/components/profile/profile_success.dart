@@ -1,3 +1,4 @@
+import 'package:app_anansi_mobile/theme/app_theme.dart';
 import 'package:flutter/material.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 
@@ -38,11 +39,11 @@ void showProfileSuccessSheet(
               height: 90,
               width: 90,
               decoration: BoxDecoration(
-                color: Colors.blue[600],
+                color: AnansiColors.darkBlue,
                 shape: BoxShape.circle,
                 boxShadow: [
                   BoxShadow(
-                    color: Colors.blue.withValues(alpha: 0.3),
+                    color: AnansiColors.darkBlue.withValues(alpha: 0.3),
                     blurRadius: 20,
                     spreadRadius: 5,
                   ),

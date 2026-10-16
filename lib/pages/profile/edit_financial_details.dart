@@ -18,6 +18,11 @@ class _EditFinancialsPageState extends State<EditFinancialsPage> {
   late TextEditingController _jobTitleController;
   late TextEditingController _incomeController;
   late TextEditingController _kraPinController;
+
+  final FocusNode _jobTitleFocus = FocusNode();
+  final FocusNode _kraPinFocus = FocusNode();
+  final FocusNode _incomeFocus = FocusNode();
+
   Map<String, String?> formErrors = {'email': null, 'password': null};
   String? _selectedJobType;
   final List<String> _jobTypes = [
@@ -40,6 +45,9 @@ class _EditFinancialsPageState extends State<EditFinancialsPage> {
       text: widget.customer['income_range'],
     );
     _selectedJobType = widget.customer['employment_type'];
+    _jobTitleFocus.addListener(() => setState(() {}));
+    _kraPinFocus.addListener(() => setState(() {}));
+    _incomeFocus.addListener(() => setState(() {}));
   }
 
   Future<void> _editFinance() async {
@@ -66,9 +74,10 @@ class _EditFinancialsPageState extends State<EditFinancialsPage> {
           title: "Financials Updated!",
           onAction: () {
             Navigator.pop(context);
-            Navigator.push(
+            Navigator.pushAndRemoveUntil(
               context,
               MaterialPageRoute(builder: (context) => Profile()),
+              (Route<dynamic> route) => false,
             );
           },
         );
@@ -76,6 +85,19 @@ class _EditFinancialsPageState extends State<EditFinancialsPage> {
     } finally {
       if (mounted) setState(() => _isLoading = false);
     }
+  }
+
+  @override
+  void dispose() {
+    _jobTitleController.dispose();
+    _kraPinController.dispose();
+    _incomeController.dispose();
+
+    _jobTitleFocus.dispose();
+    _kraPinFocus.dispose();
+    _incomeFocus.dispose();
+
+    super.dispose();
   }
 
   @override
@@ -97,7 +119,7 @@ class _EditFinancialsPageState extends State<EditFinancialsPage> {
                   hint: "e.g. Senior Accountant",
                   icon: CupertinoIcons.briefcase,
                   fieldKey: "jobTitle",
-                  focusNode: FocusNode(),
+                  focusNode: _jobTitleFocus,
                 ),
                 const SizedBox(height: 16),
                 _buildDropdownField(
@@ -116,7 +138,7 @@ class _EditFinancialsPageState extends State<EditFinancialsPage> {
                   hint: "A00XXXXXXXXZ",
                   icon: CupertinoIcons.doc_text,
                   fieldKey: "kra",
-                  focusNode: FocusNode(),
+                  focusNode: _kraPinFocus,
                 ),
                 const SizedBox(height: 16),
                 _buildInputField(
@@ -125,7 +147,7 @@ class _EditFinancialsPageState extends State<EditFinancialsPage> {
                   hint: "e.g 200000",
                   icon: CupertinoIcons.doc_text,
                   fieldKey: "income",
-                  focusNode: FocusNode(),
+                  focusNode: _incomeFocus,
                 ),
                 const SizedBox(height: 24),
                 _buildComplianceNote(),
