@@ -66,12 +66,17 @@ class _ForgetOtpAccessState extends State<ForgetOtpAccess> {
       _isLoading = true;
       _errorText = null;
     });
-
     try {
-      final (response, errors) = await RecoveryService().verifyEmailAddress(
-        otp: _controller.text.trim(),
-        email: widget.identity,
-      );
+      bool isEmail = widget.method == 'email';
+      final (response, errors) = isEmail
+          ? await RecoveryService().verifyEmailAddress(
+              otp: _controller.text.trim(),
+              email: widget.identity,
+            )
+          : await RecoveryService().verifyMobileAccess(
+              otp: _controller.text.trim(),
+              phoneNumber: widget.identity,
+            );
       if (errors != null) {
         ErrorService.showActionableError(
           context,
@@ -83,7 +88,8 @@ class _ForgetOtpAccessState extends State<ForgetOtpAccess> {
         Navigator.push(
           context,
           MaterialPageRoute(
-            builder: (context) => ResetPassword(identity: widget.identity),
+            builder: (context) =>
+                ResetPassword(identity: widget.identity, method: widget.method),
           ),
         );
       }
@@ -95,9 +101,13 @@ class _ForgetOtpAccessState extends State<ForgetOtpAccess> {
   void resendEmailIdentity() async {
     _controller.clear();
     _startTimer();
-    final (response, errors) = await RecoveryService().forgetEmail(
-      email: widget.identity,
-    );
+    bool isEmail = widget.method == 'email';
+    final (response, errors) = isEmail
+        ? await RecoveryService().forgetEmail(email: widget.identity)
+        : await RecoveryService().resendMobileAccess(
+            phoneNumber: widget.identity,
+          );
+    ;
     if (errors != null) {
       ErrorService.showActionableError(
         context,
@@ -106,7 +116,7 @@ class _ForgetOtpAccessState extends State<ForgetOtpAccess> {
       );
     } else if (response != null) {
       if (mounted) {
-        ErrorService.showProgressiveResponse(
+        showSimpleNotification(
           context,
           "A new code has been sent to your email",
         );
@@ -114,26 +124,40 @@ class _ForgetOtpAccessState extends State<ForgetOtpAccess> {
     }
   }
 
-  void resendMobileIdentity() async {
-    _controller.clear();
-    _startTimer();
-    final (response, errors) = await RecoveryService().forgetMobileNumber(
-      mobileno: widget.identity,
-    );
-    if (errors != null) {
-      ErrorService.showActionableError(
-        context,
-        title: errors[0],
-        message: errors[1],
+  void showSimpleNotification(BuildContext context, String message) {
+    ScaffoldMessenger.of(context)
+      ..hideCurrentSnackBar()
+      ..showSnackBar(
+        SnackBar(
+          duration: const Duration(seconds: 3),
+          behavior: SnackBarBehavior.floating,
+          backgroundColor: AnansiColors.darkBlue,
+          margin: const EdgeInsets.fromLTRB(20, 0, 20, 20),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(16),
+          ),
+          content: Row(
+            children: [
+              const Icon(
+                CupertinoIcons.mail_solid,
+                color: AnansiColors.accentCyan,
+                size: 18,
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Text(
+                  message,
+                  style: const TextStyle(
+                    fontSize: 13,
+                    fontWeight: FontWeight.w600,
+                    color: Colors.white,
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
       );
-    } else if (response != null) {
-      if (mounted) {
-        ErrorService.showProgressiveResponse(
-          context,
-          "A new code has been sent to your mobile number",
-        );
-      }
-    }
   }
 
   @override
@@ -261,7 +285,6 @@ class _ForgetOtpAccessState extends State<ForgetOtpAccess> {
   }
 
   Widget _buildResendLogic() {
-    final bool isEmail = widget.method == "email";
     return Row(
       children: [
         Text(
@@ -283,7 +306,7 @@ class _ForgetOtpAccessState extends State<ForgetOtpAccess> {
                 ),
               )
             : GestureDetector(
-                onTap: isEmail ? resendEmailIdentity : resendMobileIdentity,
+                onTap: resendEmailIdentity,
                 child: const Text(
                   "Resend Code",
                   style: TextStyle(

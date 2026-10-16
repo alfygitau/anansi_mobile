@@ -7,7 +7,12 @@ import 'package:flutter/services.dart';
 
 class ResetPassword extends StatefulWidget {
   final String identity;
-  const ResetPassword({super.key, required this.identity});
+  final String method;
+  const ResetPassword({
+    super.key,
+    required this.identity,
+    required this.method,
+  });
 
   @override
   State<ResetPassword> createState() => _ResetPasswordState();
@@ -126,9 +131,11 @@ class _ResetPasswordState extends State<ResetPassword> {
       _isLoading = true;
     });
     try {
+      bool isEmail = widget.method == 'email';
       final (response, errors) = await RecoveryService().setNewPassword(
         email: widget.identity,
         password: _passController.text.trim(),
+        isEmail: isEmail,
       );
       if (errors != null) {
         ErrorService.showActionableError(
@@ -204,7 +211,7 @@ class _ResetPasswordState extends State<ResetPassword> {
                       ? null
                       : (_isLoading ? () {} : _handleReset),
                   style: ElevatedButton.styleFrom(
-                    backgroundColor:  AnansiColors.darkBlue,
+                    backgroundColor: AnansiColors.darkBlue,
                     disabledBackgroundColor: const Color(0xFFF1F4F8),
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(20),
@@ -240,7 +247,7 @@ class _ResetPasswordState extends State<ResetPassword> {
         Container(
           padding: const EdgeInsets.all(12),
           decoration: BoxDecoration(
-            color:  AnansiColors.darkBlue.withValues(alpha: 0.05),
+            color: AnansiColors.darkBlue.withValues(alpha: 0.05),
             borderRadius: BorderRadius.circular(16),
           ),
           child: const Icon(
@@ -276,7 +283,7 @@ class _ResetPasswordState extends State<ResetPassword> {
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        color:  ThemeColors.background,
+        color: ThemeColors.background,
         borderRadius: BorderRadius.circular(24),
         border: Border.all(color: const Color(0xFFF1F4F8)),
       ),
@@ -352,7 +359,7 @@ class _ResetPasswordState extends State<ResetPassword> {
             decoration: BoxDecoration(
               shape: BoxShape.circle,
               color: isMet
-                  ?  AnansiColors.accentCyan.withValues(alpha: 0.1)
+                  ? AnansiColors.accentCyan.withValues(alpha: 0.1)
                   : Colors.transparent,
             ),
             child: Icon(
@@ -360,7 +367,7 @@ class _ResetPasswordState extends State<ResetPassword> {
                   ? CupertinoIcons.checkmark_circle_fill
                   : CupertinoIcons.circle,
               size: 16,
-              color: isMet ?  AnansiColors.accentCyan : Colors.grey.shade300,
+              color: isMet ? AnansiColors.accentCyan : Colors.grey.shade300,
             ),
           ),
           const SizedBox(width: 12),
@@ -369,7 +376,7 @@ class _ResetPasswordState extends State<ResetPassword> {
             style: TextStyle(
               fontSize: 12,
               fontWeight: isMet ? FontWeight.w700 : FontWeight.w500,
-              color: isMet ?  AnansiColors.darkBlue : Colors.grey.shade500,
+              color: isMet ? AnansiColors.darkBlue : Colors.grey.shade500,
             ),
           ),
         ],
@@ -446,7 +453,7 @@ class _ResetPasswordState extends State<ResetPassword> {
                 decoration: BoxDecoration(
                   color: isFocused
                       ? AnansiColors.darkBlue
-                      :  ThemeColors.background,
+                      : ThemeColors.background,
                   borderRadius: BorderRadius.circular(16),
                 ),
                 child: Icon(
@@ -612,7 +619,7 @@ class _ResetPasswordState extends State<ResetPassword> {
                 decoration: BoxDecoration(
                   color: isFocused
                       ? AnansiColors.darkBlue
-                      :  ThemeColors.background,
+                      : ThemeColors.background,
                   borderRadius: BorderRadius.circular(16),
                 ),
                 child: Icon(
@@ -711,6 +718,8 @@ class _ResetPasswordState extends State<ResetPassword> {
       context: context,
       isDismissible: false,
       enableDrag: false,
+      isScrollControlled:
+          true, // Allows sheet to expand beyond 50% of the screen
       backgroundColor: Colors.transparent,
       builder: (context) {
         return Container(
@@ -723,104 +732,107 @@ class _ResetPasswordState extends State<ResetPassword> {
             ),
           ),
           child: SafeArea(
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                const SizedBox(height: 12),
-                Container(
-                  width: 80,
-                  height: 80,
-                  decoration: BoxDecoration(
-                    color:  AnansiColors.accentCyan.withValues(alpha: 0.1),
-                    shape: BoxShape.circle,
-                  ),
-                  child: const Center(
-                    child: Icon(
-                      CupertinoIcons.checkmark_seal_fill,
-                      color: AnansiColors.accentCyan,
-                      size: 40,
+            child: SingleChildScrollView(
+              physics: const BouncingScrollPhysics(),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  const SizedBox(height: 12),
+                  Container(
+                    width: 80,
+                    height: 80,
+                    decoration: BoxDecoration(
+                      color: AnansiColors.accentCyan.withValues(alpha: 0.1),
+                      shape: BoxShape.circle,
+                    ),
+                    child: const Center(
+                      child: Icon(
+                        CupertinoIcons.checkmark_seal_fill,
+                        color: AnansiColors.accentCyan,
+                        size: 40,
+                      ),
                     ),
                   ),
-                ),
-                const SizedBox(height: 32),
-                const Text(
-                  "Password Updated",
-                  style: TextStyle(
-                    fontSize: 24,
-                    fontWeight: FontWeight.w900,
-                    color: AnansiColors.darkBlue,
-                    letterSpacing: -0.5,
+                  const SizedBox(height: 24),
+                  const Text(
+                    "Password Updated",
+                    style: TextStyle(
+                      fontSize: 24,
+                      fontWeight: FontWeight.w900,
+                      color: AnansiColors.darkBlue,
+                      letterSpacing: -0.5,
+                    ),
                   ),
-                ),
-                const SizedBox(height: 16),
-                Text(
-                  "Your account security has been successfully restored. All other active sessions have been signed out for your safety.",
-                  textAlign: TextAlign.center,
-                  style: TextStyle(
-                    fontSize: 15,
-                    color: Colors.grey.shade600,
-                    height: 1.5,
+                  const SizedBox(height: 14),
+                  Text(
+                    "Your account security has been successfully restored. All other active sessions have been signed out for your safety.",
+                    textAlign: TextAlign.center,
+                    style: TextStyle(
+                      fontSize: 15,
+                      color: Colors.grey.shade600,
+                      height: 1.5,
+                    ),
                   ),
-                ),
-                const SizedBox(height: 32),
-                Container(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 16,
-                    vertical: 12,
+                  const SizedBox(height: 24),
+                  Container(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 16,
+                      vertical: 12,
+                    ),
+                    decoration: BoxDecoration(
+                      color: ThemeColors.background,
+                      borderRadius: BorderRadius.circular(16),
+                    ),
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Icon(
+                          CupertinoIcons.lock_shield,
+                          size: 14,
+                          color: Colors.grey.shade400,
+                        ),
+                        const SizedBox(width: 8),
+                        Text(
+                          "Last updated: Just now",
+                          style: TextStyle(
+                            fontSize: 12,
+                            fontWeight: FontWeight.w600,
+                            color: Colors.grey.shade500,
+                          ),
+                        ),
+                      ],
+                    ),
                   ),
-                  decoration: BoxDecoration(
-                    color:  ThemeColors.background,
-                    borderRadius: BorderRadius.circular(16),
-                  ),
-                  child: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Icon(
-                        CupertinoIcons.lock_shield,
-                        size: 14,
-                        color: Colors.grey.shade400,
+                  const SizedBox(height: 32),
+                  SizedBox(
+                    width: double.infinity,
+                    height: 60,
+                    child: ElevatedButton(
+                      onPressed: () {
+                        Navigator.of(
+                          context,
+                        ).pushNamedAndRemoveUntil('/login', (route) => false);
+                      },
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: AnansiColors.darkBlue,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(20),
+                        ),
+                        elevation: 0,
                       ),
-                      const SizedBox(width: 8),
-                      Text(
-                        "Last updated: Just now",
+                      child: const Text(
+                        "Back to Login",
                         style: TextStyle(
-                          fontSize: 12,
-                          fontWeight: FontWeight.w600,
-                          color: Colors.grey.shade500,
+                          fontWeight: FontWeight.w900,
+                          fontSize: 16,
+                          color: Colors.white,
                         ),
                       ),
-                    ],
-                  ),
-                ),
-                const SizedBox(height: 40),
-                SizedBox(
-                  width: double.infinity,
-                  height: 60,
-                  child: ElevatedButton(
-                    onPressed: () {
-                      Navigator.of(
-                        context,
-                      ).pushNamedAndRemoveUntil('/login', (route) => false);
-                    },
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor:  AnansiColors.darkBlue,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(20),
-                      ),
-                      elevation: 0,
-                    ),
-                    child: const Text(
-                      "Back to Login",
-                      style: TextStyle(
-                        fontWeight: FontWeight.w900,
-                        fontSize: 16,
-                        color: Colors.white,
-                      ),
                     ),
                   ),
-                ),
-                const SizedBox(height: 12),
-              ],
+                  const SizedBox(height: 12),
+                ],
+              ),
             ),
           ),
         );

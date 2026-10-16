@@ -29,7 +29,6 @@ class _VerifyEmailState extends State<VerifyEmail> {
   bool _loading = false;
   String? _errorText;
   String _email = "";
-
   bool get _isOtpReady => _controller.text.length == 6 && !_isLoading;
 
   @override

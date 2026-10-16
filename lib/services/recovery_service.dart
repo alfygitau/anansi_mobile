@@ -60,6 +60,25 @@ class RecoveryService {
     }
   }
 
+  Future<(Response?, List<String>?)> resendMobileAccess({
+    required String phoneNumber,
+  }) async {
+    final deviceId = await getDeviceId();
+    try {
+      final response = await _publicClient.post(
+        '/otp/sms/resend-otp',
+        data: {"phoneNumber": phoneNumber, "deviceId": deviceId},
+      );
+      return (response, null);
+    } on DioException catch (e) {
+      final apiException = ApiException();
+      final errorMessages = apiException.getExceptionMessage(e);
+      return (null, errorMessages);
+    } catch (e) {
+      return (null, ["Authentication Error!", "An unknown error occurred."]);
+    }
+  }
+
   Future<(Response?, List<String>?)> forgetMobileNumber({
     required String mobileno,
   }) async {
@@ -97,6 +116,26 @@ class RecoveryService {
     }
   }
 
+  Future<(Response?, List<String>?)> verifyMobileAccess({
+    required String otp,
+    required String phoneNumber,
+  }) async {
+    final deviceId = await getDeviceId();
+    try {
+      final response = await _publicClient.post(
+        '/otp/sms/verify-otp',
+        data: {'otp': otp, 'phoneNumber': phoneNumber, 'deviceId': deviceId},
+      );
+      return (response, null);
+    } on DioException catch (e) {
+      final apiException = ApiException();
+      final errorMessages = apiException.getExceptionMessage(e);
+      return (null, errorMessages);
+    } catch (e) {
+      return (null, ["Authentication Error!", "An unknown error occurred."]);
+    }
+  }
+
   Future<(Response?, List<String>?)> verifyMobileNumber({
     required String otp,
     required String mobileno,
@@ -119,11 +158,15 @@ class RecoveryService {
   Future<(Response?, List<String>?)> setNewPassword({
     required String email,
     required String password,
+    required bool isEmail,
   }) async {
     try {
+      final payload = isEmail
+          ? {'email': email, 'password': password}
+          : {'phoneNumber': email, 'password': password};
       final response = await _publicClient.post(
-        '/customer/reset-password-web',
-        data: {'email': email, 'password': password},
+        '/customer/reset-password-web-lookup',
+        data: payload,
       );
       return (response, null);
     } on DioException catch (e) {
