@@ -3,7 +3,6 @@ import 'package:app_anansi_mobile/main.dart';
 import 'package:app_anansi_mobile/pages/about/about.dart';
 import 'package:app_anansi_mobile/pages/help&support/help_support.dart';
 import 'package:app_anansi_mobile/pages/profile/profile.dart';
-import 'package:app_anansi_mobile/pages/settings/kyc_status.dart';
 import 'package:app_anansi_mobile/services/biometric_service.dart';
 import 'package:app_anansi_mobile/theme/app_theme.dart';
 import 'package:flutter/material.dart';
@@ -96,17 +95,6 @@ class _SettingsState extends State<Settings> {
                   Navigator.push(
                     context,
                     MaterialPageRoute(builder: (context) => const Profile()),
-                  );
-                },
-              ),
-              _buildSettingsTile(
-                icon: CupertinoIcons.doc_plaintext,
-                title: "Kyc Documents",
-                subtitle: "Check your verification status",
-                onTap: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(builder: (context) => const KycStatus()),
                   );
                 },
               ),
