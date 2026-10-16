@@ -2,6 +2,7 @@ import 'package:app_anansi_mobile/components/drawer/navigation.dart';
 import 'package:app_anansi_mobile/components/statements/generate_statement.dart';
 import 'package:app_anansi_mobile/helpers/download.dart';
 import 'package:app_anansi_mobile/main.dart';
+import 'package:app_anansi_mobile/pages/help&support/help_support.dart';
 import 'package:app_anansi_mobile/services/account_service.dart';
 import 'package:app_anansi_mobile/services/error_service.dart';
 import 'package:app_anansi_mobile/services/secure_storage_service.dart';
@@ -538,7 +539,33 @@ class _StatementsState extends State<Statements> {
       actions: [
         Padding(
           padding: const EdgeInsets.only(right: 16),
-          child: _buildCircledIcon(CupertinoIcons.cloud_download),
+          child: Center(
+            child: Container(
+              width: 38,
+              height: 38,
+              decoration: BoxDecoration(
+                color: Colors.white,
+                shape: BoxShape.circle,
+                border: Border.all(color: Colors.grey.shade100),
+              ),
+              child: IconButton(
+                padding: EdgeInsets.zero,
+                icon: const Icon(
+                  CupertinoIcons.question_circle,
+                  size: 18,
+                  color: AnansiColors.darkBlue,
+                ),
+                onPressed: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => const HelpSupport(),
+                    ),
+                  );
+                },
+              ),
+            ),
+          ),
         ),
       ],
     );

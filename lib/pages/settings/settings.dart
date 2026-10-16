@@ -1,5 +1,6 @@
 import 'package:app_anansi_mobile/components/drawer/navigation.dart';
 import 'package:app_anansi_mobile/main.dart';
+import 'package:app_anansi_mobile/pages/about/about.dart';
 import 'package:app_anansi_mobile/pages/help&support/help_support.dart';
 import 'package:app_anansi_mobile/pages/profile/profile.dart';
 import 'package:app_anansi_mobile/pages/settings/kyc_status.dart';
@@ -149,7 +150,12 @@ class _SettingsState extends State<Settings> {
                 icon: CupertinoIcons.info_circle,
                 title: "About Anansi",
                 subtitle: "Learn more about our mission",
-                onTap: () {},
+                onTap: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (context) => const About()),
+                  );
+                },
               ),
               _buildSettingsTile(
                 icon: CupertinoIcons.shield_lefthalf_fill,
