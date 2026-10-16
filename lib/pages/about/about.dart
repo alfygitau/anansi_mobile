@@ -1,4 +1,7 @@
 import 'package:app_anansi_mobile/pages/help&support/help_support.dart';
+import 'package:app_anansi_mobile/pages/privacy-policy/privacy_policy.dart';
+import 'package:app_anansi_mobile/pages/terms-of-service/regulations.dart';
+import 'package:app_anansi_mobile/pages/terms-of-service/terms_of_service.dart';
 import 'package:app_anansi_mobile/theme/app_theme.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -43,7 +46,12 @@ class About extends StatelessWidget {
                       title: "Contact Member Support",
                       subtitle: "Reach our dedicated member care desk",
                       onTap: () {
-                        // Open support or email composer
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => const HelpSupport(),
+                          ),
+                        );
                       },
                     ),
                     const SizedBox(height: 12),
@@ -56,7 +64,6 @@ class About extends StatelessWidget {
                       },
                     ),
                     const SizedBox(height: 36),
-
                     _buildFooter(),
                     const SizedBox(height: 32),
                   ],
@@ -204,7 +211,7 @@ class About extends StatelessWidget {
               border: Border.all(color: const Color(0xFFE2E8F0)),
             ),
             child: const Text(
-              "Version 1.4.0 (Build 2026.1)",
+              "Version 2.0.0 (Build 2026.6)",
               style: TextStyle(
                 fontSize: 12,
                 fontWeight: FontWeight.w600,
@@ -322,21 +329,30 @@ class About extends StatelessWidget {
           _buildLegalRow(
             title: "Privacy Policy",
             onTap: () {
-              // Navigate to Privacy Policy screen or web view
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => const PrivacyPolicy()),
+              );
             },
           ),
           const Divider(height: 1, color: Color(0xFFF1F5F9)),
           _buildLegalRow(
             title: "Terms of Service",
             onTap: () {
-              // Navigate to Terms of Service
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => const TermsOfService()),
+              );
             },
           ),
           const Divider(height: 1, color: Color(0xFFF1F5F9)),
           _buildLegalRow(
             title: "SASRA & Regulatory Disclosures",
             onTap: () {
-              // Open Regulatory page
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => const Regulations()),
+              );
             },
           ),
           const Divider(height: 1, color: Color(0xFFF1F5F9)),

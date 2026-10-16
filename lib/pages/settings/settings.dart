@@ -2,6 +2,7 @@ import 'package:app_anansi_mobile/components/drawer/navigation.dart';
 import 'package:app_anansi_mobile/main.dart';
 import 'package:app_anansi_mobile/pages/about/about.dart';
 import 'package:app_anansi_mobile/pages/help&support/help_support.dart';
+import 'package:app_anansi_mobile/pages/privacy-policy/privacy_policy.dart';
 import 'package:app_anansi_mobile/pages/profile/profile.dart';
 import 'package:app_anansi_mobile/services/biometric_service.dart';
 import 'package:app_anansi_mobile/theme/app_theme.dart';
@@ -148,9 +149,16 @@ class _SettingsState extends State<Settings> {
               _buildSettingsTile(
                 icon: CupertinoIcons.shield_lefthalf_fill,
                 title: "Privacy Policy",
-                onTap: () {},
+                onTap: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => const PrivacyPolicy(),
+                    ),
+                  );
+                },
               ),
-              SizedBox(height: 40,)
+              SizedBox(height: 40),
             ]),
           ),
         ],
@@ -301,7 +309,7 @@ class _SettingsState extends State<Settings> {
                       color: AnansiColors.logoBg.withValues(alpha: 0.06),
                       borderRadius: BorderRadius.circular(12),
                     ),
-                    child: Icon(icon, color: AnansiColors.logoBg, size: 22),
+                    child: Icon(icon, color: AnansiColors.darkBlue, size: 22),
                   ),
                   const SizedBox(width: 16),
                   Expanded(
@@ -313,7 +321,7 @@ class _SettingsState extends State<Settings> {
                           style: const TextStyle(
                             fontSize: 15,
                             fontWeight: FontWeight.w600,
-                            color: Color(0xFF1E293B),
+                            color: AnansiColors.darkBlue,
                           ),
                         ),
                         if (subtitle != null) ...[
@@ -329,8 +337,6 @@ class _SettingsState extends State<Settings> {
                       ],
                     ),
                   ),
-
-                  // 3. Trailing Content (Toggle, Text, or Chevron)
                   if (toggle != null)
                     toggle
                   else if (trailingText != null)
@@ -345,7 +351,7 @@ class _SettingsState extends State<Settings> {
                     const Icon(
                       CupertinoIcons.chevron_right,
                       size: 14,
-                      color: Color(0xFFCBD5E1),
+                      color: AnansiColors.darkBlue,
                     ),
                 ],
               ),
