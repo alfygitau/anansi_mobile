@@ -70,6 +70,11 @@ class _ForgetIdentityState extends State<ForgetIdentity> {
   }
 
   void _handleSubmit() async {
+    _validateField();
+    if (formErrors.values.any((e) => e != null)) {
+      HapticFeedback.vibrate();
+      return;
+    }
     setState(() {
       _isLoading = true;
     });
@@ -163,16 +168,16 @@ class _ForgetIdentityState extends State<ForgetIdentity> {
             width: double.infinity,
             height: 56,
             child: ElevatedButton(
-              onPressed: !_isInputValid()
-                  ? null
-                  : (_isLoading ? () {} : _handleSubmit),
+              onPressed: _isLoading ? null : _handleSubmit,
               style: ElevatedButton.styleFrom(
-                backgroundColor: AnansiColors.darkBlue,
-                disabledBackgroundColor: Colors.grey.shade300,
-                disabledForegroundColor: Colors.grey.shade500,
+                backgroundColor: _isInputValid()
+                    ? AnansiColors.darkBlue
+                    : Colors.grey.shade300,
+                disabledBackgroundColor: AnansiColors.darkBlue,
                 foregroundColor: Colors.white,
+                disabledForegroundColor: Colors.white,
                 shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(20),
+                  borderRadius: BorderRadius.circular(16),
                 ),
                 elevation: 0,
               ),

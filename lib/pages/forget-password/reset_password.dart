@@ -123,8 +123,10 @@ class _ResetPasswordState extends State<ResetPassword> {
   }
 
   void _handleReset() async {
-    if (_passController.text != _confirmPassController.text) {
-      setState(() => formErrors['confirm'] = "Passwords do not match");
+    _validatePasswordOnFocus();
+    _validateConfirm();
+    if (formErrors.values.any((e) => e != null)) {
+      HapticFeedback.vibrate();
       return;
     }
     setState(() {
@@ -207,14 +209,16 @@ class _ResetPasswordState extends State<ResetPassword> {
                 width: double.infinity,
                 height: 60,
                 child: ElevatedButton(
-                  onPressed: !allRequirementsMet
-                      ? null
-                      : (_isLoading ? () {} : _handleReset),
+                  onPressed: _isLoading ? null : _handleReset,
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: AnansiColors.darkBlue,
-                    disabledBackgroundColor: const Color(0xFFF1F4F8),
+                    backgroundColor: allRequirementsMet
+                        ? AnansiColors.darkBlue
+                        : Colors.grey.shade300,
+                    disabledBackgroundColor: AnansiColors.darkBlue,
+                    foregroundColor: Colors.white,
+                    disabledForegroundColor: Colors.white,
                     shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(20),
+                      borderRadius: BorderRadius.circular(16),
                     ),
                     elevation: 0,
                   ),
