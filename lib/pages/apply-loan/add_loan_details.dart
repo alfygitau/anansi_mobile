@@ -69,6 +69,7 @@ class _AddLoanDetailsState extends State<AddLoanDetails> {
     Widget Function(String appId, String productId) nextScreenBuilder,
   ) async {
     _validateField('amount', _amountController.text);
+    if (formErrors['amount'] != null) return;
 
     setState(() => _loading = true);
     try {
@@ -83,7 +84,6 @@ class _AddLoanDetailsState extends State<AddLoanDetails> {
             applicantMobile: user?['mobileno'] ?? "",
             purpose: _purposeController.text.trim(),
           );
-
       if (errors != null) {
         ErrorService.showActionableError(
           context,
@@ -135,6 +135,41 @@ class _AddLoanDetailsState extends State<AddLoanDetails> {
         formErrors[key] = null;
       }
     });
+  }
+
+  bool get _isFormValid {
+    // 1. Guard against uninitialized product or loading state
+    if (_isLoading || loanProduct.isEmpty) return false;
+
+    // 2. Validate amount string
+    final String rawAmount = _amountController.text.trim();
+    if (rawAmount.isEmpty || formErrors['amount'] != null) return false;
+
+    final double? inputAmount = double.tryParse(rawAmount);
+    if (inputAmount == null || inputAmount <= 0) return false;
+
+    final double minAmount =
+        double.tryParse(loanProduct['min_amount']?.toString() ?? '') ?? 0.0;
+    final double maxAmount =
+        double.tryParse(loanProduct['max_amount']?.toString() ?? '') ?? 0.0;
+
+    if (minAmount > 0 && inputAmount < minAmount) return false;
+    if (maxAmount > 0 && inputAmount > maxAmount) return false;
+
+    // 3. Validate tenure range
+    final double minPeriod =
+        double.tryParse(loanProduct['min_period']?.toString() ?? '') ?? 0.0;
+    final double maxPeriod =
+        double.tryParse(loanProduct['max_period']?.toString() ?? '') ?? 0.0;
+
+    if (_selectedTenure <= 0) return false;
+    if (minPeriod > 0 && _selectedTenure < minPeriod) return false;
+    if (maxPeriod > 0 && _selectedTenure > maxPeriod) return false;
+
+    // 4. Validate repayment frequency
+    if (_selectedFrequency.trim().isEmpty) return false;
+
+    return true;
   }
 
   @override
@@ -841,7 +876,7 @@ class _AddLoanDetailsState extends State<AddLoanDetails> {
   }
 
   Widget _buildFrequencySelector() {
-    final options = ["Weekly", "Monthly", "Quarterly"];
+    final options = ["Daily", "Weekly", "Monthly"];
     return Row(
       children: options.map((opt) {
         bool isSelected = _selectedFrequency == opt;
@@ -925,9 +960,7 @@ class _AddLoanDetailsState extends State<AddLoanDetails> {
     );
   }
 
-  // --- HELPERS ---
   Widget _buildActionDock({
-    // Signature updated to pass down the runtime builder closure
     required Function(
       Widget Function(String appId, String productId) nextRouteBuilder,
     )
@@ -936,8 +969,6 @@ class _AddLoanDetailsState extends State<AddLoanDetails> {
     final bool requiresGuarantor = loanProduct['requires_guarantor'] ?? false;
     final bool requiresChattels = loanProduct['requires_collateral'] ?? false;
     final bool requiresDocuments = loanProduct['requires_documents'] ?? false;
-
-    // Change variable type to hold a blueprint function instead of a fixed Widget instance
     Widget Function(String appId, String productId) destinationBuilder;
     String buttonLabel;
 
@@ -946,10 +977,8 @@ class _AddLoanDetailsState extends State<AddLoanDetails> {
           AddGuarantors(appId: id, productId: productId);
       buttonLabel = "PROCEED WITH APPLICATION";
     } else if (requiresChattels) {
-      destinationBuilder = (id, productId) => Collaterals(
-        appId: id,
-        productId: productId,
-      ); // Assuming your pages accept appId
+      destinationBuilder = (id, productId) =>
+          Collaterals(appId: id, productId: productId);
       buttonLabel = "PROCEED WITH APPLICATION";
     } else if (requiresDocuments) {
       destinationBuilder = (id, productId) =>
@@ -959,29 +988,27 @@ class _AddLoanDetailsState extends State<AddLoanDetails> {
       destinationBuilder = (id, productId) => LoanTermsConditions(appId: id);
       buttonLabel = "PROCEED WITH APPLICATION";
     }
-
     return Container(
-      padding: const EdgeInsets.fromLTRB(24, 20, 24, 40),
+      padding: const EdgeInsets.fromLTRB(24, 20, 24, 20),
       color: Colors.white,
       child: ElevatedButton(
         onPressed: _loading
             ? null
             : () {
-                _validateField('amount', _amountController.text);
-                if (formErrors['amount'] != null) return;
-
-                // Passes the blueprint down to your server submit request handler
                 onCreateApplication(destinationBuilder);
               },
         style: ElevatedButton.styleFrom(
-          backgroundColor: ThemeColors.primary,
-          disabledBackgroundColor: const Color(
-            0xFF0A2351,
-          ).withValues(alpha: 0.7),
-          minimumSize: const Size(double.infinity, 64),
+          backgroundColor: _isFormValid
+              ? AnansiColors.darkBlue
+              : Colors.grey.shade300,
+          disabledBackgroundColor: AnansiColors.darkBlue,
+          foregroundColor: Colors.white,
+          disabledForegroundColor: Colors.white,
+           minimumSize: const Size(double.infinity, 60),
           shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(20),
+            borderRadius: BorderRadius.circular(16),
           ),
+          elevation: 0,
         ),
         child: _loading
             ? const SizedBox(
