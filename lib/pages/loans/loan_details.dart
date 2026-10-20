@@ -842,6 +842,10 @@ class _LoanDetailsState extends State<LoanDetails> {
   }
 
   Widget _buildActionDock() {
+    final String loanStatus =
+        loan['loan_status']?.toString().toLowerCase().trim() ?? "pending";
+    final bool isCleared = loanStatus == "cleared";
+
     return Container(
       padding: const EdgeInsets.fromLTRB(24, 20, 24, 40),
       decoration: BoxDecoration(
@@ -856,25 +860,31 @@ class _LoanDetailsState extends State<LoanDetails> {
         ],
       ),
       child: ElevatedButton(
-        onPressed: () {
-          Navigator.push(
-            context,
-            MaterialPageRoute(builder: (context) => RepayAmount(loan: loan)),
-          );
-        },
+        onPressed: isCleared
+            ? null
+            : () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => RepayAmount(loan: loan),
+                  ),
+                );
+              },
         style: ElevatedButton.styleFrom(
           backgroundColor: ThemeColors.primary,
+          disabledBackgroundColor: const Color(0xFFE2E8F0),
+          disabledForegroundColor: const Color(0xFF94A3B8),
           minimumSize: const Size(double.infinity, 64),
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(20),
           ),
           elevation: 0,
         ),
-        child: const Text(
-          "REPAY LOAN",
+        child: Text(
+          isCleared ? "LOAN CLEARED" : "REPAY LOAN",
           style: TextStyle(
             fontWeight: FontWeight.w900,
-            color: Colors.white,
+            color: isCleared ? const Color(0xFF94A3B8) : Colors.white,
             letterSpacing: 1,
           ),
         ),

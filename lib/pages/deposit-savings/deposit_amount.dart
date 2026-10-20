@@ -102,6 +102,11 @@ class _DepositAmountState extends State<DepositAmount> {
     });
   }
 
+  void _validateAllFields() {
+    _validateField('amount');
+    _validateField('phone');
+  }
+
   @override
   void dispose() {
     _amountController.dispose();
@@ -185,7 +190,7 @@ class _DepositAmountState extends State<DepositAmount> {
                     fieldKey: "phone",
                     keyboardType: TextInputType.phone,
                   ),
-                  const SizedBox(height: 80),
+                  const SizedBox(height: 30),
                   _buildContinueButton(),
                   const SizedBox(height: 20),
                 ],
@@ -522,17 +527,18 @@ class _DepositAmountState extends State<DepositAmount> {
                   ),
                 );
               }
-            : null, // This is what tells the button to be disabled and turn grey
+            : _validateAllFields,
         style: ElevatedButton.styleFrom(
-          backgroundColor: AnansiColors.darkBlue,
-          // The button automatically uses disabledBackgroundColor when onPressed is null
-          disabledBackgroundColor: Colors.grey.shade300,
+          backgroundColor: isValid
+              ? AnansiColors.darkBlue
+              : Colors.grey.shade300,
+          disabledBackgroundColor: AnansiColors.darkBlue,
           foregroundColor: Colors.white,
+          disabledForegroundColor: Colors.white,
           shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(24),
+            borderRadius: BorderRadius.circular(16),
           ),
-          elevation: isValid ? 12 : 0, // Remove elevation when disabled
-          shadowColor: AnansiColors.darkBlue.withValues(alpha: 0.3),
+          elevation: 0,
         ),
         child: const Row(
           mainAxisAlignment: MainAxisAlignment.center,

@@ -147,6 +147,12 @@ class InvestAmountState extends State<InvestAmount> {
     });
   }
 
+  void _validateAllFields() {
+    _validateField('amount');
+    _validateField('phone');
+    _validateField('shares');
+  }
+
   @override
   void dispose() {
     _amountController.dispose();
@@ -656,34 +662,43 @@ class InvestAmountState extends State<InvestAmount> {
 
   Widget buildPayButton() {
     final bool isValid = _isFormValid();
-    return ElevatedButton(
-      onPressed: isValid
-          ? () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => ReviewInvestDetails(
-                    savingsAmount: _amountController.text.trim(),
-                    sharesAmount: _sharesController.text.trim(),
-                    phoneNumber: _mobileController.text.trim(),
+    return SizedBox(
+      width: double.infinity,
+      height: 60,
+      child: ElevatedButton(
+        onPressed: isValid
+            ? () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => ReviewInvestDetails(
+                      savingsAmount: _amountController.text.trim(),
+                      sharesAmount: _sharesController.text.trim(),
+                      phoneNumber: _mobileController.text.trim(),
+                    ),
                   ),
-                ),
-              );
-            }
-          : null,
-      style: ElevatedButton.styleFrom(
-        backgroundColor: AnansiColors.darkBlue,
-        disabledBackgroundColor: Colors.grey.shade300,
-        minimumSize: const Size(double.infinity, 60),
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-        elevation: 0,
-      ),
-      child: const Text(
-        "Continue",
-        style: TextStyle(
-          color: Colors.white,
-          fontWeight: FontWeight.w900,
-          fontSize: 16,
+                );
+              }
+            : _validateAllFields,
+        style: ElevatedButton.styleFrom(
+          backgroundColor: isValid
+              ? AnansiColors.darkBlue
+              : Colors.grey.shade300,
+          disabledBackgroundColor: AnansiColors.darkBlue,
+          foregroundColor: Colors.white,
+          disabledForegroundColor: Colors.white,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(16),
+          ),
+          elevation: 0,
+        ),
+        child: const Text(
+          "Continue",
+          style: TextStyle(
+            color: Colors.white,
+            fontWeight: FontWeight.w900,
+            fontSize: 16,
+          ),
         ),
       ),
     );

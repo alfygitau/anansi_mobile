@@ -118,6 +118,11 @@ class _SharesAmountState extends State<SharesAmount> {
     });
   }
 
+  void _validateAllFields() {
+    _validateField('amount');
+    _validateField('phone');
+  }
+
   @override
   void dispose() {
     _amountController.dispose();
@@ -195,7 +200,7 @@ class _SharesAmountState extends State<SharesAmount> {
                     keyboardType: TextInputType.phone,
                   ),
 
-                  const SizedBox(height: 80),
+                  const SizedBox(height: 50),
                   _buildContinueButton(),
                   const SizedBox(height: 24),
                 ],
@@ -525,7 +530,7 @@ class _SharesAmountState extends State<SharesAmount> {
 
     return SizedBox(
       width: double.infinity,
-      height: 62,
+      height: 60,
       child: ElevatedButton(
         onPressed: isValid
             ? () {
@@ -540,12 +545,16 @@ class _SharesAmountState extends State<SharesAmount> {
                   ),
                 );
               }
-            : null,
+            : _validateAllFields,
         style: ElevatedButton.styleFrom(
-          backgroundColor: AnansiColors.darkBlue,
-          disabledBackgroundColor: Colors.grey.shade300,
+          backgroundColor: isValid
+              ? AnansiColors.darkBlue
+              : Colors.grey.shade300,
+          disabledBackgroundColor: AnansiColors.darkBlue,
+          foregroundColor: Colors.white,
+          disabledForegroundColor: Colors.white,
           shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(20),
+            borderRadius: BorderRadius.circular(16),
           ),
           elevation: 0,
         ),
