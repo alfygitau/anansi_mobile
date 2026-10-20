@@ -32,7 +32,7 @@ class _AllAccountsState extends State<AllAccounts> {
   }
 
   Future<void> fetchCustomerDetails() async {
-    _isLoading = true;
+    setState(() => _isLoading = true);
     try {
       final (response, errors) = await AccountService().customerDetails();
       if (errors != null) {
@@ -430,11 +430,18 @@ class _AllAccountsState extends State<AllAccounts> {
               ),
               child: IconButton(
                 padding: EdgeInsets.zero,
-                icon: const Icon(
-                  Icons.refresh_rounded,
-                  size: 18,
-                  color: AnansiColors.darkBlue,
-                ),
+                icon: _isLoading
+                    ? const Center(
+                        child: CupertinoActivityIndicator(
+                          radius: 9, // Sized cleanly for the 38x38 container
+                          color: AnansiColors.darkBlue,
+                        ),
+                      )
+                    : const Icon(
+                        Icons.refresh_rounded,
+                        size: 18,
+                        color: AnansiColors.darkBlue,
+                      ),
                 onPressed: fetchCustomerDetails,
               ),
             ),

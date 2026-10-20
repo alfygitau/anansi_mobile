@@ -67,148 +67,155 @@ class _LoanProductsState extends State<LoanProducts> {
           Navigator.pushNamed(context, targetNamedRoute);
         },
       ),
-      body: CustomScrollView(
-        physics: const BouncingScrollPhysics(),
-        slivers: [
-          SliverAppBar(
-            pinned: true,
-            backgroundColor: ThemeColors.background.withValues(alpha: 0.9),
-            elevation: 0,
-            centerTitle: true,
-            leadingWidth:
-                64, // Added width to give the circled icon breathing room
-            title: const Text(
-              "Loan Offerings",
-              style: TextStyle(
-                color: AnansiColors.darkBlue,
-                fontWeight: FontWeight.w900,
-                fontSize:
-                    18, // Slightly adjusted for better balance with circled icons
-                letterSpacing: -0.5,
-              ),
-            ),
-            // 1. Circled Back Button
-            leading: Center(
-              child: Container(
-                width: 40,
-                height: 40,
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  shape: BoxShape.circle,
-                  border: Border.all(color: Colors.grey.shade100),
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.black.withValues(alpha: 0.03),
-                      blurRadius: 4,
-                      offset: const Offset(0, 2),
-                    ),
-                  ],
-                ),
-                child: Builder(
-                  builder: (nestedContext) {
-                    return IconButton(
-                      padding: EdgeInsets.zero,
-                      icon: const Icon(
-                        CupertinoIcons.square_grid_2x2,
-                        size: 20,
-                        color: AnansiColors.darkBlue,
-                      ),
-                      onPressed: () {
-                        Scaffold.of(nestedContext).openDrawer();
-                      },
-                    );
-                  },
-                ),
-              ),
-            ),
-            // 2. Circled Action Button
-            actions: [
-              Padding(
-                padding: const EdgeInsets.only(right: 16),
-                child: Center(
-                  child: Container(
-                    width: 40,
-                    height: 40,
-                    decoration: BoxDecoration(
-                      color: Colors.white,
-                      shape: BoxShape.circle,
-                      border: Border.all(color: Colors.grey.shade100),
-                      boxShadow: [
-                        BoxShadow(
-                          color: Colors.black.withValues(alpha: 0.03),
-                          blurRadius: 4,
-                          offset: const Offset(0, 2),
-                        ),
-                      ],
-                    ),
-                    child: IconButton(
-                      padding: EdgeInsets.zero,
-                      icon: const Icon(
-                        CupertinoIcons.search,
-                        size: 20,
-                        color: AnansiColors.darkBlue,
-                      ),
-                      onPressed: () {},
-                    ),
-                  ),
-                ),
-              ),
-            ],
-          ),
-          SliverToBoxAdapter(
-            child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 8),
-              child: Text(
-                "Select a specialized plan to view eligibility and terms.",
+      body: RefreshIndicator(
+        onRefresh: getLoanProducts,
+        color: Theme.of(context).primaryColor,
+        child: CustomScrollView(
+          physics: const BouncingScrollPhysics(),
+          slivers: [
+            SliverAppBar(
+              pinned: true,
+              backgroundColor: ThemeColors.background.withValues(alpha: 0.9),
+              elevation: 0,
+              centerTitle: true,
+              leadingWidth:
+                  64, // Added width to give the circled icon breathing room
+              title: const Text(
+                "Loan Offerings",
                 style: TextStyle(
-                  color: Colors.blueGrey.shade400,
-                  fontSize: 14,
-                  fontWeight: FontWeight.w500,
+                  color: AnansiColors.darkBlue,
+                  fontWeight: FontWeight.w900,
+                  fontSize:
+                      18, // Slightly adjusted for better balance with circled icons
+                  letterSpacing: -0.5,
                 ),
               ),
-            ),
-          ),
-          _isLoading
-              ? _buildDetailedLoanCardsSkeletonList()
-              : loanProducts.isNotEmpty
-              ? SliverPadding(
-                  padding: const EdgeInsets.fromLTRB(24, 10, 24, 24),
-                  sliver: SliverList(
-                    delegate: SliverChildBuilderDelegate((context, index) {
-                      final product = loanProducts[index];
-                      return _buildDetailedLoanCard(
-                        context,
-                        product,
-                        onTap: () {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) => LoanEligibility(
-                                productId: product['id'] ?? "",
-                              ),
-                            ),
-                          );
-                        },
-                        onClick: () {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) =>
-                                  LoanProduct(productId: product['id'] ?? ""),
-                            ),
-                          );
+              // 1. Circled Back Button
+              leading: Center(
+                child: Container(
+                  width: 40,
+                  height: 40,
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    shape: BoxShape.circle,
+                    border: Border.all(color: Colors.grey.shade100),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black.withValues(alpha: 0.03),
+                        blurRadius: 4,
+                        offset: const Offset(0, 2),
+                      ),
+                    ],
+                  ),
+                  child: Builder(
+                    builder: (nestedContext) {
+                      return IconButton(
+                        padding: EdgeInsets.zero,
+                        icon: const Icon(
+                          CupertinoIcons.square_grid_2x2,
+                          size: 20,
+                          color: AnansiColors.darkBlue,
+                        ),
+                        onPressed: () {
+                          Scaffold.of(nestedContext).openDrawer();
                         },
                       );
-                    }, childCount: loanProducts.length),
+                    },
                   ),
-                )
-              : _buildEmptyState(
-                  title: "No Loan Offerings Available",
-                  description:
-                      "We couldn't find any active credit products matching your profile configuration right now. Please check back later or contact customer support.",
-                  icon: CupertinoIcons.briefcase,
                 ),
-        ],
+              ),
+              // 2. Circled Action Button
+              actions: [
+                Padding(
+                  padding: const EdgeInsets.only(right: 16),
+                  child: Center(
+                    child: Container(
+                      width: 40,
+                      height: 40,
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        shape: BoxShape.circle,
+                        border: Border.all(color: Colors.grey.shade100),
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.black.withValues(alpha: 0.03),
+                            blurRadius: 4,
+                            offset: const Offset(0, 2),
+                          ),
+                        ],
+                      ),
+                      child: IconButton(
+                        padding: EdgeInsets.zero,
+                        icon: const Icon(
+                          CupertinoIcons.search,
+                          size: 20,
+                          color: AnansiColors.darkBlue,
+                        ),
+                        onPressed: () {},
+                      ),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+            SliverToBoxAdapter(
+              child: Padding(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 24,
+                  vertical: 8,
+                ),
+                child: Text(
+                  "Select a specialized plan to view eligibility and terms.",
+                  style: TextStyle(
+                    color: Colors.blueGrey.shade400,
+                    fontSize: 14,
+                    fontWeight: FontWeight.w500,
+                  ),
+                ),
+              ),
+            ),
+            _isLoading
+                ? _buildDetailedLoanCardsSkeletonList()
+                : loanProducts.isNotEmpty
+                ? SliverPadding(
+                    padding: const EdgeInsets.fromLTRB(24, 10, 24, 24),
+                    sliver: SliverList(
+                      delegate: SliverChildBuilderDelegate((context, index) {
+                        final product = loanProducts[index];
+                        return _buildDetailedLoanCard(
+                          context,
+                          product,
+                          onTap: () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => LoanEligibility(
+                                  productId: product['id'] ?? "",
+                                ),
+                              ),
+                            );
+                          },
+                          onClick: () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) =>
+                                    LoanProduct(productId: product['id'] ?? ""),
+                              ),
+                            );
+                          },
+                        );
+                      }, childCount: loanProducts.length),
+                    ),
+                  )
+                : _buildEmptyState(
+                    title: "No Loan Offerings Available",
+                    description:
+                        "We couldn't find any active credit products matching your profile configuration right now. Please check back later or contact customer support.",
+                    icon: CupertinoIcons.briefcase,
+                  ),
+          ],
+        ),
       ),
     );
   }

@@ -75,10 +75,7 @@ class _MyLoansState extends State<MyLoans> {
     int cleared = 0;
 
     for (final app in loans) {
-      final status = (app['loan_status'] ?? '')
-          .toString()
-          .toLowerCase()
-          .trim();
+      final status = (app['loan_status'] ?? '').toString().toLowerCase().trim();
 
       if (status == 'active') {
         active++;
@@ -152,56 +149,60 @@ class _MyLoansState extends State<MyLoans> {
           Navigator.pushNamed(context, targetNamedRoute);
         },
       ),
-      body: CustomScrollView(
-        slivers: [
-          // 1. App Bar
-          _buildAppBar(),
+      body: RefreshIndicator(
+        onRefresh: getLoans,
+        color: Theme.of(context).primaryColor,
+        child: CustomScrollView(
+          slivers: [
+            // 1. App Bar
+            _buildAppBar(),
 
-          // 2. Loan Summary Hero
-          SliverToBoxAdapter(child: _buildLoanSummaryHero()),
+            // 2. Loan Summary Hero
+            SliverToBoxAdapter(child: _buildLoanSummaryHero()),
 
-          // 3. Application Action
-          SliverToBoxAdapter(child: _buildApplyLoanAction(context)),
+            // 3. Application Action
+            SliverToBoxAdapter(child: _buildApplyLoanAction(context)),
 
-          // 4. Section Header with Filter
-          SliverToBoxAdapter(child: _buildSectionHeader("Loan Facilities")),
-          _isLoading
-              ? _buildLoansSkeletonList()
-              : loans.isNotEmpty
-              ? SliverPadding(
-                  padding: const EdgeInsets.symmetric(horizontal: 20),
-                  sliver: SliverList(
-                    delegate: SliverChildBuilderDelegate((context, index) {
-                      final loan = loans[index];
-                      return _buildLoanItem(
-                        title: loan['loan_type'],
-                        id: loan['loan_code'],
-                        amount: formatAmount(loan['loan_amount']),
-                        balance: formatAmount(loan['loan_Balance']),
-                        status: loan['loan_status'],
-                        statusColor: _getStatusColor(loan['loan_status']),
-                        maturityDate: loan['loan_due_date'],
-                        onTap: () {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) =>
-                                  LoanDetails(loanId: loan['id'] ?? ""),
-                            ),
-                          );
-                        },
-                      );
-                    }, childCount: loans.length),
+            // 4. Section Header with Filter
+            SliverToBoxAdapter(child: _buildSectionHeader("Loan Facilities")),
+            _isLoading
+                ? _buildLoansSkeletonList()
+                : loans.isNotEmpty
+                ? SliverPadding(
+                    padding: const EdgeInsets.symmetric(horizontal: 20),
+                    sliver: SliverList(
+                      delegate: SliverChildBuilderDelegate((context, index) {
+                        final loan = loans[index];
+                        return _buildLoanItem(
+                          title: loan['loan_type'],
+                          id: loan['loan_code'],
+                          amount: formatAmount(loan['loan_amount']),
+                          balance: formatAmount(loan['loan_Balance']),
+                          status: loan['loan_status'],
+                          statusColor: _getStatusColor(loan['loan_status']),
+                          maturityDate: loan['loan_due_date'],
+                          onTap: () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) =>
+                                    LoanDetails(loanId: loan['id'] ?? ""),
+                              ),
+                            );
+                          },
+                        );
+                      }, childCount: loans.length),
+                    ),
+                  )
+                : _buildEmptyState(
+                    title: "No Active Loans",
+                    description:
+                        "You currently do not have any running or settled loans on your profile. When you accept a loan offer, its repayment tracker and balances will show up here.",
+                    icon: CupertinoIcons
+                        .creditcard, // Swapped to a credit card icon for loans
                   ),
-                )
-              : _buildEmptyState(
-                  title: "No Active Loans",
-                  description:
-                      "You currently do not have any running or settled loans on your profile. When you accept a loan offer, its repayment tracker and balances will show up here.",
-                  icon: CupertinoIcons
-                      .creditcard, // Swapped to a credit card icon for loans
-                ),
-        ],
+          ],
+        ),
       ),
     );
   }
