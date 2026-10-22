@@ -103,6 +103,10 @@ class _LoanApplicationsState extends State<LoanApplications> {
     );
   }
 
+  Future<void> _handleRefresh() async {
+    getLoanApplications();
+  }
+
   @override
   void initState() {
     super.initState();
@@ -119,59 +123,58 @@ class _LoanApplicationsState extends State<LoanApplications> {
           Navigator.pushNamed(context, targetNamedRoute);
         },
       ),
-      body: RefreshIndicator(
-        onRefresh: getLoanApplications,
-        color: Theme.of(context).primaryColor,
-        child: CustomScrollView(
-          slivers: [
-            _buildAppBar(),
-            SliverToBoxAdapter(
-              child: _loading
-                  ? _buildApplicationSummarySkeleton()
-                  : _buildApplicationSummary(),
-            ),
-            SliverToBoxAdapter(child: _buildApplyLoanAction(context)),
-            SliverToBoxAdapter(
-              child: _buildSectionHeader("Application History"),
-            ),
-            _loading
-                ? _buildLoanApplicationsSkeleton()
-                : applications.isNotEmpty
-                ? SliverPadding(
-                    padding: const EdgeInsets.symmetric(horizontal: 20),
-                    sliver: SliverList(
-                      delegate: SliverChildBuilderDelegate((context, index) {
-                        final item = applications[index];
-                        return _buildApplicationItem(
-                          reference: item['application_number'] ?? "N/A",
-                          title:
-                              item['product']['product_name'] ??
-                              "Loan Application",
-                          date: formatPostgresDateWithTime(item['created_at']),
-                          amount: formatAmount(item['applied_amount'] ?? 0),
-                          status: item['status_label'] ?? "Pending",
-                          onTap: () {
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (context) =>
-                                    LoanApplication(appId: item['id'] ?? ""),
-                              ),
-                            );
-                          },
-                        );
-                      }, childCount: applications.length),
-                    ),
-                  )
-                : _buildEmptyState(
-                    title: "No Loan Applications",
-                    description:
-                        "You haven't submitted any loan applications yet. When you apply for a loan, your application progress, approval stages, and status tracking will appear here.",
-                    icon: CupertinoIcons
-                        .doc_text, // Form/document icon perfect for applications
+      body: CustomScrollView(
+        slivers: [
+          _buildAppBar(),
+          CupertinoSliverRefreshControl(
+            onRefresh: () async {
+              _handleRefresh();
+            },
+          ),
+          SliverToBoxAdapter(
+            child: _loading
+                ? _buildApplicationSummarySkeleton()
+                : _buildApplicationSummary(),
+          ),
+          SliverToBoxAdapter(child: _buildApplyLoanAction(context)),
+          SliverToBoxAdapter(child: _buildSectionHeader("Application History")),
+          _loading
+              ? _buildLoanApplicationsSkeleton()
+              : applications.isNotEmpty
+              ? SliverPadding(
+                  padding: const EdgeInsets.symmetric(horizontal: 20),
+                  sliver: SliverList(
+                    delegate: SliverChildBuilderDelegate((context, index) {
+                      final item = applications[index];
+                      return _buildApplicationItem(
+                        reference: item['application_number'] ?? "N/A",
+                        title:
+                            item['product']['product_name'] ??
+                            "Loan Application",
+                        date: formatPostgresDateWithTime(item['created_at']),
+                        amount: formatAmount(item['applied_amount'] ?? 0),
+                        status: item['status_label'] ?? "Pending",
+                        onTap: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) =>
+                                  LoanApplication(appId: item['id'] ?? ""),
+                            ),
+                          );
+                        },
+                      );
+                    }, childCount: applications.length),
                   ),
-          ],
-        ),
+                )
+              : _buildEmptyState(
+                  title: "No Loan Applications",
+                  description:
+                      "You haven't submitted any loan applications yet. When you apply for a loan, your application progress, approval stages, and status tracking will appear here.",
+                  icon: CupertinoIcons
+                      .doc_text, // Form/document icon perfect for applications
+                ),
+        ],
       ),
     );
   }
@@ -764,7 +767,7 @@ class _LoanApplicationsState extends State<LoanApplications> {
                     status.toUpperCase(),
                     style: TextStyle(
                       color: statusColor,
-                      fontSize: 9,
+                      fontSize: 8,
                       fontWeight: FontWeight.w900,
                       letterSpacing: 0.5,
                     ),

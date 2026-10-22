@@ -111,108 +111,109 @@ class _AllAccountsState extends State<AllAccounts> {
           Navigator.pushNamed(context, targetNamedRoute);
         },
       ),
-      body: RefreshIndicator(
-        onRefresh: fetchCustomerDetails,
-        color: Theme.of(context).primaryColor,
-        child: CustomScrollView(
-          physics: const AlwaysScrollableScrollPhysics(),
-          slivers: [
-            _buildAppBar(),
-            if (_isLoading)
-              _buildShimmerLoading()
-            else if (_errorMessage != null)
-              SliverFillRemaining(
-                hasScrollBody: false,
-                child: Center(
+      body: CustomScrollView(
+        physics: const AlwaysScrollableScrollPhysics(),
+        slivers: [
+          _buildAppBar(),
+          CupertinoSliverRefreshControl(
+            onRefresh: () async {
+              fetchCustomerDetails();
+            },
+          ),
+          if (_isLoading)
+            _buildShimmerLoading()
+          else if (_errorMessage != null)
+            SliverFillRemaining(
+              hasScrollBody: false,
+              child: Center(
+                child: Text(
+                  _errorMessage!,
+                  style: const TextStyle(color: Colors.red),
+                ),
+              ),
+            )
+          else if (accounts.isEmpty)
+            const SliverFillRemaining(
+              hasScrollBody: false,
+              child: Center(child: Text("No accounts found.")),
+            )
+          else ...[
+            if (primaryAccounts.isNotEmpty) ...[
+              SliverToBoxAdapter(
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 24.0,
+                    vertical: 8.0,
+                  ),
                   child: Text(
-                    _errorMessage!,
-                    style: const TextStyle(color: Colors.red),
+                    "PRIMARY ACCOUNT",
+                    style: TextStyle(
+                      fontSize: 11,
+                      fontWeight: FontWeight.w900,
+                      color: Colors.grey[500],
+                      letterSpacing: 1.2,
+                    ),
                   ),
                 ),
-              )
-            else if (accounts.isEmpty)
-              const SliverFillRemaining(
-                hasScrollBody: false,
-                child: Center(child: Text("No accounts found.")),
-              )
-            else ...[
-              if (primaryAccounts.isNotEmpty) ...[
-                SliverToBoxAdapter(
-                  child: Padding(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 24.0,
-                      vertical: 8.0,
-                    ),
-                    child: Text(
-                      "PRIMARY ACCOUNT",
-                      style: TextStyle(
-                        fontSize: 11,
-                        fontWeight: FontWeight.w900,
-                        color: Colors.grey[500],
-                        letterSpacing: 1.2,
+              ),
+              SliverPadding(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 24.0,
+                  vertical: 0,
+                ),
+                sliver: SliverList(
+                  delegate: SliverChildBuilderDelegate((context, index) {
+                    return Padding(
+                      padding: const EdgeInsets.only(bottom: 16.0),
+                      child: _buildPremiumAccountCard(
+                        context,
+                        primaryAccounts[index],
                       ),
-                    ),
-                  ),
+                    );
+                  }, childCount: primaryAccounts.length),
                 ),
-                SliverPadding(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 24.0,
-                    vertical: 0,
-                  ),
-                  sliver: SliverList(
-                    delegate: SliverChildBuilderDelegate((context, index) {
-                      return Padding(
-                        padding: const EdgeInsets.only(bottom: 16.0),
-                        child: _buildPremiumAccountCard(
-                          context,
-                          primaryAccounts[index],
-                        ),
-                      );
-                    }, childCount: primaryAccounts.length),
-                  ),
-                ),
-              ],
+              ),
+            ],
 
-              // --- CATEGORY 2: OTHER ACCOUNTS ---
-              if (otherAccounts.isNotEmpty) ...[
-                SliverToBoxAdapter(
-                  child: Padding(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 24.0,
-                      vertical: 8.0,
-                    ),
-                    child: Text(
-                      "OTHER ACCOUNTS",
-                      style: TextStyle(
-                        fontSize: 11,
-                        fontWeight: FontWeight.w900,
-                        color: Colors.grey[500],
-                        letterSpacing: 1.2,
-                      ),
-                    ),
-                  ),
-                ),
-                SliverPadding(
+            // --- CATEGORY 2: OTHER ACCOUNTS ---
+            if (otherAccounts.isNotEmpty) ...[
+              SliverToBoxAdapter(
+                child: Padding(
                   padding: const EdgeInsets.symmetric(
                     horizontal: 24.0,
-                    vertical: 0,
+                    vertical: 8.0,
                   ),
-                  sliver: SliverList(
-                    delegate: SliverChildBuilderDelegate((context, index) {
-                      return Padding(
-                        padding: const EdgeInsets.only(bottom: 16.0),
-                        child: _buildPremiumAccountCard(
-                          context,
-                          otherAccounts[index],
-                        ),
-                      );
-                    }, childCount: otherAccounts.length),
+                  child: Text(
+                    "OTHER ACCOUNTS",
+                    style: TextStyle(
+                      fontSize: 11,
+                      fontWeight: FontWeight.w900,
+                      color: Colors.grey[500],
+                      letterSpacing: 1.2,
+                    ),
                   ),
                 ),
-              ],
+              ),
+              SliverPadding(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 24.0,
+                  vertical: 0,
+                ),
+                sliver: SliverList(
+                  delegate: SliverChildBuilderDelegate((context, index) {
+                    return Padding(
+                      padding: const EdgeInsets.only(bottom: 16.0),
+                      child: _buildPremiumAccountCard(
+                        context,
+                        otherAccounts[index],
+                      ),
+                    );
+                  }, childCount: otherAccounts.length),
+                ),
+              ),
             ],
           ],
-        ),
+        ],
       ),
     );
   }

@@ -257,11 +257,7 @@ class _HomepageState extends State<Homepage> {
         physics: const BouncingScrollPhysics(),
         slivers: [
           _buildDashboardAppBar(context),
-          CupertinoSliverRefreshControl(
-            onRefresh: () async {
-              _handleRefresh();
-            },
-          ),
+          CupertinoSliverRefreshControl(onRefresh: _handleRefresh),
           SliverPadding(
             padding: const EdgeInsets.fromLTRB(20, 5, 20, 20),
             sliver: SliverToBoxAdapter(
