@@ -9,6 +9,7 @@ import 'package:app_anansi_mobile/theme/app_theme.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:shimmer/shimmer.dart';
 
 class AllAccounts extends StatefulWidget {
@@ -607,17 +608,50 @@ class _AllAccountsState extends State<AllAccounts> {
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  Text(
-                    isBalanceHidden ? "KES ••••••" : balance,
-                    style: TextStyle(
-                      fontSize: 28,
-                      fontWeight: FontWeight.w500,
-                      color: isSavingsAccount
-                          ? Colors.white
-                          : AnansiColors.darkBlue,
-                      letterSpacing: -0.5,
-                    ),
-                  ),
+                  isBalanceHidden
+                      ? Text.rich(
+                          TextSpan(
+                            text: "KES ",
+                            style: GoogleFonts.outfit(
+                              fontWeight: FontWeight.w400,
+                              fontSize: 24,
+                              color: isSavingsAccount
+                                  ? Colors.white
+                                  : AnansiColors.darkBlue,
+                            ),
+                            children: [
+                              WidgetSpan(
+                                alignment: PlaceholderAlignment.middle,
+                                child: Padding(
+                                  padding: const EdgeInsets.only(
+                                    top: 6,
+                                  ), // Shifts the elevated asterisks to the vertical center
+                                  child: Text(
+                                    "********",
+                                    style: GoogleFonts.outfit(
+                                      fontWeight: FontWeight.w600,
+                                      fontSize: 22,
+                                      letterSpacing: 2.5,
+                                      color: isSavingsAccount
+                                          ? Colors.white
+                                          : AnansiColors.darkBlue,
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                        )
+                      : Text(
+                          formatAmount(balance),
+                          style: GoogleFonts.outfit(
+                            fontWeight: FontWeight.w400,
+                            fontSize: 24,
+                            color: isSavingsAccount
+                                ? Colors.white
+                                : AnansiColors.darkBlue,
+                          ),
+                        ),
                   const SizedBox(width: 12),
                   Container(
                     width: 28,

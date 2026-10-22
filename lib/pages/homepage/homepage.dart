@@ -1404,14 +1404,48 @@ class _HomepageState extends State<Homepage> {
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Text(
-                  isHidden ? "KES ••••••••" : formatAmount(balance),
-                  style: GoogleFonts.outfit(
-                    fontWeight: FontWeight.w400,
-                    fontSize: 24,
-                    color: isPrimary ? Colors.white : AnansiColors.darkBlue,
-                  ),
-                ),
+                isHidden
+                    ? Text.rich(
+                        TextSpan(
+                          text: "KES ",
+                          style: GoogleFonts.outfit(
+                            fontWeight: FontWeight.w400,
+                            fontSize: 24,
+                            color: isPrimary
+                                ? Colors.white
+                                : AnansiColors.darkBlue,
+                          ),
+                          children: [
+                            WidgetSpan(
+                              alignment: PlaceholderAlignment.middle,
+                              child: Padding(
+                                padding: const EdgeInsets.only(top: 6),
+                                child: Text(
+                                  "********",
+                                  style: GoogleFonts.outfit(
+                                    fontWeight: FontWeight.w600,
+                                    fontSize: 22,
+                                    letterSpacing: 2.5,
+                                    color: isPrimary
+                                        ? Colors.white
+                                        : AnansiColors.darkBlue,
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      )
+                    : Text(
+                        formatAmount(balance),
+                        style: GoogleFonts.outfit(
+                          fontWeight: FontWeight.w400,
+                          fontSize: 24,
+                          color: isPrimary
+                              ? Colors.white
+                              : AnansiColors.darkBlue,
+                        ),
+                      ),
                 Container(
                   padding: const EdgeInsets.all(6),
                   decoration: BoxDecoration(
