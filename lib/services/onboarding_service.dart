@@ -113,7 +113,7 @@ class OnboardingService {
 
   Future<(Response?, List<String>?)> verifyPin({required String kraPin}) async {
     try {
-      final response = await _secureClient.patch(
+      final response = await _secureClient.post(
         '/kyc-validation/kra-pin',
         data: {"number": kraPin},
       );

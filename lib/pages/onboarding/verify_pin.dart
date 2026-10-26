@@ -86,11 +86,7 @@ class _VerifyPinState extends State<VerifyPin> {
       );
       if (errors != null) {
         if (mounted) {
-          ErrorService.showActionableError(
-            context,
-            title: errors[0],
-            message: errors[1],
-          );
+          _showValidationFailedSheet(errors[0], errors[1]);
         }
       } else if (response != null) {
         HapticFeedback.lightImpact();
@@ -126,6 +122,144 @@ class _VerifyPinState extends State<VerifyPin> {
     } finally {
       if (mounted) setState(() => _loading = false);
     }
+  }
+
+  void _showValidationFailedSheet(String errorTitle, String errorMessage) {
+    HapticFeedback.heavyImpact();
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.white,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(28)),
+      ),
+      builder: (BuildContext context) {
+        return SafeArea(
+          child: Padding(
+            padding: EdgeInsets.fromLTRB(
+              24,
+              24,
+              24,
+              10
+            ),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Container(
+                      height: 5,
+                      width: 40,
+                      decoration: BoxDecoration(
+                        color: Colors.grey.shade300,
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 20),
+                // Warning Icon
+                Container(
+                  padding: const EdgeInsets.all(20),
+                  decoration: BoxDecoration(
+                    color: Colors.redAccent.withValues(alpha: 0.1),
+                    shape: BoxShape.circle,
+                  ),
+                  child: const Icon(
+                    CupertinoIcons.exclamationmark_triangle_fill,
+                    color: Colors.redAccent,
+                    size: 38,
+                  ),
+                ),
+                const SizedBox(height: 24),
+                Text(
+                  errorTitle,
+                  style: const TextStyle(
+                    fontSize: 22,
+                    fontWeight: FontWeight.w900,
+                    color: AnansiColors.darkBlue,
+                    letterSpacing: -0.5,
+                  ),
+                  textAlign: TextAlign.center,
+                ),
+                const SizedBox(height: 12),
+                Text(
+                  errorMessage,
+                  style: TextStyle(
+                    fontSize: 14.5,
+                    color: Colors.grey.shade600,
+                    height: 1.5,
+                    fontWeight: FontWeight.w500,
+                  ),
+                  textAlign: TextAlign.center,
+                ),
+                const SizedBox(height: 36),
+
+                // Actions
+                SizedBox(
+                  width: double.infinity,
+                  height: 56,
+                  child: ElevatedButton(
+                    onPressed: () {
+                      Navigator.pop(context);
+                      _updateCustomer();
+                    },
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.white,
+                      foregroundColor: AnansiColors.darkBlue,
+                      elevation: 0,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(20),
+                        side: BorderSide(
+                          color: AnansiColors.darkBlue.withValues(alpha: 0.2),
+                          width: 1.5,
+                        ),
+                      ),
+                    ),
+                    child: const Text(
+                      "CONTINUE IN PENDING STATE",
+                      style: TextStyle(
+                        fontWeight: FontWeight.w800,
+                        letterSpacing: 0.5,
+                        fontSize: 13,
+                      ),
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 20),
+                SizedBox(
+                  width: double.infinity,
+                  height: 56,
+                  child: ElevatedButton(
+                    onPressed: () {
+                      Navigator.pop(context);
+                      _kraPinFocus.requestFocus();
+                    },
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: AnansiColors.darkBlue,
+                      foregroundColor: Colors.white,
+                      elevation: 0,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(20),
+                      ),
+                    ),
+                    child: const Text(
+                      "EDIT KRA PIN",
+                      style: TextStyle(
+                        fontWeight: FontWeight.w900,
+                        letterSpacing: 1.1,
+                        fontSize: 13,
+                      ),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        );
+      },
+    );
   }
 
   @override

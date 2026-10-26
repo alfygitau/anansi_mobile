@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'package:app_anansi_mobile/helpers/format_mobile.dart';
 import 'package:app_anansi_mobile/pages/auth/login.dart';
 import 'package:app_anansi_mobile/pages/onboarding/verify_email.dart';
+import 'package:app_anansi_mobile/pages/onboarding/verify_mobile.dart';
 import 'package:app_anansi_mobile/services/auth_service.dart';
 import 'package:app_anansi_mobile/services/error_service.dart';
 import 'package:app_anansi_mobile/services/onboarding_service.dart';
@@ -263,7 +264,7 @@ class _RegisterState extends State<Register> {
       await SecureStorageService().write("accessToken", tokens['access_token']);
       Navigator.push(
         context,
-        MaterialPageRoute(builder: (context) => const VerifyEmail()),
+        MaterialPageRoute(builder: (context) => const VerifyMobile()),
       );
     }
   }
