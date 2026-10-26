@@ -262,14 +262,28 @@ class InvestAmountState extends State<InvestAmount> {
                     icon: CupertinoIcons.lock_shield_fill,
                     baseColor: const Color(0xFFF59E0B),
                   ),
-                  const SizedBox(height: 40),
-                  buildPayButton(),
-                  const SizedBox(height: 40),
+                  const SizedBox(height: 20),
                 ],
               ),
             ),
           ),
         ],
+      ),
+      bottomNavigationBar: SafeArea(
+        top: false,
+        child: Container(
+          padding: const EdgeInsets.fromLTRB(24, 12, 24, 16),
+          decoration: BoxDecoration(
+            color: ThemeColors.background,
+            border: Border(
+              top: BorderSide(
+                color: const Color(0xFFE2E8F0).withValues(alpha: 0.8),
+                width: 1,
+              ),
+            ),
+          ),
+          child: buildPayButton(),
+        ),
       ),
     );
   }

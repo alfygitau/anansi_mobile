@@ -124,6 +124,31 @@ class _VerifyPinState extends State<VerifyPin> {
     }
   }
 
+  Future<void> _updateCustomerManually() async {
+    final user = await getUser();
+    try {
+      final (response, errors) = await OnboardingService().updateKraPinManually(
+        id: user?['id'] ?? "",
+        kraPin: _kraPinController.text.trim(),
+      );
+      if (errors != null) {
+        ErrorService.showActionableError(
+          context,
+          title: errors[0],
+          message: errors[1],
+        );
+      } else if (response != null) {
+        HapticFeedback.lightImpact();
+        Navigator.push(
+          context,
+          MaterialPageRoute(builder: (context) => const NextOfKin()),
+        );
+      }
+    } finally {
+      if (mounted) setState(() => _loading = false);
+    }
+  }
+
   void _showValidationFailedSheet(String errorTitle, String errorMessage) {
     HapticFeedback.heavyImpact();
     showModalBottomSheet(
@@ -136,12 +161,7 @@ class _VerifyPinState extends State<VerifyPin> {
       builder: (BuildContext context) {
         return SafeArea(
           child: Padding(
-            padding: EdgeInsets.fromLTRB(
-              24,
-              24,
-              24,
-              10
-            ),
+            padding: EdgeInsets.fromLTRB(24, 24, 24, 10),
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
@@ -203,7 +223,7 @@ class _VerifyPinState extends State<VerifyPin> {
                   child: ElevatedButton(
                     onPressed: () {
                       Navigator.pop(context);
-                      _updateCustomer();
+                      _updateCustomerManually();
                     },
                     style: ElevatedButton.styleFrom(
                       backgroundColor: Colors.white,

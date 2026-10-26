@@ -482,7 +482,7 @@ class _IdManualFillState extends State<IdManualFill> {
 
   Widget _buildBottomAction() {
     return Container(
-      padding: const EdgeInsets.fromLTRB(24, 16, 24, 10),
+      padding: const EdgeInsets.fromLTRB(24, 16, 24, 0),
       decoration: BoxDecoration(
         color: Colors.white,
         boxShadow: [

@@ -146,6 +146,25 @@ class OnboardingService {
     }
   }
 
+  Future<(Response?, List<String>?)> updateKraPinManually({
+    required String id,
+    required String kraPin,
+  }) async {
+    try {
+      final response = await _secureClient.patch(
+        '/customer/$id',
+        data: {"kraPin": kraPin, 'status': 'Pending'},
+      );
+      return (response, null);
+    } on DioException catch (e) {
+      final apiException = ApiException();
+      final errorMessages = apiException.getExceptionMessage(e);
+      return (null, errorMessages);
+    } catch (e) {
+      return (null, ["Authentication Error!", "An unknown error occurred."]);
+    }
+  }
+
   Future<(Response?, List<String>?)> updateIdentity({
     required String id,
     required String firstName,

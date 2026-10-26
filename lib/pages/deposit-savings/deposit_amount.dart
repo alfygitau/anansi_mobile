@@ -190,14 +190,28 @@ class _DepositAmountState extends State<DepositAmount> {
                     fieldKey: "phone",
                     keyboardType: TextInputType.phone,
                   ),
-                  const SizedBox(height: 30),
-                  _buildContinueButton(),
                   const SizedBox(height: 20),
                 ],
               ),
             ),
           ),
         ],
+      ),
+      bottomNavigationBar: SafeArea(
+        top: false,
+        child: Container(
+          padding: const EdgeInsets.fromLTRB(24, 12, 24, 16),
+          decoration: BoxDecoration(
+            color: ThemeColors.background,
+            border: Border(
+              top: BorderSide(
+                color: const Color(0xFFE2E8F0).withValues(alpha: 0.8),
+                width: 1,
+              ),
+            ),
+          ),
+          child: _buildContinueButton(),
+        ),
       ),
     );
   }

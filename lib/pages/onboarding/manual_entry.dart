@@ -297,7 +297,7 @@ class _ManualEntryState extends State<ManualEntry> {
       bottomNavigationBar: SafeArea(
         maintainBottomViewPadding: true,
         child: Container(
-          padding: const EdgeInsets.fromLTRB(24, 12, 24, 20),
+          padding: const EdgeInsets.fromLTRB(24, 12, 24, 5),
           decoration: BoxDecoration(
             color: Colors.white.withValues(alpha: 0.95),
             boxShadow: [
