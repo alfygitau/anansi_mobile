@@ -74,7 +74,6 @@ class _RegisterState extends State<Register> {
   // 3. Phone: Kenyan format (07... or +254...)
   void _validatePhone(String value) {
     setState(() {
-      // Matches 07XXXXXXXX, 01XXXXXXXX, or +254...
       final bool phoneValid = RegExp(
         r'^(?:254|\+254|0)?(7|1)(?:[0-9]){8}$',
       ).hasMatch(value);
@@ -104,15 +103,12 @@ class _RegisterState extends State<Register> {
       } else {
         formErrors['password'] = null;
       }
-
-      // Always re-validate confirm password if it's not empty
       if (_confirmPasswordController.text.isNotEmpty) {
         _validateConfirmPassword(_confirmPasswordController.text);
       }
     });
   }
 
-  // 5. Confirm Password: Must match _passwordController
   void _validateConfirmPassword(String value) {
     setState(() {
       if (value.isEmpty) {
