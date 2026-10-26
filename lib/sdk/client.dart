@@ -10,6 +10,7 @@ class DioConfig {
     sendTimeout: const Duration(seconds: 15),
     receiveTimeout: const Duration(seconds: 20),
     contentType: 'application/json',
+    headers: {'X-Org-Code': orgCode},
   );
 }
 
@@ -20,6 +21,7 @@ class AuditConfig {
     sendTimeout: const Duration(seconds: 15),
     receiveTimeout: const Duration(seconds: 20),
     contentType: 'application/json',
+    headers: {'X-Org-Code': orgCode},
   );
 }
 
@@ -31,9 +33,7 @@ class LoanConfig {
     sendTimeout: const Duration(seconds: 10),
     receiveTimeout: const Duration(seconds: 10),
     contentType: 'application/json',
-    headers: {
-      'X-API-Key': loanApiKey, // Make sure to add this to constants.dart
-    },
+    headers: {'X-API-Key': loanApiKey},
   );
 }
 
