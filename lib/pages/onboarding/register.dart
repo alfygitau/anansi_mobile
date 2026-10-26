@@ -1,7 +1,6 @@
 import 'dart:convert';
 import 'package:app_anansi_mobile/helpers/format_mobile.dart';
 import 'package:app_anansi_mobile/pages/auth/login.dart';
-import 'package:app_anansi_mobile/pages/onboarding/verify_email.dart';
 import 'package:app_anansi_mobile/pages/onboarding/verify_mobile.dart';
 import 'package:app_anansi_mobile/services/auth_service.dart';
 import 'package:app_anansi_mobile/services/error_service.dart';
