@@ -1,3 +1,4 @@
+import 'package:app_anansi_mobile/constants/constants.dart';
 import 'package:app_anansi_mobile/theme/app_theme.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -24,7 +25,7 @@ class TermsOfService extends StatelessWidget {
                   _buildContentCard(
                     title: "1. Membership & Eligibility",
                     body:
-                        "By using the Anansi SACCO mobile app, you confirm that you are a registered and fully paid-up member of the society. You agree to abide by the SACCO By-laws and maintain the minimum required share capital.",
+                        "By using the $saccoName SACCO mobile app, you confirm that you are a registered and fully paid-up member of the society. You agree to abide by the SACCO By-laws and maintain the minimum required share capital.",
                   ),
                   const SizedBox(height: 16),
                   _buildContentCard(
@@ -36,7 +37,7 @@ class TermsOfService extends StatelessWidget {
                   _buildContentCard(
                     title: "3. Account Security",
                     body:
-                        "You are solely responsible for maintaining the confidentiality of your PIN and OTPs. Anansi SACCO will not be held liable for losses incurred due to compromised credentials or unauthorized sharing of your device.",
+                        "You are solely responsible for maintaining the confidentiality of your PIN and OTPs. $saccoName SACCO will not be held liable for losses incurred due to compromised credentials or unauthorized sharing of your device.",
                   ),
                   const SizedBox(height: 16),
                   _buildContentCard(

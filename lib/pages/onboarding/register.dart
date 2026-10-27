@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'package:app_anansi_mobile/constants/constants.dart';
 import 'package:app_anansi_mobile/helpers/format_mobile.dart';
 import 'package:app_anansi_mobile/pages/auth/login.dart';
 import 'package:app_anansi_mobile/pages/onboarding/verify_mobile.dart';
@@ -323,7 +324,7 @@ class _RegisterState extends State<Register> {
                   children: [
                     const SizedBox(height: 4),
                     Text(
-                      "Create your Anansi profile today to manage your assets and track your financial progress.",
+                      "Create your $saccoName profile today to manage your assets and track your financial progress.",
                       style: TextStyle(
                         color: Colors.grey.shade500,
                         fontSize: 15,
@@ -764,7 +765,7 @@ class _RegisterState extends State<Register> {
                       ..onTap = () => _showPrivacyPolicy(context),
                   ),
                   const TextSpan(
-                    text: " and the terms & conditions of Anansi SACCO.",
+                    text: " and the terms & conditions of $saccoName SACCO.",
                   ),
                 ],
               ),
@@ -905,7 +906,7 @@ class _RegisterState extends State<Register> {
                       physics: const BouncingScrollPhysics(),
                       children: [
                         Text(
-                          "Anansi SACCO Privacy Protocol",
+                          "$saccoName SACCO Privacy Protocol",
                           style: TextStyle(
                             fontSize: 12,
                             fontWeight: FontWeight.w800,
@@ -917,7 +918,7 @@ class _RegisterState extends State<Register> {
                         ),
                         const SizedBox(height: 12),
                         _buildPremiumParagraph(
-                          "Anansi SACCO (“we,” “our,” or “us”) values the privacy of our users. This Privacy Policy explains how we collect, use, disclose, and protect your personal information when you use our mobile application. By accessing the App, you agree to the collection and use of information in accordance with this Privacy Policy.",
+                          "$saccoName SACCO (“we,” “our,” or “us”) values the privacy of our users. This Privacy Policy explains how we collect, use, disclose, and protect your personal information when you use our mobile application. By accessing the App, you agree to the collection and use of information in accordance with this Privacy Policy.",
                         ),
                         const SizedBox(height: 32),
 
@@ -933,7 +934,7 @@ class _RegisterState extends State<Register> {
                           "Execution of financial transactions and account management.",
                           "Personalization of the wealth-engineering experience.",
                           "Compliance with regulatory KYC and AML legal obligations.",
-                          "Continuous optimization of the Anansi digital infrastructure.",
+                          "Continuous optimization of the $saccoName digital infrastructure.",
                         ]),
 
                         _buildPremiumSection("3. Data Sovereignty", [
@@ -945,7 +946,7 @@ class _RegisterState extends State<Register> {
                         ]),
 
                         _buildPremiumSection("Contact Protocols", [
-                          "ANANSI SACCO Headquarters",
+                          "$saccoName SACCO Headquarters",
                           "Email: anansisacco@gmail.com",
                           "Location: Ngong Lane Plaza, Nairobi, Kenya",
                         ]),

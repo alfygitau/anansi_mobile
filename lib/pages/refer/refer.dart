@@ -1,4 +1,5 @@
 import 'package:app_anansi_mobile/components/drawer/navigation.dart';
+import 'package:app_anansi_mobile/constants/constants.dart';
 import 'package:app_anansi_mobile/helpers/format_amount.dart';
 import 'package:app_anansi_mobile/main.dart';
 import 'package:app_anansi_mobile/services/account_service.dart';
@@ -110,7 +111,7 @@ class _ReferState extends State<Refer> {
 
   Future<void> _shareToWhatsApp(String code) async {
     final String message = Uri.encodeComponent(
-      "Join me on Anansi SACCO and grow your wealth! Use my referral code *$code* when signing up: https://anansi.co.ke/join?ref=$code",
+      "Join me on $saccoName SACCO and grow your wealth! Use my referral code *$code* when signing up: https://anansi.co.ke/join?ref=$code",
     );
     final Uri appUri = Uri.parse("whatsapp://send?text=$message");
     final Uri webUri = Uri.parse("https://wa.me/?text=$message");
@@ -126,9 +127,9 @@ class _ReferState extends State<Refer> {
     final Uri emailUri = Uri(
       scheme: 'mailto',
       queryParameters: {
-        'subject': 'Invitation to join Anansi SACCO',
+        'subject': 'Invitation to join $saccoName SACCO',
         'body':
-            'Hi,\n\nI invite you to join Anansi SACCO and explore easy savings and credit access.\n\nDownload the mobile app and use my referral code: $code during registration to get started.\n\nJoin here: https://anansi.co.ke/join?ref=$code',
+            'Hi,\n\nI invite you to join $saccoName SACCO and explore easy savings and credit access.\n\nDownload the mobile app and use my referral code: $code during registration to get started.\n\nJoin here: https://anansi.co.ke/join?ref=$code',
       },
     );
 

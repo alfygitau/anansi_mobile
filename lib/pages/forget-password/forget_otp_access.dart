@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'package:app_anansi_mobile/constants/constants.dart';
 import 'package:app_anansi_mobile/pages/forget-password/reset_password.dart';
 import 'package:app_anansi_mobile/services/error_service.dart';
 import 'package:app_anansi_mobile/services/recovery_service.dart';
@@ -353,7 +354,7 @@ class _ForgetOtpAccessState extends State<ForgetOtpAccess> {
           ),
           const SizedBox(height: 12),
           Text(
-            "Anansi will never ask for your password or OTP via phone call or text. Ensure you are on the official app before entering sensitive data.",
+            "$saccoName will never ask for your password or OTP via phone call or text. Ensure you are on the official app before entering sensitive data.",
             style: TextStyle(
               color: Colors.blueGrey.shade400,
               fontSize: 12,
@@ -423,7 +424,7 @@ class _ForgetOtpAccessState extends State<ForgetOtpAccess> {
               ),
               const SizedBox(width: 8),
               Text(
-                "ENCRYPTED BY ANANSI PROTOCOLS",
+                "ENCRYPTED BY $saccoName PROTOCOLS",
                 style: TextStyle(
                   fontSize: 9,
                   fontWeight: FontWeight.w800,

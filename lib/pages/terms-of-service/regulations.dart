@@ -1,3 +1,4 @@
+import 'package:app_anansi_mobile/constants/constants.dart';
 import 'package:app_anansi_mobile/theme/app_theme.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -59,7 +60,7 @@ class Regulations extends StatelessWidget {
                   _buildContentCard(
                     title: "SASRA Licensing",
                     body:
-                        "Anansi SACCO is licensed and regulated as a Deposit-Taking SACCO by the Sacco Societies Regulatory Authority (SASRA). Our operations, liquidity margins, and capital adequacy strictly adhere to the Sacco Societies Act.",
+                        "$saccoName SACCO is licensed and regulated as a Deposit-Taking SACCO by the Sacco Societies Regulatory Authority (SASRA). Our operations, liquidity margins, and capital adequacy strictly adhere to the Sacco Societies Act.",
                   ),
                   const SizedBox(height: 16),
                   _buildContentCard(

@@ -1,3 +1,4 @@
+import 'package:app_anansi_mobile/constants/constants.dart';
 import 'package:app_anansi_mobile/pages/onboarding/id_type.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -260,7 +261,7 @@ class _AccountSuccessState extends State<AccountSuccess> {
               ),
               const SizedBox(width: 8),
               Text(
-                "SECURED BY ANANSI PROTOCOLS",
+                "SECURED BY $saccoName PROTOCOLS",
                 style: TextStyle(
                   fontSize: 9,
                   fontWeight: FontWeight.w800,

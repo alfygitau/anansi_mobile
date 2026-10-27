@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:convert';
+import 'package:app_anansi_mobile/constants/constants.dart';
 import 'package:app_anansi_mobile/pages/onboarding/change_email.dart';
 import 'package:app_anansi_mobile/pages/onboarding/verify_mobile.dart';
 import 'package:app_anansi_mobile/services/error_service.dart';
@@ -347,7 +348,7 @@ class _VerifyEmailState extends State<VerifyEmail> {
           ),
           const SizedBox(height: 12),
           Text(
-            "Anansi will never ask for your password or OTP via phone call or text. Ensure you are on the official app before entering sensitive data.",
+            "$saccoName will never ask for your password or OTP via phone call or text. Ensure you are on the official app before entering sensitive data.",
             style: TextStyle(
               color: Colors.blueGrey.shade400,
               fontSize: 12,
@@ -414,7 +415,7 @@ class _VerifyEmailState extends State<VerifyEmail> {
               ),
               const SizedBox(width: 8),
               Text(
-                "ENCRYPTED BY ANANSI PROTOCOLS",
+                "ENCRYPTED BY $saccoName PROTOCOLS",
                 style: TextStyle(
                   fontSize: 9,
                   fontWeight: FontWeight.w800,

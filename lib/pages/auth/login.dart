@@ -1,4 +1,5 @@
 // ignore_for_file: use_build_context_synchronously
+import 'package:app_anansi_mobile/constants/constants.dart';
 import 'package:app_anansi_mobile/pages/auth/otp_access.dart';
 import 'package:app_anansi_mobile/pages/continue-onboarding/continue_onboarding.dart';
 import 'package:app_anansi_mobile/pages/forget-password/otp_type.dart';
@@ -325,7 +326,7 @@ class _LoginState extends State<Login> {
                 ),
               ],
             ),
-            child: Icon(displayIcon, size: 28, color:  AnansiColors.logoBg),
+            child: Icon(displayIcon, size: 28, color: AnansiColors.logoBg),
           ),
         );
       },
@@ -365,7 +366,7 @@ class _LoginState extends State<Login> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              "ANANSI",
+              saccoName,
               style: TextStyle(
                 fontWeight: FontWeight.w900,
                 fontSize: 18,
@@ -509,7 +510,7 @@ class _LoginState extends State<Login> {
                 decoration: BoxDecoration(
                   color: isFocused
                       ? AnansiColors.darkBlue
-                      :  ThemeColors.background,
+                      : ThemeColors.background,
                   borderRadius: BorderRadius.circular(16),
                 ),
                 child: Icon(
@@ -649,7 +650,7 @@ class _LoginState extends State<Login> {
                 decoration: BoxDecoration(
                   color: isFocused
                       ? AnansiColors.darkBlue
-                      :  ThemeColors.background,
+                      : ThemeColors.background,
                   borderRadius: BorderRadius.circular(16),
                 ),
                 child: Icon(
@@ -751,7 +752,11 @@ class _LoginState extends State<Login> {
           Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              const Icon(Icons.security, size: 14, color: AnansiColors.accentCyan),
+              const Icon(
+                Icons.security,
+                size: 14,
+                color: AnansiColors.accentCyan,
+              ),
               const SizedBox(width: 8),
               Text(
                 "SECURED BY ANANSI PROTOCOLS",

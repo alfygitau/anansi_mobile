@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'dart:io';
+import 'package:app_anansi_mobile/constants/constants.dart';
 import 'package:app_anansi_mobile/services/secure_storage_service.dart';
 import 'package:flutter/material.dart';
 import 'package:local_auth/local_auth.dart';
@@ -81,7 +82,7 @@ class BiometricService {
     try {
       return await _auth.authenticate(
         localizedReason:
-            'Please authenticate to securely access your Anansi account',
+            'Please authenticate to securely access your $saccoName account',
         options: const AuthenticationOptions(
           stickyAuth: true,
           biometricOnly: false,
@@ -89,7 +90,7 @@ class BiometricService {
         ),
         authMessages: const [
           AndroidAuthMessages(
-            signInTitle: 'Anansi Security',
+            signInTitle: '$saccoName Security',
             biometricHint: 'Verify identity',
             cancelButton: 'Cancel',
           ),

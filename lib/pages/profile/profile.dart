@@ -1,4 +1,5 @@
 import 'package:app_anansi_mobile/components/drawer/navigation.dart';
+import 'package:app_anansi_mobile/constants/constants.dart';
 import 'package:app_anansi_mobile/helpers/format_short_date.dart';
 import 'package:app_anansi_mobile/main.dart';
 import 'package:app_anansi_mobile/pages/profile/edit_address.dart';
@@ -242,7 +243,7 @@ class _ProfileState extends State<Profile> {
               ),
               const SizedBox(height: 12),
               Text(
-                "Are you sure you want to sign out? You will need to re-authenticate to access your Anansi accounts.",
+                "Are you sure you want to sign out? You will need to re-authenticate to access your $saccoName accounts.",
                 textAlign: TextAlign.center,
                 style: TextStyle(
                   fontSize: 14,

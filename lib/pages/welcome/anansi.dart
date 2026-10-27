@@ -1,3 +1,4 @@
+import 'package:app_anansi_mobile/constants/constants.dart';
 import 'package:app_anansi_mobile/pages/auth/login.dart';
 import 'package:app_anansi_mobile/pages/onboarding/introduction.dart';
 import 'package:app_anansi_mobile/theme/app_theme.dart';
@@ -53,8 +54,8 @@ class _WelcomeState extends State<Welcome> {
                         ),
                       ),
                       const SizedBox(width: 16),
-                      const Text(
-                        "ANANSI",
+                      Text(
+                        saccoName,
                         style: TextStyle(
                           color: Colors.white,
                           fontSize: 24,
@@ -88,7 +89,7 @@ class _WelcomeState extends State<Welcome> {
                   ),
                   const SizedBox(height: 24),
                   Text(
-                    "Experience a sophisticated evolution of cooperative banking. From encrypted high-yield savings accounts to smart credit lines powered by AI-driven risk assessment—ANANSI provides the tools you need to engineer lasting financial legacy.",
+                    "Experience a sophisticated evolution of cooperative banking. From encrypted high-yield savings accounts to smart credit lines powered by AI-driven risk assessment. $saccoName provides the tools you need to engineer lasting financial legacy.",
                     style: TextStyle(
                       color: Colors.white.withValues(alpha: 0.7),
                       fontSize: 16,
@@ -140,7 +141,7 @@ class _WelcomeState extends State<Welcome> {
         ),
         boxShadow: [
           BoxShadow(
-            color:  AnansiColors.accentCyan.withValues(alpha: 0.3),
+            color: AnansiColors.accentCyan.withValues(alpha: 0.3),
             blurRadius: 20,
             offset: const Offset(0, 10),
           ),
@@ -199,7 +200,7 @@ class _WelcomeState extends State<Welcome> {
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
         Text(
-          "SECURED BY ANANSI PROTOCOLS",
+          "SECURED BY $saccoName PROTOCOLS",
           style: TextStyle(
             color: Colors.white.withValues(alpha: 0.5),
             fontSize: 11,

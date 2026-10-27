@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:convert';
+import 'package:app_anansi_mobile/constants/constants.dart';
 import 'package:app_anansi_mobile/pages/continue-onboarding/continue_onboarding.dart';
 import 'package:app_anansi_mobile/pages/homepage/homepage.dart';
 import 'package:app_anansi_mobile/pages/membership/intro_membership.dart';
@@ -430,7 +431,7 @@ class _OtpAccessState extends State<OtpAccess> {
               ),
               const SizedBox(width: 8),
               Text(
-                "ENCRYPTED BY ANANSI PROTOCOLS",
+                "ENCRYPTED BY $saccoName PROTOCOLS",
                 style: TextStyle(
                   fontSize: 9,
                   fontWeight: FontWeight.w800,

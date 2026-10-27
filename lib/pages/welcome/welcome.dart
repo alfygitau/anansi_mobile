@@ -1,3 +1,4 @@
+import 'package:app_anansi_mobile/constants/constants.dart';
 import 'package:app_anansi_mobile/pages/welcome/anansi.dart';
 import 'package:app_anansi_mobile/theme/app_theme.dart';
 import 'package:flutter/material.dart';
@@ -33,7 +34,7 @@ class _SplashScreenState extends State<SplashScreen> {
             buildLogo(),
             const SizedBox(height: 24),
             const Text(
-              "ANANSI",
+              saccoName,
               style: TextStyle(
                 color: Colors.white,
                 fontSize: 24,

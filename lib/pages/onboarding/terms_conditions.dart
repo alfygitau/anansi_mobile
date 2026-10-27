@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'package:app_anansi_mobile/constants/constants.dart';
 import 'package:app_anansi_mobile/pages/membership/intro_membership.dart';
 import 'package:app_anansi_mobile/services/account_service.dart';
 import 'package:app_anansi_mobile/services/error_service.dart';
@@ -162,9 +163,9 @@ class _TermsConditionsState extends State<TermsConditions> {
 
                         _buildLegalSection(
                           "1. Introduction",
-                          "ANANSI SACCO is a member-governed cooperative providing shares, savings, and digital credit services.",
+                          "$saccoName SACCO is a member-governed cooperative providing shares, savings, and digital credit services.",
                           items: [
-                            "Platform operations are managed by Anansi Technology Limited.",
+                            "Platform operations are managed by $saccoName Technology Limited.",
                             "Access is limited exclusively to verified active members.",
                           ],
                         ),
@@ -241,7 +242,7 @@ class _TermsConditionsState extends State<TermsConditions> {
         ),
         const SizedBox(height: 8),
         Text(
-          "Please review the core terms governing your ANANSI SACCO membership. Acceptance establishes your legal rights within the cooperative.",
+          "Please review the core terms governing your $saccoName SACCO membership. Acceptance establishes your legal rights within the cooperative.",
           style: TextStyle(
             color: Colors.grey.shade500,
             fontSize: 14,
@@ -471,7 +472,7 @@ class _TermsConditionsState extends State<TermsConditions> {
             ),
             const SizedBox(height: 12),
             Text(
-              "Your digital signature has been successfully recorded. You now have full access to the Anansi ecosystem.",
+              "Your digital signature has been successfully recorded. You now have full access to the $saccoName ecosystem.",
               textAlign: TextAlign.center,
               style: TextStyle(
                 fontSize: 15,

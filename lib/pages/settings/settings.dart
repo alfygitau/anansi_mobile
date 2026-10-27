@@ -1,4 +1,5 @@
 import 'package:app_anansi_mobile/components/drawer/navigation.dart';
+import 'package:app_anansi_mobile/constants/constants.dart';
 import 'package:app_anansi_mobile/main.dart';
 import 'package:app_anansi_mobile/pages/about/about.dart';
 import 'package:app_anansi_mobile/pages/help&support/help_support.dart';
@@ -137,7 +138,7 @@ class _SettingsState extends State<Settings> {
               ),
               _buildSettingsTile(
                 icon: CupertinoIcons.info_circle,
-                title: "About Anansi",
+                title: "About $saccoName",
                 subtitle: "Learn more about our mission",
                 onTap: () {
                   Navigator.push(

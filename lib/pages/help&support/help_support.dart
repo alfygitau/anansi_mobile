@@ -1,4 +1,5 @@
 import 'package:app_anansi_mobile/components/drawer/navigation.dart';
+import 'package:app_anansi_mobile/constants/constants.dart';
 import 'package:app_anansi_mobile/main.dart';
 import 'package:app_anansi_mobile/theme/app_theme.dart';
 import 'package:flutter/cupertino.dart';
@@ -27,7 +28,7 @@ class _HelpSupportState extends State<HelpSupport> {
     {
       "q": "How is the interest rate calculated?",
       "a":
-          "Anansi uses a reducing balance method. This means interest is only charged on the remaining principal balance, making it cheaper as you continue to repay.",
+          "$saccoName uses a reducing balance method. This means interest is only charged on the remaining principal balance, making it cheaper as you continue to repay.",
     },
     {
       "q": "What happens if my guarantor declines?",
@@ -42,12 +43,12 @@ class _HelpSupportState extends State<HelpSupport> {
     {
       "q": "Are there any hidden processing fees?",
       "a":
-          "Anansi is transparent. We only charge a one-time insurance fee (1%) and a small processing fee which are clearly displayed before you confirm your application.",
+          "$saccoName is transparent. We only charge a one-time insurance fee (1%) and a small processing fee which are clearly displayed before you confirm your application.",
     },
     {
       "q": "What determines my maximum loan limit?",
       "a":
-          "Your limit is based on your total savings (Multiplied by 3 or 4), your repayment history with Anansi, and your overall credit health.",
+          "Your limit is based on your total savings (Multiplied by 3 or 4), your repayment history with $saccoName, and your overall credit health.",
     },
   ];
 
@@ -70,7 +71,7 @@ class _HelpSupportState extends State<HelpSupport> {
     {
       "q": "What should I do if I lose my phone?",
       "a":
-          "Contact support immediately to freeze your account. You can also log into the Anansi Web portal from another device to remotely de-authorize your lost phone.",
+          "Contact support immediately to freeze your account. You can also log into the $saccoName Web portal from another device to remotely de-authorize your lost phone.",
     },
     {
       "q": "Can I download my transaction statements?",
@@ -85,7 +86,7 @@ class _HelpSupportState extends State<HelpSupport> {
     {
       "q": "How is my data kept secure?",
       "a":
-          "Anansi uses bank-grade AES-256 encryption. We are fully compliant with the Kenya Data Protection Act, ensuring your financial info is never shared with third parties.",
+          "$saccoName uses bank-grade AES-256 encryption. We are fully compliant with the Kenya Data Protection Act, ensuring your financial info is never shared with third parties.",
     },
   ];
 
@@ -97,8 +98,8 @@ class _HelpSupportState extends State<HelpSupport> {
   }
 
   Future<void> _openWhatsApp(String phone) async {
-    final Uri appUri = Uri.parse("whatsapp://send?phone=$phone&text=Hello%20Anansi%20Support");
-    final Uri webUri = Uri.parse("https://wa.me/$phone?text=Hello%20Anansi%20Support");
+    final Uri appUri = Uri.parse("whatsapp://send?phone=$phone&text=Hello%$saccoName%20Support");
+    final Uri webUri = Uri.parse("https://wa.me/$phone?text=Hello%$saccoName%20Support");
 
     if (await canLaunchUrl(appUri)) {
       await launchUrl(appUri);

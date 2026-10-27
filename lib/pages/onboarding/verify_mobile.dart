@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:convert';
+import 'package:app_anansi_mobile/constants/constants.dart';
 import 'package:app_anansi_mobile/pages/onboarding/account_success.dart';
 import 'package:app_anansi_mobile/pages/onboarding/change_mobile.dart';
 import 'package:app_anansi_mobile/services/error_service.dart';
@@ -333,7 +334,7 @@ class _VerifyMobileState extends State<VerifyMobile> {
           ),
           const SizedBox(height: 12),
           Text(
-            "For your security, never share your verification code with anyone. Anansi staff will never ask for this code via phone call or SMS.",
+            "For your security, never share your verification code with anyone. $saccoName staff will never ask for this code via phone call or SMS.",
             style: TextStyle(
               color: Colors.blueGrey.shade400,
               fontSize: 12,
@@ -403,7 +404,7 @@ class _VerifyMobileState extends State<VerifyMobile> {
               ),
               const SizedBox(width: 8),
               Text(
-                "ENCRYPTED BY ANANSI PROTOCOLS",
+                "ENCRYPTED BY $saccoName PROTOCOLS",
                 style: TextStyle(
                   fontSize: 9,
                   fontWeight: FontWeight.w800,

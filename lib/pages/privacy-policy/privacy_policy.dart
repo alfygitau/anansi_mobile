@@ -1,3 +1,4 @@
+import 'package:app_anansi_mobile/constants/constants.dart';
 import 'package:app_anansi_mobile/theme/app_theme.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -24,7 +25,7 @@ class PrivacyPolicy extends StatelessWidget {
                   _buildContentCard(
                     title: "1. Data Collection",
                     body:
-                        "In compliance with the Kenya Data Protection Act (KDPA), Anansi SACCO collects personal and financial information necessary to provide banking and credit services. This includes your National ID, KRA PIN, biometrics, mobile number, and financial transaction history.",
+                        "In compliance with the Kenya Data Protection Act (KDPA), $saccoName SACCO collects personal and financial information necessary to provide banking and credit services. This includes your National ID, KRA PIN, biometrics, mobile number, and financial transaction history.",
                   ),
                   const SizedBox(height: 16),
                   _buildContentCard(
@@ -36,7 +37,7 @@ class PrivacyPolicy extends StatelessWidget {
                   _buildContentCard(
                     title: "3. Information Sharing",
                     body:
-                        "Anansi SACCO does not sell your data. We only share data with authorized third parties such as Credit Reference Bureaus (CRBs) for loan scoring, the Sacco Societies Regulatory Authority (SASRA) for compliance, and designated guarantors during loan applications.",
+                        "$saccoName SACCO does not sell your data. We only share data with authorized third parties such as Credit Reference Bureaus (CRBs) for loan scoring, the Sacco Societies Regulatory Authority (SASRA) for compliance, and designated guarantors during loan applications.",
                   ),
                   const SizedBox(height: 16),
                   _buildContentCard(

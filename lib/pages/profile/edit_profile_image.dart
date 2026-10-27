@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'package:app_anansi_mobile/constants/constants.dart';
 import 'package:app_anansi_mobile/pages/profile/profile.dart';
 import 'package:app_anansi_mobile/services/error_service.dart';
 import 'package:app_anansi_mobile/services/profile_service.dart';
@@ -366,7 +367,7 @@ class _EditProfilePicturePageState extends State<EditProfilePicturePage> {
           const Divider(color: Color(0xFFF1F4F8)),
           const SizedBox(height: 12),
           Text(
-            "Anansi Sacco utilizes advanced facial recognition as part of our security protocols to protect your account.",
+            "$saccoName Sacco utilizes advanced facial recognition as part of our security protocols to protect your account.",
             style: TextStyle(
               fontSize: 11,
               color: Colors.grey.shade500,

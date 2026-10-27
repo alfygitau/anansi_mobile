@@ -19,3 +19,4 @@ const String auditUrl = 'https://lm.theanansi.com/api';
 const String loanBaseUrl = 'https://lm.theanansi.com/api/v2';
 const String loanApiKey = 'lm_bootstrap000000000000000000000000000000000000000';
 const String orgCode = 'BA208';
+const String saccoName = 'ANANSI';

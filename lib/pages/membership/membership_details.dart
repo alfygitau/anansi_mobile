@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'package:app_anansi_mobile/constants/constants.dart';
 import 'package:app_anansi_mobile/pages/membership/register_invest.dart';
 import 'package:app_anansi_mobile/services/secure_storage_service.dart';
 import 'package:app_anansi_mobile/theme/app_theme.dart';
@@ -237,7 +238,7 @@ class _MembershipDetailsState extends State<MembershipDetails> {
           middleName,
           lastName,
         ].map((s) => s.trim()).where((s) => s.isNotEmpty).join(' ').isEmpty
-        ? "Anansi User"
+        ? "$saccoName User"
         : [
             firstName,
             middleName,

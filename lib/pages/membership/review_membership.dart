@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'dart:math';
+import 'package:app_anansi_mobile/constants/constants.dart';
 import 'package:app_anansi_mobile/helpers/format_amount.dart';
 import 'package:app_anansi_mobile/pages/membership/await_stk_membership.dart';
 import 'package:app_anansi_mobile/services/error_service.dart';
@@ -98,7 +99,7 @@ class _ReviewMembershipState extends State<ReviewMembership> {
           context,
           MaterialPageRoute(
             builder: (context) =>
-                const AwaitStkMembership(reference: "ANANSI-REG-772"),
+                const AwaitStkMembership(reference: "$saccoName-REG-772"),
           ),
         );
       }
