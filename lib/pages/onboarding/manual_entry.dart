@@ -1,3 +1,9 @@
+import 'dart:convert';
+
+import 'package:app_anansi_mobile/pages/onboarding/introduce_selfie.dart';
+import 'package:app_anansi_mobile/services/error_service.dart';
+import 'package:app_anansi_mobile/services/onboarding_service.dart';
+import 'package:app_anansi_mobile/services/secure_storage_service.dart';
 import 'package:app_anansi_mobile/theme/app_theme.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -169,15 +175,46 @@ class _ManualEntryState extends State<ManualEntry> {
     super.dispose();
   }
 
-  void _submitForm() {
+  Future<Map<String, dynamic>?> getUser() async {
+    String? userJson = await SecureStorageService().read('user');
+    if (userJson == null) return null;
+    Map<String, dynamic> userMap = jsonDecode(userJson);
+    return userMap;
+  }
+
+  void _submitForm() async {
     _validateEverything();
     if (!isFormValid) {
       HapticFeedback.vibrate();
       return;
     }
-
-    HapticFeedback.lightImpact();
-    setState(() => _isLoading = true);
+    try {
+      final user = await getUser();
+      final (response, errors) = await OnboardingService().updateManualEntry(
+        id: user?['id'] ?? "",
+        firstName: _fNameController.text.trim(),
+        middleName: _mNameController.text.trim(),
+        lastName: _lNameController.text.trim(),
+        idNumber: _idController.text.trim(),
+        gender: selectedGender ?? "",
+        birthDate: _dobController.text.trim(),
+      );
+      if (errors != null) {
+        ErrorService.showActionableError(
+          context,
+          title: errors[0],
+          message: errors[1],
+        );
+      } else if (response != null) {
+        HapticFeedback.lightImpact();
+        Navigator.push(
+          context,
+          MaterialPageRoute(builder: (context) => const IntroduceSelfie()),
+        );
+      }
+    } finally {
+      if (mounted) setState(() => _isLoading = false);
+    }
   }
 
   @override
@@ -796,7 +833,7 @@ class _ManualEntryState extends State<ManualEntry> {
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   Text(
-                    "VERIFY AND CONTINUE",
+                    "CONFIRM AND CONTINUE",
                     style: TextStyle(
                       fontWeight: FontWeight.w900,
                       letterSpacing: 1.1,
