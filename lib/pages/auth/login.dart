@@ -1,4 +1,6 @@
 // ignore_for_file: use_build_context_synchronously
+import 'dart:io';
+
 import 'package:app_anansi_mobile/constants/constants.dart';
 import 'package:app_anansi_mobile/pages/auth/otp_access.dart';
 import 'package:app_anansi_mobile/pages/continue-onboarding/continue_onboarding.dart';
@@ -164,7 +166,32 @@ class _LoginState extends State<Login> {
     );
   }
 
+  Future<bool> _hasInternetConnection() async {
+    try {
+      final result = await InternetAddress.lookup(
+        'google.com',
+      ).timeout(const Duration(seconds: 4));
+      return result.isNotEmpty && result[0].rawAddress.isNotEmpty;
+    } on SocketException catch (_) {
+      return false;
+    } catch (_) {
+      return false;
+    }
+  }
+
   Future<void> _handleAuthentication(BuildContext context) async {
+    final bool isOnline = await _hasInternetConnection();
+    if (!isOnline) {
+      if (context.mounted) {
+        ErrorService.showActionableError(
+          context,
+          title: "Connection Error",
+          message:
+              "No internet connection. Please check your network and try again.",
+        );
+        return;
+      }
+    }
     final biometricService = BiometricService();
     bool canAuth = await biometricService.canUseBiometrics();
     if (canAuth) {

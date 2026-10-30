@@ -1,8 +1,22 @@
 import 'dart:convert';
+import 'package:app_anansi_mobile/constants/constants.dart';
+import 'package:app_anansi_mobile/pages/auth/login.dart';
+import 'package:app_anansi_mobile/pages/onboarding/account_success.dart';
+import 'package:app_anansi_mobile/pages/onboarding/income.dart';
+import 'package:app_anansi_mobile/pages/onboarding/introduce_id_front.dart';
+import 'package:app_anansi_mobile/pages/onboarding/introduce_selfie.dart';
+import 'package:app_anansi_mobile/pages/onboarding/next_of_kin.dart';
+import 'package:app_anansi_mobile/pages/onboarding/personal_information.dart';
+import 'package:app_anansi_mobile/pages/onboarding/terms_conditions.dart';
+import 'package:app_anansi_mobile/pages/onboarding/verify_mobile.dart';
+import 'package:app_anansi_mobile/services/error_service.dart';
+import 'package:app_anansi_mobile/services/onboarding_service.dart';
 import 'package:app_anansi_mobile/services/secure_storage_service.dart';
+import 'package:app_anansi_mobile/state/auth_provider.dart';
 import 'package:app_anansi_mobile/theme/app_theme.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
 class ContinueOnboarding extends StatefulWidget {
   const ContinueOnboarding({super.key});
@@ -15,23 +29,40 @@ class _ContinueOnboardingState extends State<ContinueOnboarding> {
   Map<String, dynamic>? user;
 
   void _handleContinue() {
-    final String stage = user?['onboarding_stage'] ?? 'personal-information';
-    final Map<String, String> routes = {
-      "facial-identity": "/onboarding/facial-identity",
-      "review-identity": "/onboarding/verify-identity",
-      "registration": "/onboarding/verify-email",
-      "terms-conditions": "/onboarding/terms-conditions",
-      "personal-information": "/onboarding/personal-information",
-      "income-information": "/onboarding/income-information",
-      "nextOfKin": "/onboarding/next-of-kin",
-      "verify-mobile": "/onboarding/verify-mobile",
-      "account-success": "/onboarding/account-success",
-    };
-
+    final String stage = user?['onboarding_stage'] ?? 'registration';
     if (stage == "registration") {
-      // Trigger your resendEmailOtp logic here
+      _sendMobileOtp();
     }
-    Navigator.pushReplacementNamed(context, routes[stage] ?? "/");
+    final Widget targetPage = _getStagePage(stage);
+    Navigator.pushReplacement(
+      context,
+      MaterialPageRoute(builder: (context) => targetPage),
+    );
+  }
+
+  Widget _getStagePage(String stage) {
+    switch (stage) {
+      case "facial-identity":
+        return const IntroduceSelfie();
+      case "review-identity":
+        return const IntroduceFrontOfId();
+      case "registration":
+        return const VerifyMobile();
+      case "terms-conditions":
+        return const TermsConditions();
+      case "personal-information":
+        return const PersonalInformation();
+      case "income-information":
+        return const IncomeInformation();
+      case "nextOfKin":
+        return const NextOfKin();
+      case "verify-mobile":
+        return const VerifyMobile();
+      case "account-success":
+        return const AccountSuccess();
+      default:
+        return const Login();
+    }
   }
 
   Future<Map<String, dynamic>?> getUser() async {
@@ -41,8 +72,29 @@ class _ContinueOnboardingState extends State<ContinueOnboarding> {
     return userMap;
   }
 
+  void _sendMobileOtp() async {
+    final user = await getUser();
+    final (response, errors) = await OnboardingService().sendMobileOtp(
+      userId: user?['id'] ?? "",
+    );
+    if (errors != null) {
+      ErrorService.showActionableError(
+        context,
+        title: errors[0],
+        message: errors[1],
+      );
+    } else if (response != null) {
+      if (mounted) {
+        Navigator.push(
+          context,
+          MaterialPageRoute(builder: (context) => const VerifyMobile()),
+        );
+      }
+    }
+  }
+
   @override
-  initState() async {
+  initState() {
     super.initState();
     _initializeInfo();
   }
@@ -52,6 +104,127 @@ class _ContinueOnboardingState extends State<ContinueOnboarding> {
     setState(() {
       user = myUser;
     });
+  }
+
+  void _logout() async {
+    final authProvider = Provider.of<AuthProvider>(context, listen: false);
+    authProvider.logout();
+    Navigator.pushNamedAndRemoveUntil(context, '/login', (route) => false);
+  }
+
+  void showLogoutBottomSheet(BuildContext context) {
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: Colors.transparent,
+      isScrollControlled: true,
+      builder: (context) {
+        return Container(
+          padding: const EdgeInsets.all(24),
+          decoration: const BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.vertical(top: Radius.circular(32)),
+          ),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              // Handle Bar
+              Container(
+                width: 40,
+                height: 4,
+                decoration: BoxDecoration(
+                  color: Colors.grey.shade300,
+                  borderRadius: BorderRadius.circular(10),
+                ),
+              ),
+              const SizedBox(height: 32),
+
+              // Icon
+              Container(
+                padding: const EdgeInsets.all(20),
+                decoration: BoxDecoration(
+                  color: ThemeColors.rose.withValues(alpha: 0.1),
+                  shape: BoxShape.circle,
+                ),
+                child: const Icon(
+                  CupertinoIcons.square_arrow_right,
+                  color: ThemeColors.rose,
+                  size: 32,
+                ),
+              ),
+              const SizedBox(height: 24),
+
+              // Text Content
+              const Text(
+                "Sign Out",
+                style: TextStyle(
+                  fontSize: 20,
+                  fontWeight: FontWeight.w900,
+                  color: ThemeColors.primary,
+                ),
+              ),
+              const SizedBox(height: 12),
+              Text(
+                "Are you sure you want to sign out? You will need to re-authenticate to access your $saccoName accounts.",
+                textAlign: TextAlign.center,
+                style: TextStyle(
+                  fontSize: 14,
+                  color: Colors.grey.shade600,
+                  height: 1.5,
+                ),
+              ),
+              const SizedBox(height: 32),
+
+              // Actions
+              Row(
+                children: [
+                  Expanded(
+                    child: OutlinedButton(
+                      onPressed: () => Navigator.pop(context),
+                      style: OutlinedButton.styleFrom(
+                        padding: const EdgeInsets.symmetric(vertical: 18),
+                        side: BorderSide(color: Colors.grey.shade200),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(16),
+                        ),
+                      ),
+                      child: const Text(
+                        "Cancel",
+                        style: TextStyle(
+                          fontWeight: FontWeight.w800,
+                          color: ThemeColors.primary,
+                        ),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(width: 16),
+                  Expanded(
+                    child: ElevatedButton(
+                      onPressed: _logout,
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: ThemeColors.rose,
+                        elevation: 0,
+                        padding: const EdgeInsets.symmetric(vertical: 18),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(16),
+                        ),
+                      ),
+                      child: const Text(
+                        "Logout",
+                        style: TextStyle(
+                          fontWeight: FontWeight.w900,
+                          color: Colors.white,
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 16), // Bottom safe area padding
+            ],
+          ),
+        );
+      },
+    );
   }
 
   @override
@@ -233,16 +406,13 @@ class _ContinueOnboardingState extends State<ContinueOnboarding> {
                         style: TextStyle(color: Colors.grey, fontSize: 10),
                       ),
                     ),
-
                     const SizedBox(height: 40),
-
-                    // 5. Footer Actions
                     const Divider(),
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
                         TextButton(
-                          onPressed: () => Navigator.pop(context),
+                          onPressed: () => {showLogoutBottomSheet(context)},
                           child: Text(
                             "LOGOUT SESSION",
                             style: TextStyle(

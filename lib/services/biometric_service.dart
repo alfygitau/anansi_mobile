@@ -59,7 +59,6 @@ class BiometricService {
           userAvailable &&
           isCurrentlyEnabled == "isEnabled";
     } catch (e) {
-      debugPrint("Biometric support check failed: $e");
       return false;
     }
   }
